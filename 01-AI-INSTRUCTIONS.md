@@ -156,7 +156,15 @@ Before starting, ensure:
    - Replace variables
    - Save as `.gitignore`
 
-5. **Create README.md**:
+5. **Create .env.example**:
+   - Copy from `genesis/templates/project-structure/.env.example-template`
+   - Replace all variables ({{PROJECT_NAME}}, {{GITHUB_USER}}, etc.)
+   - Save as `.env.example`
+   - **IMPORTANT**: This file IS tracked in git (template for users)
+   - **IMPORTANT**: Actual `.env` file is in .gitignore (never commit secrets)
+   - Document in README how to set up: `cp .env.example .env`
+
+6. **Create README.md**:
    - Copy from `genesis/templates/project-structure/README-template.md`
    - Replace all variables
    - Update badges with correct URLs

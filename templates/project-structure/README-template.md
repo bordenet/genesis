@@ -149,16 +149,27 @@ See [Backend Documentation](docs/architecture/BACKEND.md) for details.
 
 ### Setup
 
-```bash
-# macOS
-./scripts/setup-macos.sh
+1. **Configure environment** (first time only):
+   ```bash
+   # Copy environment template
+   cp .env.example .env
 
-# Linux
-./scripts/setup-linux.sh
+   # Edit .env and fill in your values
+   # - CODECOV_TOKEN: Get from https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}}/settings
+   # - Other values: Customize as needed
+   ```
 
-# Windows (WSL)
-./scripts/setup-windows-wsl.sh
-```
+2. **Run setup script**:
+   ```bash
+   # macOS
+   ./scripts/setup-macos.sh
+
+   # Linux
+   ./scripts/setup-linux.sh
+
+   # Windows (WSL)
+   ./scripts/setup-windows-wsl.sh
+   ```
 
 ### Testing
 
