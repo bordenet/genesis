@@ -16,11 +16,17 @@ Genesis is a **comprehensive project template system** that abstracts the Produc
 
 ## Quick Start
 
-### For AI Assistants (Recommended)
+### For AI Assistants (PRIMARY)
 
-1. **Read the master plan**: `00-GENESIS-PLAN.md`
-2. **Follow AI instructions**: `01-AI-INSTRUCTIONS.md`
-3. **Use an example**: `examples/one-pager/` or `examples/minimal/`
+**🎯 READ THIS FILE FIRST**: [`START-HERE.md`](START-HERE.md)
+
+This is your ONLY entry point. It contains:
+- Complete step-by-step execution plan (30-60 minutes)
+- All mandatory files to read (with direct links)
+- Exact commands to run
+- Success criteria and verification steps
+
+**DO NOT** read other files until `START-HERE.md` tells you to.
 
 ### For Humans
 
