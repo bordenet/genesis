@@ -127,21 +127,26 @@ for file in $SHELL_SCRIPTS; do
     echo "  Checking: $file"
   fi
   
-  # Extract source/. commands
-  SOURCES=$(grep -E '^\s*(source|\.)\s+' "$file" || true)
+  # Extract source/. commands (skip comments)
+  SOURCES=$(grep -E '^\s*(source|\.)\s+' "$file" | grep -v '^\s*#' || true)
   
   if [ -n "$SOURCES" ]; then
     while IFS= read -r source_line; do
-      # Extract file path
-      REF=$(echo "$source_line" | sed -E 's/^\s*(source|\.)\s+//' | awk '{print $1}' | tr -d '"' | tr -d "'")
-      
+      # Extract file path (remove source/., remove quotes, get first token)
+      REF=$(echo "$source_line" | sed 's/^[[:space:]]*source[[:space:]]*//' | sed 's/^[[:space:]]*\.[[:space:]]*//' | tr -d '"' | tr -d "'" | awk '{print $1}')
+
       # Skip variables
       if [[ "$REF" =~ \$ ]]; then
         continue
       fi
-      
+
+      # Skip runtime-generated paths
+      if [[ "$REF" =~ ^venv/ ]] || [[ "$REF" =~ ^node_modules/ ]] || [[ "$REF" =~ ^\.venv/ ]]; then
+        continue
+      fi
+
       ((TOTAL_REFS++))
-      
+
       # Resolve relative path
       DIR=$(dirname "$file")
       if [[ "$REF" =~ ^/ ]]; then
@@ -149,9 +154,15 @@ for file in $SHELL_SCRIPTS; do
       else
         TARGET="$DIR/$REF"
       fi
-      
-      # Check if file exists
-      if [ -f "$TARGET" ]; then
+
+      # For template files, also check for -template suffix
+      TARGET_TEMPLATE="${TARGET}-template.sh"
+      if [[ "$TARGET" =~ \.sh$ ]]; then
+        TARGET_TEMPLATE="${TARGET%.sh}-template.sh"
+      fi
+
+      # Check if file exists (or template version exists)
+      if [ -f "$TARGET" ] || [ -f "$TARGET_TEMPLATE" ]; then
         ((VALID_REFS++))
         if [ "$VERBOSE" = true ]; then
           echo -e "    ${GREEN}✓${NC} $REF"

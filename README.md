@@ -140,6 +140,9 @@ All files from [bordenet/scripts/starter-kit](https://github.com/bordenet/script
 - [x] `css/styles-template.css` - Custom styles and animations
 
 **Examples**:
+- [x] Hello World example complete (fully functional, deployable)
+- [x] One-Pager Generator example complete (2-phase workflow)
+- [x] COE Generator example complete (3-phase workflow)
 - [x] One-Pager example complete (README + 2 prompts)
 - [x] Minimal example complete (README)
 

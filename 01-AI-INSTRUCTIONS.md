@@ -1,8 +1,14 @@
 # Genesis Project Template - AI Instructions
 
-**Version**: 1.0  
-**Last Updated**: 2025-11-20  
+**Version**: 1.0
+**Last Updated**: 2025-11-20
 **Purpose**: Step-by-step instructions for AI assistants to create new projects from Genesis templates
+
+**⚠️ CRITICAL - READ FIRST**: Before starting ANY work on a Genesis-created project:
+1. Read `CLAUDE.md` in the target repository
+2. Follow the mandatory workflow: **lint → test → proactively communicate what's left**
+3. NEVER include `node_modules/` or build artifacts
+4. ALWAYS create `.gitignore` files
 
 ---
 
