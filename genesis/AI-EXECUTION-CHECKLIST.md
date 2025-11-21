@@ -70,6 +70,8 @@ Before starting, verify these files exist in genesis/:
 - [ ] `templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md`
 - [ ] `templates/project-structure/.eslintrc-template.json`
 - [ ] `templates/project-structure/codecov-template.yml`
+- [ ] `templates/project-structure/.env.example-template` (RECOMMENDED)
+- [ ] `templates/project-structure/CONTRIBUTING-template.md` (RECOMMENDED)
 - [ ] `templates/testing/package-template.json`
 - [ ] `templates/testing/jest.config-template.js`
 - [ ] `templates/testing/jest.setup-template.js`
@@ -95,6 +97,7 @@ Before starting, verify these files exist in genesis/:
 - [ ] `templates/scripts/setup-codecov-template.sh`
 - [ ] `templates/scripts/lib/common-template.sh`
 - [ ] `templates/scripts/lib/compact.sh`
+- [ ] `templates/git-hooks/pre-commit-template` (RECOMMENDED)
 
 **Examples** (for REFERENCE ONLY - do NOT copy from here):
 - [ ] `examples/hello-world/README.md` (study this, don't copy)
@@ -156,6 +159,10 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `codecov.yml` from `templates/project-structure/codecov-template.yml`
 - [ ] Copied `jest.config.js` from `templates/testing/jest.config-template.js`
 - [ ] Copied `jest.setup.js` from `templates/testing/jest.setup-template.js`
+- [ ] Copied `.env.example` from `templates/project-structure/.env.example-template` (RECOMMENDED)
+- [ ] Customized .env.example with project's environment variables
+- [ ] Copied `CONTRIBUTING.md` from `templates/project-structure/CONTRIBUTING-template.md` (RECOMMENDED)
+- [ ] Replaced `{{PROJECT_NAME}}`, `{{GITHUB_USER}}`, `{{GITHUB_REPO}}` in CONTRIBUTING.md
 - [ ] Created `.github/workflows/` directory
 - [ ] Copied `.github/workflows/ci.yml` from `templates/github/workflows/ci-template.yml`
 - [ ] Replaced `{{DEPLOY_FOLDER}}` in ci.yml (usually "." for root or "docs" for docs folder)
@@ -219,6 +226,9 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `lib/compact.sh` from `templates/scripts/lib/compact.sh`
 - [ ] Copied `install-hooks.sh` from `templates/scripts/install-hooks-template.sh`
 - [ ] Replaced `{{PROJECT_NAME}}` in install-hooks.sh
+- [ ] Copied pre-commit hook from `templates/git-hooks/pre-commit-template` to `.git/hooks/pre-commit` (RECOMMENDED)
+- [ ] Made pre-commit hook executable: `chmod +x .git/hooks/pre-commit`
+- [ ] Replaced `{{PROJECT_NAME}}` in pre-commit hook
 - [ ] Copied `setup-codecov.sh` from `templates/scripts/setup-codecov-template.sh` (optional)
 - [ ] Replaced `{{GITHUB_USER}}`, `{{GITHUB_REPO}}` in setup-codecov.sh
 - [ ] Made all scripts executable: `chmod +x scripts/*.sh scripts/lib/*.sh`
@@ -241,13 +251,24 @@ Before starting, verify these files exist in genesis/:
 ### 3.6 Verify All Template Files Copied
 - [ ] Used checklist in START-HERE.md Step 3.6
 - [ ] Verified all MANDATORY core files copied (9 files)
+- [ ] Verified all RECOMMENDED core files copied (2 files: .env.example, CONTRIBUTING.md)
 - [ ] Verified all MANDATORY web app files copied (6 files)
 - [ ] Verified all MANDATORY test files copied (3 files)
 - [ ] Verified all MANDATORY prompts/templates copied (4 files)
 - [ ] Verified all MANDATORY scripts copied (5 files)
+- [ ] Verified RECOMMENDED git hooks copied (1 file: pre-commit)
 - [ ] Verified OPTIONAL scripts copied (if needed)
 - [ ] Ran verification command: `find . -type f ! -path './node_modules/*' ! -path './genesis/*' ! -path './.git/*' | wc -l`
 - [ ] Verified at least 30 files exist
+
+### 3.7 Optional Files (Advanced)
+- [ ] Reviewed START-HERE.md Section 3.7 for optional files
+- [ ] Decided if separate linting workflow is needed (usually NO - ci.yml already has linting)
+- [ ] Decided if non-web setup script is needed (only for backend/CLI projects)
+- [ ] Decided if validation script is needed (optional project structure validation)
+- [ ] Decided if Playwright E2E testing is needed (usually NO - Jest is sufficient)
+- [ ] Decided if comprehensive documentation is needed (only for large/complex projects)
+- [ ] Copied any optional files that are needed for this specific project
 
 ---
 

@@ -8,7 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added
+### Added - Comprehensive Audit (Pass 1)
+- **Comprehensive Genesis Audit** - Top-to-bottom review to prevent deployment issues
+  - Created `GENESIS-AUDIT-PASS-1.md` - Complete audit findings and action plan
+  - Analyzed all 140 files in genesis/ directory
+  - Identified and fixed 14 orphaned template files
+  - Verified all user-reported pain points are fixed (setup scripts, dark mode, navigation)
+- **New Recommended Files** - Added high-value optional files to Genesis
+  - `.env.example` template - Documents required environment variables
+  - `CONTRIBUTING.md` template - Contribution guidelines for open source projects
+  - Pre-commit hook template - Quality gate enforcement (runs linting before commits)
+- **Optional Files Documentation** - New Section 3.7 in START-HERE.md
+  - Separate linting workflow (optional - ci.yml already has linting)
+  - Non-web macOS setup script (for backend/CLI projects)
+  - Validation script (project structure validation)
+  - Playwright E2E testing config (advanced browser testing)
+  - Documentation templates (architecture, deployment, development, testing)
 - **Same-LLM Adversarial Configuration System** - Automatically detects when Phase 1 and Phase 2 use the same LLM and applies Gemini personality simulation to maintain adversarial tension
   - `templates/web-app/js/same-llm-adversarial-template.js` - Complete implementation with 4 core classes
   - `templates/testing/same-llm-adversarial.test-template.js` - Comprehensive test suite with 19 test scenarios
@@ -18,17 +33,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Gemini personality simulation template
   - Quality validation metrics (semantic difference, adversarial language, challenge count)
   - Critical for corporate deployments using single-endpoint LLM platforms
-- Updated `START-HERE.md` with same-LLM file copy instructions
-- Updated `AI-EXECUTION-CHECKLIST.md` with same-LLM verification steps
-- Updated `scripts/test-genesis.sh` to include same-LLM files in end-to-end testing
 - Verification script (`scripts/verify-templates.sh`) to check template completeness
 - End-to-end test script (`scripts/test-genesis.sh`) to validate Genesis execution
 - Testing procedure documentation (`TESTING-PROCEDURE.md`)
 - This changelog file
 
 ### Changed
+- **START-HERE.md** - Added 3 recommended files and optional files section
+  - Added `.env.example` copy instruction (Section 3.1)
+  - Added `CONTRIBUTING.md` copy instruction (Section 3.1)
+  - Added pre-commit hook installation (Section 3.4)
+  - Added Section 3.7 "Optional Files (Advanced)" with 5 categories
+  - Updated verification checklist (Section 3.6) to include recommended files
+- **AI-EXECUTION-CHECKLIST.md** - Updated to match START-HERE.md changes
+  - Added `.env.example` and `CONTRIBUTING.md` to Pre-Execution Verification
+  - Added pre-commit hook to Scripts section
+  - Added Section 3.7 for optional files decision-making
+  - Updated verification checklist to include recommended files
 - Template variable replacement now includes `{{DOCUMENT_TYPE}}` in JavaScript and test files
-- Verification script now checks for 46 template files (up from 44)
+- Verification script now checks for 49 template files (up from 46)
+
+### Fixed
+- **User-Reported Pain Points** - All verified fixed
+  - ✅ Setup/deployment scripts: All referenced in START-HERE.md Section 3.4
+  - ✅ Dark mode toggle: Fully implemented with Tailwind config + functions
+  - ✅ Navigation: Dropdown menu fully implemented with toggle logic
+- **Orphaned Template Files** - 14 files were not referenced in START-HERE.md
+  - 3 high-value files now RECOMMENDED (pre-commit hook, .env.example, CONTRIBUTING.md)
+  - 11 files now documented as OPTIONAL in Section 3.7
 
 ---
 
