@@ -148,7 +148,8 @@ Don't make the user ask "what's left?" multiple times.
 ## 📋 Standard Workflow Checklist
 
 ### When Creating New Code
-- [ ] Write the code
+- [ ] **FIRST**: Check coding standards (see "Coding Standards" section below)
+- [ ] Write the code following style guides
 - [ ] Create/update tests
 - [ ] Run linter: `npm run lint` or `npm run lint:fix`
 - [ ] Run tests: `npm test`
@@ -286,6 +287,40 @@ npm run lint:fix
 - ✅ Proactively communicate what's left
 - ✅ Use factual, professional language
 - ✅ Ask before committing, pushing, or deploying
+
+---
+
+## 📐 Coding Standards
+
+### JavaScript Style Guide
+**Reference**: `genesis/integration/CODE_STYLE_STANDARDS.md`
+
+**Key Rules**:
+- Use ES6+ features (const/let, arrow functions, async/await)
+- Single quotes for strings
+- 2-space indentation
+- Semicolons required
+- Descriptive variable names (no single letters except loop counters)
+- JSDoc comments for all functions
+- Defensive coding (validate inputs, handle errors)
+
+### Shell Script Style Guide
+**Reference**: `genesis/integration/SHELL_SCRIPT_STANDARDS.md`
+
+**Key Rules**:
+- Bash shebang: `#!/usr/bin/env bash`
+- `set -euo pipefail` for safety
+- Compact mode for user-facing scripts
+- Help flags (--help, -h, --verbose, -v)
+- Smart caching for setup scripts
+- Shellcheck compliance
+
+### Testing Standards
+- ≥70% code coverage (≥85% for production apps)
+- Test all public functions
+- Test error cases
+- Use descriptive test names
+- Mock external dependencies
 
 ---
 
