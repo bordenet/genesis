@@ -165,7 +165,25 @@ cp genesis/examples/hello-world/jest.setup.js .
 cp genesis/examples/hello-world/.eslintrc.json .
 ```
 
-### 3.3 Replace Template Variables
+### 3.3 Copy Scripts
+
+```bash
+# Create scripts directory
+mkdir -p scripts/lib
+
+# Copy deployment script
+cp genesis/templates/scripts/deploy-web.sh.template scripts/deploy-web.sh
+# Replace {{PROJECT_NAME}}, {{GITHUB_USER}}, {{GITHUB_REPO}}, {{GITHUB_PAGES_URL}}
+
+# Copy library scripts
+cp genesis/templates/scripts/lib/common-template.sh scripts/lib/common.sh
+cp genesis/templates/scripts/lib/compact.sh scripts/lib/compact.sh
+
+# Make scripts executable
+chmod +x scripts/*.sh scripts/lib/*.sh
+```
+
+### 3.4 Replace Template Variables
 
 In ALL copied files, replace:
 - `{{PROJECT_NAME}}` → actual project name
@@ -232,7 +250,28 @@ Tell user:
 
 ---
 
-## Step 7: Delete Genesis (1 minute)
+## Step 7: Test Deployment Script (3 minutes)
+
+```bash
+# Test deployment script
+./scripts/deploy-web.sh --help
+# Verify help displays correctly
+
+# Run deployment
+./scripts/deploy-web.sh
+# This will:
+# 1. Run linting
+# 2. Run tests
+# 3. Check coverage
+# 4. Commit and push
+# 5. Verify deployment
+```
+
+**Note**: For future deployments, always use `./scripts/deploy-web.sh` instead of manual git commands.
+
+---
+
+## Step 8: Delete Genesis (1 minute)
 
 ```bash
 # Remove genesis directory
@@ -246,19 +285,20 @@ git push
 
 ---
 
-## Step 8: Final Verification (2 minutes)
+## Step 9: Final Verification (2 minutes)
 
 Verify:
 - ✅ App works at `https://{{GITHUB_USER}}.github.io/{{GITHUB_REPO}}/`
 - ✅ All tests passing (`npm test`)
 - ✅ Linting clean (`npm run lint`)
 - ✅ Coverage ≥70% (`npm run test:coverage`)
+- ✅ Deployment script works (`./scripts/deploy-web.sh`)
 - ✅ No `node_modules/` or `coverage/` in git
 - ✅ `genesis/` directory deleted
 
 ---
 
-## Step 9: Tell User
+## Step 10: Tell User
 
 ```
 ✅ Completed:
@@ -267,6 +307,7 @@ Verify:
 - Tests: PASSED (X/X tests)
 - Coverage: X% (exceeds threshold)
 - Deployed: https://{{GITHUB_USER}}.github.io/{{GITHUB_REPO}}/
+- Deployment script: Use `./scripts/deploy-web.sh` for future deployments
 - Genesis directory: DELETED
 
 ✅ What's Left:

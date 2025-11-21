@@ -274,18 +274,31 @@ Every shell script **MUST** include:
    - Zero warnings before commit
    - Platform compatibility (macOS/Linux)
 
-### Setup Script Requirement
+### Required Scripts
 
-Every project **MUST** include `scripts/setup-macos.sh` (or equivalent for target platform):
+Every project **MUST** include these scripts:
+
+#### 1. Setup Script (`scripts/setup-macos.sh`)
 - Installs ALL project dependencies
 - Creates virtual environments
 - Configures pre-commit hooks
 - Supports `-y` flag for non-interactive mode
 - Supports `-v` flag for verbose output
 
+#### 2. Deployment Script (`scripts/deploy-web.sh`) - For Web Apps
+- Runs linting checks (`npm run lint`)
+- Runs all tests (`npm test`)
+- Verifies test coverage threshold
+- Commits and pushes to GitHub
+- Verifies GitHub Pages deployment
+- Supports `--skip-tests` and `--skip-lint` flags (NOT RECOMMENDED)
+- Supports `-v` flag for verbose output
+- Displays deployment URL and status
+
 **Reference Implementations**:
 - [bu.sh](https://github.com/bordenet/scripts/blob/main/bu.sh) - Complete example
 - [setup-macos.sh](https://github.com/bordenet/bloginator/blob/main/scripts/setup-macos.sh) - Setup script example
+- `templates/scripts/deploy-web.sh.template` - Deployment script template
 
 ### Common Library
 
