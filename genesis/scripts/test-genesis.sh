@@ -63,6 +63,7 @@ cp genesis/templates/web-app/js/workflow-template.js js/workflow.js
 cp genesis/templates/web-app/js/storage-template.js js/storage.js
 cp genesis/templates/web-app/js/ai-mock-template.js js/ai-mock.js
 cp genesis/templates/web-app/js/ai-mock-ui-template.js js/ai-mock-ui.js
+cp genesis/templates/web-app/js/same-llm-adversarial-template.js js/same-llm-adversarial.js
 
 mkdir -p css
 cp genesis/templates/web-app/css/styles-template.css css/styles.css
@@ -75,6 +76,7 @@ mkdir -p tests
 cp genesis/templates/testing/ai-mock.test-template.js tests/ai-mock.test.js
 cp genesis/templates/testing/storage.test-template.js tests/storage.test.js
 cp genesis/templates/testing/workflow.e2e-template.js tests/workflow.test.js
+cp genesis/templates/testing/same-llm-adversarial.test-template.js tests/same-llm-adversarial.test.js
 
 echo -e "${GREEN}✓${NC} Web app files copied"
 

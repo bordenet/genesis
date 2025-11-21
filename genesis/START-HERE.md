@@ -232,11 +232,14 @@ cp genesis/templates/web-app/js/workflow-template.js js/workflow.js
 cp genesis/templates/web-app/js/storage-template.js js/storage.js
 cp genesis/templates/web-app/js/ai-mock-template.js js/ai-mock.js
 cp genesis/templates/web-app/js/ai-mock-ui-template.js js/ai-mock-ui.js
-# Replace {{PROJECT_NAME}} in all JS files
+cp genesis/templates/web-app/js/same-llm-adversarial-template.js js/same-llm-adversarial.js
+# Replace {{PROJECT_NAME}}, {{DOCUMENT_TYPE}} in all JS files
 # Customize workflow.js:
 #   - Update phase names, descriptions, and AI models
 #   - Update form fields to match your document structure
 #   - See product-requirements-assistant/js/workflow.js for example
+# Note: same-llm-adversarial.js automatically detects when Phase 1 and Phase 2 use the same LLM
+#   and applies Gemini personality simulation to maintain adversarial tension
 
 # Copy CSS (MANDATORY - index.html references this file)
 mkdir -p css
@@ -254,11 +257,14 @@ mkdir -p tests
 cp genesis/templates/testing/ai-mock.test-template.js tests/ai-mock.test.js
 cp genesis/templates/testing/storage.test-template.js tests/storage.test.js
 cp genesis/templates/testing/workflow.e2e-template.js tests/workflow.test.js
-# Replace {{PROJECT_NAME}} in all test files
+cp genesis/templates/testing/same-llm-adversarial.test-template.js tests/same-llm-adversarial.test.js
+# Replace {{PROJECT_NAME}}, {{DOCUMENT_TYPE}} in all test files
 # Customize tests/workflow.test.js:
 #   - Update test cases to match your workflow phases
 #   - Update form field tests to match your document structure
 #   - See product-requirements-assistant/tests/workflow.test.js for example
+# Note: tests/same-llm-adversarial.test.js includes 13 comprehensive test scenarios
+#   for same-LLM detection, forget clause handling, and adversarial quality validation
 ```
 
 **CRITICAL - Dark Mode**: The index-template.html already includes the Tailwind dark mode config. DO NOT remove it!
@@ -407,6 +413,7 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `js/storage.js` (from `web-app/js/storage-template.js`)
 - [ ] `js/ai-mock.js` (from `web-app/js/ai-mock-template.js`)
 - [ ] `js/ai-mock-ui.js` (from `web-app/js/ai-mock-ui-template.js`)
+- [ ] `js/same-llm-adversarial.js` (from `web-app/js/same-llm-adversarial-template.js`)
 - [ ] `css/styles.css` (from `web-app/css/styles-template.css`)
 - [ ] `.nojekyll` (created with `touch .nojekyll` - disables Jekyll processing)
 
@@ -414,6 +421,7 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `tests/ai-mock.test.js` (from `testing/ai-mock.test-template.js`)
 - [ ] `tests/storage.test.js` (from `testing/storage.test-template.js`)
 - [ ] `tests/workflow.test.js` (from `testing/workflow.e2e-template.js`)
+- [ ] `tests/same-llm-adversarial.test.js` (from `testing/same-llm-adversarial.test-template.js`)
 
 **Prompts and Templates** (MANDATORY):
 - [ ] `prompts/phase1.md` (from `prompts/phase1-template.md`)
