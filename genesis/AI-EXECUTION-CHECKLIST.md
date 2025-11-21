@@ -158,7 +158,7 @@ Before starting, verify these files exist in genesis/:
 ### 3.2 Web App Files
 - [ ] Copied `index.html` from `templates/web-app/index-template.html`
 - [ ] Replaced `{{PROJECT_TITLE}}`, `{{PROJECT_DESCRIPTION}}`, `{{HEADER_EMOJI}}`, `{{FAVICON_EMOJI}}`
-- [ ] Customized navigation dropdown (Related Projects section)
+- [ ] Customized navigation dropdown in index.html (lines 43-59) - updated Related Projects links
 - [ ] Created `js/` directory
 - [ ] Copied `js/app.js` from `templates/web-app/js/app-template.js`
 - [ ] Copied `js/workflow.js` from `templates/web-app/js/workflow-template.js`
@@ -166,14 +166,16 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `js/ai-mock.js` from `templates/web-app/js/ai-mock-template.js`
 - [ ] Copied `js/ai-mock-ui.js` from `templates/web-app/js/ai-mock-ui-template.js`
 - [ ] Replaced `{{PROJECT_NAME}}` in all JS files
-- [ ] Customized workflow phases in workflow.js
-- [ ] Created `css/` directory (if needed for custom CSS)
+- [ ] Customized workflow.js - updated phase names, descriptions, AI models, and form fields
+- [ ] Created `css/` directory
+- [ ] Copied `css/styles.css` from `templates/web-app/css/styles-template.css` (MANDATORY - index.html references this)
+- [ ] Created `data/` directory (optional - for data files if needed)
 - [ ] Created `tests/` directory
 - [ ] Copied `tests/ai-mock.test.js` from `templates/testing/ai-mock.test-template.js`
 - [ ] Copied `tests/storage.test.js` from `templates/testing/storage.test-template.js`
 - [ ] Copied `tests/workflow.test.js` from `templates/testing/workflow.e2e-template.js`
 - [ ] Replaced `{{PROJECT_NAME}}` in all test files
-- [ ] Customized tests for your workflow
+- [ ] Customized tests/workflow.test.js - updated test cases to match workflow phases and form fields
 
 ### 3.3 Prompts and Templates
 - [ ] Created `prompts/` directory
@@ -185,6 +187,9 @@ Before starting, verify these files exist in genesis/:
 - [ ] Replaced `{{PROJECT_TITLE}}`, `{{GITHUB_PAGES_URL}}`
 - [ ] Read customization instructions at top of each prompt file
 - [ ] Created `templates/{document-type}-template.md` based on your document type
+- [ ] Used {variableName} syntax (lowercase, camelCase) for template variables
+- [ ] Verified template variables match form fields in workflow.js
+- [ ] Studied product-requirements-assistant/templates/prd-template.md for example structure
 
 ### 3.4 Scripts
 - [ ] **⚠️ STUDIED REFERENCE**: Reviewed https://github.com/bordenet/product-requirements-assistant/tree/main/scripts

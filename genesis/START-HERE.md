@@ -208,7 +208,10 @@ cp genesis/templates/testing/jest.setup-template.js jest.setup.js
 # Copy HTML
 cp genesis/templates/web-app/index-template.html index.html
 # Replace {{PROJECT_TITLE}}, {{PROJECT_DESCRIPTION}}, {{HEADER_EMOJI}}, {{FAVICON_EMOJI}}
-# Customize navigation dropdown (see lines 37-60 for "Related Projects" section)
+# Customize navigation dropdown in index.html (lines 43-59):
+#   - Update "Related Projects" links to point to your other tools
+#   - Or remove the dropdown if you don't have related projects
+#   - See one-pager and product-requirements-assistant for examples
 
 # Copy JavaScript
 mkdir -p js
@@ -217,19 +220,30 @@ cp genesis/templates/web-app/js/workflow-template.js js/workflow.js
 cp genesis/templates/web-app/js/storage-template.js js/storage.js
 cp genesis/templates/web-app/js/ai-mock-template.js js/ai-mock.js
 cp genesis/templates/web-app/js/ai-mock-ui-template.js js/ai-mock-ui.js
-# Replace {{PROJECT_NAME}} and customize workflow phases
+# Replace {{PROJECT_NAME}} in all JS files
+# Customize workflow.js:
+#   - Update phase names, descriptions, and AI models
+#   - Update form fields to match your document structure
+#   - See product-requirements-assistant/js/workflow.js for example
 
-# Copy CSS (if exists)
+# Copy CSS (MANDATORY - index.html references this file)
 mkdir -p css
-# Note: Tailwind CSS is loaded via CDN in index.html
-# Add custom CSS here if needed
+cp genesis/templates/web-app/css/styles-template.css css/styles.css
+# Note: Tailwind CSS is loaded via CDN, but custom CSS is needed for additional styling
+
+# Create data directory (optional - for storing data files if needed)
+mkdir -p data
 
 # Copy tests
 mkdir -p tests
 cp genesis/templates/testing/ai-mock.test-template.js tests/ai-mock.test.js
 cp genesis/templates/testing/storage.test-template.js tests/storage.test.js
 cp genesis/templates/testing/workflow.e2e-template.js tests/workflow.test.js
-# Replace {{PROJECT_NAME}} and customize tests for your workflow
+# Replace {{PROJECT_NAME}} in all test files
+# Customize tests/workflow.test.js:
+#   - Update test cases to match your workflow phases
+#   - Update form field tests to match your document structure
+#   - See product-requirements-assistant/tests/workflow.test.js for example
 ```
 
 **CRITICAL - Dark Mode**: The index-template.html already includes the Tailwind dark mode config. DO NOT remove it!
@@ -249,8 +263,23 @@ cp genesis/templates/prompts/phase3-template.md prompts/phase3.md
 # Customize document structure for your needs
 
 # Create document template
-# Study product-requirements-assistant/templates/ for examples
+# Study product-requirements-assistant/templates/prd-template.md for example
 # Create templates/{document-type}-template.md with your document structure
+#
+# IMPORTANT: Use {variableName} syntax (lowercase, camelCase) for template variables
+# Example: {title}, {problems}, {context}, {targetAudience}
+# These variables will be replaced with form field values in Phase 1
+#
+# Template structure example:
+#   # {title}
+#
+#   ## Problem Statement
+#   {problems}
+#
+#   ## Context
+#   {context}
+#
+# See genesis/templates/document-templates/README.md for more guidance
 ```
 
 **NOTE**: The prompt templates are CONCRETE EXAMPLES from product-requirements-assistant. Read the customization instructions at the top of each file!
@@ -360,6 +389,7 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `js/storage.js` (from `web-app/js/storage-template.js`)
 - [ ] `js/ai-mock.js` (from `web-app/js/ai-mock-template.js`)
 - [ ] `js/ai-mock-ui.js` (from `web-app/js/ai-mock-ui-template.js`)
+- [ ] `css/styles.css` (from `web-app/css/styles-template.css`)
 
 **Test Files** (MANDATORY):
 - [ ] `tests/ai-mock.test.js` (from `testing/ai-mock.test-template.js`)
@@ -389,9 +419,17 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 # Count files (should have at least 30 files):
 find . -type f ! -path './node_modules/*' ! -path './genesis/*' ! -path './.git/*' | wc -l
 
-# Check for template files that weren't copied:
-ls genesis/templates/**/*-template* 2>/dev/null | wc -l
-# Compare this number to your copied files
+# Count template files in genesis (for reference):
+find genesis/templates -name "*-template*" -type f | wc -l
+
+# Verify you copied the most important files:
+ls -1 index.html CLAUDE.md README.md package.json .eslintrc.json codecov.yml \
+   js/app.js js/workflow.js css/styles.css \
+   tests/ai-mock.test.js tests/storage.test.js tests/workflow.test.js \
+   prompts/phase1.md prompts/phase2.md prompts/phase3.md \
+   scripts/setup-macos.sh scripts/deploy-web.sh scripts/install-hooks.sh \
+   2>/dev/null | wc -l
+# Should show 19 (all critical files present)
 ```
 
 ---
