@@ -53,9 +53,9 @@ jobs:
         run: |
           # Verify coverage meets 85% threshold
           npm run test:coverage
-  # END IF
 
   # IF {{ENABLE_CODECOV}}
+  # NOTE: This job requires the 'test' job above. If you remove the test job, remove this too.
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
@@ -81,7 +81,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
           fail_ci_if_error: true
-  # END IF
+  # END IF {{ENABLE_CODECOV}}
+  # END IF {{ENABLE_TESTS}}
 
   deploy:
     name: Deploy to GitHub Pages
