@@ -1,8 +1,21 @@
 # Genesis Examples
 
+## ⚠️ IMPORTANT: Examples are for REFERENCE ONLY
+
+**DO NOT copy files from examples/** - use `genesis/templates/` instead!
+
 ## Purpose
 
 This directory contains complete example projects created using Genesis templates. These examples demonstrate how to use Genesis to create different types of AI-assisted workflow applications.
+
+**Examples are for STUDYING, not COPYING:**
+- ✅ **Study the code** to understand patterns
+- ✅ **Run locally** to see how they work
+- ✅ **Reference** when you have questions
+- ❌ **DO NOT copy files** from here to your project
+- ❌ **Use `genesis/templates/`** for copying files instead
+
+**Why?** Examples may be outdated or customized for specific use cases. Templates are the source of truth.
 
 ## Examples
 

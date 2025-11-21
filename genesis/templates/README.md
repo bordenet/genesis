@@ -4,6 +4,43 @@
 
 This directory contains all template files used to generate new projects from Genesis. Each template file uses variable substitution (e.g., `{{PROJECT_NAME}}`) to customize the generated project.
 
+## 🔧 How to Use Templates
+
+### Step 1: Copy Template Files
+
+Copy template files to your project root, removing the `-template` suffix:
+
+```bash
+# Example:
+cp genesis/templates/web-app/index-template.html index.html
+cp genesis/templates/scripts/setup-macos-web-template.sh scripts/setup-macos.sh
+```
+
+### Step 2: Replace Template Variables
+
+**CRITICAL**: You MUST replace ALL `{{VARIABLES}}` with actual values!
+
+**Option A: Manual (Recommended for first time)**
+- Use your editor's find/replace feature
+- Search for `{{PROJECT_NAME}}` and replace with actual name
+- Repeat for all variables (see list below)
+
+**Option B: Automated (Advanced)**
+```bash
+# macOS/BSD sed (note the '' after -i):
+sed -i '' 's/{{PROJECT_NAME}}/one-pager/g' **/*.{js,sh,md,json,html}
+
+# Linux sed:
+sed -i 's/{{PROJECT_NAME}}/one-pager/g' **/*.{js,sh,md,json,html}
+```
+
+**Verification:**
+```bash
+# Check for unreplaced variables:
+grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
+# Should return NO results!
+```
+
 ## Directory Structure
 
 ### Core Templates
