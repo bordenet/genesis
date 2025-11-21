@@ -188,9 +188,11 @@ Before starting, ensure:
    - Customize for user's workflow
 
 8. **Create scripts** (CRITICAL - Follow Shell Script Standards):
+   - **⚠️ STUDY REFERENCE FIRST**: Review https://github.com/bordenet/product-requirements-assistant/tree/main/scripts
    - Process all files in `genesis/templates/scripts/`
    - **MANDATORY**: All scripts MUST follow `templates/docs/SHELL_SCRIPT_STANDARDS-template.md`
-   - **MANDATORY**: Create `scripts/setup-macos.sh` from template (always required)
+   - **MANDATORY**: Create `scripts/setup-macos.sh` from template (ALWAYS REQUIRED - NO EXCEPTIONS)
+   - **MANDATORY**: Create `scripts/setup-linux.sh` if project supports Linux
    - **MANDATORY**: Create `scripts/deploy-web.sh` from template (for web apps)
    - **MANDATORY**: Create `scripts/lib/common.sh` from template (always required)
    - **MANDATORY**: Create `scripts/lib/compact.sh` from template (always required)
@@ -529,8 +531,12 @@ Read these before starting:
 6. `examples/one-pager/README.md` - Example implementation
 
 **Shell Script References**:
-- [bu.sh](https://github.com/bordenet/scripts/blob/main/bu.sh) - Reference implementation for all shell scripts
-- [setup-macos.sh](https://github.com/bordenet/bloginator/blob/main/scripts/setup-macos.sh) - Reference setup script
+- ⭐ **[product-requirements-assistant/scripts/](https://github.com/bordenet/product-requirements-assistant/tree/main/scripts)** - PRIMARY REFERENCE for all scripts
+  - [deploy-web.sh](https://github.com/bordenet/product-requirements-assistant/blob/main/scripts/deploy-web.sh) - Deployment script with proper compact mode
+  - [setup-macos.sh](https://github.com/bordenet/product-requirements-assistant/blob/main/scripts/setup-macos.sh) - macOS setup script
+  - [setup-linux.sh](https://github.com/bordenet/product-requirements-assistant/blob/main/scripts/setup-linux.sh) - Linux setup script
+  - [setup-windows-wsl.sh](https://github.com/bordenet/product-requirements-assistant/blob/main/scripts/setup-windows-wsl.sh) - Windows WSL setup script
+- [bu.sh](https://github.com/bordenet/scripts/blob/main/bu.sh) - Reference implementation for shell script standards
 
 ---
 

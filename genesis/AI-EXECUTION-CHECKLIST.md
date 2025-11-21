@@ -121,7 +121,10 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `.eslintrc.json`
 
 ### 3.3 Scripts
+- [ ] **⚠️ STUDIED REFERENCE**: Reviewed https://github.com/bordenet/product-requirements-assistant/tree/main/scripts
 - [ ] Created `scripts/` directory
+- [ ] **MANDATORY**: Copied `setup-macos.sh` from template (ALWAYS REQUIRED)
+- [ ] Copied `setup-linux.sh` from template (if project supports Linux)
 - [ ] Copied `deploy-web.sh` from `templates/scripts/deploy-web.sh.template`
 - [ ] Replaced `{{PROJECT_NAME}}` in deploy-web.sh
 - [ ] Replaced `{{GITHUB_USER}}` in deploy-web.sh
@@ -131,6 +134,7 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `common.sh` from `templates/scripts/lib/common-template.sh`
 - [ ] Copied `compact.sh` from `templates/scripts/lib/compact.sh`
 - [ ] Made all scripts executable: `chmod +x scripts/*.sh scripts/lib/*.sh`
+- [ ] Verified setup-macos.sh exists and is executable
 
 ### 3.4 Variable Replacement
 - [ ] Replaced `{{PROJECT_NAME}}` everywhere

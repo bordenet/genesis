@@ -167,11 +167,18 @@ cp genesis/examples/hello-world/.eslintrc.json .
 
 ### 3.3 Copy Scripts
 
+**⚠️ CRITICAL**: Study https://github.com/bordenet/product-requirements-assistant/tree/main/scripts FIRST
+
 ```bash
 # Create scripts directory
 mkdir -p scripts/lib
 
-# Copy deployment script
+# MANDATORY: Copy setup scripts (ALWAYS REQUIRED)
+cp genesis/templates/scripts/setup-macos-template.sh scripts/setup-macos.sh
+# If supporting Linux:
+cp genesis/templates/scripts/setup-linux-template.sh scripts/setup-linux.sh
+
+# Copy deployment script (for web apps)
 cp genesis/templates/scripts/deploy-web.sh.template scripts/deploy-web.sh
 # Replace {{PROJECT_NAME}}, {{GITHUB_USER}}, {{GITHUB_REPO}}, {{GITHUB_PAGES_URL}}
 
@@ -181,6 +188,9 @@ cp genesis/templates/scripts/lib/compact.sh scripts/lib/compact.sh
 
 # Make scripts executable
 chmod +x scripts/*.sh scripts/lib/*.sh
+
+# Verify setup-macos.sh exists
+ls -la scripts/setup-macos.sh
 ```
 
 ### 3.4 Replace Template Variables
