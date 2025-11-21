@@ -154,6 +154,11 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `codecov.yml` from `templates/project-structure/codecov-template.yml`
 - [ ] Copied `jest.config.js` from `templates/testing/jest.config-template.js`
 - [ ] Copied `jest.setup.js` from `templates/testing/jest.setup-template.js`
+- [ ] Created `.github/workflows/` directory
+- [ ] Copied `.github/workflows/ci.yml` from `templates/github/workflows/ci-template.yml`
+- [ ] Replaced `{{DEPLOY_FOLDER}}` in ci.yml (usually "." for root or "docs" for docs folder)
+- [ ] Removed "# IF {{ENABLE_TESTS}}" and "# END IF" comment lines (kept content between them)
+- [ ] Removed "# IF {{ENABLE_CODECOV}}" sections if not using Codecov yet (or kept if using Codecov)
 
 ### 3.2 Web App Files
 - [ ] Copied `index.html` from `templates/web-app/index-template.html`

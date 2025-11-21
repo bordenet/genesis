@@ -1,5 +1,8 @@
 # {{PROJECT_TITLE}}
 
+<!-- IMPORTANT: These badges reference .github/workflows/ci.yml -->
+<!-- Make sure you copied the workflow file from genesis/templates/github/workflows/ci-template.yml -->
+<!-- Without the workflow file, badges will show "unknown" or 404 errors -->
 [![CI/CD](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions/workflows/ci.yml/badge.svg)](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions/workflows/ci.yml)
 <!-- IF {{ENABLE_CODECOV}} -->
 [![codecov](https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}}/branch/main/graph/badge.svg?token={{CODECOV_TOKEN}})](https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}})
