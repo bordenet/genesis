@@ -79,17 +79,28 @@ function setupEventListeners() {
 
 /**
  * Dark mode
+ * CRITICAL: Works with Tailwind's darkMode: 'class' configuration
+ * Reference: https://github.com/bordenet/product-requirements-assistant
  */
 function initDarkMode() {
-  const darkMode = localStorage.getItem('darkMode') === 'true';
-  if (darkMode) {
+  // Use localStorage for immediate synchronous access
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.classList.add('dark');
   }
 }
 
 function toggleDarkMode() {
-  const isDark = document.documentElement.classList.toggle('dark');
-  localStorage.setItem('darkMode', isDark.toString());
+  const html = document.documentElement;
+  const isDark = html.classList.contains('dark');
+
+  if (isDark) {
+    html.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  } else {
+    html.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  }
 }
 
 /**

@@ -1,6 +1,16 @@
 # Reference Implementations
 
-Before starting ANY Genesis project, study these working examples:
+**⚠️ CRITICAL: Study these BEFORE implementing ANY Genesis project!**
+
+The reference implementations contain ALL the answers to common questions:
+- How dark mode toggle works (Tailwind config)
+- How prompts are structured and loaded
+- How form data flows through phases
+- How deployment scripts work (compact mode)
+- How setup scripts work (fast, resumable)
+- How defensive coding is implemented
+
+**DO NOT skip this step!** Studying the reference implementations will save hours of debugging.
 
 ## 1. Product Requirements Assistant (3-Phase PRD Generator)
 **Repository**: https://github.com/bordenet/product-requirements-assistant
@@ -36,16 +46,58 @@ Before starting ANY Genesis project, study these working examples:
    - Graceful degradation
 
 ### Key Files to Review:
+
+#### 🎨 **Dark Mode (CRITICAL - Always Broken Without This!)**
+- **`docs/index.html`** (lines 9-15) - ⭐ **Tailwind dark mode configuration**
+  ```html
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+      tailwind.config = {
+          darkMode: 'class'
+      }
+  </script>
+  ```
+  **WHY**: Without this, dark mode toggle won't work (Tailwind defaults to 'media' mode)
+
+- **`docs/js/app.js`** (lines 145-165) - ⭐ **Dark mode toggle functions**
+  - `loadTheme()` - Load saved theme on page load (prevents flash)
+  - `toggleTheme()` - Toggle between light/dark mode
+  - Event listener setup for theme-toggle button
+
+#### 📋 **Workflow Architecture**
 - `js/workflow.js` - Phase definitions, prompt generation, data flow
 - `js/app.js` - UI rendering, form handling, phase transitions
 - `prompts/phase1.md` - Example prompt with template variables
 - `templates/prd-template.md` - Document structure
 - `tests/workflow.test.js` - How to test async prompt loading
+
+#### 🚀 **Deployment & Setup Scripts**
 - **`scripts/deploy-web.sh`** - ⭐ **REFERENCE IMPLEMENTATION for compact mode deployment**
+  - Compact mode (single line updates, no spam)
+  - Quality gates (lint, test, coverage)
+  - Git output redirection in compact mode
+  - Running timer display
+
 - **`scripts/setup-macos.sh`** - ⭐ **REFERENCE IMPLEMENTATION for setup scripts**
+  - Fast, resumable setup (~5-10 seconds on subsequent runs)
+  - Smart caching (only installs missing packages)
+  - Compact mode output
+  - Force reinstall flag (`-f`)
+
 - **`scripts/setup-linux.sh`** - Linux setup script example
 - **`scripts/setup-windows-wsl.sh`** - Windows WSL setup script example
 - **`scripts/setup-codecov.sh`** - Code coverage setup example
+
+#### 🎯 **UI Patterns**
+- **Related Projects Dropdown** (`docs/index.html` lines 37-53)
+  - Lightning bolt icon button
+  - Dropdown menu with related tools
+  - Click outside to close
+
+- **Privacy Notice** (`docs/index.html` lines 54-74)
+  - Dismissible banner
+  - Stored in localStorage
+  - Blue info styling
 
 ## 2. One-Pager Assistant (3-Phase One-Pager Generator)
 **Repository**: https://github.com/bordenet/one-pager
