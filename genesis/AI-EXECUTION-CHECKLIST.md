@@ -9,13 +9,21 @@
 **DO NOT PROCEED** until you've completed these prerequisite steps:
 
 - [ ] Read `REFERENCE-IMPLEMENTATIONS.md`
-- [ ] Study https://github.com/bordenet/product-requirements-assistant
+- [ ] Study https://github.com/bordenet/product-requirements-assistant ⭐ **PRIMARY REFERENCE**
+  - [ ] **CRITICAL**: Read `docs/index.html` lines 9-15 - Tailwind dark mode config (ALWAYS BROKEN WITHOUT THIS!)
+  - [ ] **CRITICAL**: Read `docs/js/app.js` lines 145-165 - Dark mode toggle functions (loadTheme, toggleTheme)
   - [ ] Read `js/workflow.js` - Phase architecture, prompt loading, data flow
   - [ ] Read `js/app.js` - Form rendering, phase transitions, UI logic
   - [ ] Read `prompts/phase1.md` - Prompt template with variables
   - [ ] Read `templates/prd-template.md` - Document structure
   - [ ] Read `tests/workflow.test.js` - Testing async prompts
-- [ ] Read `docs/WORKFLOW-ARCHITECTURE.md`
+  - [ ] Read `scripts/deploy-web.sh` - Compact mode deployment with quality gates
+  - [ ] Read `scripts/setup-macos.sh` - Fast, resumable setup with smart caching
+- [ ] Study https://github.com/bordenet/one-pager ⭐ **SECONDARY REFERENCE**
+  - [ ] Read `index.html` - Related projects dropdown, UI patterns
+  - [ ] Read `GENESIS-DARK-MODE-IMPLEMENTATION.md` - Lessons learned
+  - [ ] Read `GENESIS-PROCESS-IMPROVEMENTS.md` - What went wrong and how to fix it
+- [ ] Read `docs/WORKFLOW-ARCHITECTURE.md` (includes dark mode implementation guide)
 - [ ] Read `docs/REQUIREMENTS-TEMPLATE.md`
 - [ ] Read `docs/WORKFLOW-DECISION-TREE.md`
 - [ ] Understand the 3-phase workflow pattern (mock, manual, mock)
@@ -24,16 +32,24 @@
 - [ ] Understand async prompt loading from markdown files
 - [ ] Understand defensive coding patterns
 - [ ] Understand mock vs. manual mode
+- [ ] **Understand dark mode implementation** (Tailwind config + loadTheme + toggleTheme)
+- [ ] **Understand deployment scripts** (compact mode, git output redirection)
+- [ ] **Understand setup scripts** (fast, resumable, smart caching)
 
 **Why this matters**: This will answer 90% of your questions BEFORE you ask the user. You'll know:
+- ✅ **How to fix dark mode** (CRITICAL - broken in every Genesis project without Tailwind config)
 - ✅ How to structure workflow phases (default: 3 phases)
 - ✅ How to load prompts from markdown files (always in `prompts/` directory)
 - ✅ How to handle form data and template variables
 - ✅ How to implement mock mode for development
 - ✅ How to write defensive code with proper validation
 - ✅ How to test async functionality
+- ✅ **How to write deployment scripts** (compact mode, quality gates)
+- ✅ **How to write setup scripts** (fast, resumable, smart caching)
 
 **If you skip this step, you will waste time asking questions that are already answered in the reference implementation.**
+
+**📝 IMPORTANT**: Create `REVERSE-INTEGRATION-NOTES.md` in the project root (use template from `genesis/templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md`). Every time you reference the implementations to solve a problem, add a note documenting what Genesis is missing.
 
 ---
 
@@ -233,14 +249,62 @@ Before starting, verify these files exist in genesis/:
 
 ---
 
+## Step 11: Review Reverse-Integration Notes ✅
+
+**CRITICAL**: Before finishing, review what you learned during this implementation.
+
+- [ ] Check `REVERSE-INTEGRATION-NOTES.md` - Did you create any notes?
+- [ ] Count how many times you referenced product-requirements-assistant or one-pager
+- [ ] For each reference, ask: "Should this be in Genesis templates?"
+- [ ] If you referenced the same thing multiple times, Genesis is definitely missing it
+- [ ] Tell user: "📝 Created [N] reverse-integration notes for Genesis improvements"
+- [ ] Tell user: "🔄 Recommend sharing REVERSE-INTEGRATION-NOTES.md with Genesis maintainer"
+
+**Questions to ask yourself**:
+- ✅ Did dark mode work immediately, or did you have to fix it? (If fixed: Genesis gap!)
+- ✅ Did you copy code from reference implementations? (If yes: Should be in templates!)
+- ✅ Did you ask questions that were answered in reference implementations? (If yes: Better docs needed!)
+- ✅ Did you encounter bugs that Genesis should prevent? (If yes: Add validation!)
+- ✅ Did you implement features that future projects will need? (If yes: Add to templates!)
+
+**Example summary to give user**:
+```
+📝 Reverse-Integration Summary:
+- Created 3 notes in REVERSE-INTEGRATION-NOTES.md
+- Referenced product-requirements-assistant 5 times (dark mode, workflow, deployment)
+- Referenced one-pager 2 times (UI patterns)
+- Recommendations for Genesis:
+  1. CRITICAL: Add [specific pattern] to templates
+  2. HIGH: Update [specific doc] with [specific guidance]
+  3. MEDIUM: Add [specific validation] to prevent [specific bug]
+```
+
+---
+
 ## Final Self-Check
 
 - [ ] I read START-HERE.md completely before starting
+- [ ] I studied BOTH reference implementations before implementing
 - [ ] I followed ALL steps in order
 - [ ] I did NOT skip linting or testing
 - [ ] I did NOT include build artifacts
 - [ ] I proactively communicated what's left
+- [ ] I created REVERSE-INTEGRATION-NOTES.md and documented what Genesis is missing
 - [ ] I can confidently say: "Ready to start coding"
 
 **If ALL boxes are checked, you successfully executed Genesis. Well done!**
+
+---
+
+## 🔄 Continuous Improvement Cycle
+
+**Remember**: Genesis gets better with every project!
+
+1. ✅ You built a project from Genesis
+2. ✅ You referenced implementations when stuck
+3. ✅ You documented what you learned
+4. 🔄 **Next**: Share notes with Genesis maintainer
+5. 🔄 **Result**: Next project is easier
+
+**This is how Genesis evolves from good to great.**
 
