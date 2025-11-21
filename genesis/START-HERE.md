@@ -100,7 +100,9 @@ Read these files IN ORDER. They contain critical information you MUST follow:
 
 1. **[`templates/CLAUDE.md.template`](templates/CLAUDE.md.template)** - Mandatory workflow (lint → test → communicate)
 2. **[`05-QUALITY-STANDARDS.md`](05-QUALITY-STANDARDS.md)** - Quality requirements (85% coverage, no hyperbole)
-3. **[`examples/hello-world/README.md`](examples/hello-world/README.md)** - Working example to copy from
+3. **[`integration/CODE_STYLE_STANDARDS.md`](integration/CODE_STYLE_STANDARDS.md)** - ⭐ **Coding standards**
+4. **[`integration/SHELL_SCRIPT_STANDARDS.md`](integration/SHELL_SCRIPT_STANDARDS.md)** - ⭐ **Shell script standards**
+5. **[`examples/hello-world/README.md`](examples/hello-world/README.md)** - Working example to study
 
 **Critical Rules**:
 - ✅ ALWAYS lint after creating code (`npm run lint`)
@@ -135,11 +137,22 @@ Read these files IN ORDER. They contain critical information you MUST follow:
 - ❌ How should validation work? (See defensive coding patterns in WORKFLOW-ARCHITECTURE.md)
 
 **Default Workflow** (unless user specifies otherwise):
-- 3 phases: Initial Draft (mock), Gemini Review (manual), Final Synthesis (mock)
+
+**3-Phase Pattern Explained:**
+- **Phase 1: Initial Draft (Mock Mode)** - User fills form → AI generates draft (client-side)
+- **Phase 2: Review & Critique (Manual Mode)** - User copies to external AI → gets critique → copies back
+- **Phase 3: Final Synthesis (Mock Mode)** - AI combines Phase 1 + Phase 2 → final document (client-side)
+
+**Why 3 phases?**
+- Phase 1: Fast iteration with structured inputs
+- Phase 2: Different AI perspective for quality improvement
+- Phase 3: Best of both worlds synthesis
+
+**File Structure:**
 - Prompts in `prompts/phase1.md`, `prompts/phase2.md`, `prompts/phase3.md`
-- Template in `templates/{document-type}-template.md`
+- Document template in `templates/{document-type}-template.md`
 - Phase 1 form with fields matching template sections
-- Template variables using `{variableName}` syntax
+- Template variables using `{variableName}` syntax (lowercase, camelCase)
 
 **Store these as variables** - you'll use them to replace `{{PROJECT_NAME}}`, `{{GITHUB_USER}}`, etc. in templates.
 
@@ -166,8 +179,19 @@ cp genesis/templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md REV
 # Replace {{PROJECT_NAME}} with actual project name
 
 # Copy package.json
-cp genesis/examples/hello-world/package.json .
-# Update name, description, repository fields
+cp genesis/templates/testing/package-template.json package.json
+# Replace {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{GITHUB_USER}}, {{GITHUB_REPO}}, {{GITHUB_PAGES_URL}}
+
+# Copy ESLint config
+cp genesis/templates/project-structure/.eslintrc-template.json .eslintrc.json
+
+# Copy Codecov config
+cp genesis/templates/project-structure/codecov-template.yml codecov.yml
+# Replace {{PROJECT_NAME}} with actual project name
+
+# Copy test configs
+cp genesis/templates/testing/jest.config-template.js jest.config.js
+cp genesis/templates/testing/jest.setup-template.js jest.setup.js
 ```
 
 **📝 IMPORTANT**: The `REVERSE-INTEGRATION-NOTES.md` file is where you'll document:
@@ -182,30 +206,56 @@ cp genesis/examples/hello-world/package.json .
 
 ```bash
 # Copy HTML
-cp genesis/examples/hello-world/index.html .
-# Customize title, phases, branding
+cp genesis/templates/web-app/index-template.html index.html
+# Replace {{PROJECT_TITLE}}, {{PROJECT_DESCRIPTION}}, {{HEADER_EMOJI}}, {{FAVICON_EMOJI}}
+# Customize navigation dropdown (see lines 37-60 for "Related Projects" section)
 
 # Copy JavaScript
 mkdir -p js
-cp genesis/examples/hello-world/js/*.js js/
-# Customize workflow.js with actual phases
+cp genesis/templates/web-app/js/app-template.js js/app.js
+cp genesis/templates/web-app/js/workflow-template.js js/workflow.js
+cp genesis/templates/web-app/js/storage-template.js js/storage.js
+cp genesis/templates/web-app/js/ai-mock-template.js js/ai-mock.js
+cp genesis/templates/web-app/js/ai-mock-ui-template.js js/ai-mock-ui.js
+# Replace {{PROJECT_NAME}} and customize workflow phases
 
-# Copy CSS
+# Copy CSS (if exists)
 mkdir -p css
-cp genesis/examples/hello-world/css/styles.css css/
+# Note: Tailwind CSS is loaded via CDN in index.html
+# Add custom CSS here if needed
 
 # Copy tests
 mkdir -p tests
-cp genesis/examples/hello-world/tests/*.js tests/
-# Update tests to match your workflow
-
-# Copy test config
-cp genesis/examples/hello-world/jest.config.js .
-cp genesis/examples/hello-world/jest.setup.js .
-cp genesis/examples/hello-world/.eslintrc.json .
+cp genesis/templates/testing/ai-mock.test-template.js tests/ai-mock.test.js
+cp genesis/templates/testing/storage.test-template.js tests/storage.test.js
+cp genesis/templates/testing/workflow.e2e-template.js tests/workflow.test.js
+# Replace {{PROJECT_NAME}} and customize tests for your workflow
 ```
 
-### 3.3 Copy Scripts
+**CRITICAL - Dark Mode**: The index-template.html already includes the Tailwind dark mode config. DO NOT remove it!
+
+### 3.3 Copy Prompts and Templates
+
+```bash
+# Create directories
+mkdir -p prompts templates
+
+# Copy prompt templates
+cp genesis/templates/prompts/phase1-template.md prompts/phase1.md
+cp genesis/templates/prompts/phase2-template.md prompts/phase2.md
+cp genesis/templates/prompts/phase3-template.md prompts/phase3.md
+# Replace {{DOCUMENT_TYPE}}, {{PHASE_1_AI}}, {{PHASE_2_AI}}, {{PHASE_3_AI}}
+# Replace {{PROJECT_TITLE}}, {{GITHUB_PAGES_URL}}
+# Customize document structure for your needs
+
+# Create document template
+# Study product-requirements-assistant/templates/ for examples
+# Create templates/{document-type}-template.md with your document structure
+```
+
+**NOTE**: The prompt templates are CONCRETE EXAMPLES from product-requirements-assistant. Read the customization instructions at the top of each file!
+
+### 3.4 Copy Scripts
 
 **⚠️ CRITICAL**: Study https://github.com/bordenet/product-requirements-assistant/tree/main/scripts FIRST
 
@@ -214,9 +264,16 @@ cp genesis/examples/hello-world/.eslintrc.json .
 mkdir -p scripts/lib
 
 # MANDATORY: Copy setup scripts (ALWAYS REQUIRED)
-cp genesis/templates/scripts/setup-macos-template.sh scripts/setup-macos.sh
+cp genesis/templates/scripts/setup-macos-web-template.sh scripts/setup-macos.sh
+# Replace {{PROJECT_NAME}} with actual project name
+
 # If supporting Linux:
 cp genesis/templates/scripts/setup-linux-template.sh scripts/setup-linux.sh
+# Replace {{PROJECT_NAME}} with actual project name
+
+# If supporting Windows WSL:
+cp genesis/templates/scripts/setup-windows-wsl-template.sh scripts/setup-windows-wsl.sh
+# Replace {{PROJECT_NAME}} with actual project name
 
 # Copy deployment script (for web apps)
 cp genesis/templates/scripts/deploy-web.sh.template scripts/deploy-web.sh
@@ -226,23 +283,60 @@ cp genesis/templates/scripts/deploy-web.sh.template scripts/deploy-web.sh
 cp genesis/templates/scripts/lib/common-template.sh scripts/lib/common.sh
 cp genesis/templates/scripts/lib/compact.sh scripts/lib/compact.sh
 
+# Copy install-hooks script
+cp genesis/templates/scripts/install-hooks-template.sh scripts/install-hooks.sh
+# Replace {{PROJECT_NAME}} with actual project name
+
+# Optional: Copy codecov setup script
+cp genesis/templates/scripts/setup-codecov-template.sh scripts/setup-codecov.sh
+# Replace {{GITHUB_USER}}, {{GITHUB_REPO}} with actual values
+
 # Make scripts executable
 chmod +x scripts/*.sh scripts/lib/*.sh
 
-# Verify setup-macos.sh exists
+# Verify setup scripts exist
 ls -la scripts/setup-macos.sh
+ls -la scripts/install-hooks.sh
 ```
 
-### 3.4 Replace Template Variables
+### 3.5 Replace Template Variables
 
-In ALL copied files, replace:
-- `{{PROJECT_NAME}}` → actual project name
-- `{{PROJECT_TITLE}}` → actual project title
-- `{{PROJECT_DESCRIPTION}}` → actual description
-- `{{GITHUB_USER}}` → actual GitHub username
-- `{{GITHUB_REPO}}` → actual repo name
-- `{{PHASE_COUNT}}` → actual number of phases
-- `{{PHASE_1_NAME}}`, `{{PHASE_1_AI}}`, etc. → actual phase details
+**Option 1: Manual (Recommended for first time)**
+- Use your editor's find/replace feature
+- Search for `{{PROJECT_NAME}}` and replace with actual name
+- Repeat for all variables
+
+**Option 2: Automated (Advanced)**
+```bash
+# macOS/BSD sed (note the '' after -i):
+sed -i '' 's/{{PROJECT_NAME}}/one-pager/g' **/*.{js,sh,md,json,html}
+sed -i '' 's/{{GITHUB_USER}}/bordenet/g' **/*.{js,sh,md,json,html}
+
+# Linux sed:
+sed -i 's/{{PROJECT_NAME}}/one-pager/g' **/*.{js,sh,md,json,html}
+sed -i 's/{{GITHUB_USER}}/bordenet/g' **/*.{js,sh,md,json,html}
+```
+
+**Variables to replace:**
+- `{{PROJECT_NAME}}` → e.g., "one-pager"
+- `{{PROJECT_TITLE}}` → e.g., "One-Pager Assistant"
+- `{{PROJECT_DESCRIPTION}}` → e.g., "Create professional one-page documents"
+- `{{GITHUB_USER}}` → e.g., "bordenet"
+- `{{GITHUB_REPO}}` → e.g., "one-pager"
+- `{{GITHUB_PAGES_URL}}` → e.g., "https://bordenet.github.io/one-pager/"
+- `{{HEADER_EMOJI}}` → e.g., "📄"
+- `{{FAVICON_EMOJI}}` → e.g., "📄"
+- `{{DOCUMENT_TYPE}}` → e.g., "One-Pager"
+- `{{PHASE_1_AI}}` → e.g., "Claude Sonnet 4.5"
+- `{{PHASE_2_AI}}` → e.g., "Gemini 2.5 Pro"
+- `{{PHASE_3_AI}}` → e.g., "Claude Sonnet 4.5"
+
+**Verification:**
+```bash
+# Verify all variables replaced:
+grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
+# Should return NO results
+```
 
 ---
 
@@ -251,6 +345,10 @@ In ALL copied files, replace:
 ```bash
 # Install dependencies
 npm install
+
+# Install Git hooks (CRITICAL - quality gates)
+./scripts/install-hooks.sh
+# This installs pre-commit hooks that run linting before every commit
 
 # Lint
 npm run lint
@@ -265,6 +363,13 @@ NODE_OPTIONS=--experimental-vm-modules npm run test:coverage
 ```
 
 **If tests fail**: Fix them before proceeding. Do NOT skip this step.
+
+**Optional: Set up Codecov**
+```bash
+# If you want code coverage reporting:
+./scripts/setup-codecov.sh
+# This will guide you through setting up Codecov integration
+```
 
 ---
 
