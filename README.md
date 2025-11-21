@@ -764,27 +764,24 @@ Genesis includes comprehensive documentation covering every aspect of the system
 
 ### Analysis Documents
 
-**Gap Analysis**:
-- [`GENESIS-GAP-ANALYSIS.md`](GENESIS-GAP-ANALYSIS.md) - Pass 1 analysis (434 lines)
-- [`GENESIS-FINAL-GAP-ANALYSIS.md`](GENESIS-FINAL-GAP-ANALYSIS.md) - Pass 2 analysis
-- [`GENESIS-CRITICAL-GITHUB-WORKFLOWS-GAP.md`](GENESIS-CRITICAL-GITHUB-WORKFLOWS-GAP.md) - Pass 3 analysis
-- [`GENESIS-ADDITIONAL-GAPS-ANALYSIS.md`](GENESIS-ADDITIONAL-GAPS-ANALYSIS.md) - Pass 4 analysis
+**Current Status**:
+- [`GENESIS-RETROSPECTIVE.md`](GENESIS-RETROSPECTIVE.md) - Comprehensive retrospective (360 lines)
+- [`GENESIS-CONFIDENCE-ANALYSIS.md`](GENESIS-CONFIDENCE-ANALYSIS.md) - Confidence analysis (432 lines)
 
-**Reviews & Comparisons**:
-- [`GENESIS-PRODUCT-REQUIREMENTS-ASSISTANT-REVIEW.md`](GENESIS-PRODUCT-REQUIREMENTS-ASSISTANT-REVIEW.md) - Reference comparison
-- [`GENESIS-CONFIDENCE-ANALYSIS.md`](GENESIS-CONFIDENCE-ANALYSIS.md) - Confidence analysis
-
-**Completion Reports**:
-- [`GENESIS-RETROSPECTIVE-EXECUTION-COMPLETE.md`](GENESIS-RETROSPECTIVE-EXECUTION-COMPLETE.md) - Action items complete
-- [`GENESIS-THIRD-PASS-COMPLETE.md`](GENESIS-THIRD-PASS-COMPLETE.md) - Pass 3 summary
-- [`GENESIS-READY-FOR-PRODUCTION.md`](GENESIS-READY-FOR-PRODUCTION.md) - Pass 2 summary
+**Historical Analysis** (archived):
+- See [`archive/`](archive/) directory for all historical gap analysis documents
+- Pass 1-4 analysis documents (13 files)
+- Process improvement notes
+- Reference comparisons
+- Completion reports
 
 ### Total Documentation
 
-**11 core documentation pages**
-**9 analysis documents**
-**20 total documents**
-**~5,000 lines of documentation**
+**11 core documentation pages** (in genesis/ directory)
+**3 current analysis documents** (in root)
+**14 historical documents** (in archive/)
+**28 total documents**
+**~7,000 lines of documentation**
 
 ---
 
