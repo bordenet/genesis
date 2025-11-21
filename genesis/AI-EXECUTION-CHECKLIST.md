@@ -4,6 +4,39 @@
 
 ---
 
+## ⚠️ BEFORE YOU START (MANDATORY)
+
+**DO NOT PROCEED** until you've completed these prerequisite steps:
+
+- [ ] Read `REFERENCE-IMPLEMENTATIONS.md`
+- [ ] Study https://github.com/bordenet/product-requirements-assistant
+  - [ ] Read `js/workflow.js` - Phase architecture, prompt loading, data flow
+  - [ ] Read `js/app.js` - Form rendering, phase transitions, UI logic
+  - [ ] Read `prompts/phase1.md` - Prompt template with variables
+  - [ ] Read `templates/prd-template.md` - Document structure
+  - [ ] Read `tests/workflow.test.js` - Testing async prompts
+- [ ] Read `docs/WORKFLOW-ARCHITECTURE.md`
+- [ ] Read `docs/REQUIREMENTS-TEMPLATE.md`
+- [ ] Read `docs/WORKFLOW-DECISION-TREE.md`
+- [ ] Understand the 3-phase workflow pattern (mock, manual, mock)
+- [ ] Understand form-to-prompt pattern for Phase 1
+- [ ] Understand template variable replacement (`{variableName}` syntax)
+- [ ] Understand async prompt loading from markdown files
+- [ ] Understand defensive coding patterns
+- [ ] Understand mock vs. manual mode
+
+**Why this matters**: This will answer 90% of your questions BEFORE you ask the user. You'll know:
+- ✅ How to structure workflow phases (default: 3 phases)
+- ✅ How to load prompts from markdown files (always in `prompts/` directory)
+- ✅ How to handle form data and template variables
+- ✅ How to implement mock mode for development
+- ✅ How to write defensive code with proper validation
+- ✅ How to test async functionality
+
+**If you skip this step, you will waste time asking questions that are already answered in the reference implementation.**
+
+---
+
 ## Pre-Execution Verification
 
 Before starting, verify these files exist in genesis/:
@@ -39,14 +72,25 @@ Before starting, verify these files exist in genesis/:
 
 ## Step 2: Gather Requirements ✅
 
+**Ask ONLY these essential questions** (after studying reference implementation):
+
 - [ ] Asked user for project name
 - [ ] Asked user for project title
 - [ ] Asked user for one-line description
 - [ ] Asked user for GitHub username
 - [ ] Asked user for GitHub repo name
-- [ ] Asked user for number of workflow phases
-- [ ] For each phase, asked: name, AI model, purpose
+- [ ] Asked user for document type (e.g., "One-Pager", "PRD", "Design Doc")
+- [ ] Asked user for link to document template or example (if available)
+- [ ] Asked user if they want deviations from standard 3-phase workflow (default: NO)
 - [ ] Stored all answers as variables for template replacement
+
+**Did NOT ask** (inferred from reference implementation):
+- [ ] Did NOT ask "How many phases?" (Default: 3)
+- [ ] Did NOT ask "Should prompts be in files?" (YES - always in `prompts/`)
+- [ ] Did NOT ask "Should templates be abstracted?" (YES - always in `templates/`)
+- [ ] Did NOT ask "How should mock mode work?" (See product-requirements-assistant)
+- [ ] Did NOT ask "Should Phase 1 have a form?" (YES - if structured doc)
+- [ ] Did NOT ask "How should validation work?" (See defensive coding patterns)
 
 ---
 

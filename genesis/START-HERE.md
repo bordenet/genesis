@@ -20,6 +20,52 @@ You're in a fresh repository with the `genesis/` directory. Your mission:
 
 ---
 
+## 📚 STEP 0: Study Reference Implementation FIRST (REQUIRED)
+
+**⚠️ STOP!** Before proceeding, you MUST study the reference implementation:
+
+### Required Reading (in order):
+
+1. **[`REFERENCE-IMPLEMENTATIONS.md`](REFERENCE-IMPLEMENTATIONS.md)** - Overview of working examples
+2. **Study the live example**: https://github.com/bordenet/product-requirements-assistant
+   - Browse the repository on GitHub
+   - Read `js/workflow.js` - Phase architecture, prompt loading, data flow
+   - Read `js/app.js` - Form rendering, phase transitions, UI logic
+   - Read `prompts/phase1.md` - Prompt template with variables
+   - Read `templates/prd-template.md` - Document structure
+   - Read `tests/workflow.test.js` - Testing async prompts
+3. **[`docs/WORKFLOW-ARCHITECTURE.md`](docs/WORKFLOW-ARCHITECTURE.md)** - Detailed workflow patterns
+4. **[`docs/REQUIREMENTS-TEMPLATE.md`](docs/REQUIREMENTS-TEMPLATE.md)** - What to ask vs. infer
+5. **[`docs/WORKFLOW-DECISION-TREE.md`](docs/WORKFLOW-DECISION-TREE.md)** - Decision framework
+
+### What You'll Learn:
+
+- ✅ 3-phase workflow pattern (mock, manual, mock)
+- ✅ Form-to-prompt pattern for Phase 1
+- ✅ Template variable replacement (`{variableName}` syntax)
+- ✅ Async prompt loading from markdown files
+- ✅ Defensive coding patterns
+- ✅ Mock mode vs. manual mode
+- ✅ How form fields map to template sections
+- ✅ How to structure prompts in separate files
+- ✅ How to test async prompt loading
+
+### Why This Matters:
+
+**This will answer 90% of your questions BEFORE you ask the user.**
+
+The reference implementation shows you EXACTLY how to:
+- Structure the workflow phases
+- Load prompts from markdown files
+- Handle form data and template variables
+- Implement mock mode for development
+- Write defensive code with proper validation
+- Test async functionality
+
+**DO NOT PROCEED** until you've studied these references. This will save you and the user significant time by avoiding unnecessary questions about patterns that are already solved.
+
+---
+
 ## Step 1: Read Mandatory Files (5 minutes)
 
 Read these files IN ORDER. They contain critical information you MUST follow:
@@ -39,20 +85,33 @@ Read these files IN ORDER. They contain critical information you MUST follow:
 
 ## Step 2: Gather Requirements (5 minutes)
 
-Ask the user these questions:
+**After studying the reference implementation**, ask the user ONLY these essential questions:
 
 ```
-1. Project name? (e.g., "coe-generator")
-2. Project title? (e.g., "Correction of Error Generator")
+1. Project name? (e.g., "one-pager")
+2. Project title? (e.g., "One-Pager Assistant")
 3. One-line description?
 4. GitHub username?
 5. GitHub repo name?
-6. How many workflow phases? (e.g., 2 or 3)
-7. For each phase:
-   - Phase name? (e.g., "Initial Draft")
-   - AI model? (e.g., "Claude Sonnet 4.5")
-   - Purpose? (e.g., "Generate first draft")
+6. What type of document? (e.g., "One-Pager", "PRD", "Design Doc")
+7. Link to document template or example? (if available)
+8. Any deviations from standard 3-phase workflow? (default: NO)
 ```
+
+**DO NOT ASK** - Infer from reference implementation:
+- ❌ How many phases? (Default: 3)
+- ❌ Should prompts be in files? (YES - always in `prompts/` directory)
+- ❌ Should templates be abstracted? (YES - always in `templates/` directory)
+- ❌ How should mock mode work? (See product-requirements-assistant)
+- ❌ Should Phase 1 have a form? (YES - if document is structured)
+- ❌ How should validation work? (See defensive coding patterns in WORKFLOW-ARCHITECTURE.md)
+
+**Default Workflow** (unless user specifies otherwise):
+- 3 phases: Initial Draft (mock), Gemini Review (manual), Final Synthesis (mock)
+- Prompts in `prompts/phase1.md`, `prompts/phase2.md`, `prompts/phase3.md`
+- Template in `templates/{document-type}-template.md`
+- Phase 1 form with fields matching template sections
+- Template variables using `{variableName}` syntax
 
 **Store these as variables** - you'll use them to replace `{{PROJECT_NAME}}`, `{{GITHUB_USER}}`, etc. in templates.
 
