@@ -193,6 +193,14 @@ cp genesis/templates/project-structure/codecov-template.yml codecov.yml
 cp genesis/templates/testing/jest.config-template.js jest.config.js
 cp genesis/templates/testing/jest.setup-template.js jest.setup.js
 
+# Copy .env.example (RECOMMENDED - documents environment variables)
+cp genesis/templates/project-structure/.env.example-template .env.example
+# Customize with your project's environment variables (if any)
+
+# Copy CONTRIBUTING.md (RECOMMENDED - for open source projects)
+cp genesis/templates/project-structure/CONTRIBUTING-template.md CONTRIBUTING.md
+# Replace {{PROJECT_NAME}}, {{GITHUB_USER}}, {{GITHUB_REPO}}
+
 # Copy GitHub Actions workflows (MANDATORY - badges in README.md reference these!)
 mkdir -p .github/workflows
 cp genesis/templates/github/workflows/ci-template.yml .github/workflows/ci.yml
@@ -337,6 +345,14 @@ cp genesis/templates/scripts/lib/compact.sh scripts/lib/compact.sh
 cp genesis/templates/scripts/install-hooks-template.sh scripts/install-hooks.sh
 # Replace {{PROJECT_NAME}} with actual project name
 
+# Copy pre-commit hook (RECOMMENDED - quality gate enforcement)
+mkdir -p .git/hooks
+cp genesis/templates/git-hooks/pre-commit-template .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+# Replace {{PROJECT_NAME}} with actual project name
+# Note: This hook runs linting before every commit to prevent bad commits
+# Alternative: Run ./scripts/install-hooks.sh which does this automatically
+
 # Optional: Copy codecov setup script
 cp genesis/templates/scripts/setup-codecov-template.sh scripts/setup-codecov.sh
 # Replace {{GITHUB_USER}}, {{GITHUB_REPO}} with actual values
@@ -403,6 +419,10 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `jest.config.js` (from `testing/jest.config-template.js`)
 - [ ] `jest.setup.js` (from `testing/jest.setup-template.js`)
 
+**Core Files** (RECOMMENDED):
+- [ ] `.env.example` (from `project-structure/.env.example-template`)
+- [ ] `CONTRIBUTING.md` (from `project-structure/CONTRIBUTING-template.md`)
+
 **GitHub Actions** (MANDATORY - badges in README.md reference these!):
 - [ ] `.github/workflows/ci.yml` (from `github/workflows/ci-template.yml`)
 
@@ -436,6 +456,9 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `scripts/lib/compact.sh` (from `scripts/lib/compact.sh`)
 - [ ] `scripts/install-hooks.sh` (from `scripts/install-hooks-template.sh`)
 
+**Git Hooks** (RECOMMENDED):
+- [ ] `.git/hooks/pre-commit` (from `git-hooks/pre-commit-template`)
+
 **Scripts** (OPTIONAL):
 - [ ] `scripts/setup-linux.sh` (from `scripts/setup-linux-template.sh`)
 - [ ] `scripts/setup-windows-wsl.sh` (from `scripts/setup-windows-wsl-template.sh`)
@@ -458,6 +481,73 @@ ls -1 index.html CLAUDE.md README.md package.json .eslintrc.json codecov.yml \
    2>/dev/null | wc -l
 # Should show 19 (all critical files present)
 ```
+
+### 3.7 Optional Files (Advanced)
+
+**These files are OPTIONAL and can be added if needed:**
+
+#### Separate Linting Workflow
+```bash
+# If you want a separate linting workflow (ci.yml already includes linting):
+cp genesis/templates/github/workflows/lint-template.yml .github/workflows/lint.yml
+# Note: This is redundant if you're using ci-template.yml which already has a lint job
+```
+
+#### Non-Web macOS Setup Script
+```bash
+# If you're building a backend/CLI project (not a web app):
+cp genesis/templates/scripts/setup-macos-template.sh scripts/setup-macos.sh
+# Note: For web apps, use setup-macos-WEB-template.sh (already referenced above)
+```
+
+#### Validation Script
+```bash
+# If you want a validation script to check project structure:
+cp genesis/templates/scripts/validate-template.sh scripts/validate.sh
+chmod +x scripts/validate.sh
+# Replace {{PROJECT_NAME}} with actual project name
+```
+
+#### Playwright E2E Testing
+```bash
+# If you want browser-based E2E testing (in addition to Jest):
+cp genesis/templates/testing/playwright.config-template.js playwright.config.js
+npm install -D @playwright/test
+# Note: Most projects use Jest; Playwright is for advanced E2E testing
+```
+
+#### Documentation Templates
+```bash
+# If you want comprehensive documentation:
+mkdir -p docs/architecture docs/deployment docs/development
+
+# Architecture documentation
+cp genesis/templates/docs/architecture/ARCHITECTURE-template.md docs/architecture/ARCHITECTURE.md
+
+# Deployment documentation
+cp genesis/templates/docs/deployment/DEPLOYMENT-template.md docs/deployment/DEPLOYMENT.md
+cp genesis/templates/docs/deployment/CI-CD-template.md docs/deployment/CI-CD.md
+cp genesis/templates/docs/deployment/GITHUB-PAGES-template.md docs/deployment/GITHUB-PAGES.md
+
+# Development documentation
+cp genesis/templates/docs/development/DEVELOPMENT-template.md docs/development/DEVELOPMENT.md
+
+# Testing documentation
+cp genesis/templates/docs/TESTING-template.md docs/TESTING.md
+
+# Shell script standards
+cp genesis/templates/docs/SHELL_SCRIPT_STANDARDS-template.md docs/SHELL_SCRIPT_STANDARDS.md
+
+# Replace {{PROJECT_NAME}}, {{GITHUB_USER}}, {{GITHUB_REPO}} in all docs
+# Note: Most projects don't need this level of documentation
+```
+
+**When to use optional files**:
+- **Separate lint workflow**: Only if you want linting to run independently from CI
+- **Non-web setup script**: Only for backend/CLI projects (not web apps)
+- **Validation script**: Only if you want automated project structure validation
+- **Playwright**: Only if you need browser-based E2E tests (Jest is usually sufficient)
+- **Documentation templates**: Only for large/complex projects that need extensive docs
 
 ---
 
