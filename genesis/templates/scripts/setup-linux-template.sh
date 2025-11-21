@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# {{PROJECT_NAME}} - macOS Setup Script
+# {{PROJECT_NAME}} - Linux Setup Script
 # Optimized for minimal vertical space with running timer
 #
 # REFERENCE IMPLEMENTATION:
-#     https://github.com/bordenet/product-requirements-assistant/blob/main/scripts/setup-macos.sh
+#     https://github.com/bordenet/product-requirements-assistant/blob/main/scripts/setup-linux.sh
 #     Study the reference implementation for proper compact mode handling!
 
 set -euo pipefail
@@ -34,7 +34,7 @@ while [[ $# -gt 0 ]]; do
             cat << EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Setup script for macOS - Installs all dependencies for {{PROJECT_NAME}}
+Setup script for Linux (Ubuntu/Debian) - Installs all dependencies for {{PROJECT_NAME}}
 
 OPTIONS:
   -v, --verbose    Show detailed output (default: compact)
@@ -67,7 +67,7 @@ done
 cd "$SCRIPT_DIR/.."
 PROJECT_ROOT=$(pwd)
 
-print_header "{{PROJECT_NAME}} - macOS Setup"
+print_header "{{PROJECT_NAME}} - Linux Setup"
 
 # Cache file for tracking installed packages
 CACHE_DIR="$PROJECT_ROOT/.setup-cache"
@@ -88,62 +88,70 @@ mark_cached() {
 # Step 1: System dependencies
 task_start "Checking system dependencies"
 
-# Check Homebrew
-if ! command -v brew &>/dev/null; then
-    task_fail "Homebrew not installed"
-    echo "Install Homebrew from: https://brew.sh/"
-    exit 1
+# Update apt cache only if needed (once per day)
+if [[ $FORCE_INSTALL == true ]] || ! is_cached "apt-updated-$(date +%Y%m%d)"; then
+    verbose "Updating package list..."
+    sudo apt-get update -qq 2>&1 | verbose
+    mark_cached "apt-updated-$(date +%Y%m%d)"
 fi
-verbose "Homebrew $(brew --version | head -1)"
 
 # Check Node.js
 if ! command -v node &>/dev/null; then
     task_start "Installing Node.js"
-    if [[ ${VERBOSE:-0} -eq 1 ]]; then
-        brew install node
-    else
-        brew install node >/dev/null 2>&1
-    fi
-    mark_cached "node"
-    task_ok "Node.js installed"
+    verbose "Installing Node.js via NodeSource..."
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - 2>&1 | verbose
+    sudo apt-get install -y nodejs 2>&1 | verbose
+    task_complete "Node.js installed"
 else
     verbose "Node.js $(node --version)"
 fi
 
-task_ok "System dependencies ready"
+# Check npm
+if ! command -v npm &>/dev/null; then
+    task_fail "npm not found (should be installed with Node.js)"
+    exit 1
+fi
+verbose "npm $(npm --version)"
 
-# Step 2: NPM dependencies (smart check)
-PACKAGE_HASH=$(md5 -q package.json 2>/dev/null || echo "none")
-if [[ $FORCE_INSTALL == true ]] || ! is_cached "npm-deps-$PACKAGE_HASH"; then
-    task_start "Installing NPM dependencies"
-    if [[ ${VERBOSE:-0} -eq 1 ]]; then
-        npm install
-    else
-        npm install >/dev/null 2>&1
+task_complete "System dependencies ready"
+
+# Step 2: Node.js dependencies
+task_start "Installing Node.js dependencies"
+
+if [[ $FORCE_INSTALL == true ]] || ! is_cached "npm-install"; then
+    verbose "Running npm install..."
+    npm install 2>&1 | verbose
+    mark_cached "npm-install"
+    task_complete "Node.js dependencies installed"
+else
+    verbose "Node.js dependencies already installed (use -f to reinstall)"
+    task_complete "Node.js dependencies ready"
+fi
+
+# Step 3: Verify installation
+task_start "Verifying installation"
+
+# Check for required commands
+MISSING_COMMANDS=()
+for cmd in node npm npx; do
+    if ! command -v "$cmd" &>/dev/null; then
+        MISSING_COMMANDS+=("$cmd")
     fi
-    mark_cached "npm-deps-$PACKAGE_HASH"
-    task_ok "NPM dependencies installed"
-else
-    task_skip "NPM dependencies"
+done
+
+if [ ${#MISSING_COMMANDS[@]} -gt 0 ]; then
+    task_fail "Missing commands: ${MISSING_COMMANDS[*]}"
+    exit 1
 fi
 
-# Step 3: Quick validation
-task_start "Validating setup"
-if [[ ${VERBOSE:-0} -eq 1 ]]; then
-    npm run lint
-else
-    npm run lint >/dev/null 2>&1
-fi
-task_ok "Setup validated"
+task_complete "All dependencies verified"
 
-# Done
-echo ""
-print_header "✓ Setup complete! $(get_elapsed_time)"
+# Final summary
+print_footer "Setup complete! 🎉"
 echo ""
 echo "Next steps:"
-echo "  npm test              # Run tests"
-echo "  npm run lint          # Run linter"
-echo "  ./scripts/deploy-web.sh  # Deploy to GitHub Pages"
+echo "  1. Run tests:       npm test"
+echo "  2. Run linter:      npm run lint"
+echo "  3. Start coding!    Edit index.html and js/*.js"
 echo ""
-echo "Run with -v for verbose output, -f to force reinstall"
 
