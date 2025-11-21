@@ -191,9 +191,12 @@ Before starting, ensure:
    - Process all files in `genesis/templates/scripts/`
    - **MANDATORY**: All scripts MUST follow `templates/docs/SHELL_SCRIPT_STANDARDS-template.md`
    - **MANDATORY**: Create `scripts/setup-macos.sh` from template (always required)
+   - **MANDATORY**: Create `scripts/deploy-web.sh` from template (for web apps)
    - **MANDATORY**: Create `scripts/lib/common.sh` from template (always required)
+   - **MANDATORY**: Create `scripts/lib/compact.sh` from template (always required)
    - Make all `.sh` files executable: `chmod +x scripts/*.sh scripts/lib/*.sh`
    - Update dependency lists for user's architecture choices
+   - Replace placeholders in `deploy-web.sh`: {{PROJECT_NAME}}, {{GITHUB_USER}}, {{GITHUB_REPO}}, {{GITHUB_PAGES_URL}}
    - **Verify**: All scripts include running timer (yellow on black, top-right corner)
    - **Verify**: All scripts support `-h|--help` with man-page style output
    - **Verify**: All scripts support `-v|--verbose` for detailed output
@@ -510,7 +513,8 @@ Project is complete when:
 12. ✅ AI mock mode implemented (if using external LLMs)
 13. ✅ **Shell scripts follow standards** (timer, help, verbose mode)
 14. ✅ **`scripts/setup-macos.sh` created and tested**
-15. ✅ **All scripts pass shellcheck with zero warnings**
+15. ✅ **`scripts/deploy-web.sh` created and tested** (for web apps)
+16. ✅ **All scripts pass shellcheck with zero warnings**
 
 ---
 

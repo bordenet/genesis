@@ -120,7 +120,19 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `jest.setup.js`
 - [ ] Copied `.eslintrc.json`
 
-### 3.3 Variable Replacement
+### 3.3 Scripts
+- [ ] Created `scripts/` directory
+- [ ] Copied `deploy-web.sh` from `templates/scripts/deploy-web.sh.template`
+- [ ] Replaced `{{PROJECT_NAME}}` in deploy-web.sh
+- [ ] Replaced `{{GITHUB_USER}}` in deploy-web.sh
+- [ ] Replaced `{{GITHUB_REPO}}` in deploy-web.sh
+- [ ] Replaced `{{GITHUB_PAGES_URL}}` in deploy-web.sh
+- [ ] Created `scripts/lib/` directory
+- [ ] Copied `common.sh` from `templates/scripts/lib/common-template.sh`
+- [ ] Copied `compact.sh` from `templates/scripts/lib/compact.sh`
+- [ ] Made all scripts executable: `chmod +x scripts/*.sh scripts/lib/*.sh`
+
+### 3.4 Variable Replacement
 - [ ] Replaced `{{PROJECT_NAME}}` everywhere
 - [ ] Replaced `{{PROJECT_TITLE}}` everywhere
 - [ ] Replaced `{{PROJECT_DESCRIPTION}}` everywhere
@@ -179,23 +191,38 @@ Before starting, verify these files exist in genesis/:
 
 ---
 
-## Step 8: Final Verification ✅
+## Step 8: Test Deployment Script ✅
+
+- [ ] Verified `scripts/deploy-web.sh` exists and is executable
+- [ ] Ran `./scripts/deploy-web.sh --help` to verify help works
+- [ ] Tested deployment script: `./scripts/deploy-web.sh`
+- [ ] Verified script runs linting
+- [ ] Verified script runs tests
+- [ ] Verified script checks coverage
+- [ ] Verified script pushes to GitHub
+- [ ] Verified script displays deployment URL
+
+---
+
+## Step 9: Final Verification ✅
 
 - [ ] App works at `https://USER.github.io/REPO/`
 - [ ] All tests passing (`npm test`)
 - [ ] Linting clean (`npm run lint`)
 - [ ] Coverage ≥70% (`npm run test:coverage`)
+- [ ] Deployment script works (`./scripts/deploy-web.sh`)
 - [ ] No `node_modules/` in git (`git ls-files | grep node_modules` returns nothing)
 - [ ] No `coverage/` in git (`git ls-files | grep coverage` returns nothing)
 - [ ] `genesis/` directory deleted and removed from git
 
 ---
 
-## Step 9: Tell User ✅
+## Step 10: Tell User ✅
 
 - [ ] Told user: "✅ Completed: [specific actions]"
 - [ ] Told user: "✅ Quality Checks: [linting, tests, coverage results]"
 - [ ] Told user: "✅ Deployed: [GitHub Pages URL]"
+- [ ] Told user: "✅ Deployment Script: Use `./scripts/deploy-web.sh` for future deployments"
 - [ ] Told user: "✅ What's Left: NOTHING - Ready to start coding!"
 - [ ] Did NOT use hyperbolic language
 - [ ] Was specific with numbers (X/X tests, Y% coverage)
