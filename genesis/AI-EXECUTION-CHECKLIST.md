@@ -174,6 +174,7 @@ Before starting, verify these files exist in genesis/:
 - [ ] Customized workflow.js - updated phase names, descriptions, AI models, and form fields
 - [ ] Created `css/` directory
 - [ ] Copied `css/styles.css` from `templates/web-app/css/styles-template.css` (MANDATORY - index.html references this)
+- [ ] Created `.nojekyll` file (disables Jekyll processing, improves GitHub Pages deployment speed)
 - [ ] Created `data/` directory (optional - for data files if needed)
 - [ ] Created `tests/` directory
 - [ ] Copied `tests/ai-mock.test.js` from `templates/testing/ai-mock.test-template.js`

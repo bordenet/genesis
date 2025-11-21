@@ -198,8 +198,9 @@ mkdir -p .github/workflows
 cp genesis/templates/github/workflows/ci-template.yml .github/workflows/ci.yml
 # Replace template variables in ci.yml:
 #   - {{DEPLOY_FOLDER}} → "." (for root deployment) or "docs" (if using docs/ folder)
-#   - Remove "# IF {{ENABLE_TESTS}}" and "# END IF" comment lines (keep the content between them)
-#   - Remove "# IF {{ENABLE_CODECOV}}" and "# END IF" sections if you don't have Codecov token yet
+#   - Remove "# IF {{ENABLE_TESTS}}" and "# END IF {{ENABLE_TESTS}}" comment lines (keep the content between them)
+#   - Remove "# IF {{ENABLE_CODECOV}}" and "# END IF {{ENABLE_CODECOV}}" sections if you don't have Codecov token yet
+#   - IMPORTANT: If you remove the test job, also remove the coverage job (it depends on test)
 #
 # CRITICAL: Without this workflow file, the CI/CD badge in README.md will show "unknown"
 # See product-requirements-assistant/.github/workflows/ci.yml for reference
@@ -241,6 +242,9 @@ cp genesis/templates/web-app/js/ai-mock-ui-template.js js/ai-mock-ui.js
 mkdir -p css
 cp genesis/templates/web-app/css/styles-template.css css/styles.css
 # Note: Tailwind CSS is loaded via CDN, but custom CSS is needed for additional styling
+
+# Create .nojekyll file (disables Jekyll processing, improves GitHub Pages deployment speed)
+touch .nojekyll
 
 # Create data directory (optional - for storing data files if needed)
 mkdir -p data
@@ -404,6 +408,7 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `js/ai-mock.js` (from `web-app/js/ai-mock-template.js`)
 - [ ] `js/ai-mock-ui.js` (from `web-app/js/ai-mock-ui-template.js`)
 - [ ] `css/styles.css` (from `web-app/css/styles-template.css`)
+- [ ] `.nojekyll` (created with `touch .nojekyll` - disables Jekyll processing)
 
 **Test Files** (MANDATORY):
 - [ ] `tests/ai-mock.test.js` (from `testing/ai-mock.test-template.js`)
@@ -503,12 +508,18 @@ git push -u origin main
 Tell user:
 ```
 1. Go to: https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/settings/pages
-2. Source: Deploy from a branch
-3. Branch: main
-4. Folder: / (root)
-5. Save
-6. Wait 1-2 minutes
-7. Visit: https://{{GITHUB_USER}}.github.io/{{GITHUB_REPO}}/
+
+2. Source: GitHub Actions
+   (This allows the CI/CD workflow to deploy automatically)
+
+3. Save
+
+4. Wait 1-2 minutes for first deployment
+
+5. Visit: https://{{GITHUB_USER}}.github.io/{{GITHUB_REPO}}/
+
+NOTE: The .github/workflows/ci.yml workflow will automatically deploy to GitHub Pages
+on every push to main. You can also deploy manually using ./scripts/deploy-web.sh
 ```
 
 ---
