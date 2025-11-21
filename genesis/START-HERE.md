@@ -192,6 +192,17 @@ cp genesis/templates/project-structure/codecov-template.yml codecov.yml
 # Copy test configs
 cp genesis/templates/testing/jest.config-template.js jest.config.js
 cp genesis/templates/testing/jest.setup-template.js jest.setup.js
+
+# Copy GitHub Actions workflows (MANDATORY - badges in README.md reference these!)
+mkdir -p .github/workflows
+cp genesis/templates/github/workflows/ci-template.yml .github/workflows/ci.yml
+# Replace template variables in ci.yml:
+#   - {{DEPLOY_FOLDER}} → "." (for root deployment) or "docs" (if using docs/ folder)
+#   - Remove "# IF {{ENABLE_TESTS}}" and "# END IF" comment lines (keep the content between them)
+#   - Remove "# IF {{ENABLE_CODECOV}}" and "# END IF" sections if you don't have Codecov token yet
+#
+# CRITICAL: Without this workflow file, the CI/CD badge in README.md will show "unknown"
+# See product-requirements-assistant/.github/workflows/ci.yml for reference
 ```
 
 **📝 IMPORTANT**: The `REVERSE-INTEGRATION-NOTES.md` file is where you'll document:
@@ -381,6 +392,9 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `codecov.yml` (from `project-structure/codecov-template.yml`)
 - [ ] `jest.config.js` (from `testing/jest.config-template.js`)
 - [ ] `jest.setup.js` (from `testing/jest.setup-template.js`)
+
+**GitHub Actions** (MANDATORY - badges in README.md reference these!):
+- [ ] `.github/workflows/ci.yml` (from `github/workflows/ci-template.yml`)
 
 **Web App Files** (MANDATORY):
 - [ ] `index.html` (from `web-app/index-template.html`)
