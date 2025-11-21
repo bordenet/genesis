@@ -338,6 +338,62 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 # Should return NO results
 ```
 
+### 3.6 Verify All Template Files Copied
+
+**CRITICAL**: Use this checklist to ensure you haven't missed any template files!
+
+**Core Files** (MANDATORY):
+- [ ] `.gitignore` (from `project-structure/gitignore-template`)
+- [ ] `CLAUDE.md` (from `templates/CLAUDE.md.template`)
+- [ ] `README.md` (from `project-structure/README-template.md`)
+- [ ] `REVERSE-INTEGRATION-NOTES.md` (from `project-structure/REVERSE-INTEGRATION-NOTES-template.md`)
+- [ ] `package.json` (from `testing/package-template.json`)
+- [ ] `.eslintrc.json` (from `project-structure/.eslintrc-template.json`)
+- [ ] `codecov.yml` (from `project-structure/codecov-template.yml`)
+- [ ] `jest.config.js` (from `testing/jest.config-template.js`)
+- [ ] `jest.setup.js` (from `testing/jest.setup-template.js`)
+
+**Web App Files** (MANDATORY):
+- [ ] `index.html` (from `web-app/index-template.html`)
+- [ ] `js/app.js` (from `web-app/js/app-template.js`)
+- [ ] `js/workflow.js` (from `web-app/js/workflow-template.js`)
+- [ ] `js/storage.js` (from `web-app/js/storage-template.js`)
+- [ ] `js/ai-mock.js` (from `web-app/js/ai-mock-template.js`)
+- [ ] `js/ai-mock-ui.js` (from `web-app/js/ai-mock-ui-template.js`)
+
+**Test Files** (MANDATORY):
+- [ ] `tests/ai-mock.test.js` (from `testing/ai-mock.test-template.js`)
+- [ ] `tests/storage.test.js` (from `testing/storage.test-template.js`)
+- [ ] `tests/workflow.test.js` (from `testing/workflow.e2e-template.js`)
+
+**Prompts and Templates** (MANDATORY):
+- [ ] `prompts/phase1.md` (from `prompts/phase1-template.md`)
+- [ ] `prompts/phase2.md` (from `prompts/phase2-template.md`)
+- [ ] `prompts/phase3.md` (from `prompts/phase3-template.md`)
+- [ ] `templates/{document-type}-template.md` (create based on your document type)
+
+**Scripts** (MANDATORY):
+- [ ] `scripts/setup-macos.sh` (from `scripts/setup-macos-web-template.sh`)
+- [ ] `scripts/deploy-web.sh` (from `scripts/deploy-web.sh.template`)
+- [ ] `scripts/lib/common.sh` (from `scripts/lib/common-template.sh`)
+- [ ] `scripts/lib/compact.sh` (from `scripts/lib/compact.sh`)
+- [ ] `scripts/install-hooks.sh` (from `scripts/install-hooks-template.sh`)
+
+**Scripts** (OPTIONAL):
+- [ ] `scripts/setup-linux.sh` (from `scripts/setup-linux-template.sh`)
+- [ ] `scripts/setup-windows-wsl.sh` (from `scripts/setup-windows-wsl-template.sh`)
+- [ ] `scripts/setup-codecov.sh` (from `scripts/setup-codecov-template.sh`)
+
+**Verification Command**:
+```bash
+# Count files (should have at least 30 files):
+find . -type f ! -path './node_modules/*' ! -path './genesis/*' ! -path './.git/*' | wc -l
+
+# Check for template files that weren't copied:
+ls genesis/templates/**/*-template* 2>/dev/null | wc -l
+# Compare this number to your copied files
+```
+
 ---
 
 ## Step 4: Install and Test (10 minutes)
