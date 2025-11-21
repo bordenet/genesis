@@ -161,10 +161,22 @@ cp genesis/templates/CLAUDE.md.template CLAUDE.md
 cp genesis/templates/project-structure/README-template.md README.md
 # Replace all {{VARIABLES}} with actual values
 
+# Copy REVERSE-INTEGRATION-NOTES.md (CRITICAL - track what Genesis is missing)
+cp genesis/templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md REVERSE-INTEGRATION-NOTES.md
+# Replace {{PROJECT_NAME}} with actual project name
+
 # Copy package.json
 cp genesis/examples/hello-world/package.json .
 # Update name, description, repository fields
 ```
+
+**📝 IMPORTANT**: The `REVERSE-INTEGRATION-NOTES.md` file is where you'll document:
+- Every time you reference product-requirements-assistant or one-pager to solve a problem
+- What patterns are missing from Genesis templates
+- What bugs Genesis should prevent
+- What features future projects will need
+
+**This creates a continuous improvement cycle for Genesis!**
 
 ### 3.2 Copy Web App Files
 

@@ -6,6 +6,70 @@
 
 ## 🎯 Core Principles
 
+### 0. **MANDATORY: Reference Known-Good Implementations FIRST**
+
+**⚠️ BEFORE implementing ANY feature, reference these working examples:**
+
+#### Primary References:
+1. **[product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant)** ⭐ **PRIMARY**
+   - Dark mode toggle (CRITICAL - always broken without Tailwind config)
+   - Workflow architecture (3-phase mock/manual pattern)
+   - Form-to-prompt pattern
+   - Deployment scripts (compact mode, quality gates)
+   - Setup scripts (fast, resumable, smart caching)
+
+2. **[one-pager](https://github.com/bordenet/one-pager)** ⭐ **SECONDARY**
+   - Same workflow pattern, different document type
+   - UI patterns (related projects dropdown, privacy notice)
+   - Lessons learned from Genesis implementation
+
+#### When to Reference:
+**✅ ALWAYS check these implementations when:**
+- Implementing dark mode (check `docs/index.html` lines 9-15 for Tailwind config)
+- Setting up workflow phases (check `js/workflow.js`)
+- Creating forms (check `js/app.js` renderPhase1Form)
+- Writing scripts (check `scripts/deploy-web.sh`, `scripts/setup-macos.sh`)
+- Adding UI patterns (check HTML/CSS patterns)
+- **ANY TIME you're unsure how to implement something**
+
+#### Create Reverse-Integration Notes:
+**📝 MANDATORY: When you reference the implementations to solve a problem:**
+
+1. **Add a note to `REVERSE-INTEGRATION-NOTES.md`** in this project
+2. **Use this format**:
+   ```markdown
+   ## REVERSE-INTEGRATION NOTE #[NUMBER]
+
+   **Date**: YYYY-MM-DD
+   **Issue**: [What problem did you encounter?]
+   **Solution**: [How did you solve it by referencing the implementations?]
+   **Reference**: [Link to specific file/line in reference implementation]
+   **Genesis Gap**: [What's missing from Genesis that caused this?]
+   **Recommendation**: [What should be added/updated in Genesis?]
+   **Files to Update**: [List Genesis files that need changes]
+   **Priority**: [CRITICAL / HIGH / MEDIUM / LOW]
+   ```
+
+3. **Why this matters**: Every note helps improve Genesis for the next project. This creates a continuous improvement cycle.
+
+**Example**:
+```markdown
+## REVERSE-INTEGRATION NOTE #1
+
+**Date**: 2025-11-21
+**Issue**: Dark mode toggle didn't work
+**Solution**: Added Tailwind config from product-requirements-assistant/docs/index.html#L9-L15
+**Reference**: https://github.com/bordenet/product-requirements-assistant/blob/main/docs/index.html#L9-L15
+**Genesis Gap**: Missing Tailwind darkMode: 'class' config in templates
+**Recommendation**: Add to genesis/templates/web-app/index-template.html
+**Files to Update**: genesis/templates/web-app/index-template.html
+**Priority**: CRITICAL
+```
+
+**Rule**: If you reference the implementations more than once for the same issue, Genesis is missing something. Document it!
+
+---
+
 ### 1. **MANDATORY: Script-Only Deployments and Setup**
 
 **⚠️ CRITICAL - READ THIS FIRST**:
