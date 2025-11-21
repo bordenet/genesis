@@ -6,7 +6,50 @@
 
 ## 🎯 Core Principles
 
-### 1. **ALWAYS Complete the Full Workflow**
+### 1. **MANDATORY: Script-Only Deployments and Setup**
+
+**⚠️ CRITICAL - READ THIS FIRST**:
+
+#### Deployment Rule (ABSOLUTE REQUIREMENT)
+**ALL deployments MUST be performed using project scripts. NEVER use manual git commands.**
+
+```bash
+# ✅ CORRECT - Use deployment script
+./scripts/deploy-web.sh
+
+# ❌ WRONG - Manual deployment
+git add .
+git commit -m "Deploy"
+git push
+```
+
+**Why**: The deployment script enforces quality gates (linting, tests, coverage) before deploying. Manual deployments bypass these checks and can deploy broken code.
+
+#### Setup Rule (ABSOLUTE REQUIREMENT)
+**ALL project dependencies MUST be installed via setup scripts. NEVER tell users to run manual install commands.**
+
+```bash
+# ✅ CORRECT - Use setup script
+./scripts/setup-macos.sh
+
+# ❌ WRONG - Manual setup
+npm install
+brew install shellcheck
+```
+
+**Why**: Setup scripts ensure reproducible environments. Manual setup leads to "works on my machine" problems.
+
+#### Required Setup Scripts
+Every project MUST have these scripts in `scripts/`:
+- **`setup-macos.sh`** - MANDATORY for all projects
+- **`setup-linux.sh`** - If project supports Linux
+- **`setup-windows-wsl.sh`** - If project supports Windows WSL
+- **`setup-codecov.sh`** - If project uses code coverage tools
+- **`deploy-web.sh`** - For web applications
+
+**Reference**: https://github.com/bordenet/product-requirements-assistant/tree/main/scripts
+
+### 2. **ALWAYS Complete the Full Workflow**
 When asked to do a task, you MUST:
 1. ✅ Complete the work
 2. ✅ Lint the code (`npm run lint` or `npm run lint:fix`)
@@ -15,10 +58,10 @@ When asked to do a task, you MUST:
 5. ✅ Check coverage if applicable
 6. ✅ **PROACTIVELY tell the user what's left** - don't wait to be asked
 
-**BAD**: "I've created the files."  
+**BAD**: "I've created the files."
 **GOOD**: "I've created the files, linted them (0 errors), ran tests (37/37 passing), and verified coverage (73%). What's left: [specific list]"
 
-### 2. **NEVER Include Build Artifacts**
+### 3. **NEVER Include Build Artifacts**
 When creating examples or templates:
 - ❌ NEVER commit `node_modules/`
 - ❌ NEVER commit `coverage/`
@@ -26,7 +69,7 @@ When creating examples or templates:
 - ✅ ALWAYS create `.gitignore` files
 - ✅ ALWAYS verify directory size before committing
 
-### 3. **Proactive Status Updates**
+### 4. **Proactive Status Updates**
 After EVERY significant change:
 ```
 ✅ What I did: [specific actions]
@@ -58,6 +101,20 @@ Don't make the user ask "what's left?" multiple times.
 - [ ] Verify no regressions
 - [ ] **Tell user: what's done, what's left**
 
+### When Deploying
+- [ ] **MANDATORY**: Use `./scripts/deploy-web.sh` (NEVER manual git commands)
+- [ ] Verify deployment script exists and is executable
+- [ ] Let script handle linting, testing, coverage, commit, push
+- [ ] Verify deployment URL after script completes
+
+### When Adding Dependencies
+- [ ] **MANDATORY**: Update `./scripts/setup-macos.sh` FIRST
+- [ ] Update `./scripts/setup-linux.sh` if project supports Linux
+- [ ] Add dependency to package.json/requirements.txt/etc.
+- [ ] Test setup script works
+- [ ] Commit setup script AND package file together
+- [ ] **NEVER** tell user to run `npm install` or `pip install` manually
+
 ### When Asked "What's Left?"
 This means you failed to proactively communicate. Improve by:
 1. Always ending responses with "What's left: [list]"
@@ -74,6 +131,13 @@ This means you failed to proactively communicate. Improve by:
 - `js/` - JavaScript modules (ES6)
 - `tests/` - Jest unit tests
 - `e2e/` - Playwright E2E tests
+
+### Scripts (CRITICAL - ALWAYS USE THESE)
+- **`scripts/setup-macos.sh`** - Install ALL dependencies (MANDATORY)
+- **`scripts/setup-linux.sh`** - Linux setup (if supported)
+- **`scripts/deploy-web.sh`** - Deploy to GitHub Pages (MANDATORY for web apps)
+- `scripts/lib/common.sh` - Common shell functions
+- `scripts/lib/compact.sh` - Compact display utilities
 
 ### Configuration
 - `.env.example` - Environment template (tracked in git)
@@ -108,16 +172,38 @@ npm run lint
 npm run lint:fix
 ```
 
+### Setup Commands (MANDATORY - Use These, Not Manual Install)
+```bash
+# Initial setup (macOS)
+./scripts/setup-macos.sh
+
+# Initial setup (Linux)
+./scripts/setup-linux.sh
+
+# Deploy to GitHub Pages
+./scripts/deploy-web.sh
+
+# Deploy with verbose output
+./scripts/deploy-web.sh -v
+
+# Deploy skipping tests (emergency only)
+./scripts/deploy-web.sh --skip-tests
+```
+
 ### ALWAYS Run These After Code Changes
 1. `npm run lint` (or `lint:fix`)
 2. `npm test`
 3. Verify output shows all passing
+4. **Deploy using `./scripts/deploy-web.sh`** (NEVER manual git commands)
 
 ---
 
 ## 🚫 What NOT to Do
 
 ### NEVER
+- ❌ **Deploy using manual git commands** (ALWAYS use `./scripts/deploy-web.sh`)
+- ❌ **Tell users to run `npm install` or `pip install`** (ALWAYS use setup scripts)
+- ❌ **Add dependencies without updating setup scripts**
 - ❌ Create files without linting them
 - ❌ Create tests without running them
 - ❌ Commit `node_modules/` or build artifacts
@@ -127,6 +213,9 @@ npm run lint:fix
 - ❌ Do more than the user asked
 
 ### ALWAYS
+- ✅ **Use `./scripts/deploy-web.sh` for ALL deployments**
+- ✅ **Use `./scripts/setup-macos.sh` for ALL setup instructions**
+- ✅ **Update setup scripts BEFORE adding dependencies**
 - ✅ Lint after creating/modifying code
 - ✅ Run tests after creating/modifying tests
 - ✅ Create `.gitignore` for new directories with dependencies

@@ -49,12 +49,23 @@ If you prefer to run from source or need to customize:
 git clone https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}.git
 cd {{GITHUB_REPO}}
 
+# ⚠️ MANDATORY: Use setup script (NEVER manual npm install)
+./scripts/setup-macos.sh        # macOS
+./scripts/setup-linux.sh        # Linux
+./scripts/setup-windows-wsl.sh  # Windows WSL
+
 # Serve web app locally
 cd {{DEPLOY_FOLDER}}
 python3 -m http.server 8000
 
 # Open http://localhost:8000
 ```
+
+**Why use setup scripts?**
+- ✅ Ensures reproducible environment
+- ✅ Installs ALL dependencies (not just npm packages)
+- ✅ Fast on subsequent runs (~5-10 seconds)
+- ✅ Prevents "works on my machine" problems
 
 ---
 
@@ -199,14 +210,34 @@ python3 -m http.server 8000
 
 ### Deployment
 
-Automatic deployment to GitHub Pages on push to `main` branch.
+**⚠️ MANDATORY: Use deployment script (NEVER manual git commands)**
 
-Manual deployment:
 ```bash
+# Deploy to GitHub Pages (runs lint, tests, coverage, commit, push)
+./scripts/deploy-web.sh
+
+# Deploy with verbose output
+./scripts/deploy-web.sh -v
+
+# Deploy skipping tests (emergency only)
+./scripts/deploy-web.sh --skip-tests
+```
+
+**Why use deployment script?**
+- ✅ Enforces quality gates (linting, tests, coverage)
+- ✅ Prevents deploying broken code
+- ✅ Consistent deployment process
+- ✅ Automatic commit messages with timestamps
+
+**❌ NEVER deploy manually:**
+```bash
+# ❌ WRONG - Bypasses quality checks
 git add {{DEPLOY_FOLDER}}
 git commit -m "Update web app"
 git push origin main
 ```
+
+Automatic deployment to GitHub Pages on push to `main` branch via GitHub Actions.
 
 ---
 
