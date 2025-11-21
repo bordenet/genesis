@@ -41,6 +41,11 @@ Before starting ANY Genesis project, study these working examples:
 - `prompts/phase1.md` - Example prompt with template variables
 - `templates/prd-template.md` - Document structure
 - `tests/workflow.test.js` - How to test async prompt loading
+- **`scripts/deploy-web.sh`** - ⭐ **REFERENCE IMPLEMENTATION for compact mode deployment**
+- **`scripts/setup-macos.sh`** - ⭐ **REFERENCE IMPLEMENTATION for setup scripts**
+- **`scripts/setup-linux.sh`** - Linux setup script example
+- **`scripts/setup-windows-wsl.sh`** - Windows WSL setup script example
+- **`scripts/setup-codecov.sh`** - Code coverage setup example
 
 ## 2. One-Pager Assistant (3-Phase One-Pager Generator)
 **Repository**: https://github.com/bordenet/one-pager

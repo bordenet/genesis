@@ -4,6 +4,9 @@
 
 This guide explains how to use the deployment script (`scripts/deploy-web.sh`) to deploy your {{PROJECT_NAME}} application to GitHub Pages.
 
+**⚠️ REFERENCE IMPLEMENTATION**: For the canonical example of proper compact mode deployment, see:
+https://github.com/bordenet/product-requirements-assistant/blob/main/scripts/deploy-web.sh
+
 ## Prerequisites
 
 Before deploying, ensure:
