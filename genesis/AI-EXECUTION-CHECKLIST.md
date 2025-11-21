@@ -57,21 +57,47 @@
 
 Before starting, verify these files exist in genesis/:
 
+**Core Documentation**:
 - [ ] `START-HERE.md` (your entry point)
 - [ ] `templates/CLAUDE.md.template` (mandatory workflow)
 - [ ] `05-QUALITY-STANDARDS.md` (quality requirements)
-- [ ] `examples/hello-world/README.md` (working example)
-- [ ] `templates/project-structure/gitignore-template` (prevent build artifacts)
-- [ ] `examples/hello-world/package.json` (dependencies)
-- [ ] `examples/hello-world/index.html` (web app)
-- [ ] `examples/hello-world/js/*.js` (4 files: app, storage, workflow, ai-mock)
-- [ ] `examples/hello-world/css/styles.css` (styles)
-- [ ] `examples/hello-world/tests/*.js` (3 test files)
-- [ ] `examples/hello-world/jest.config.js` (test config)
-- [ ] `examples/hello-world/jest.setup.js` (test setup)
-- [ ] `examples/hello-world/.eslintrc.json` (linting config)
+- [ ] `integration/CODE_STYLE_STANDARDS.md` (coding standards)
+- [ ] `integration/SHELL_SCRIPT_STANDARDS.md` (shell script standards)
 
-**If ANY file is missing, STOP and tell the user Genesis is incomplete.**
+**Template Files** (CRITICAL - these are what you'll copy):
+- [ ] `templates/project-structure/gitignore-template`
+- [ ] `templates/project-structure/README-template.md`
+- [ ] `templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md`
+- [ ] `templates/project-structure/.eslintrc-template.json`
+- [ ] `templates/project-structure/codecov-template.yml`
+- [ ] `templates/testing/package-template.json`
+- [ ] `templates/testing/jest.config-template.js`
+- [ ] `templates/testing/jest.setup-template.js`
+- [ ] `templates/web-app/index-template.html`
+- [ ] `templates/web-app/js/app-template.js`
+- [ ] `templates/web-app/js/workflow-template.js`
+- [ ] `templates/web-app/js/storage-template.js`
+- [ ] `templates/web-app/js/ai-mock-template.js`
+- [ ] `templates/web-app/js/ai-mock-ui-template.js`
+- [ ] `templates/testing/ai-mock.test-template.js`
+- [ ] `templates/testing/storage.test-template.js`
+- [ ] `templates/testing/workflow.e2e-template.js`
+- [ ] `templates/prompts/phase1-template.md`
+- [ ] `templates/prompts/phase2-template.md`
+- [ ] `templates/prompts/phase3-template.md`
+- [ ] `templates/scripts/setup-macos-web-template.sh`
+- [ ] `templates/scripts/setup-linux-template.sh`
+- [ ] `templates/scripts/setup-windows-wsl-template.sh`
+- [ ] `templates/scripts/deploy-web.sh.template`
+- [ ] `templates/scripts/install-hooks-template.sh`
+- [ ] `templates/scripts/setup-codecov-template.sh`
+- [ ] `templates/scripts/lib/common-template.sh`
+- [ ] `templates/scripts/lib/compact.sh`
+
+**Examples** (for REFERENCE ONLY - do NOT copy from here):
+- [ ] `examples/hello-world/README.md` (study this, don't copy)
+
+**If ANY template file is missing, STOP and tell the user Genesis is incomplete.**
 
 ---
 
@@ -79,10 +105,13 @@ Before starting, verify these files exist in genesis/:
 
 - [ ] Read `templates/CLAUDE.md.template` completely
 - [ ] Read `05-QUALITY-STANDARDS.md` completely
-- [ ] Read `examples/hello-world/README.md` completely
+- [ ] Read `integration/CODE_STYLE_STANDARDS.md` completely
+- [ ] Read `integration/SHELL_SCRIPT_STANDARDS.md` completely
+- [ ] Read `examples/hello-world/README.md` (for reference, not copying)
 - [ ] Understand: ALWAYS lint, ALWAYS test, ALWAYS communicate what's left
 - [ ] Understand: NEVER include node_modules/, coverage/, dist/, build/
 - [ ] Understand: NEVER use hyperbolic language
+- [ ] Understand: Check coding standards FIRST before creating code
 
 ---
 
@@ -118,54 +147,98 @@ Before starting, verify these files exist in genesis/:
 - [ ] Replaced `{{PROJECT_NAME}}` in CLAUDE.md
 - [ ] Copied `README.md` from `templates/project-structure/README-template.md`
 - [ ] Replaced ALL `{{VARIABLES}}` in README.md
-- [ ] Copied `package.json` from `examples/hello-world/package.json`
-- [ ] Updated package.json: name, description, repository fields
+- [ ] Copied `REVERSE-INTEGRATION-NOTES.md` from `templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md`
+- [ ] Copied `package.json` from `templates/testing/package-template.json`
+- [ ] Replaced variables in package.json
+- [ ] Copied `.eslintrc.json` from `templates/project-structure/.eslintrc-template.json`
+- [ ] Copied `codecov.yml` from `templates/project-structure/codecov-template.yml`
+- [ ] Copied `jest.config.js` from `templates/testing/jest.config-template.js`
+- [ ] Copied `jest.setup.js` from `templates/testing/jest.setup-template.js`
 
 ### 3.2 Web App Files
-- [ ] Copied `index.html` from `examples/hello-world/index.html`
-- [ ] Customized index.html: title, phases, branding
+- [ ] Copied `index.html` from `templates/web-app/index-template.html`
+- [ ] Replaced `{{PROJECT_TITLE}}`, `{{PROJECT_DESCRIPTION}}`, `{{HEADER_EMOJI}}`, `{{FAVICON_EMOJI}}`
+- [ ] Customized navigation dropdown (Related Projects section)
 - [ ] Created `js/` directory
-- [ ] Copied all 4 JS files from `examples/hello-world/js/`
-- [ ] Customized `js/workflow.js` with actual phases
-- [ ] Created `css/` directory
-- [ ] Copied `css/styles.css` from `examples/hello-world/css/`
+- [ ] Copied `js/app.js` from `templates/web-app/js/app-template.js`
+- [ ] Copied `js/workflow.js` from `templates/web-app/js/workflow-template.js`
+- [ ] Copied `js/storage.js` from `templates/web-app/js/storage-template.js`
+- [ ] Copied `js/ai-mock.js` from `templates/web-app/js/ai-mock-template.js`
+- [ ] Copied `js/ai-mock-ui.js` from `templates/web-app/js/ai-mock-ui-template.js`
+- [ ] Replaced `{{PROJECT_NAME}}` in all JS files
+- [ ] Customized workflow phases in workflow.js
+- [ ] Created `css/` directory (if needed for custom CSS)
 - [ ] Created `tests/` directory
-- [ ] Copied all 3 test files from `examples/hello-world/tests/`
-- [ ] Updated tests to match your workflow
-- [ ] Copied `jest.config.js`
-- [ ] Copied `jest.setup.js`
-- [ ] Copied `.eslintrc.json`
+- [ ] Copied `tests/ai-mock.test.js` from `templates/testing/ai-mock.test-template.js`
+- [ ] Copied `tests/storage.test.js` from `templates/testing/storage.test-template.js`
+- [ ] Copied `tests/workflow.test.js` from `templates/testing/workflow.e2e-template.js`
+- [ ] Replaced `{{PROJECT_NAME}}` in all test files
+- [ ] Customized tests for your workflow
 
-### 3.3 Scripts
+### 3.3 Prompts and Templates
+- [ ] Created `prompts/` directory
+- [ ] Created `templates/` directory
+- [ ] Copied `prompts/phase1.md` from `templates/prompts/phase1-template.md`
+- [ ] Copied `prompts/phase2.md` from `templates/prompts/phase2-template.md`
+- [ ] Copied `prompts/phase3.md` from `templates/prompts/phase3-template.md`
+- [ ] Replaced `{{DOCUMENT_TYPE}}`, `{{PHASE_1_AI}}`, `{{PHASE_2_AI}}`, `{{PHASE_3_AI}}`
+- [ ] Replaced `{{PROJECT_TITLE}}`, `{{GITHUB_PAGES_URL}}`
+- [ ] Read customization instructions at top of each prompt file
+- [ ] Created `templates/{document-type}-template.md` based on your document type
+
+### 3.4 Scripts
 - [ ] **⚠️ STUDIED REFERENCE**: Reviewed https://github.com/bordenet/product-requirements-assistant/tree/main/scripts
 - [ ] Created `scripts/` directory
-- [ ] **MANDATORY**: Copied `setup-macos.sh` from template (ALWAYS REQUIRED)
-- [ ] Copied `setup-linux.sh` from template (if project supports Linux)
-- [ ] Copied `deploy-web.sh` from `templates/scripts/deploy-web.sh.template`
-- [ ] Replaced `{{PROJECT_NAME}}` in deploy-web.sh
-- [ ] Replaced `{{GITHUB_USER}}` in deploy-web.sh
-- [ ] Replaced `{{GITHUB_REPO}}` in deploy-web.sh
-- [ ] Replaced `{{GITHUB_PAGES_URL}}` in deploy-web.sh
 - [ ] Created `scripts/lib/` directory
-- [ ] Copied `common.sh` from `templates/scripts/lib/common-template.sh`
-- [ ] Copied `compact.sh` from `templates/scripts/lib/compact.sh`
+- [ ] **MANDATORY**: Copied `setup-macos.sh` from `templates/scripts/setup-macos-web-template.sh`
+- [ ] Replaced `{{PROJECT_NAME}}` in setup-macos.sh
+- [ ] Copied `setup-linux.sh` from `templates/scripts/setup-linux-template.sh` (if supporting Linux)
+- [ ] Replaced `{{PROJECT_NAME}}` in setup-linux.sh
+- [ ] Copied `setup-windows-wsl.sh` from `templates/scripts/setup-windows-wsl-template.sh` (if supporting Windows)
+- [ ] Replaced `{{PROJECT_NAME}}` in setup-windows-wsl.sh
+- [ ] Copied `deploy-web.sh` from `templates/scripts/deploy-web.sh.template`
+- [ ] Replaced `{{PROJECT_NAME}}`, `{{GITHUB_USER}}`, `{{GITHUB_REPO}}`, `{{GITHUB_PAGES_URL}}` in deploy-web.sh
+- [ ] Copied `lib/common.sh` from `templates/scripts/lib/common-template.sh`
+- [ ] Copied `lib/compact.sh` from `templates/scripts/lib/compact.sh`
+- [ ] Copied `install-hooks.sh` from `templates/scripts/install-hooks-template.sh`
+- [ ] Replaced `{{PROJECT_NAME}}` in install-hooks.sh
+- [ ] Copied `setup-codecov.sh` from `templates/scripts/setup-codecov-template.sh` (optional)
+- [ ] Replaced `{{GITHUB_USER}}`, `{{GITHUB_REPO}}` in setup-codecov.sh
 - [ ] Made all scripts executable: `chmod +x scripts/*.sh scripts/lib/*.sh`
 - [ ] Verified setup-macos.sh exists and is executable
+- [ ] Verified install-hooks.sh exists and is executable
 
-### 3.4 Variable Replacement
+### 3.5 Variable Replacement
 - [ ] Replaced `{{PROJECT_NAME}}` everywhere
 - [ ] Replaced `{{PROJECT_TITLE}}` everywhere
 - [ ] Replaced `{{PROJECT_DESCRIPTION}}` everywhere
 - [ ] Replaced `{{GITHUB_USER}}` everywhere
 - [ ] Replaced `{{GITHUB_REPO}}` everywhere
-- [ ] Replaced `{{PHASE_COUNT}}` everywhere
-- [ ] Replaced `{{PHASE_1_NAME}}`, `{{PHASE_1_AI}}`, etc.
+- [ ] Replaced `{{GITHUB_PAGES_URL}}` everywhere
+- [ ] Replaced `{{HEADER_EMOJI}}` everywhere
+- [ ] Replaced `{{FAVICON_EMOJI}}` everywhere
+- [ ] Replaced `{{DOCUMENT_TYPE}}` everywhere
+- [ ] Replaced `{{PHASE_1_AI}}`, `{{PHASE_2_AI}}`, `{{PHASE_3_AI}}` everywhere
+- [ ] Verified NO unreplaced variables: `grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis`
+
+### 3.6 Verify All Template Files Copied
+- [ ] Used checklist in START-HERE.md Step 3.6
+- [ ] Verified all MANDATORY core files copied (9 files)
+- [ ] Verified all MANDATORY web app files copied (6 files)
+- [ ] Verified all MANDATORY test files copied (3 files)
+- [ ] Verified all MANDATORY prompts/templates copied (4 files)
+- [ ] Verified all MANDATORY scripts copied (5 files)
+- [ ] Verified OPTIONAL scripts copied (if needed)
+- [ ] Ran verification command: `find . -type f ! -path './node_modules/*' ! -path './genesis/*' ! -path './.git/*' | wc -l`
+- [ ] Verified at least 30 files exist
 
 ---
 
 ## Step 4: Install and Test ✅
 
 - [ ] Ran `npm install`
+- [ ] Ran `./scripts/install-hooks.sh` (CRITICAL - installs pre-commit hooks)
+- [ ] Verified pre-commit hook installed in `.git/hooks/pre-commit`
 - [ ] Ran `npm run lint`
 - [ ] Fixed any linting errors (or ran `npm run lint:fix`)
 - [ ] Verified 0 linting errors
@@ -174,6 +247,7 @@ Before starting, verify these files exist in genesis/:
 - [ ] Ran `NODE_OPTIONS=--experimental-vm-modules npm run test:coverage`
 - [ ] Verified coverage ≥70% (or ≥85% for production)
 - [ ] Fixed any failing tests BEFORE proceeding
+- [ ] (Optional) Ran `./scripts/setup-codecov.sh` if setting up code coverage reporting
 
 ---
 
