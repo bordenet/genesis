@@ -79,9 +79,11 @@ Before starting, verify these files exist in genesis/:
 - [ ] `templates/web-app/js/storage-template.js`
 - [ ] `templates/web-app/js/ai-mock-template.js`
 - [ ] `templates/web-app/js/ai-mock-ui-template.js`
+- [ ] `templates/web-app/js/same-llm-adversarial-template.js`
 - [ ] `templates/testing/ai-mock.test-template.js`
 - [ ] `templates/testing/storage.test-template.js`
 - [ ] `templates/testing/workflow.e2e-template.js`
+- [ ] `templates/testing/same-llm-adversarial.test-template.js`
 - [ ] `templates/prompts/phase1-template.md`
 - [ ] `templates/prompts/phase2-template.md`
 - [ ] `templates/prompts/phase3-template.md`
@@ -170,8 +172,10 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `js/storage.js` from `templates/web-app/js/storage-template.js`
 - [ ] Copied `js/ai-mock.js` from `templates/web-app/js/ai-mock-template.js`
 - [ ] Copied `js/ai-mock-ui.js` from `templates/web-app/js/ai-mock-ui-template.js`
-- [ ] Replaced `{{PROJECT_NAME}}` in all JS files
+- [ ] Copied `js/same-llm-adversarial.js` from `templates/web-app/js/same-llm-adversarial-template.js`
+- [ ] Replaced `{{PROJECT_NAME}}`, `{{DOCUMENT_TYPE}}` in all JS files
 - [ ] Customized workflow.js - updated phase names, descriptions, AI models, and form fields
+- [ ] Verified same-llm-adversarial.js configuration for corporate deployments
 - [ ] Created `css/` directory
 - [ ] Copied `css/styles.css` from `templates/web-app/css/styles-template.css` (MANDATORY - index.html references this)
 - [ ] Created `.nojekyll` file (disables Jekyll processing, improves GitHub Pages deployment speed)
@@ -180,8 +184,10 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `tests/ai-mock.test.js` from `templates/testing/ai-mock.test-template.js`
 - [ ] Copied `tests/storage.test.js` from `templates/testing/storage.test-template.js`
 - [ ] Copied `tests/workflow.test.js` from `templates/testing/workflow.e2e-template.js`
-- [ ] Replaced `{{PROJECT_NAME}}` in all test files
+- [ ] Copied `tests/same-llm-adversarial.test.js` from `templates/testing/same-llm-adversarial.test-template.js`
+- [ ] Replaced `{{PROJECT_NAME}}`, `{{DOCUMENT_TYPE}}` in all test files
 - [ ] Customized tests/workflow.test.js - updated test cases to match workflow phases and form fields
+- [ ] Verified tests/same-llm-adversarial.test.js includes all 13 test scenarios
 
 ### 3.3 Prompts and Templates
 - [ ] Created `prompts/` directory

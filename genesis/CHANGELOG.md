@@ -9,10 +9,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- **Same-LLM Adversarial Configuration System** - Automatically detects when Phase 1 and Phase 2 use the same LLM and applies Gemini personality simulation to maintain adversarial tension
+  - `templates/web-app/js/same-llm-adversarial-template.js` - Complete implementation with 4 core classes
+  - `templates/testing/same-llm-adversarial.test-template.js` - Comprehensive test suite with 19 test scenarios
+  - `SAME-LLM-ADVERSARIAL-GUIDE.md` - Complete documentation and usage guide
+  - Detection methods: Provider/model match, URL match (LibreChat), endpoint match (localhost/corporate)
+  - Forget clause detection and handling (5 patterns)
+  - Gemini personality simulation template
+  - Quality validation metrics (semantic difference, adversarial language, challenge count)
+  - Critical for corporate deployments using single-endpoint LLM platforms
+- Updated `START-HERE.md` with same-LLM file copy instructions
+- Updated `AI-EXECUTION-CHECKLIST.md` with same-LLM verification steps
+- Updated `scripts/test-genesis.sh` to include same-LLM files in end-to-end testing
 - Verification script (`scripts/verify-templates.sh`) to check template completeness
 - End-to-end test script (`scripts/test-genesis.sh`) to validate Genesis execution
 - Testing procedure documentation (`TESTING-PROCEDURE.md`)
 - This changelog file
+
+### Changed
+- Template variable replacement now includes `{{DOCUMENT_TYPE}}` in JavaScript and test files
+- Verification script now checks for 46 template files (up from 44)
 
 ---
 
