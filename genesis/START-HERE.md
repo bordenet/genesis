@@ -28,18 +28,25 @@ You're in a fresh repository with the `genesis/` directory. Your mission:
 
 1. **[`REFERENCE-IMPLEMENTATIONS.md`](REFERENCE-IMPLEMENTATIONS.md)** - Overview of working examples
 2. **Study the live example**: https://github.com/bordenet/product-requirements-assistant
-   - Browse the repository on GitHub
-   - Read `js/workflow.js` - Phase architecture, prompt loading, data flow
-   - Read `js/app.js` - Form rendering, phase transitions, UI logic
-   - Read `prompts/phase1.md` - Prompt template with variables
-   - Read `templates/prd-template.md` - Document structure
-   - Read `tests/workflow.test.js` - Testing async prompts
-3. **[`docs/WORKFLOW-ARCHITECTURE.md`](docs/WORKFLOW-ARCHITECTURE.md)** - Detailed workflow patterns
+   - **CRITICAL**: Browse the repository on GitHub
+   - **`docs/index.html`** (lines 9-15) - ⭐ **Tailwind dark mode config** (ALWAYS BROKEN WITHOUT THIS!)
+   - **`docs/js/app.js`** (lines 145-165) - ⭐ **Dark mode toggle functions** (loadTheme, toggleTheme)
+   - **`js/workflow.js`** - Phase architecture, prompt loading, data flow
+   - **`js/app.js`** - Form rendering, phase transitions, UI logic
+   - **`prompts/phase1.md`** - Prompt template with variables
+   - **`templates/prd-template.md`** - Document structure
+   - **`tests/workflow.test.js`** - Testing async prompts
+   - **`scripts/deploy-web.sh`** - ⭐ **Compact mode deployment** (git output redirection)
+   - **`scripts/setup-macos.sh`** - ⭐ **Fast, resumable setup** (smart caching)
+3. **[`docs/WORKFLOW-ARCHITECTURE.md`](docs/WORKFLOW-ARCHITECTURE.md)** - Detailed workflow patterns + dark mode fix
 4. **[`docs/REQUIREMENTS-TEMPLATE.md`](docs/REQUIREMENTS-TEMPLATE.md)** - What to ask vs. infer
 5. **[`docs/WORKFLOW-DECISION-TREE.md`](docs/WORKFLOW-DECISION-TREE.md)** - Decision framework
 
 ### What You'll Learn:
 
+- ✅ **Dark mode toggle** (Tailwind `darkMode: 'class'` config) - **CRITICAL!**
+- ✅ **loadTheme()** function (prevents flash of wrong theme)
+- ✅ **toggleTheme()** function (works with Tailwind class mode)
 - ✅ 3-phase workflow pattern (mock, manual, mock)
 - ✅ Form-to-prompt pattern for Phase 1
 - ✅ Template variable replacement (`{variableName}` syntax)
@@ -49,20 +56,41 @@ You're in a fresh repository with the `genesis/` directory. Your mission:
 - ✅ How form fields map to template sections
 - ✅ How to structure prompts in separate files
 - ✅ How to test async prompt loading
+- ✅ **Deployment scripts** (compact mode, quality gates)
+- ✅ **Setup scripts** (fast, resumable, smart caching)
 
 ### Why This Matters:
 
 **This will answer 90% of your questions BEFORE you ask the user.**
 
 The reference implementation shows you EXACTLY how to:
+- **Fix dark mode toggle** (broken in EVERY Genesis project without Tailwind config)
 - Structure the workflow phases
 - Load prompts from markdown files
 - Handle form data and template variables
 - Implement mock mode for development
 - Write defensive code with proper validation
 - Test async functionality
+- **Deploy with quality gates** (lint, test, coverage)
+- **Create fast setup scripts** (5-10 seconds on subsequent runs)
 
 **DO NOT PROCEED** until you've studied these references. This will save you and the user significant time by avoiding unnecessary questions about patterns that are already solved.
+
+### 🚨 CRITICAL: Dark Mode Fix
+
+**EVERY Genesis project has had broken dark mode.** The fix is simple but MANDATORY:
+
+```html
+<!-- In HTML <head> -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class'  // ← CRITICAL: Without this, toggle won't work!
+    }
+</script>
+```
+
+**Study the reference implementation for the complete pattern!**
 
 ---
 

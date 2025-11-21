@@ -6,9 +6,17 @@
     <title>Hello World - Genesis Example</title>
     <meta name="description" content="Minimal 2-phase AI workflow application">
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS with dark mode configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <script>
+        // CRITICAL: Configure Tailwind dark mode AFTER script loads
+        // Without this, dark mode toggle won't work (defaults to 'media' mode)
+        // Reference: https://github.com/bordenet/product-requirements-assistant
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+
     <!-- Custom Styles -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -20,8 +28,9 @@
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                     Hello World
                 </h1>
-                <button id="darkModeToggle" 
+                <button type="button" id="darkModeToggle"
                         class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                        title="Toggle Dark Mode"
                         aria-label="Toggle dark mode">
                     <span class="dark:hidden">🌙</span>
                     <span class="hidden dark:inline">☀️</span>
@@ -39,7 +48,7 @@
         <div id="projectListView" class="space-y-4">
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Projects</h2>
-                <button id="newProjectBtn" 
+                <button type="button" id="newProjectBtn"
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     New Project
                 </button>
@@ -52,16 +61,16 @@
         <!-- Workflow View -->
         <div id="workflowView" class="hidden space-y-6">
             <div class="flex justify-between items-center">
-                <button id="backToListBtn" 
+                <button type="button" id="backToListBtn"
                         class="text-blue-600 dark:text-blue-400 hover:underline">
                     ← Back to Projects
                 </button>
                 <div class="flex gap-2">
-                    <button id="exportBtn" 
+                    <button type="button" id="exportBtn"
                             class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
                         Export
                     </button>
-                    <button id="deleteBtn" 
+                    <button type="button" id="deleteBtn"
                             class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
                         Delete
                     </button>
@@ -91,13 +100,13 @@
     <div id="importModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Import Project</h3>
-            <input type="file" id="importFileInput" accept=".json" class="w-full mb-4">
+            <input type="file" id="importFileInput" accept=".json" class="w-full mb-4" title="Select JSON file to import">
             <div class="flex justify-end gap-2">
-                <button id="cancelImportBtn" 
+                <button type="button" id="cancelImportBtn"
                         class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
                     Cancel
                 </button>
-                <button id="confirmImportBtn" 
+                <button type="button" id="confirmImportBtn"
                         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                     Import
                 </button>
