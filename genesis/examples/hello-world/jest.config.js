@@ -11,16 +11,19 @@ export default {
   ],
   coverageThreshold: {
     global: {
-      statements: 70,
-      branches: 50,
-      functions: 75,
-      lines: 70
+      statements: 85,
+      branches: 80,
+      functions: 85,
+      lines: 85
     }
   },
-  coverageReporters: ['text', 'lcov', 'html'],
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
   transform: {},
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
+  },
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons']
   }
 };
 

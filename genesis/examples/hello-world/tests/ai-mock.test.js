@@ -20,6 +20,135 @@ describe('AI Mock Module', () => {
       const result = initMockMode();
       expect(result).toBe(true);
     });
+
+    test('should show toggle on localhost', () => {
+      // Mock localhost
+      Object.defineProperty(window, 'location', {
+        value: { hostname: 'localhost' },
+        writable: true
+      });
+
+      // Create mock DOM elements
+      const mockToggle = document.createElement('div');
+      mockToggle.id = 'aiMockToggle';
+      mockToggle.classList.add('hidden');
+      document.body.appendChild(mockToggle);
+
+      const mockCheckbox = document.createElement('input');
+      mockCheckbox.id = 'mockModeCheckbox';
+      mockCheckbox.type = 'checkbox';
+      document.body.appendChild(mockCheckbox);
+
+      localStorage.setItem('aiMockMode', 'true');
+      const result = initMockMode();
+
+      expect(result).toBe(true);
+      expect(mockToggle.classList.contains('hidden')).toBe(false);
+      expect(mockCheckbox.checked).toBe(true);
+
+      // Cleanup
+      document.body.removeChild(mockToggle);
+      document.body.removeChild(mockCheckbox);
+    });
+
+    test('should handle missing toggle element on localhost', () => {
+      Object.defineProperty(window, 'location', {
+        value: { hostname: 'localhost' },
+        writable: true
+      });
+
+      // No toggle element in DOM
+      const result = initMockMode();
+      expect(result).toBe(false);
+    });
+
+    test('should handle missing checkbox element on localhost', () => {
+      Object.defineProperty(window, 'location', {
+        value: { hostname: 'localhost' },
+        writable: true
+      });
+
+      const mockToggle = document.createElement('div');
+      mockToggle.id = 'aiMockToggle';
+      mockToggle.classList.add('hidden');
+      document.body.appendChild(mockToggle);
+
+      // No checkbox element
+      const result = initMockMode();
+      expect(result).toBe(false);
+
+      // Cleanup
+      document.body.removeChild(mockToggle);
+    });
+
+    test('should not show toggle on non-localhost', () => {
+      Object.defineProperty(window, 'location', {
+        value: { hostname: 'example.com' },
+        writable: true
+      });
+
+      const mockToggle = document.createElement('div');
+      mockToggle.id = 'aiMockToggle';
+      mockToggle.classList.add('hidden');
+      document.body.appendChild(mockToggle);
+
+      const result = initMockMode();
+
+      expect(mockToggle.classList.contains('hidden')).toBe(true);
+
+      // Cleanup
+      document.body.removeChild(mockToggle);
+    });
+
+    test('should recognize 127.0.0.1 as localhost', () => {
+      Object.defineProperty(window, 'location', {
+        value: { hostname: '127.0.0.1' },
+        writable: true
+      });
+
+      const mockToggle = document.createElement('div');
+      mockToggle.id = 'aiMockToggle';
+      mockToggle.classList.add('hidden');
+      document.body.appendChild(mockToggle);
+
+      const mockCheckbox = document.createElement('input');
+      mockCheckbox.id = 'mockModeCheckbox';
+      mockCheckbox.type = 'checkbox';
+      document.body.appendChild(mockCheckbox);
+
+      const result = initMockMode();
+
+      expect(mockToggle.classList.contains('hidden')).toBe(false);
+
+      // Cleanup
+      document.body.removeChild(mockToggle);
+      document.body.removeChild(mockCheckbox);
+    });
+
+    test('should recognize empty hostname as localhost', () => {
+      Object.defineProperty(window, 'location', {
+        value: { hostname: '' },
+        writable: true
+      });
+
+      const mockToggle = document.createElement('div');
+      mockToggle.id = 'aiMockToggle';
+      mockToggle.classList.add('hidden');
+      document.body.appendChild(mockToggle);
+
+      const mockCheckbox = document.createElement('input');
+      mockCheckbox.id = 'mockModeCheckbox';
+      mockCheckbox.type = 'checkbox';
+      document.body.appendChild(mockCheckbox);
+
+      const result = initMockMode();
+
+      expect(mockToggle.classList.contains('hidden')).toBe(false);
+
+      // Cleanup
+      document.body.removeChild(mockToggle);
+      document.body.removeChild(mockCheckbox);
+    });
   });
 
   describe('setMockMode', () => {
@@ -37,6 +166,39 @@ describe('AI Mock Module', () => {
     test('should persist to localStorage', () => {
       setMockMode(true);
       expect(localStorage.getItem('aiMockMode')).toBe('true');
+    });
+
+    test('should update checkbox when present', () => {
+      const mockCheckbox = document.createElement('input');
+      mockCheckbox.id = 'mockModeCheckbox';
+      mockCheckbox.type = 'checkbox';
+      mockCheckbox.checked = false;
+      document.body.appendChild(mockCheckbox);
+
+      setMockMode(true);
+
+      expect(mockCheckbox.checked).toBe(true);
+
+      setMockMode(false);
+
+      expect(mockCheckbox.checked).toBe(false);
+
+      // Cleanup
+      document.body.removeChild(mockCheckbox);
+    });
+
+    test('should handle missing checkbox gracefully', () => {
+      // No checkbox in DOM
+      expect(() => setMockMode(true)).not.toThrow();
+      expect(isMockMode()).toBe(true);
+    });
+
+    test('should return the enabled state', () => {
+      const result1 = setMockMode(true);
+      expect(result1).toBe(true);
+
+      const result2 = setMockMode(false);
+      expect(result2).toBe(false);
     });
   });
 
