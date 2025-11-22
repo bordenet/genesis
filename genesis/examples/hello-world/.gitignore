@@ -4,6 +4,10 @@ node_modules/
 # Test coverage
 coverage/
 
+# Playwright
+test-results/
+playwright-report/
+
 # Build artifacts
 dist/
 build/

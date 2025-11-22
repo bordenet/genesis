@@ -1,4 +1,6 @@
-# Genesis A+ Quality Pass - Final Report
+# Genesis Quality Improvement - Final Report
+
+> **HISTORICAL DOCUMENT**: This report documents quality improvements completed on 2025-11-20. For current status, see `GENESIS-QUALITY-ASSESSMENT-FINAL.md`.
 
 **Principal Engineer Review**: Complete  
 **Date**: 2025-11-20  
