@@ -57,9 +57,9 @@ update_timer() {
         local timer_text
         printf -v timer_text "[%02d:%02d:%02d]" "$hours" "$minutes" "$seconds"
         local timer_col=$((cols - ${#timer_text}))
-        
+
         # Save cursor, move to top-right, print timer (yellow on black), restore cursor
-        echo -ne "${SAVE_CURSOR}\033[1;${timer_col}H\033[33;40m${timer_text}\033[0m${RESTORE_CURSOR}"
+        echo -ne "\033[s\033[1;${timer_col}H\033[33;40m${timer_text}\033[0m\033[u"
         sleep 1
     done
 }
@@ -114,7 +114,7 @@ log_step() {
         echo ""
     else
         # Compact mode: overwrite current line
-        echo -ne "\r${ERASE_LINE}▶ $*"
+        echo -ne "\r\033[2K▶ $*"
     fi
 }
 
@@ -123,7 +123,7 @@ log_step_done() {
         echo -e "${COLOR_GREEN}[✓]${COLOR_RESET} $*"
     else
         # Compact mode: overwrite with checkmark
-        echo -e "\r${ERASE_LINE}▶ $*\t\t${COLOR_GREEN}[✓]${COLOR_RESET}"
+        echo -e "\r\033[2K▶ $*\t\t${COLOR_GREEN}[✓]${COLOR_RESET}"
     fi
 }
 
