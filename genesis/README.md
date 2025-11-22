@@ -101,6 +101,65 @@ Genesis is based on **TWO known-good reference implementations**. When implement
 
 ---
 
+## 🚀 Multi-Project Architecture
+
+Genesis now includes **full multi-project support** based on the proven architecture from product-requirements-assistant. This enables users to create, manage, and switch between multiple projects within a single application.
+
+### Key Features:
+
+**Client-Side Routing** (`router-template.js`):
+- Hash-based navigation (#, #new, #project/{id})
+- Clean URL structure without page reloads
+- Browser back/forward button support
+- Automatic route handling and view rendering
+
+**Project Management** (`projects-template.js`):
+- Full CRUD operations (Create, Read, Update, Delete)
+- Import/Export functionality (JSON format)
+- Project metadata (title, created/updated timestamps)
+- Phase-based workflow tracking
+
+**View System** (`views-template.js`, `project-view-template.js`):
+- Project list view with grid layout
+- New project form with validation
+- Individual project workflow view
+- Phase tabs with completion indicators
+
+**UI Utilities** (`ui-template.js`):
+- Toast notifications (success, error, info, warning)
+- Loading overlays with customizable text
+- Modal dialogs with confirm/cancel
+- Date formatting (relative time: "2 hours ago")
+- Clipboard operations
+- XSS prevention (HTML escaping)
+
+**Storage** (`storage-template.js`):
+- IndexedDB for client-side persistence
+- Multi-project support with indexes
+- Efficient querying (sorted by updatedAt)
+- Storage quota monitoring
+
+### Architecture Decision:
+
+**When to use multi-project architecture:**
+- ✅ Users will create multiple documents (PRDs, one-pagers, etc.)
+- ✅ Users need to switch between projects
+- ✅ Users want to compare/export multiple projects
+- ✅ Application is document-centric (not single-purpose)
+
+**When to use simple single-project architecture:**
+- ✅ Application is a single-purpose tool
+- ✅ Users only need one active workflow at a time
+- ✅ No need for project history or comparison
+
+**Default**: Genesis templates now include multi-project architecture by default. For simple single-project apps, you can remove the router and views modules.
+
+### Migration from Simple to Multi-Project:
+
+If you have an existing Genesis project with simple architecture, see `GENESIS-GAP-ANALYSIS.md` for detailed migration steps.
+
+---
+
 ## 🔧 Understanding the 3-Phase Workflow Pattern
 
 Genesis projects use a **3-phase workflow pattern** by default. Understanding this pattern is critical for successful implementation.
@@ -218,13 +277,19 @@ All files from [bordenet/scripts/starter-kit](https://github.com/bordenet/script
 - `gitignore-template` - Comprehensive .gitignore ✅
 
 **Web App**:
-- `index-template.html` - Main HTML file with Tailwind CSS ✅
-- `js/storage-template.js` - IndexedDB storage module ✅
+- `index-template.html` - Main HTML file with Tailwind CSS + multi-project support ✅
+- `js/app-template.js` - Main application logic with router initialization ✅
+- `js/storage-template.js` - IndexedDB storage module with multi-project CRUD ✅
 - `js/workflow-template.js` - Multi-phase workflow engine ✅
+- `js/router-template.js` - Client-side routing (hash-based navigation) ✅
+- `js/views-template.js` - Project list and new project form views ✅
+- `js/projects-template.js` - Project CRUD operations and business logic ✅
+- `js/project-view-template.js` - Individual project workflow view ✅
+- `js/ui-template.js` - UI utilities (toasts, modals, loading, formatting) ✅
+- `js/ai-mock-template.js` - Mock AI for testing ✅
+- `js/ai-mock-ui-template.js` - Mock AI UI controls ✅
+- `js/same-llm-adversarial-template.js` - Same-LLM adversarial mode ✅
 - `css/styles-template.css` - Custom styles ✅
-- `js/ui-template.js` - UI helpers (Coming Soon)
-- `js/router-template.js` - Client-side routing (Coming Soon)
-- `js/app-template.js` - Main app logic (Coming Soon)
 - `data/prompts-template.json` - Default prompts (Coming Soon)
 
 **Documentation**:
@@ -310,9 +375,12 @@ All files from [bordenet/scripts/starter-kit](https://github.com/bordenet/script
 ### 🚧 Remaining (Phase 3-9)
 
 **Web App Templates** (Nice-to-have):
-- [ ] `js/app-template.js` - Main application logic
-- [ ] `js/ui-template.js` - UI helper functions
-- [ ] `js/router-template.js` - Client-side routing
+- [x] `js/app-template.js` - Main application logic ✅
+- [x] `js/ui-template.js` - UI helper functions ✅
+- [x] `js/router-template.js` - Client-side routing ✅
+- [x] `js/views-template.js` - Project list and form views ✅
+- [x] `js/projects-template.js` - Project CRUD operations ✅
+- [x] `js/project-view-template.js` - Individual project view ✅
 - [ ] `data/prompts-template.json` - Default prompts
 
 **Documentation Templates**:

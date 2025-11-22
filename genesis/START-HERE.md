@@ -235,13 +235,25 @@ cp genesis/templates/web-app/index-template.html index.html
 
 # Copy JavaScript
 mkdir -p js
+
+# Core application files (MANDATORY)
 cp genesis/templates/web-app/js/app-template.js js/app.js
-cp genesis/templates/web-app/js/workflow-template.js js/workflow.js
 cp genesis/templates/web-app/js/storage-template.js js/storage.js
+cp genesis/templates/web-app/js/workflow-template.js js/workflow.js
+
+# Multi-project architecture (MANDATORY - enables project management)
+cp genesis/templates/web-app/js/router-template.js js/router.js
+cp genesis/templates/web-app/js/views-template.js js/views.js
+cp genesis/templates/web-app/js/projects-template.js js/projects.js
+cp genesis/templates/web-app/js/project-view-template.js js/project-view.js
+cp genesis/templates/web-app/js/ui-template.js js/ui.js
+
+# AI mock and testing (MANDATORY)
 cp genesis/templates/web-app/js/ai-mock-template.js js/ai-mock.js
 cp genesis/templates/web-app/js/ai-mock-ui-template.js js/ai-mock-ui.js
 cp genesis/templates/web-app/js/same-llm-adversarial-template.js js/same-llm-adversarial.js
-# Replace {{PROJECT_NAME}}, {{DOCUMENT_TYPE}} in all JS files
+
+# Replace {{PROJECT_NAME}}, {{DOCUMENT_TYPE}}, {{HEADER_EMOJI}} in all JS files
 # Customize workflow.js:
 #   - Update phase names, descriptions, and AI models
 #   - Update form fields to match your document structure
@@ -365,6 +377,56 @@ ls -la scripts/setup-macos.sh
 ls -la scripts/install-hooks.sh
 ```
 
+### 3.4.5 Copy Evolutionary Optimization Tools (RECOMMENDED)
+
+**🚀 GAME-CHANGING FEATURE**: Evolutionary prompt optimization delivers measurable +20-30% quality improvements!
+
+```bash
+# Copy the entire evolutionary optimization module
+cp -r genesis/modules/evolutionary-optimization tools/
+
+# Make scripts executable
+chmod +x tools/scripts/*.sh
+
+# Verify structure
+ls -la tools/
+# Should see: README.md, scorers/, scripts/, templates/
+
+# Read the documentation
+cat tools/README.md
+```
+
+**What you get:**
+- ✅ **Proven Results**: +31.1% quality improvement in 20 rounds (product-requirements-assistant)
+- ✅ **Production Code**: Validated in real projects (PRD-assistant, one-pager, COE generator)
+- ✅ **Automated Testing**: Run simulations with `tools/scripts/quick-start.sh`
+- ✅ **Mutation Library**: Top 5 high-impact mutations deliver 71-73% of total improvement
+- ✅ **Smart Optimization**: Diminishing returns analysis shows optimal iteration count (15-20 rounds)
+
+**Project-Type-Specific Scorers:**
+- `scorers/prd-scorer.js` - For Product Requirements Documents
+- `scorers/one-pager-scorer.js` - For one-page documents
+- `scorers/coe-scorer.js` - For Center of Excellence documents
+- Create your own scorer if needed (see existing scorers for examples)
+
+**When to use:**
+1. After your Phase 1 prompt is working, run evolutionary optimization
+2. Use `tools/scripts/quick-start.sh` to start a simulation
+3. Compare results with `tools/scripts/compare-projects.sh`
+4. Apply top mutations from `tools/templates/mutations-library.md`
+
+**Quick Start:**
+```bash
+# After copying tools/, run a quick simulation
+cd tools
+./scripts/quick-start.sh
+
+# Or run a full 20-round simulation
+node run-simulation.js --rounds 20 --project-type prd
+```
+
+See `tools/README.md` for complete documentation and usage examples.
+
 ### 3.5 Replace Template Variables
 
 **Option 1: Manual (Recommended for first time)**
@@ -429,8 +491,13 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 **Web App Files** (MANDATORY):
 - [ ] `index.html` (from `web-app/index-template.html`)
 - [ ] `js/app.js` (from `web-app/js/app-template.js`)
-- [ ] `js/workflow.js` (from `web-app/js/workflow-template.js`)
 - [ ] `js/storage.js` (from `web-app/js/storage-template.js`)
+- [ ] `js/workflow.js` (from `web-app/js/workflow-template.js`)
+- [ ] `js/router.js` (from `web-app/js/router-template.js`)
+- [ ] `js/views.js` (from `web-app/js/views-template.js`)
+- [ ] `js/projects.js` (from `web-app/js/projects-template.js`)
+- [ ] `js/project-view.js` (from `web-app/js/project-view-template.js`)
+- [ ] `js/ui.js` (from `web-app/js/ui-template.js`)
 - [ ] `js/ai-mock.js` (from `web-app/js/ai-mock-template.js`)
 - [ ] `js/ai-mock-ui.js` (from `web-app/js/ai-mock-ui-template.js`)
 - [ ] `js/same-llm-adversarial.js` (from `web-app/js/same-llm-adversarial-template.js`)
@@ -458,6 +525,14 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 
 **Git Hooks** (RECOMMENDED):
 - [ ] `.git/hooks/pre-commit` (from `git-hooks/pre-commit-template`)
+
+**Evolutionary Optimization Tools** (RECOMMENDED - 🚀 GAME-CHANGING):
+- [ ] `tools/` directory (copied from `modules/evolutionary-optimization/`)
+- [ ] `tools/README.md` - Documentation and quick start
+- [ ] `tools/scorers/` - Project-type-specific scoring functions
+- [ ] `tools/scripts/` - Automation scripts (quick-start.sh, compare-projects.sh)
+- [ ] `tools/templates/` - Mutation library and project-type configs
+- [ ] Made scripts executable: `chmod +x tools/scripts/*.sh`
 
 **Scripts** (OPTIONAL):
 - [ ] `scripts/setup-linux.sh` (from `scripts/setup-linux-template.sh`)
