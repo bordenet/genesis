@@ -36,14 +36,42 @@ Genesis is a **production-ready template system** that enables AI assistants to 
 
 ### Core Features
 
-✅ **Complete Project Structure** - All files, configs, and scripts needed  
-✅ **3-Phase Workflow Pattern** - Proven pattern for AI-assisted document generation  
-✅ **Automated CI/CD** - GitHub Actions workflows for testing and deployment  
-✅ **Quality Gates** - Linting, testing, coverage requirements (≥70%)  
-✅ **Dark Mode Support** - Professional UI with Tailwind CSS  
-✅ **IndexedDB Storage** - Client-side data persistence with export/import  
-✅ **GitHub Pages Deployment** - Automated deployment on every push  
-✅ **Comprehensive Documentation** - Testing, troubleshooting, and customization guides  
+✅ **Complete Project Structure** - All files, configs, and scripts needed
+✅ **3-Phase Workflow Pattern** - Proven pattern for AI-assisted document generation
+✅ **Automated CI/CD** - GitHub Actions workflows for testing and deployment
+✅ **Quality Gates** - Linting, testing, coverage requirements (≥70%)
+✅ **Dark Mode Support** - Professional UI with Tailwind CSS
+✅ **IndexedDB Storage** - Client-side data persistence with export/import
+✅ **GitHub Pages Deployment** - Automated deployment on every push
+✅ **Evolutionary Prompt Optimization** - Out-of-the-box tools for +20-30% quality improvements
+✅ **Comprehensive Documentation** - Testing, troubleshooting, and customization guides
+
+### Evolutionary Prompt Optimization
+
+All Genesis-spawned projects include **production-validated evolutionary optimization tooling** that delivers measurable quality improvements:
+
+**Features:**
+- ✅ **Objective Scoring** - Keep/discard logic based on test case performance, not subjective judgment
+- ✅ **Proven Results** - +31.1% quality improvement in 20 rounds (production-validated)
+- ✅ **Project-Type-Specific Scorers** - PRD, One-Pager, and COE scorers with tailored criteria
+- ✅ **Proven Mutation Library** - Top 5 mutations deliver 71-73% of total improvement
+- ✅ **Cross-Project Comparison** - Compare quality across all Genesis projects
+
+**Quick Start:**
+```bash
+# After spawning a project
+cd my-new-project
+./tools/quick-start.sh
+```
+
+**Expected Results:**
+- Quality improvement: +20-30% in 15-20 rounds
+- Execution time: 30-60 minutes
+- Optimal stopping point: Round 15-20 (diminishing returns after Round 11)
+
+**Reference Implementation:** https://github.com/bordenet/product-requirements-assistant
+
+See [`modules/evolutionary-optimization/README.md`](genesis/modules/evolutionary-optimization/README.md) for details.
 
 ### Success Criteria
 

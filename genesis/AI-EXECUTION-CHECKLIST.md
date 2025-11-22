@@ -15,7 +15,7 @@
   - [ ] Read `js/workflow.js` - Phase architecture, prompt loading, data flow
   - [ ] Read `js/app.js` - Form rendering, phase transitions, UI logic
   - [ ] Read `prompts/phase1.md` - Prompt template with variables
-  - [ ] Read `templates/prd-template.md` - Document structure
+  - [ ] Read `templates/prd-template.md` - Document structure (in THAT repo, not Genesis)
   - [ ] Read `tests/workflow.test.js` - Testing async prompts
   - [ ] Read `scripts/deploy-web.sh` - Compact mode deployment with quality gates
   - [ ] Read `scripts/setup-macos.sh` - Fast, resumable setup with smart caching
@@ -205,10 +205,10 @@ Before starting, verify these files exist in genesis/:
 - [ ] Replaced `{{DOCUMENT_TYPE}}`, `{{PHASE_1_AI}}`, `{{PHASE_2_AI}}`, `{{PHASE_3_AI}}`
 - [ ] Replaced `{{PROJECT_TITLE}}`, `{{GITHUB_PAGES_URL}}`
 - [ ] Read customization instructions at top of each prompt file
-- [ ] Created `templates/{document-type}-template.md` based on your document type
+- [ ] Created YOUR_PROJECT/`templates/{document-type}-template.md` based on your document type
 - [ ] Used {variableName} syntax (lowercase, camelCase) for template variables
 - [ ] Verified template variables match form fields in workflow.js
-- [ ] Studied product-requirements-assistant/templates/prd-template.md for example structure
+- [ ] Studied product-requirements-assistant/templates/prd-template.md for example structure (external repo)
 
 ### 3.4 Scripts
 - [ ] **⚠️ STUDIED REFERENCE**: Reviewed https://github.com/bordenet/product-requirements-assistant/tree/main/scripts
@@ -223,7 +223,7 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `deploy-web.sh` from `templates/scripts/deploy-web.sh.template`
 - [ ] Replaced `{{PROJECT_NAME}}`, `{{GITHUB_USER}}`, `{{GITHUB_REPO}}`, `{{GITHUB_PAGES_URL}}` in deploy-web.sh
 - [ ] Copied `lib/common.sh` from `templates/scripts/lib/common-template.sh`
-- [ ] Copied `lib/compact.sh` from `templates/scripts/lib/compact.sh`
+- [ ] Copied `lib/compact.sh` from `templates/scripts/lib/compact.sh` (library file, no templating needed)
 - [ ] Copied `install-hooks.sh` from `templates/scripts/install-hooks-template.sh`
 - [ ] Replaced `{{PROJECT_NAME}}` in install-hooks.sh
 - [ ] Copied pre-commit hook from `templates/git-hooks/pre-commit-template` to `.git/hooks/pre-commit` (RECOMMENDED)
@@ -264,11 +264,21 @@ Before starting, verify these files exist in genesis/:
 ### 3.7 Optional Files (Advanced)
 - [ ] Reviewed START-HERE.md Section 3.7 for optional files
 - [ ] Decided if separate linting workflow is needed (usually NO - ci.yml already has linting)
+  - [ ] If YES: Copied `templates/github/workflows/lint-template.yml`
 - [ ] Decided if non-web setup script is needed (only for backend/CLI projects)
+  - [ ] If YES: Copied `templates/scripts/setup-macos-template.sh`
 - [ ] Decided if validation script is needed (optional project structure validation)
+  - [ ] If YES: Copied `templates/scripts/validate-template.sh`
 - [ ] Decided if Playwright E2E testing is needed (usually NO - Jest is sufficient)
+  - [ ] If YES: Copied `templates/testing/playwright.config-template.js`
 - [ ] Decided if comprehensive documentation is needed (only for large/complex projects)
-- [ ] Copied any optional files that are needed for this specific project
+  - [ ] If YES: Copied `templates/docs/architecture/ARCHITECTURE-template.md`
+  - [ ] If YES: Copied `templates/docs/deployment/DEPLOYMENT-template.md`
+  - [ ] If YES: Copied `templates/docs/deployment/CI-CD-template.md`
+  - [ ] If YES: Copied `templates/docs/deployment/GITHUB-PAGES-template.md`
+  - [ ] If YES: Copied `templates/docs/development/DEVELOPMENT-template.md`
+  - [ ] If YES: Copied `templates/docs/TESTING-template.md`
+  - [ ] If YES: Copied `templates/docs/SHELL_SCRIPT_STANDARDS-template.md`
 
 ---
 
