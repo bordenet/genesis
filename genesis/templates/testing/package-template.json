@@ -10,10 +10,11 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:coverage:check": "./scripts/coverage-check.sh",
-    "lint": "eslint {{DEPLOY_FOLDER}}/js/**/*.js",
-    "lint:fix": "eslint {{DEPLOY_FOLDER}}/js/**/*.js --fix",
+    "lint": "eslint js/**/*.js",
+    "lint:fix": "eslint js/**/*.js --fix",
     "validate": "./scripts/validate.sh",
-    "serve": "python3 -m http.server 8000 --directory {{DEPLOY_FOLDER}}"
+    "serve": "python3 -m http.server 8000 --directory {{DEPLOY_FOLDER}}",
+    "deploy": "./scripts/deploy-web.sh"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",

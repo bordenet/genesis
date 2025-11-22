@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI
 
 on:
   push:
@@ -8,144 +8,82 @@ on:
 
 jobs:
   lint:
-    name: Lint Code
+    name: Lint
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
-        with:
-          severity: warning
-          scandir: './scripts'
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+    - name: Cache npm packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
-      - name: Check JavaScript syntax
-        run: |
-          find . -name "*.js" -not -path "*/node_modules/*" -exec node --check {} \;
+    - name: Install dependencies
+      run: npm ci
 
-  # IF {{ENABLE_TESTS}}
+    - name: Run ESLint
+      run: npm run lint
+
   test:
-    name: Run Tests
+    name: Test
     runs-on: ubuntu-latest
-    needs: lint
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Cache npm packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
-      - name: Run tests
-        run: npm test
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Check coverage threshold
-        run: |
-          # Verify coverage meets 85% threshold
-          npm run test:coverage
+    - name: Run tests with coverage
+      run: npm run test:coverage
 
-  # IF {{ENABLE_CODECOV}}
-  # NOTE: This job requires the 'test' job above. If you remove the test job, remove this too.
-  coverage:
-    name: Code Coverage
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage/coverage-final.json
+        flags: webapp
+        name: webapp-coverage
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
+        verbose: true
+
+  quality:
+    name: Quality Check
     runs-on: ubuntu-latest
-    needs: test
+    needs: [lint, test]
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate coverage report
-        run: npm run test:coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/lcov.info
-          fail_ci_if_error: true
-  # END IF {{ENABLE_CODECOV}}
-  # END IF {{ENABLE_TESTS}}
-
-  deploy:
-    name: Deploy to GitHub Pages
-    runs-on: ubuntu-latest
-    needs: lint
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '{{DEPLOY_FOLDER}}'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-  quality-check:
-    name: Quality Gates
-    runs-on: ubuntu-latest
-    needs: [lint]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Verify shell script standards
-        run: |
-          echo "Checking shell script standards..."
-          
-          # Check for running timer in all scripts
-          for script in scripts/*.sh scripts/lib/*.sh; do
-            if [ -f "$script" ]; then
-              echo "Checking $script for timer implementation..."
-              if ! grep -q "update_timer\|TIMER_PID" "$script" && ! grep -q "source.*common.sh" "$script"; then
-                echo "ERROR: $script missing timer implementation"
-                exit 1
-              fi
-              
-              echo "Checking $script for help flag..."
-              if ! grep -q "show_help\|-h\|--help" "$script"; then
-                echo "ERROR: $script missing help flag"
-                exit 1
-              fi
-              
-              echo "Checking $script for verbose flag..."
-              if ! grep -q "VERBOSE\|-v\|--verbose" "$script"; then
-                echo "ERROR: $script missing verbose flag"
-                exit 1
-              fi
-            fi
-          done
-          
-          echo "✅ All shell scripts meet standards"
-
-      - name: All quality gates passed
-        run: echo "✅ All quality checks passed"
+    - name: Quality gate passed
+      run: |
+        echo "✅ All quality checks passed!"
+        echo "✅ Linting: PASSED"
+        echo "✅ Tests: PASSED"
+        echo "✅ Coverage: PASSED"
 

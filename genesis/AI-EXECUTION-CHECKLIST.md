@@ -265,7 +265,7 @@ Before starting, verify these files exist in genesis/:
 - After Phase 1 prompt is working, run evolutionary optimization to improve it
 - Use `tools/scripts/quick-start.sh` to start a simulation
 - Compare results with `tools/scripts/compare-projects.sh`
-- Apply top mutations from `tools/templates/mutations-library.md`
+- Apply top mutations from the mutation library in `modules/evolutionary-optimization/mutations/`
 - Use top 5 mutations for 71-73% of total improvement
 
 ### 3.5 Variable Replacement
@@ -296,8 +296,22 @@ Before starting, verify these files exist in genesis/:
 
 ### 3.7 Optional Files (Advanced)
 - [ ] Reviewed START-HERE.md Section 3.7 for optional files
-- [ ] Decided if separate linting workflow is needed (usually NO - ci.yml already has linting)
-  - [ ] If YES: Copied `templates/github/workflows/lint-template.yml`
+- [ ] Decided if manual deployment workflow is needed
+  - [ ] If YES: Copied `templates/github/workflows/deploy-web-template.yml`
+- [ ] Decided if security check script is needed (RECOMMENDED)
+  - [ ] If YES: Copied `templates/scripts/check-secrets-template.sh`
+- [ ] Decided if additional test files are needed
+  - [ ] If YES: Copied `templates/testing/ui.test-template.js`
+  - [ ] If YES: Copied `templates/testing/projects.test-template.js`
+  - [ ] If YES: Copied `templates/testing/workflow.test-template.js`
+- [ ] Decided if EditorConfig is needed
+  - [ ] If YES: Copied `templates/project-structure/.editorconfig-template`
+- [ ] Decided if Claude Desktop integration is needed
+  - [ ] If YES: Copied `templates/project-structure/.claude/settings.local.json-template`
+- [ ] Decided if LICENSE file is needed
+  - [ ] If YES: Copied `templates/project-structure/LICENSE-template`
+- [ ] Decided if RELEASES.md is needed
+  - [ ] If YES: Copied `templates/project-structure/RELEASES-template.md`
 - [ ] Decided if non-web setup script is needed (only for backend/CLI projects)
   - [ ] If YES: Copied `templates/scripts/setup-macos-template.sh`
 - [ ] Decided if validation script is needed (optional project structure validation)
