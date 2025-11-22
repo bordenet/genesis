@@ -53,11 +53,11 @@ Genesis is a **template system** that enables AI assistants to create web applic
 
 ### Evolutionary Prompt Optimization
 
-All Genesis-spawned projects include **production-validated evolutionary optimization tooling** that delivers measurable quality improvements:
+All Genesis-spawned projects include evolutionary optimization tooling that delivers measurable quality improvements:
 
 **Features:**
 - ✅ **Objective Scoring** - Keep/discard logic based on test case performance, not subjective judgment
-- ✅ **Proven Results** - +31.1% quality improvement in 20 rounds (production-validated)
+- ✅ **Measured Results** - +31.1% quality improvement in 20 rounds (validated in reference implementation)
 - ✅ **Project-Type-Specific Scorers** - PRD, One-Pager, and COE scorers with tailored criteria
 - ✅ **Proven Mutation Library** - Top 5 mutations deliver 71-73% of total improvement
 - ✅ **Cross-Project Comparison** - Compare quality across all Genesis projects
@@ -574,7 +574,7 @@ await storage.importData(json);
 
 ### Workflow State Machine
 
-Genesis includes a robust workflow state machine that handles phase transitions.
+Genesis includes a workflow state machine that handles phase transitions.
 
 **States**:
 - `IDLE` - No workflow in progress
