@@ -48,6 +48,23 @@ cd genesis-validator
 golangci-lint run ./...
 ```
 
+### Install as Pre-Commit Hook
+
+```bash
+# Install the validator as a git pre-commit hook
+./genesis-validator/install-hook.sh
+
+# The hook will run automatically on every commit
+# To skip validation, use: git commit --no-verify
+```
+
+**What the hook does:**
+- Runs the Genesis validator before every commit
+- Ensures all templates are properly documented
+- Prevents commits with orphaned or missing files
+- Validates documentation consistency
+- Provides clear error messages with fix suggestions
+
 ## 📋 What It Validates
 
 ### 1. Template File Inventory
