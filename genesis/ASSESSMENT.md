@@ -1,7 +1,9 @@
 # Genesis Quality Assessment
 
-**Assessor**: Principal Engineer Review  
-**Date**: 2025-11-20  
+> **HISTORICAL DOCUMENT**: This assessment was completed on 2025-11-20. For current status, see `GENESIS-QUALITY-ASSESSMENT-FINAL.md`.
+
+**Assessor**: Principal Engineer Review
+**Date**: 2025-11-20
 **Standard**: Expedia Group Public Repository Quality Bar
 
 ---
