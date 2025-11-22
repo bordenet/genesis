@@ -46,52 +46,52 @@ SYMBOL_WORKING="▶"
 
 compact_start() {
     local message="$1"
-    
+
     if [[ "${VERBOSE:-false}" == "true" ]]; then
         echo ""
         echo -e "${COLOR_BOLD:-}${SYMBOL_WORKING}${COLOR_RESET:-} $message"
     else
-        echo -ne "\r${ERASE_LINE}${SYMBOL_WORKING} $message"
+        echo -ne "\r\033[2K${SYMBOL_WORKING} $message"
     fi
 }
 
 compact_update() {
     local message="$1"
-    
+
     if [[ "${VERBOSE:-false}" == "true" ]]; then
         echo -e "${COLOR_BLUE:-}[INFO]${COLOR_RESET:-} $message"
     else
-        echo -ne "\r${ERASE_LINE}${SYMBOL_WORKING} $message"
+        echo -ne "\r\033[2K${SYMBOL_WORKING} $message"
     fi
 }
 
 compact_done() {
     local message="$1"
-    
+
     if [[ "${VERBOSE:-false}" == "true" ]]; then
         echo -e "${COLOR_GREEN:-}[${SYMBOL_SUCCESS}]${COLOR_RESET:-} $message"
     else
-        echo -e "\r${ERASE_LINE}${SYMBOL_WORKING} $message\t\t${COLOR_GREEN:-}[${SYMBOL_SUCCESS}]${COLOR_RESET:-}"
+        echo -e "\r\033[2K${SYMBOL_WORKING} $message\t\t${COLOR_GREEN:-}[${SYMBOL_SUCCESS}]${COLOR_RESET:-}"
     fi
 }
 
 compact_fail() {
     local message="$1"
-    
+
     if [[ "${VERBOSE:-false}" == "true" ]]; then
         echo -e "${COLOR_RED:-}[${SYMBOL_FAIL}]${COLOR_RESET:-} $message" >&2
     else
-        echo -e "\r${ERASE_LINE}${SYMBOL_WORKING} $message\t\t${COLOR_RED:-}[${SYMBOL_FAIL}]${COLOR_RESET:-}" >&2
+        echo -e "\r\033[2K${SYMBOL_WORKING} $message\t\t${COLOR_RED:-}[${SYMBOL_FAIL}]${COLOR_RESET:-}" >&2
     fi
 }
 
 compact_skip() {
     local message="$1"
-    
+
     if [[ "${VERBOSE:-false}" == "true" ]]; then
         echo -e "${COLOR_YELLOW:-}[${SYMBOL_SKIP}]${COLOR_RESET:-} $message"
     else
-        echo -e "\r${ERASE_LINE}${SYMBOL_WORKING} $message\t\t${COLOR_YELLOW:-}[${SYMBOL_SKIP}]${COLOR_RESET:-}"
+        echo -e "\r\033[2K${SYMBOL_WORKING} $message\t\t${COLOR_YELLOW:-}[${SYMBOL_SKIP}]${COLOR_RESET:-}"
     fi
 }
 
@@ -122,11 +122,11 @@ compact_progress() {
     local bar=""
     for ((i=0; i<filled; i++)); do bar+="█"; done
     for ((i=0; i<empty; i++)); do bar+="░"; done
-    
-    echo -ne "\r${ERASE_LINE}${SYMBOL_WORKING} $message [$bar] $percent%"
-    
+
+    echo -ne "\r\033[2K${SYMBOL_WORKING} $message [$bar] $percent%"
+
     if [[ "$current" -eq "$total" ]]; then
-        echo -e "\r${ERASE_LINE}${SYMBOL_WORKING} $message [$bar] 100%\t${COLOR_GREEN:-}[${SYMBOL_SUCCESS}]${COLOR_RESET:-}"
+        echo -e "\r\033[2K${SYMBOL_WORKING} $message [$bar] 100%\t${COLOR_GREEN:-}[${SYMBOL_SUCCESS}]${COLOR_RESET:-}"
     fi
 }
 
@@ -148,7 +148,7 @@ compact_spinner_start() {
     (
         local i=0
         while true; do
-            echo -ne "\r${ERASE_LINE}${SPINNER_FRAMES[$i]} $message"
+            echo -ne "\r\033[2K${SPINNER_FRAMES[$i]} $message"
             i=$(( (i + 1) % ${#SPINNER_FRAMES[@]} ))
             sleep 0.1
         done
@@ -161,7 +161,7 @@ compact_spinner_stop() {
         kill "$SPINNER_PID" 2>/dev/null || true
         wait "$SPINNER_PID" 2>/dev/null || true
         SPINNER_PID=""
-        echo -ne "\r${ERASE_LINE}"
+        echo -ne "\r\033[2K"
     fi
 }
 
