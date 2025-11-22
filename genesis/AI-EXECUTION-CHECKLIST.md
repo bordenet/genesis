@@ -177,10 +177,15 @@ Before starting, verify these files exist in genesis/:
 - [ ] Copied `js/app.js` from `templates/web-app/js/app-template.js`
 - [ ] Copied `js/workflow.js` from `templates/web-app/js/workflow-template.js`
 - [ ] Copied `js/storage.js` from `templates/web-app/js/storage-template.js`
+- [ ] Copied `js/router.js` from `templates/web-app/js/router-template.js` (multi-project routing)
+- [ ] Copied `js/views.js` from `templates/web-app/js/views-template.js` (project list and form views)
+- [ ] Copied `js/projects.js` from `templates/web-app/js/projects-template.js` (project CRUD operations)
+- [ ] Copied `js/project-view.js` from `templates/web-app/js/project-view-template.js` (individual project view)
+- [ ] Copied `js/ui.js` from `templates/web-app/js/ui-template.js` (UI utilities: toasts, modals, loading)
 - [ ] Copied `js/ai-mock.js` from `templates/web-app/js/ai-mock-template.js`
 - [ ] Copied `js/ai-mock-ui.js` from `templates/web-app/js/ai-mock-ui-template.js`
 - [ ] Copied `js/same-llm-adversarial.js` from `templates/web-app/js/same-llm-adversarial-template.js`
-- [ ] Replaced `{{PROJECT_NAME}}`, `{{DOCUMENT_TYPE}}` in all JS files
+- [ ] Replaced `{{PROJECT_NAME}}`, `{{DOCUMENT_TYPE}}`, `{{HEADER_EMOJI}}` in all JS files
 - [ ] Customized workflow.js - updated phase names, descriptions, AI models, and form fields
 - [ ] Verified same-llm-adversarial.js configuration for corporate deployments
 - [ ] Created `css/` directory
@@ -234,6 +239,34 @@ Before starting, verify these files exist in genesis/:
 - [ ] Made all scripts executable: `chmod +x scripts/*.sh scripts/lib/*.sh`
 - [ ] Verified setup-macos.sh exists and is executable
 - [ ] Verified install-hooks.sh exists and is executable
+
+### 3.4.5 Evolutionary Optimization Tools (RECOMMENDED)
+**🚀 GAME-CHANGING FEATURE**: Evolutionary prompt optimization delivers +20-30% quality improvements through iterative testing and mutation.
+
+- [ ] Copied evolutionary optimization module: `cp -r genesis/modules/evolutionary-optimization tools/`
+- [ ] Verified tools/ directory structure:
+  - [ ] `tools/README.md` - Documentation and quick start guide
+  - [ ] `tools/scorers/` - Project-type-specific scoring functions
+  - [ ] `tools/scripts/` - Automation scripts (quick-start.sh, compare-projects.sh)
+  - [ ] `tools/templates/` - Mutation library and project-type configs
+- [ ] Made scripts executable: `chmod +x tools/scripts/*.sh`
+- [ ] Read `tools/README.md` for usage instructions
+- [ ] Verified scorer exists for your project type (prd-scorer.js, one-pager-scorer.js, or coe-scorer.js)
+- [ ] If no scorer exists for your project type, created custom scorer based on existing examples
+
+**Why this matters:**
+- ✅ Proven +31.1% quality improvement in 20 rounds (product-requirements-assistant)
+- ✅ Production-validated code from real projects
+- ✅ Automated testing and comparison
+- ✅ Mutation library with top 5 high-impact mutations
+- ✅ Diminishing returns analysis (optimal: 15-20 rounds)
+
+**When to use:**
+- After Phase 1 prompt is working, run evolutionary optimization to improve it
+- Use `tools/scripts/quick-start.sh` to start a simulation
+- Compare results with `tools/scripts/compare-projects.sh`
+- Apply top mutations from `tools/templates/mutations-library.md`
+- Use top 5 mutations for 71-73% of total improvement
 
 ### 3.5 Variable Replacement
 - [ ] Replaced `{{PROJECT_NAME}}` everywhere
