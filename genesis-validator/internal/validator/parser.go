@@ -59,13 +59,20 @@ func (p *Parser) extractReferences(line string) []string {
 	seen := make(map[string]bool)
 	var refs []string
 
+	// Exclusion list for special cases
+	exclusions := map[string]bool{
+		"templates/prd-template.md":             true, // Reference to external repo
+		"templates/{document-type}-template.md": true, // Placeholder for user to create
+		"templates/scripts/lib/compact.sh":      true, // Library file without -template suffix
+	}
+
 	addRef := func(ref string) {
 		// Clean up the reference
 		ref = strings.TrimSpace(ref)
 		ref = strings.Trim(ref, "`\"'")
 
-		// Skip if already seen or empty
-		if ref == "" || seen[ref] {
+		// Skip if already seen, empty, or in exclusion list
+		if ref == "" || seen[ref] || exclusions[ref] {
 			return
 		}
 

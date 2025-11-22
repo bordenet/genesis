@@ -28,13 +28,13 @@ You're in a fresh repository with the `genesis/` directory. Your mission:
 
 1. **[`REFERENCE-IMPLEMENTATIONS.md`](REFERENCE-IMPLEMENTATIONS.md)** - Overview of working examples
 2. **Study the live example**: https://github.com/bordenet/product-requirements-assistant
-   - **CRITICAL**: Browse the repository on GitHub
+   - **CRITICAL**: Browse the repository on GitHub (files below are in THAT repo, not Genesis)
    - **`docs/index.html`** (lines 9-15) - ⭐ **Tailwind dark mode config** (ALWAYS BROKEN WITHOUT THIS!)
    - **`docs/js/app.js`** (lines 145-165) - ⭐ **Dark mode toggle functions** (loadTheme, toggleTheme)
    - **`js/workflow.js`** - Phase architecture, prompt loading, data flow
    - **`js/app.js`** - Form rendering, phase transitions, UI logic
    - **`prompts/phase1.md`** - Prompt template with variables
-   - **`templates/prd-template.md`** - Document structure
+   - **`templates/prd-template.md`** - Document structure (in product-requirements-assistant repo)
    - **`tests/workflow.test.js`** - Testing async prompts
    - **`scripts/deploy-web.sh`** - ⭐ **Compact mode deployment** (git output redirection)
    - **`scripts/setup-macos.sh`** - ⭐ **Fast, resumable setup** (smart caching)
@@ -293,7 +293,7 @@ cp genesis/templates/prompts/phase3-template.md prompts/phase3.md
 
 # Create document template
 # Study product-requirements-assistant/templates/prd-template.md for example
-# Create templates/{document-type}-template.md with your document structure
+# Create YOUR_PROJECT/templates/{document-type}-template.md with your document structure
 #
 # IMPORTANT: Use {variableName} syntax (lowercase, camelCase) for template variables
 # Example: {title}, {problems}, {context}, {targetAudience}
@@ -308,7 +308,7 @@ cp genesis/templates/prompts/phase3-template.md prompts/phase3.md
 #   ## Context
 #   {context}
 #
-# See genesis/templates/document-templates/README.md for more guidance
+# This is a file YOU create in your new project, not a Genesis template
 ```
 
 **NOTE**: The prompt templates are CONCRETE EXAMPLES from product-requirements-assistant. Read the customization instructions at the top of each file!
@@ -447,7 +447,7 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `prompts/phase1.md` (from `prompts/phase1-template.md`)
 - [ ] `prompts/phase2.md` (from `prompts/phase2-template.md`)
 - [ ] `prompts/phase3.md` (from `prompts/phase3-template.md`)
-- [ ] `templates/{document-type}-template.md` (create based on your document type)
+- [ ] `templates/{document-type}-template.md` (YOU create this in your new project)
 
 **Scripts** (MANDATORY):
 - [ ] `scripts/setup-macos.sh` (from `scripts/setup-macos-web-template.sh`)
