@@ -413,7 +413,7 @@ cat tools/README.md
 1. After your Phase 1 prompt is working, run evolutionary optimization
 2. Use `tools/scripts/quick-start.sh` to start a simulation
 3. Compare results with `tools/scripts/compare-projects.sh`
-4. Apply top mutations from `tools/templates/mutations-library.md`
+4. Apply top mutations from the mutation library in `modules/evolutionary-optimization/mutations/`
 
 **Quick Start:**
 ```bash
@@ -561,11 +561,58 @@ ls -1 index.html CLAUDE.md README.md package.json .eslintrc.json codecov.yml \
 
 **These files are OPTIONAL and can be added if needed:**
 
-#### Separate Linting Workflow
+#### Manual Deployment Workflow
 ```bash
-# If you want a separate linting workflow (ci.yml already includes linting):
-cp genesis/templates/github/workflows/lint-template.yml .github/workflows/lint.yml
-# Note: This is redundant if you're using ci-template.yml which already has a lint job
+# If you want manual deployment workflow (alternative to automatic deployment):
+cp genesis/templates/github/workflows/deploy-web-template.yml .github/workflows/deploy-web.yml
+# Replace {{DEPLOY_FOLDER}} with 'docs' or '.'
+# Replace {{GITHUB_PAGES_URL}} with your GitHub Pages URL
+```
+
+#### Security Check Script
+```bash
+# RECOMMENDED: Prevent committing secrets to repository
+cp genesis/templates/scripts/check-secrets-template.sh scripts/check-secrets.sh
+chmod +x scripts/check-secrets.sh
+# Replace {{PROJECT_TITLE}} with your project title
+# Add to .git/hooks/pre-commit to run automatically
+```
+
+#### Additional Test Files
+```bash
+# If you want comprehensive test coverage:
+cp genesis/templates/testing/ui.test-template.js tests/ui.test.js
+cp genesis/templates/testing/projects.test-template.js tests/projects.test.js
+cp genesis/templates/testing/workflow.test-template.js tests/workflow.test.js
+```
+
+#### EditorConfig
+```bash
+# For consistent code formatting across editors:
+cp genesis/templates/project-structure/.editorconfig-template .editorconfig
+```
+
+#### Claude Desktop Integration
+```bash
+# For Claude Desktop permissions:
+mkdir -p .claude
+cp genesis/templates/project-structure/.claude/settings.local.json-template .claude/settings.local.json
+```
+
+#### License File
+```bash
+# Add MIT license:
+cp genesis/templates/project-structure/LICENSE-template LICENSE
+# Replace {{YEAR}} with current year
+# Replace {{AUTHOR_NAME}} with your name
+```
+
+#### Release History
+```bash
+# Track releases:
+cp genesis/templates/project-structure/RELEASES-template.md RELEASES.md
+# Replace {{PROJECT_TITLE}} with your project title
+# Replace {{RELEASE_DATE}} with release date
 ```
 
 #### Non-Web macOS Setup Script

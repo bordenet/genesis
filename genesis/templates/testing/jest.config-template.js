@@ -18,20 +18,26 @@ export default {
   // Coverage collection
   collectCoverage: true,
   collectCoverageFrom: [
-    '{{DEPLOY_FOLDER}}/js/**/*.js',
-    '!{{DEPLOY_FOLDER}}/js/**/*.test.js',
-    '!{{DEPLOY_FOLDER}}/js/**/*.spec.js',
-    '!{{DEPLOY_FOLDER}}/js/__tests__/**',
-    '!{{DEPLOY_FOLDER}}/js/mock/**'
+    'js/**/*.js',
+    '!js/**/*.test.js',
+    '!js/**/*.spec.js',
+    '!js/app.js',
+    '!js/router.js', // Exclude router (tested via E2E)
+    '!js/views.js', // Exclude views (tested via E2E)
+    '!js/project-view.js', // Exclude project view (tested via E2E)
+    '!**/node_modules/**'
   ],
 
   // Coverage thresholds (ENFORCED)
-  coverageThresholds: {
+  // NOTE: Adjust these thresholds based on your project's maturity
+  // - New projects: Start with 25/15/30/25
+  // - Mature projects: Aim for 60/45/60/60 or higher
+  coverageThreshold: {
     global: {
-      statements: 85,
-      branches: 80,
-      functions: 85,
-      lines: 85
+      statements: 60,
+      branches: 45,
+      functions: 60,
+      lines: 60
     }
   },
 
@@ -50,7 +56,7 @@ export default {
   // Module paths
   moduleDirectories: [
     'node_modules',
-    '{{DEPLOY_FOLDER}}/js'
+    'js'
   ],
 
   // Transform files (if using TypeScript or JSX)
@@ -62,6 +68,7 @@ export default {
   // Ignore patterns
   testPathIgnorePatterns: [
     '/node_modules/',
+    '/genesis/',
     '/dist/',
     '/build/'
   ],
