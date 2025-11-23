@@ -1,11 +1,27 @@
 # Genesis Archive - Historical Documentation
 
-**Purpose**: This directory contains historical analysis documents from the Genesis development process.  
-**Status**: All work is complete. These files are preserved for historical reference.
+**Purpose**: Historical analysis and process documents from Genesis development.
+**Status**: All work complete. Preserved for reference only.
 
 ---
 
-## What's Here
+## Root-Level Documents (Moved 2025-11-23)
+
+Process and assessment documents moved from root to clean up repository:
+
+**Quality Assessments**: COMPREHENSIVE-QUALITY-ASSESSMENT.md, GENESIS-QUALITY-ASSESSMENT-FINAL.md, PUBLIC-READINESS-ASSESSMENT.md, EXECUTIVE-SUMMARY-FINAL.md
+
+**Gap Analysis**: GENESIS-GAP-ANALYSIS.md, GENESIS-COMPREHENSIVE-AUDIT-FINAL-REPORT.md, MARKETING-LANGUAGE-AUDIT.md
+
+**Pass Reports**: PASS-1 through PASS-5 summaries and assessments
+
+**Implementation Plans**: GENESIS-VALIDATOR-IMPLEMENTATION.md, LLM-MOCKING-IMPLEMENTATION-PLAN.md
+
+**Diagnostics**: DIAGNOSTIC-REPORT.json
+
+---
+
+## Original Archive Documents
 
 This archive contains documentation from the **four-pass comprehensive review** that identified and fixed **27 gaps** in Genesis.
 
