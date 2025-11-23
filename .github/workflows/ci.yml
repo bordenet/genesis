@@ -66,12 +66,19 @@ jobs:
       
       - name: Install dependencies
         run: go mod download
-      
+
+      - name: Debug - List files
+        run: |
+          pwd
+          ls -la
+          ls -la internal/
+
       - name: Run tests with coverage
         run: go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
+        continue-on-error: true
         with:
           files: ./genesis-validator/coverage.out
           flags: go
