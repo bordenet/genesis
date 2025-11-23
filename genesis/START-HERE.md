@@ -569,6 +569,14 @@ cp genesis/templates/github/workflows/deploy-web-template.yml .github/workflows/
 # Replace {{GITHUB_PAGES_URL}} with your GitHub Pages URL
 ```
 
+#### Validation Script
+```bash
+# RECOMMENDED: Validate Genesis setup after initial configuration
+cp genesis/templates/scripts/validate-genesis-setup-template.sh scripts/validate-genesis-setup.sh
+chmod +x scripts/validate-genesis-setup.sh
+# Run after completing setup to verify all template variables are replaced
+```
+
 #### Security Check Script
 ```bash
 # RECOMMENDED: Prevent committing secrets to repository

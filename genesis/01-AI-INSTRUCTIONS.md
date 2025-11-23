@@ -219,11 +219,18 @@ Before starting, ensure:
 
 10. **Create quality enforcement tools**:
     - **MANDATORY**: Create `scripts/validate.sh` from `templates/scripts/validate-template.sh`
-    - **MANDATORY**: Create `.git/hooks/pre-commit` from `templates/git-hooks/pre-commit-template`
-    - Make executable: `chmod +x scripts/validate.sh .git/hooks/pre-commit`
+    - **MANDATORY**: Create `scripts/validate-genesis-setup.sh` from `templates/scripts/validate-genesis-setup-template.sh`
+    - **MANDATORY**: Create `scripts/install-hooks.sh` from `templates/scripts/install-hooks-template.sh`
+    - Make executable: `chmod +x scripts/*.sh`
     - These tools enforce quality standards locally before commit
 
-11. **Create documentation**:
+11. **Install git hooks automatically**:
+    - **MANDATORY**: After git init, run `./scripts/install-hooks.sh` automatically
+    - This installs pre-commit hooks that enforce quality gates
+    - Verify hook is installed: `test -x .git/hooks/pre-commit`
+    - If installation fails, document in setup output
+
+12. **Create documentation**:
     - Process files in `genesis/templates/docs/`
     - Update architecture docs for user's choices
     - Create CLAUDE.md with project-specific guidance
@@ -233,12 +240,14 @@ Before starting, ensure:
 - [ ] No files still have `-template` suffix
 - [ ] All scripts are executable
 - [ ] Directory structure matches plan
+- [ ] **MANDATORY**: Run `./scripts/validate-genesis-setup.sh` - must pass with zero errors
 - [ ] **MANDATORY**: Run `./scripts/validate.sh` - must pass with zero errors
 - [ ] **MANDATORY**: Run `shellcheck scripts/*.sh scripts/lib/*.sh` - must pass with zero warnings
 - [ ] **MANDATORY**: Pre-commit hook is installed at `.git/hooks/pre-commit`
 - [ ] **MANDATORY**: GitHub Actions workflows exist in `.github/workflows/`
 - [ ] Test `scripts/setup-macos.sh` runs without errors
 - [ ] Test web app loads in browser (if applicable)
+- [ ] **RECOMMENDED**: Review `FIRST-RUN-CHECKLIST.md` and complete all items
 
 ---
 
@@ -251,21 +260,35 @@ Before starting, ensure:
 1. **Initialize git**:
    ```bash
    git init
+   ```
+
+2. **Install git hooks** (MANDATORY - Do this BEFORE first commit):
+   ```bash
+   ./scripts/install-hooks.sh
+   ```
+   - This installs pre-commit hooks that enforce quality gates
+   - Hooks will run automatically on every commit
+   - Verify installation: `test -x .git/hooks/pre-commit && echo "✅ Installed"`
+
+3. **Make initial commit**:
+   ```bash
    git add .
    git commit -m "Initial commit from Genesis template"
    ```
+   - Pre-commit hook should run and pass
+   - If hook fails, fix issues before committing
 
-2. **Create GitHub repository**:
+4. **Create GitHub repository**:
    ```bash
    gh repo create {{GITHUB_USER}}/{{PROJECT_NAME}} --public --source=. --remote=origin
    ```
 
-3. **Push to GitHub**:
+5. **Push to GitHub**:
    ```bash
    git push -u origin main
    ```
 
-4. **Verify**:
+6. **Verify**:
    - Check that repository exists on GitHub
    - Check that all files are present
    - Check that .gitignore is working (no ignored files committed)
