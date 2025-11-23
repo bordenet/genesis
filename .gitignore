@@ -6,3 +6,4 @@
 genesis-validator/bin/
 genesis-validator/coverage.out
 genesis-validator/coverage.html
+.DS_Store
