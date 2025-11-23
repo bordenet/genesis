@@ -181,6 +181,24 @@ npm run lint             # ESLint
 
 Both demonstrate the 3-phase workflow pattern with working CI/CD and deployment.
 
+---
+
+## Code Coverage
+
+Genesis maintains **high test coverage** across both JavaScript (95.7%) and Go (93.3%) components. The coverage visualization below shows detailed coverage by module:
+
+[![Coverage Grid](https://codecov.io/gh/bordenet/genesis/graphs/tree.svg)](https://codecov.io/gh/bordenet/genesis)
+
+**What this means:**
+- **Green**: Well-tested code (>80% coverage)
+- **Yellow**: Moderate coverage (60-80%)
+- **Red**: Needs more tests (<60%)
+- **Size**: Larger boxes = more lines of code
+
+Click the image to explore detailed coverage reports on Codecov, including line-by-line coverage, branch coverage, and historical trends.
+
+---
+
 ## License
 
 MIT License - See [LICENSE](LICENSE) file for details.
