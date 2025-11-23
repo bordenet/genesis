@@ -296,6 +296,9 @@ Before starting, verify these files exist in genesis/:
 
 ### 3.7 Optional Files (Advanced)
 - [ ] Reviewed START-HERE.md Section 3.7 for optional files
+- [ ] Decided if validation script is needed (RECOMMENDED)
+  - [ ] If YES: Copied `templates/scripts/validate-genesis-setup-template.sh`
+  - [ ] If YES: Made script executable with `chmod +x`
 - [ ] Decided if manual deployment workflow is needed
   - [ ] If YES: Copied `templates/github/workflows/deploy-web-template.yml`
 - [ ] Decided if security check script is needed (RECOMMENDED)
