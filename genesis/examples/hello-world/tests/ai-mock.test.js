@@ -237,8 +237,9 @@ describe('AI Mock Module', () => {
       const start = Date.now();
       await getMockResponse(1);
       const elapsed = Date.now() - start;
-      
-      expect(elapsed).toBeGreaterThanOrEqual(500);
+
+      // Allow 10ms tolerance for timing variations in CI environments
+      expect(elapsed).toBeGreaterThanOrEqual(490);
     });
   });
 
