@@ -13,6 +13,17 @@ All code changes **MUST** pass before commit/merge:
 3. **Linting passes** - No warnings or errors
 4. **Security scans pass** - No high/critical vulnerabilities
 
+## ⚠️ CRITICAL: Fix ALL Linting Issues Immediately
+
+**MANDATE**: When you detect ANY linting issue in a file you're working with, you MUST fix it immediately - regardless of whether it was pre-existing or newly introduced.
+
+- Do NOT note that issues are "pre-existing" and move on
+- Do NOT defer fixing to a later step
+- Do NOT push code with known linting issues
+- Fix ALL issues in the file before committing
+
+**Rationale**: Linting issues indicate code quality problems. Ignoring them because they existed before your changes still means shipping low-quality code. Every touch point is an opportunity to improve the codebase.
+
 ## Language-Specific Requirements
 
 ### Go (genesis-validator/)
@@ -20,6 +31,7 @@ All code changes **MUST** pass before commit/merge:
 **Style Guide**: See `docs/GO_STYLE_GUIDE.md` for complete reference.
 
 **Automated Checks**:
+
 ```bash
 # Tests with coverage (≥80% for core logic)
 go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
@@ -29,6 +41,7 @@ golangci-lint run ./...
 ```
 
 **Key Conventions**:
+
 - Package names: lowercase, single word (`scanner`, `validator`, `parser`)
 - Exported functions: PascalCase with documentation comment
 - Receivers: 1-2 letter abbreviations (`func (v *Validator) Validate()`)
@@ -39,6 +52,7 @@ golangci-lint run ./...
 ### JavaScript (genesis/examples/hello-world/)
 
 **Automated Checks**:
+
 ```bash
 # Linting
 npm run lint
@@ -48,6 +62,7 @@ npm run test:coverage
 ```
 
 **Key Conventions**:
+
 - ESM modules (`type: "module"` in package.json)
 - Pure functions preferred
 - Comprehensive JSDoc for public APIs
@@ -58,6 +73,7 @@ npm run test:coverage
 **Style Guide**: See `docs/PYTHON_STYLE_GUIDE.md` for complete reference.
 
 **Automated Checks**:
+
 ```bash
 # Formatting (auto-fix)
 black --line-length=120 src/
@@ -105,21 +121,25 @@ npm run test:coverage
 All code must meet these standards before merge:
 
 ### Documentation
+
 - [ ] Public functions have docstrings/comments
 - [ ] Complex logic has inline comments
 - [ ] README updated if behavior changes
 
 ### Testing
+
 - [ ] New code has corresponding tests
 - [ ] Edge cases are covered
 - [ ] Tests are deterministic (no flaky tests)
 
 ### Style
+
 - [ ] Follows language-specific style guide
 - [ ] No dead code or TODO comments without issues
 - [ ] Meaningful variable/function names
 
 ### Security
+
 - [ ] No hardcoded secrets
 - [ ] Input validation on external data
 - [ ] Dependencies are up to date
@@ -127,6 +147,7 @@ All code must meet these standards before merge:
 ## Error Handling Patterns
 
 ### Go
+
 ```go
 // Always wrap errors with context
 if err != nil {
@@ -135,6 +156,7 @@ if err != nil {
 ```
 
 ### JavaScript
+
 ```javascript
 // Use try/catch with meaningful error messages
 try {
@@ -148,11 +170,13 @@ try {
 ## File Organization
 
 ### Maximum File Sizes
+
 - **Go**: ≤400 lines per file
 - **JavaScript**: ≤400 lines per file
 - **Python**: ≤400 lines per file
 
 ### Function Sizes
+
 - **Target**: ≤50 lines per function
 - **Maximum**: 100 lines (refactor if approaching)
 
@@ -171,4 +195,3 @@ try {
 - Go Style Guide: `docs/GO_STYLE_GUIDE.md`
 - Python Style Guide: `docs/PYTHON_STYLE_GUIDE.md`
 - CI Configuration: `.github/workflows/ci.yml`
-
