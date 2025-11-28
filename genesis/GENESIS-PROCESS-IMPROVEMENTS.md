@@ -721,7 +721,7 @@ Use this template when gathering requirements from the user. Most answers can be
 
 (See full content in "Required Genesis Improvements" section above)
 
-### 6. Update `genesis/AI-EXECUTION-CHECKLIST.md`
+### 6. Update `genesis/00-AI-MUST-READ-FIRST.md`
 
 **Add at the top**:
 
@@ -938,7 +938,7 @@ After each Genesis project execution:
 
 2. **Update existing files**:
    - `genesis/START-HERE.md` - Add "Study Reference Implementation FIRST" section
-   - `genesis/AI-EXECUTION-CHECKLIST.md` - Add prerequisite checklist
+   - `genesis/00-AI-MUST-READ-FIRST.md` - Add prerequisite checklist
    - `genesis/examples/one-pager/README.md` - Add as reference example
 
 3. **Test improvements**:

@@ -1,8 +1,22 @@
 # 🚀 Genesis - Start Here
 
+```text
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║   🚨 STOP! READ 00-AI-MUST-READ-FIRST.md BEFORE PROCEEDING! 🚨              ║
+║                                                                              ║
+║   The checklist in that file is MANDATORY. Projects fail without it:         ║
+║   • GameWiki: genesis/ not deleted, README stub, missing CLAUDE.md           ║
+║   • These are UNACCEPTABLE outcomes that waste user time                     ║
+║                                                                              ║
+║   👉 Open 00-AI-MUST-READ-FIRST.md NOW and keep it open while working        ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
 **For AI Assistants**: This is your ONLY entry point. Read this file completely, then execute the steps below.
 
-**Verification**: Use [`AI-EXECUTION-CHECKLIST.md`](AI-EXECUTION-CHECKLIST.md) to verify you've completed all steps.
+**Verification**: Use [`00-AI-MUST-READ-FIRST.md`](00-AI-MUST-READ-FIRST.md) to verify you've completed all steps.
 
 ---
 
@@ -817,6 +831,57 @@ Verify:
 - You can now customize the app for your specific use case
 - All quality infrastructure is in place (tests, linting, CI/CD)
 ```
+
+---
+
+## 🚨 MANDATORY: Quick Verification Before Committing
+
+**Run these checks BEFORE your first commit. If ANY fail, FIX before proceeding!**
+
+```bash
+# 1. Verify genesis/ will be deleted (run this AFTER Step 8)
+ls genesis/ 2>/dev/null && echo "❌ FAIL: genesis/ still exists!" || echo "✅ PASS: genesis/ deleted"
+
+# 2. Verify no unreplaced template variables
+grep -r "{{" . --include="*.md" --include="*.js" --include="*.json" --include="*.html" \
+  --exclude-dir=node_modules --exclude-dir=genesis 2>/dev/null && \
+  echo "❌ FAIL: Unreplaced {{VARIABLES}} found!" || echo "✅ PASS: All variables replaced"
+
+# 3. Verify README.md is populated (not a stub)
+README_LINES=$(cat README.md | wc -l)
+[ "$README_LINES" -lt 50 ] && echo "❌ FAIL: README.md is too short ($README_LINES lines)" || echo "✅ PASS: README.md has $README_LINES lines"
+
+# 4. Verify CLAUDE.md exists
+[ -f "CLAUDE.md" ] && echo "✅ PASS: CLAUDE.md exists" || echo "❌ FAIL: CLAUDE.md missing!"
+
+# 5. Verify .gitignore exists at root
+[ -f ".gitignore" ] && echo "✅ PASS: .gitignore exists" || echo "❌ FAIL: .gitignore missing!"
+
+# 6. Verify scripts/ directory exists
+[ -d "scripts" ] && echo "✅ PASS: scripts/ directory exists" || echo "❌ FAIL: scripts/ directory missing!"
+
+# 7. Verify tests pass
+npm test && echo "✅ PASS: All tests pass" || echo "❌ FAIL: Tests failing!"
+```
+
+**If you see ANY ❌ FAIL messages, GO BACK and fix the issue before committing!**
+
+### Minimum Viable Project Checklist
+
+Before declaring "Ready to start coding", verify these files exist:
+
+| File | Source Template | Priority |
+|------|-----------------|----------|
+| `CLAUDE.md` | `templates/CLAUDE.md.template` | **CRITICAL** |
+| `README.md` (>50 lines) | `templates/project-structure/README-template.md` | **CRITICAL** |
+| `.gitignore` | `templates/project-structure/gitignore-template` | **CRITICAL** |
+| `package.json` | `templates/testing/package-template.json` | **CRITICAL** |
+| `.eslintrc.json` | `templates/project-structure/.eslintrc-template.json` | **HIGH** |
+| `scripts/setup-macos.sh` | `templates/scripts/setup-macos-web-template.sh` | **HIGH** |
+| `scripts/deploy-web.sh` | `templates/scripts/deploy-web.sh.template` | **HIGH** |
+| `.github/workflows/ci.yml` | `templates/github/workflows/ci-template.yml` | **HIGH** |
+| `tests/*.test.js` | `templates/testing/*-template.js` | **HIGH** |
+| `genesis/` directory | N/A - **MUST BE DELETED** | **CRITICAL** |
 
 ---
 

@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed - Genesis Bootstrapper Improvements (GameWiki Feedback)
+- **Renamed `AI-EXECUTION-CHECKLIST.md` to `00-AI-MUST-READ-FIRST.md`** - Sorts to top alphabetically so AI assistants can't miss it
+- **Added prominent warning banner to START-HERE.md** - Points to checklist with real failure examples
+- **Added "Quick Verification Before Committing" section to START-HERE.md** - Bash commands to catch common mistakes
+- **Added "Minimum Viable Project Checklist" to START-HERE.md** - Table of 10 critical files that must exist
+- **Created `scripts/validate-genesis-output.sh`** - Validation script that checks for:
+  - genesis/ directory still exists (should be deleted)
+  - Unreplaced {{VARIABLES}} in files
+  - README.md is a stub (<50 lines)
+  - Missing CLAUDE.md, .gitignore, scripts/ directory
+- **Updated CI template with Genesis cleanup check** - Fails build if genesis/ exists or template variables remain
+
 ### Added - Comprehensive Audit (Pass 1)
 - **Comprehensive Genesis Audit** - Top-to-bottom review to prevent deployment issues
   - Created `GENESIS-AUDIT-PASS-1.md` - Complete audit findings and action plan
