@@ -149,7 +149,18 @@ Before starting, verify these files exist in genesis/:
 - [ ] Asked user for document type (e.g., "One-Pager", "PRD", "Design Doc")
 - [ ] Asked user for link to document template or example (if available)
 - [ ] Asked user if they want deviations from standard 3-phase workflow (default: NO)
+- [ ] **🔗 MUST ASK: Peer site navigation?** (Should this app link to related/peer sites?)
+  - [ ] If YES: Got list of peer site URLs (e.g., `https://bordenet.github.io/one-pager/`)
+  - [ ] If YES: Got titles for each peer site (e.g., "One-Pager Assistant")
+  - [ ] If YES: Got short descriptions (e.g., "Generate one-pager documents")
 - [ ] Stored all answers as variables for template replacement
+
+**⚠️ PEER SITE NAVIGATION IS FREQUENTLY FORGOTTEN!**
+
+GameWiki did not implement peer navigation because it wasn't asked. Always ask!
+See One-Pager (`index.html`) for the reference implementation:
+- Header: "Related Projects" dropdown with lightning bolt icon
+- Footer: Direct links to peer sites
 
 **Did NOT ask** (inferred from reference implementation):
 - [ ] Did NOT ask "How many phases?" (Default: 3)

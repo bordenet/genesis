@@ -140,6 +140,69 @@ Read these files IN ORDER. They contain critical information you MUST follow:
 6. What type of document? (e.g., "One-Pager", "PRD", "Design Doc")
 7. Link to document template or example? (if available)
 8. Any deviations from standard 3-phase workflow? (default: NO)
+9. 🔗 PEER SITE NAVIGATION (MUST ASK!):
+   Should this app include navigation links to related/peer sites?
+   Examples of peer sites with navigation:
+   - https://bordenet.github.io/one-pager/ (links to PRD Assistant)
+   - https://bordenet.github.io/product-requirements-assistant/ (links to One-Pager)
+
+   If YES, provide:
+   - URLs of peer sites to link to (e.g., "https://bordenet.github.io/one-pager/")
+   - Names/titles for each link (e.g., "One-Pager Assistant")
+   - Short descriptions (e.g., "Generate one-pager documents")
+```
+
+### 🔗 CRITICAL: Peer Site Navigation (MUST NOT MISS!)
+
+**This feature is FREQUENTLY expected but NEVER implemented unless explicitly asked!**
+
+If the user wants peer site navigation:
+1. **Header**: Add a "Related Projects" dropdown with lightning bolt icon
+2. **Footer**: Add direct links to peer sites
+
+**Reference implementation** (copy from One-Pager `index.html`):
+
+```html
+<!-- Header dropdown -->
+<div class="relative">
+    <button type="button" id="related-projects-btn" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Related Projects">
+        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+    </button>
+    <div id="related-projects-menu" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+        <div class="p-2">
+            <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Related Tools</div>
+            <a href="{{PEER_SITE_URL}}" class="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <div class="font-medium text-gray-900 dark:text-white">{{PEER_SITE_TITLE}}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">{{PEER_SITE_DESCRIPTION}}</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Footer links -->
+<a href="{{PEER_SITE_URL}}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+    {{PEER_SITE_TITLE}}
+</a>
+```
+
+**JavaScript for dropdown toggle** (add to app.js):
+
+```javascript
+// Related projects dropdown toggle
+const relatedBtn = document.getElementById('related-projects-btn');
+const relatedMenu = document.getElementById('related-projects-menu');
+if (relatedBtn && relatedMenu) {
+    relatedBtn.addEventListener('click', () => {
+        relatedMenu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+        if (!relatedBtn.contains(e.target) && !relatedMenu.contains(e.target)) {
+            relatedMenu.classList.add('hidden');
+        }
+    });
+}
 ```
 
 **DO NOT ASK** - Infer from reference implementation:

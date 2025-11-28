@@ -19,6 +19,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - README.md is a stub (<50 lines)
   - Missing CLAUDE.md, .gitignore, scripts/ directory
 - **Updated CI template with Genesis cleanup check** - Fails build if genesis/ exists or template variables remain
+- **Added MUST-ASK peer site navigation question** - Ensures AI asks if new project should link to related/peer sites
+  - Added to Step 2 in both START-HERE.md and 00-AI-MUST-READ-FIRST.md
+  - Includes complete code examples for header dropdown and footer links
+  - References One-Pager implementation as pattern to follow
 
 ### Added - Comprehensive Audit (Pass 1)
 - **Comprehensive Genesis Audit** - Top-to-bottom review to prevent deployment issues
