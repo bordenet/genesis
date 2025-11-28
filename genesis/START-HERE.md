@@ -776,8 +776,11 @@ cp genesis/templates/docs/development/DEVELOPMENT-template.md docs/development/D
 # Testing documentation
 cp genesis/templates/docs/TESTING-template.md docs/TESTING.md
 
-# Shell script standards
+# Shell script standards (operational: timers, help, display)
 cp genesis/templates/docs/SHELL_SCRIPT_STANDARDS-template.md docs/SHELL_SCRIPT_STANDARDS.md
+
+# Shell script style guide (coding: 400-line limit, naming, structure)
+cp genesis/templates/docs/SHELL_SCRIPT_STYLE_GUIDE-template.md docs/SHELL_SCRIPT_STYLE_GUIDE.md
 
 # Replace {{PROJECT_NAME}}, {{GITHUB_USER}}, {{GITHUB_REPO}} in all docs
 # Note: Most projects don't need this level of documentation

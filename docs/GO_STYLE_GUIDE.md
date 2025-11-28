@@ -13,7 +13,7 @@ and Uber Go Style Guide.
 
 ## Package Structure
 
-```
+```text
 cmd/                   # Main applications (one per binary)
   generate-docs/
     main.go            # Entry point only, minimal logic
@@ -28,21 +28,25 @@ pkg/                   # Public packages (importable)
 ## Naming Conventions
 
 ### Packages
+
 - **lowercase, single word** preferred: `scanner`, `logger`, `prompt`
 - Avoid `utils`, `common`, `helpers` - be specific
 
 ### Variables and Functions
+
 - **camelCase** for unexported: `targetPath`, `repoList`
 - **PascalCase** for exported: `FindGitRepos`, `NewLogger`
 - **Avoid stuttering**: `scanner.Scan` not `scanner.ScanFiles`
 - **Acronyms**: `URL`, `HTTP`, `ID` (all caps), or `url`, `http`, `id` (all lower)
 
 ### Interfaces
+
 - **Single-method interfaces**: Name after the method with -er suffix
   - `Reader`, `Writer`, `Scanner`
 - **Multi-method interfaces**: Descriptive noun
 
 ### Receivers
+
 - **Short, 1-2 letters**, consistent across type's methods
   - `func (l *Logger) Info(...)` not `func (logger *Logger) Info(...)`
 - **Pointer receivers** for mutable state; value receivers for immutable
@@ -50,6 +54,7 @@ pkg/                   # Public packages (importable)
 ## Error Handling
 
 ### Error Wrapping
+
 ```go
 // Good: Add context with fmt.Errorf and %w
 if err != nil {
@@ -63,6 +68,7 @@ if err != nil {
 ```
 
 ### Error Variables
+
 ```go
 // Define package-level sentinel errors
 var (
@@ -72,28 +78,33 @@ var (
 ```
 
 ### Never Panic in Library Code
+
 - Use `panic` only in `main()` or `init()` for unrecoverable setup errors
 - Always return errors from functions
 
 ## Functions and Methods
 
 ### Function Length
+
 - Target: **≤50 lines** per function
 - Maximum: **100 lines** (refactor if approaching)
 - Single responsibility principle
 
 ### Parameters
+
 - **≤5 parameters** - use options struct if more needed
 - Context first: `func Foo(ctx context.Context, ...)`
 - Error always last return: `func Foo() (Result, error)`
 
 ### Named Return Values
+
 - Use for documentation purposes in short functions
 - Avoid in functions >10 lines (naked returns obscure flow)
 
 ## Concurrency
 
 ### Goroutine Safety
+
 ```go
 // Good: Clear ownership, explicit synchronization
 var mu sync.Mutex
@@ -108,6 +119,7 @@ go func() {
 ```
 
 ### Worker Pools
+
 - Use `sync.WaitGroup` for coordinating goroutines
 - Use buffered channels for work queues
 - Always handle context cancellation
@@ -115,11 +127,13 @@ go func() {
 ## Logging
 
 ### Structured Logging
+
 ```go
 log.Info("Processing file", "path", filePath, "size", size)
 ```
 
 ### Log Levels
+
 - **Debug**: Detailed internal state
 - **Info**: Normal operational messages
 - **Warn**: Recoverable issues
@@ -128,6 +142,7 @@ log.Info("Processing file", "path", filePath, "size", size)
 ## Testing
 
 ### Table-Driven Tests
+
 ```go
 func TestParsePath(t *testing.T) {
     tests := []struct {
@@ -154,6 +169,7 @@ func TestParsePath(t *testing.T) {
 ```
 
 ### Test Coverage
+
 - Target: **≥80%** for core logic
 - Focus on behavior, not implementation details
 - Use `testdata/` directory for test fixtures
@@ -161,6 +177,7 @@ func TestParsePath(t *testing.T) {
 ## Documentation
 
 ### Package Comments
+
 ```go
 // Package scanner provides filesystem scanning for git repositories
 // and codebase analysis. It supports nested repositories and submodules.
@@ -168,6 +185,7 @@ package scanner
 ```
 
 ### Function Comments
+
 ```go
 // FindGitRepos recursively discovers all git repositories under rootPath.
 // It skips hidden directories except .git and returns a slice of Repository.
@@ -178,22 +196,26 @@ func FindGitRepos(rootPath string, log *logger.Logger) ([]Repository, error)
 ## File Organization
 
 ### File Naming
+
 - `snake_case.go` for multi-word files: `code_extractor.go`
 - `*_test.go` for tests
 - `doc.go` for package documentation (if needed)
 
 ### File Length
+
 - Target: **≤400 lines** per file
 - Split large files by responsibility
 
 ## Linting
 
 All code must pass:
+
 ```bash
 golangci-lint run --enable-all
 ```
 
 Key linters enabled:
+
 - `errcheck` - Check error returns
 - `govet` - Static analysis
 - `staticcheck` - Advanced checks
