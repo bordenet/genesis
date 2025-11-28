@@ -205,6 +205,40 @@ if (relatedBtn && relatedMenu) {
 }
 ```
 
+```
+10. 📄 GITHUB PAGES ARCHITECTURE (MUST ASK!):
+    Which GitHub Pages deployment model?
+
+    OPTION A: Serve from /docs folder
+    - Root contains source files (development)
+    - docs/ contains deployed copy (synced by deploy script)
+    - Best for: Projects needing build step or separate dev/deploy folders
+    - Includes: deploy-web.sh script to sync files
+
+    OPTION B: Serve from / (root) [RECOMMENDED for simple web apps]
+    - Root IS the deployment (no duplication)
+    - docs/ contains ONLY documentation (.md files)
+    - Best for: Simple static sites, no build step
+    - .gitignore prevents accidental docs/js, docs/css, docs/index.html
+
+    Default: OPTION B (simpler, no drift risk)
+```
+
+### 📄 CRITICAL: GitHub Pages Architecture (MUST NOT MISS!)
+
+**Two valid architectures exist.** Mixing them causes files to drift out of sync!
+
+**Architecture A (docs/ deployment)**:
+- Deploy script syncs root → docs/
+- GitHub Pages source: `/docs`
+- `deploy-web.sh` required
+
+**Architecture B (root deployment)** - RECOMMENDED:
+- Root IS the deployment, no sync needed
+- GitHub Pages source: `/` (root)
+- `.gitignore` must block `docs/js/`, `docs/css/`, `docs/index.html`
+- No `deploy-web.sh` needed (or simplified version for quality gates only)
+
 **DO NOT ASK** - Infer from reference implementation:
 - ❌ How many phases? (Default: 3)
 - ❌ Should prompts be in files? (YES - always in `prompts/` directory)

@@ -7,6 +7,13 @@
 
 set -e
 
+# Determine repo root (works from any directory)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Change to repo root so all relative paths work
+cd "${REPO_ROOT}"
+
 REPO_OWNER="{{GITHUB_USER}}"
 REPO_NAME="{{GITHUB_REPO}}"
 

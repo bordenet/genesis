@@ -78,3 +78,19 @@ build/
 dist/
 *.log
 
+<!-- IF {{GITHUB_PAGES_FROM_ROOT}} -->
+################################################################################
+# GitHub Pages Architecture B: Serving from root (/)
+################################################################################
+# When GitHub Pages serves from root, docs/ should ONLY contain documentation,
+# NOT copies of app files. This prevents drift between root and docs/.
+#
+# See: genesis/docs/deployment/GITHUB-PAGES-template.md for architecture details
+docs/js/
+docs/css/
+docs/index.html
+docs/data/
+docs/*.html
+!docs/*.md
+<!-- END IF -->
+
