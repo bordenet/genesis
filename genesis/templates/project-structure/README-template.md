@@ -1,14 +1,14 @@
 # {{PROJECT_TITLE}}
 
-<!-- IMPORTANT: These badges reference .github/workflows/ci.yml -->
-<!-- Make sure you copied the workflow file from genesis/templates/github/workflows/ci-template.yml -->
-<!-- Without the workflow file, badges will show "unknown" or 404 errors -->
-[![CI/CD](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions/workflows/ci.yml/badge.svg)](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions/workflows/ci.yml)
-<!-- IF {{ENABLE_CODECOV}} -->
-[![codecov](https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}}/branch/main/graph/badge.svg?token={{CODECOV_TOKEN}})](https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}})
-<!-- END IF -->
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/{{GITHUB_USER}}/{{GITHUB_REPO}})](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/releases/latest)
+<!-- ⚠️ BADGES SECTION - DO NOT DELETE ANY BADGES -->
+<!-- These badges provide at-a-glance project health information -->
+<!-- CI badge requires: .github/workflows/ci.yml (copy from genesis/templates/github/workflows/ci-template.yml) -->
+<!-- Codecov badge requires: Codecov token configured in repository secrets -->
+
+[![CI](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions/workflows/ci.yml/badge.svg)](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}}/branch/main/graph/badge.svg)](https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}})
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/{{GITHUB_USER}}/{{GITHUB_REPO}})](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/releases/latest)
 
 {{PROJECT_DESCRIPTION}}
 
@@ -19,6 +19,7 @@
 ## 🤖 For AI Assistants
 
 **READ THIS FIRST**: Before working on this codebase, read [`CLAUDE.md`](CLAUDE.md) for mandatory workflow requirements:
+
 - ✅ ALWAYS lint code after creating/modifying it (`npm run lint`)
 - ✅ ALWAYS run tests after creating/modifying tests (`npm test`)
 - ✅ ALWAYS proactively communicate "what's left" - don't wait to be asked
@@ -65,6 +66,7 @@ python3 -m http.server 8000
 ```
 
 **Why use setup scripts?**
+
 - ✅ Ensures reproducible environment
 - ✅ Installs ALL dependencies (not just npm packages)
 - ✅ Fast on subsequent runs (~5-10 seconds)
@@ -87,6 +89,7 @@ python3 -m http.server 8000
 
 {{#each PHASES}}
 **Phase {{number}}: {{name}}**
+
 - AI Model: {{ai_model}}
 - Purpose: {{purpose}}
 - Input: {{input}}
@@ -97,17 +100,17 @@ python3 -m http.server 8000
 ### Example Usage
 
 1. **Create New Project**: Click "New Project" and enter project details
-2. **Phase 1 - {{PHASE_1_NAME}}**: 
+2. **Phase 1 - {{PHASE_1_NAME}}**:
    - Copy the generated prompt
    - Paste into {{PHASE_1_AI}}
    - Copy AI response back
-3. **Phase 2 - {{PHASE_2_NAME}}**: 
+3. **Phase 2 - {{PHASE_2_NAME}}**:
    - Review Phase 1 output
    - Copy prompt for Phase 2
    - Paste into {{PHASE_2_AI}}
    - Copy AI response back
 {{#if PHASE_3_NAME}}
-4. **Phase 3 - {{PHASE_3_NAME}}**: 
+4. **Phase 3 - {{PHASE_3_NAME}}**:
    - Review Phase 2 feedback
    - Copy prompt for Phase 3
    - Paste into {{PHASE_3_AI}}
@@ -139,7 +142,7 @@ See [Backend Documentation](docs/architecture/BACKEND.md) for details.
 
 ## Project Structure
 
-```
+```text
 {{GITHUB_REPO}}/
 ├── {{DEPLOY_FOLDER}}/              # Web application
 │   ├── index.html                  # Main HTML file
@@ -179,6 +182,7 @@ See [Backend Documentation](docs/architecture/BACKEND.md) for details.
 ### Setup
 
 1. **Configure environment** (first time only):
+
    ```bash
    # Copy environment template
    cp .env.example .env
@@ -189,6 +193,7 @@ See [Backend Documentation](docs/architecture/BACKEND.md) for details.
    ```
 
 2. **Run setup script**:
+
    ```bash
    # macOS
    ./scripts/setup-macos.sh
@@ -227,12 +232,14 @@ python3 -m http.server 8000
 ```
 
 **Why use deployment script?**
+
 - ✅ Enforces quality gates (linting, tests, coverage)
 - ✅ Prevents deploying broken code
 - ✅ Consistent deployment process
 - ✅ Automatic commit messages with timestamps
 
 **❌ NEVER deploy manually:**
+
 ```bash
 # ❌ WRONG - Bypasses quality checks
 git add {{DEPLOY_FOLDER}}
@@ -263,4 +270,3 @@ Built with the [Genesis Project Template System](https://github.com/bordenet/pro
 ---
 
 **Questions?** Open an issue or check the [documentation](docs/).
-

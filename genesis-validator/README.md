@@ -59,6 +59,7 @@ golangci-lint run ./...
 ```
 
 **What the hook does:**
+
 - Runs the Genesis validator before every commit
 - Ensures all templates are properly documented
 - Prevents commits with orphaned or missing files
@@ -68,33 +69,38 @@ golangci-lint run ./...
 ## 📋 What It Validates
 
 ### 1. Template File Inventory
+
 - Scans `genesis/templates/` for all template files
 - Identifies files matching patterns: `*-template*` or `*.template`
 
 ### 2. Documentation References
+
 - Parses `genesis/START-HERE.md` for template references
 - Parses `genesis/AI-EXECUTION-CHECKLIST.md` for template references
 - Extracts references from multiple patterns:
   - `cp genesis/templates/...` (copy commands)
   - `` `templates/...` `` (backtick references)
-  - `(from `...`)` (parenthetical references)
+  - `(from ...)`  (parenthetical references)
   - Direct mentions of `templates/...`
 
 ### 3. Orphaned Files
+
 - Identifies template files that exist but are NOT referenced in documentation
 - **Impact**: These files won't be deployed when Genesis is used
 
 ### 4. Missing Files
+
 - Identifies files referenced in documentation but DON'T exist
 - **Impact**: Broken instructions, deployment failures
 
 ### 5. Documentation Consistency
+
 - Ensures START-HERE.md and AI-EXECUTION-CHECKLIST.md reference the same templates
 - **Impact**: Inconsistent instructions confuse AI assistants
 
 ## 🔧 Command-Line Options
 
-```
+```text
 -verbose          Enable verbose output (shows all files found)
 -no-prompt        Disable LLM prompt generation
 -genesis-root     Path to genesis directory (default: genesis)
@@ -110,6 +116,7 @@ golangci-lint run ./...
 ## 🎯 Use Cases
 
 ### 1. Pre-Commit Hook
+
 Run automatically before each commit to catch issues early:
 
 ```bash
@@ -117,6 +124,7 @@ Run automatically before each commit to catch issues early:
 ```
 
 ### 2. CI/CD Pipeline
+
 Add to GitHub Actions to enforce quality gates:
 
 ```yaml
@@ -125,6 +133,7 @@ Add to GitHub Actions to enforce quality gates:
 ```
 
 ### 3. Periodic Self-Correction
+
 Run periodically and use the generated LLM prompt to fix issues:
 
 ```bash
@@ -133,6 +142,7 @@ Run periodically and use the generated LLM prompt to fix issues:
 ```
 
 ### 4. After Adding New Templates
+
 Verify new templates are properly documented:
 
 ```bash
@@ -167,7 +177,7 @@ go test -v ./internal/validator/...
 
 ## 🏗️ Architecture
 
-```
+```text
 genesis-validator/
 ├── cmd/
 │   └── genesis-validator/
@@ -193,13 +203,13 @@ genesis-validator/
 
 ### Success
 
-```
+```text
 ✅ All checks passed! Found 46 template files, all referenced correctly.
 ```
 
 ### Failure
 
-```
+```text
 📊 Validation Summary:
   Template files found: 46
   Orphaned files: 1
@@ -224,4 +234,3 @@ This validator is designed to be run as part of the Genesis quality gates:
 - `genesis/AI-EXECUTION-CHECKLIST.md` - Execution checklist
 - `GENESIS-AUDIT-PASS-1.md` - First comprehensive audit
 - `GENESIS-AUDIT-PASS-2.md` - Second comprehensive audit
-
