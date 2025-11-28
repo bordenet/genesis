@@ -22,6 +22,13 @@
 
 set -e
 
+# Determine repo root (works from any directory)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Change to repo root so all relative paths work
+cd "${REPO_ROOT}"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'

@@ -8,8 +8,14 @@
 
 set -euo pipefail
 
-# Source compact output library
+# Determine repo root (works from any directory)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Change to repo root so all relative paths work
+cd "${REPO_ROOT}"
+
+# Source compact output library
 source "$SCRIPT_DIR/lib/compact.sh"
 
 # Parse command line arguments

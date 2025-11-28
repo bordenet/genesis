@@ -153,6 +153,10 @@ Before starting, verify these files exist in genesis/:
   - [ ] If YES: Got list of peer site URLs (e.g., `https://bordenet.github.io/one-pager/`)
   - [ ] If YES: Got titles for each peer site (e.g., "One-Pager Assistant")
   - [ ] If YES: Got short descriptions (e.g., "Generate one-pager documents")
+- [ ] **📄 MUST ASK: GitHub Pages architecture?**
+  - [ ] Option A: Serve from `/docs` (deploy script syncs root → docs/)
+  - [ ] Option B: Serve from `/` root (RECOMMENDED - no sync, no drift)
+  - [ ] If Option B: Will add .gitignore entries to block docs/js/, docs/css/, etc.
 - [ ] Stored all answers as variables for template replacement
 
 **⚠️ PEER SITE NAVIGATION IS FREQUENTLY FORGOTTEN!**
@@ -161,6 +165,12 @@ GameWiki did not implement peer navigation because it wasn't asked. Always ask!
 See One-Pager (`index.html`) for the reference implementation:
 - Header: "Related Projects" dropdown with lightning bolt icon
 - Footer: Direct links to peer sites
+
+**⚠️ GITHUB PAGES ARCHITECTURE MATTERS!**
+
+Mixing architectures causes drift (duplicate files in docs/ that get out of sync).
+- Option A: `deploy-web.sh` syncs root → docs/, GitHub Pages source = `/docs`
+- Option B: Root IS deployment, docs/ = documentation only, GitHub Pages source = `/`
 
 **Did NOT ask** (inferred from reference implementation):
 - [ ] Did NOT ask "How many phases?" (Default: 3)
@@ -392,12 +402,24 @@ See One-Pager (`index.html`) for the reference implementation:
 
 ## Step 6: Enable GitHub Pages ✅
 
+**Based on architecture choice from Step 2:**
+
+**If Architecture A (serve from /docs):**
 - [ ] Told user to go to repo settings → Pages
 - [ ] Told user to select: Source = Deploy from branch
-- [ ] Told user to select: Branch = main, Folder = / (root)
+- [ ] Told user to select: Branch = main, Folder = `/docs`
+- [ ] Told user to click Save
+- [ ] Told user to run `./scripts/deploy-web.sh` to sync files to docs/
+- [ ] Told user the URL: `https://USER.github.io/REPO/`
+
+**If Architecture B (serve from root) - RECOMMENDED:**
+- [ ] Told user to go to repo settings → Pages
+- [ ] Told user to select: Source = Deploy from branch
+- [ ] Told user to select: Branch = main, Folder = `/` (root)
 - [ ] Told user to click Save
 - [ ] Told user to wait 1-2 minutes
 - [ ] Told user the URL: `https://USER.github.io/REPO/`
+- [ ] Verified .gitignore blocks docs/js/, docs/css/, docs/index.html
 
 ---
 

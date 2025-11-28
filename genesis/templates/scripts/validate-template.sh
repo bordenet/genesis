@@ -9,8 +9,14 @@
 
 set -euo pipefail
 
-# Source common library
+# Determine repo root (works from any directory)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Change to repo root so all relative paths work
+cd "${REPO_ROOT}"
+
+# Source common library
 # shellcheck source=lib/common-template.sh
 source "$SCRIPT_DIR/lib/common.sh"
 

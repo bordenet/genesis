@@ -24,6 +24,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Includes complete code examples for header dropdown and footer links
   - References One-Pager implementation as pattern to follow
 
+### Fixed - Script Path and GitHub Pages Architecture Issues
+- **Added REPO_ROOT pattern to all shell script templates** - Scripts now work from any directory
+  - `deploy-web.sh.template` - Added REPO_ROOT detection and cd
+  - `validate-template.sh` - Added REPO_ROOT detection and cd
+  - `setup-macos-template.sh` - Added REPO_ROOT detection and cd
+  - `setup-linux-template.sh` - Added REPO_ROOT detection and cd
+  - `setup-windows-wsl-template.sh` - Added REPO_ROOT detection and cd
+  - `setup-macos-web-template.sh` - Added REPO_ROOT detection and cd
+  - `setup-codecov-template.sh` - Added REPO_ROOT detection and cd
+  - `validate-genesis-setup-template.sh` - Added REPO_ROOT detection and cd
+  - `lib/common-template.sh` - Added REPO_ROOT fallback detection
+- **Added MUST-ASK GitHub Pages architecture question** - Prevents file duplication drift
+  - Architecture A: Serve from /docs (deploy script syncs root → docs/)
+  - Architecture B: Serve from / root (RECOMMENDED - no sync, no drift)
+  - Added to Step 2 in both START-HERE.md and 00-AI-MUST-READ-FIRST.md
+  - Updated Step 6 with architecture-specific instructions
+- **Updated .gitignore template for Architecture B** - Blocks docs/js/, docs/css/, docs/index.html
+  - Prevents accidental duplication of app files in docs/ directory
+  - Uses conditional template syntax for Architecture B projects
+
 ### Added - Comprehensive Audit (Pass 1)
 - **Comprehensive Genesis Audit** - Top-to-bottom review to prevent deployment issues
   - Created `GENESIS-AUDIT-PASS-1.md` - Complete audit findings and action plan

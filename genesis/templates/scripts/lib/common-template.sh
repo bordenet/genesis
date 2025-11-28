@@ -11,6 +11,19 @@
 readonly COMMON_LIB_LOADED=1
 
 ################################################################################
+# Repository Root Detection
+################################################################################
+# IMPORTANT: All scripts should work from any directory by using REPO_ROOT
+# This is set by the sourcing script before sourcing this library
+
+# If REPO_ROOT not set by caller, detect it (assumes lib/ is in scripts/)
+if [[ -z "${REPO_ROOT:-}" ]]; then
+    COMMON_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    REPO_ROOT="$(cd "${COMMON_LIB_DIR}/../.." && pwd)"
+fi
+readonly REPO_ROOT
+
+################################################################################
 # ANSI Color Codes
 ################################################################################
 
