@@ -1,4 +1,21 @@
-# AI Execution Checklist
+# 🚨 AI EXECUTION CHECKLIST - MUST READ FIRST 🚨
+
+```text
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║   ⚠️  STOP! DO NOT PROCEED WITHOUT READING THIS ENTIRE FILE!  ⚠️            ║
+║                                                                              ║
+║   This checklist is MANDATORY. Skipping steps causes:                        ║
+║   • genesis/ directory left in repo (bloat, confusion)                       ║
+║   • Missing CLAUDE.md, README.md, .gitignore, scripts/                       ║
+║   • Unreplaced {{VARIABLES}} in files                                        ║
+║   • Failed CI/CD pipelines                                                   ║
+║                                                                              ║
+║   REAL EXAMPLE: GameWiki project had ALL these problems because              ║
+║   the AI skipped this checklist.                                             ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
 
 **For AI Assistants**: Use this checklist to verify you've completed all steps from START-HERE.md
 
