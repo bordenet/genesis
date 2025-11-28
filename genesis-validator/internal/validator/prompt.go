@@ -43,7 +43,7 @@ func (g *PromptGenerator) GeneratePrompt(result *ValidationResult) string {
 
 	if len(result.OrphanedFiles) > 0 {
 		prompt.WriteString("## 🔍 Orphaned Template Files\n\n")
-		prompt.WriteString("These template files exist but are NOT referenced in START-HERE.md or AI-EXECUTION-CHECKLIST.md:\n\n")
+		prompt.WriteString("These template files exist but are NOT referenced in START-HERE.md or 00-AI-MUST-READ-FIRST.md:\n\n")
 		for i, file := range result.OrphanedFiles {
 			prompt.WriteString(fmt.Sprintf("%d. `%s`\n", i+1, file))
 		}
@@ -68,7 +68,7 @@ func (g *PromptGenerator) GeneratePrompt(result *ValidationResult) string {
 
 	if len(result.Inconsistencies) > 0 {
 		prompt.WriteString("## 📋 Documentation Inconsistencies\n\n")
-		
+
 		// Group by type
 		byType := make(map[string][]Inconsistency)
 		for _, inc := range result.Inconsistencies {
@@ -76,7 +76,7 @@ func (g *PromptGenerator) GeneratePrompt(result *ValidationResult) string {
 		}
 
 		if docMismatches, ok := byType["doc_mismatch"]; ok && len(docMismatches) > 0 {
-			prompt.WriteString("### START-HERE.md ↔ AI-EXECUTION-CHECKLIST.md Mismatches\n\n")
+			prompt.WriteString("### START-HERE.md ↔ 00-AI-MUST-READ-FIRST.md Mismatches\n\n")
 			for i, inc := range docMismatches {
 				prompt.WriteString(fmt.Sprintf("%d. `%s`\n", i+1, inc.File))
 				prompt.WriteString(fmt.Sprintf("   %s\n", inc.Description))
@@ -88,7 +88,7 @@ func (g *PromptGenerator) GeneratePrompt(result *ValidationResult) string {
 	prompt.WriteString("## 🎯 Recommended Actions\n\n")
 	prompt.WriteString("1. **Review all orphaned files** - Add to documentation or remove\n")
 	prompt.WriteString("2. **Fix missing files** - Create templates or remove references\n")
-	prompt.WriteString("3. **Sync documentation** - Ensure START-HERE.md and AI-EXECUTION-CHECKLIST.md match\n")
+	prompt.WriteString("3. **Sync documentation** - Ensure START-HERE.md and 00-AI-MUST-READ-FIRST.md match\n")
 	prompt.WriteString("4. **Run validator again** - Verify all issues are resolved\n")
 	prompt.WriteString("5. **Update CHANGELOG.md** - Document what was fixed\n\n")
 
@@ -97,7 +97,7 @@ func (g *PromptGenerator) GeneratePrompt(result *ValidationResult) string {
 	prompt.WriteString("# For orphaned file: templates/web-app/new-feature-template.js\n")
 	prompt.WriteString("# Add to START-HERE.md Section 3.2:\n")
 	prompt.WriteString("cp genesis/templates/web-app/new-feature-template.js js/new-feature.js\n\n")
-	prompt.WriteString("# Add to AI-EXECUTION-CHECKLIST.md Section 3.2:\n")
+	prompt.WriteString("# Add to 00-AI-MUST-READ-FIRST.md Section 3.2:\n")
 	prompt.WriteString("- [ ] Copied `js/new-feature.js` from `templates/web-app/new-feature-template.js`\n")
 	prompt.WriteString("```\n\n")
 
@@ -109,4 +109,3 @@ func (g *PromptGenerator) GeneratePrompt(result *ValidationResult) string {
 
 	return prompt.String()
 }
-

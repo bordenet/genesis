@@ -134,12 +134,12 @@ func (p *Parser) ParseAllDocs() (map[string][]string, error) {
 	}
 	result["START-HERE.md"] = startRefs
 
-	// Parse AI-EXECUTION-CHECKLIST.md
+	// Parse 00-AI-MUST-READ-FIRST.md (formerly AI-EXECUTION-CHECKLIST.md)
 	checklistRefs, err := p.ParseReferences(p.config.ChecklistFile)
 	if err != nil {
 		return nil, err
 	}
-	result["AI-EXECUTION-CHECKLIST.md"] = checklistRefs
+	result["00-AI-MUST-READ-FIRST.md"] = checklistRefs
 
 	return result, nil
 }

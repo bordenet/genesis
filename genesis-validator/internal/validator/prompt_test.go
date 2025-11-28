@@ -71,8 +71,8 @@ func TestGeneratePrompt_WithOrphanedFiles(t *testing.T) {
 	generator := NewPromptGenerator(config)
 
 	result := &ValidationResult{
-		TemplateFiles:  []string{"file1.txt", "file2.txt"},
-		OrphanedFiles:  []string{"orphan1.txt", "orphan2.txt"},
+		TemplateFiles: []string{"file1.txt", "file2.txt"},
+		OrphanedFiles: []string{"orphan1.txt", "orphan2.txt"},
 	}
 
 	prompt := generator.GeneratePrompt(result)
@@ -104,7 +104,7 @@ func TestGeneratePrompt_WithMissingFiles(t *testing.T) {
 		MissingFiles:  []string{"missing1.txt", "missing2.txt"},
 		ReferencedFiles: map[string][]string{
 			"missing1.txt": {"START-HERE.md"},
-			"missing2.txt": {"AI-EXECUTION-CHECKLIST.md"},
+			"missing2.txt": {"00-AI-MUST-READ-FIRST.md"},
 		},
 	}
 
@@ -119,7 +119,7 @@ func TestGeneratePrompt_WithMissingFiles(t *testing.T) {
 		"missing1.txt",
 		"missing2.txt",
 		"Referenced in: START-HERE.md",
-		"Referenced in: AI-EXECUTION-CHECKLIST.md",
+		"Referenced in: 00-AI-MUST-READ-FIRST.md",
 		"Create the template file",
 	}
 
@@ -153,7 +153,7 @@ func TestGeneratePrompt_WithInconsistencies(t *testing.T) {
 
 	expectedContent := []string{
 		"Documentation Inconsistencies",
-		"START-HERE.md ↔ AI-EXECUTION-CHECKLIST.md Mismatches",
+		"START-HERE.md ↔ 00-AI-MUST-READ-FIRST.md Mismatches",
 		"test-file.txt",
 		"File referenced in START-HERE but not in checklist",
 	}
@@ -164,4 +164,3 @@ func TestGeneratePrompt_WithInconsistencies(t *testing.T) {
 		}
 	}
 }
-

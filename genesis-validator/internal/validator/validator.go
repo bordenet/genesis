@@ -89,7 +89,7 @@ func (v *Validator) Validate() (*ValidationResult, error) {
 		}
 	}
 
-	// Step 6: Check consistency between START-HERE.md and AI-EXECUTION-CHECKLIST.md
+	// Step 6: Check consistency between START-HERE.md and 00-AI-MUST-READ-FIRST.md
 	v.checkDocConsistency(result, docRefs)
 
 	return result, nil
@@ -103,30 +103,30 @@ func (v *Validator) checkDocConsistency(result *ValidationResult, docRefs map[st
 	}
 
 	checklistRefs := make(map[string]bool)
-	for _, ref := range docRefs["AI-EXECUTION-CHECKLIST.md"] {
+	for _, ref := range docRefs["00-AI-MUST-READ-FIRST.md"] {
 		checklistRefs[ref] = true
 	}
 
-	// Find files in START-HERE.md but not in AI-EXECUTION-CHECKLIST.md
+	// Find files in START-HERE.md but not in 00-AI-MUST-READ-FIRST.md
 	for ref := range startRefs {
 		if !checklistRefs[ref] {
 			result.Inconsistencies = append(result.Inconsistencies, Inconsistency{
 				Type:        "doc_mismatch",
 				File:        ref,
-				Description: "Referenced in START-HERE.md but not in AI-EXECUTION-CHECKLIST.md",
+				Description: "Referenced in START-HERE.md but not in 00-AI-MUST-READ-FIRST.md",
 				Location:    "START-HERE.md",
 			})
 		}
 	}
 
-	// Find files in AI-EXECUTION-CHECKLIST.md but not in START-HERE.md
+	// Find files in 00-AI-MUST-READ-FIRST.md but not in START-HERE.md
 	for ref := range checklistRefs {
 		if !startRefs[ref] {
 			result.Inconsistencies = append(result.Inconsistencies, Inconsistency{
 				Type:        "doc_mismatch",
 				File:        ref,
-				Description: "Referenced in AI-EXECUTION-CHECKLIST.md but not in START-HERE.md",
-				Location:    "AI-EXECUTION-CHECKLIST.md",
+				Description: "Referenced in 00-AI-MUST-READ-FIRST.md but not in START-HERE.md",
+				Location:    "00-AI-MUST-READ-FIRST.md",
 			})
 		}
 	}
