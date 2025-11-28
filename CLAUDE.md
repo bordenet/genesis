@@ -22,7 +22,7 @@ All code changes **MUST** pass before commit/merge:
 - Do NOT push code with known linting issues
 - Fix ALL issues in the file before committing
 
-**Rationale**: Linting issues indicate code quality problems. Ignoring them because they existed before your changes still means shipping low-quality code. Every touch point is an opportunity to improve the codebase.
+**Rationale**: Linting issues indicate code quality problems. Ignoring them because they existed before your changes still means shipping low-quality code. Every touch point is an opportunity to improve the codebase. Sweeping lint errors "under the rug" causes them to accumulate over time, making each round of changes worse than the last.
 
 ## Language-Specific Requirements
 

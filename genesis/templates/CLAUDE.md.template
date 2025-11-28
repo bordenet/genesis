@@ -4,6 +4,19 @@
 
 ---
 
+## ⚠️ CRITICAL: Fix ALL Linting Issues Immediately
+
+**MANDATE**: When you detect ANY linting issue in a file you're working with, you MUST fix it immediately - regardless of whether it was pre-existing or newly introduced.
+
+- Do NOT note that issues are "pre-existing" and move on
+- Do NOT defer fixing to a later step
+- Do NOT push code with known linting issues
+- Fix ALL issues in the file before committing
+
+**Rationale**: Linting issues indicate code quality problems. Ignoring them because they existed before your changes still means shipping low-quality code. Every touch point is an opportunity to improve the codebase. Sweeping lint errors "under the rug" causes them to accumulate over time, making each round of changes worse than the last.
+
+---
+
 ## 🎯 Core Principles
 
 ### 0. **MANDATORY: Reference Known-Good Implementations FIRST**
@@ -351,4 +364,3 @@ npm run lint:fix
 ---
 
 **Remember**: Match the user's high standards for professionalism and completeness.
-
