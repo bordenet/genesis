@@ -43,16 +43,16 @@ cp genesis/templates/CLAUDE.md.template CLAUDE.md
 		t.Fatalf("Failed to create START-HERE.md: %v", err)
 	}
 
-	// Create AI-EXECUTION-CHECKLIST.md
+	// Create 00-AI-MUST-READ-FIRST.md (formerly AI-EXECUTION-CHECKLIST.md)
 	checklistContent := `# Checklist
 
 - [ ] \x60templates/web-app/index-template.html\x60
 - [ ] \x60templates/web-app/js/app-template.js\x60
 - [ ] \x60templates/CLAUDE.md.template\x60
 `
-	checklistFile := filepath.Join(genesisDir, "AI-EXECUTION-CHECKLIST.md")
+	checklistFile := filepath.Join(genesisDir, "00-AI-MUST-READ-FIRST.md")
 	if err := os.WriteFile(checklistFile, []byte(checklistContent), 0644); err != nil {
-		t.Fatalf("Failed to create AI-EXECUTION-CHECKLIST.md: %v", err)
+		t.Fatalf("Failed to create 00-AI-MUST-READ-FIRST.md: %v", err)
 	}
 
 	config := &Config{
@@ -332,8 +332,7 @@ func TestDefaultConfig(t *testing.T) {
 		t.Errorf("Expected StartHereFile 'genesis/START-HERE.md', got '%s'", config.StartHereFile)
 	}
 
-	if config.ChecklistFile != "genesis/AI-EXECUTION-CHECKLIST.md" {
-		t.Errorf("Expected ChecklistFile 'genesis/AI-EXECUTION-CHECKLIST.md', got '%s'", config.ChecklistFile)
+	if config.ChecklistFile != "genesis/00-AI-MUST-READ-FIRST.md" {
+		t.Errorf("Expected ChecklistFile 'genesis/00-AI-MUST-READ-FIRST.md', got '%s'", config.ChecklistFile)
 	}
 }
-

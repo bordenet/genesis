@@ -29,7 +29,7 @@ func main() {
 	config.GenesisRoot = *genesisRoot
 	config.TemplatesDir = *genesisRoot + "/templates"
 	config.StartHereFile = *genesisRoot + "/START-HERE.md"
-	config.ChecklistFile = *genesisRoot + "/AI-EXECUTION-CHECKLIST.md"
+	config.ChecklistFile = *genesisRoot + "/00-AI-MUST-READ-FIRST.md"
 
 	// Run validation
 	v := validator.NewValidator(config)
@@ -53,7 +53,7 @@ func main() {
 	if config.GeneratePrompt && (!result.IsValid() || result.HasWarnings()) {
 		promptGen := validator.NewPromptGenerator(config)
 		prompt := promptGen.GeneratePrompt(result)
-		
+
 		fmt.Println("=" + string(make([]byte, 79)))
 		fmt.Println("LLM PROMPT FOR FIXING ISSUES")
 		fmt.Println("=" + string(make([]byte, 79)))
@@ -133,4 +133,3 @@ func printDetailedResults(result *validator.ValidationResult) {
 		fmt.Println()
 	}
 }
-
