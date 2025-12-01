@@ -293,8 +293,8 @@ cp genesis/templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md REV
 cp genesis/templates/testing/package-template.json package.json
 # Replace {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{GITHUB_USER}}, {{GITHUB_REPO}}, {{GITHUB_PAGES_URL}}
 
-# Copy ESLint config
-cp genesis/templates/project-structure/.eslintrc-template.json .eslintrc.json
+# Copy ESLint config (comprehensive rules including Node.js globals restrictions)
+cp genesis/templates/web-app/.eslintrc-template.json .eslintrc.json
 
 # Copy Codecov config
 cp genesis/templates/project-structure/codecov-template.yml codecov.yml
@@ -463,6 +463,7 @@ cp genesis/templates/scripts/deploy-web.sh.template scripts/deploy-web.sh
 # Copy library scripts
 cp genesis/templates/scripts/lib/common-template.sh scripts/lib/common.sh
 cp genesis/templates/scripts/lib/compact.sh scripts/lib/compact.sh
+cp genesis/templates/scripts/lib/validate-docs-template.sh scripts/lib/validate-docs.sh
 
 # Copy install-hooks script
 cp genesis/templates/scripts/install-hooks-template.sh scripts/install-hooks.sh
@@ -587,7 +588,7 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `README.md` (from `project-structure/README-template.md`)
 - [ ] `REVERSE-INTEGRATION-NOTES.md` (from `project-structure/REVERSE-INTEGRATION-NOTES-template.md`)
 - [ ] `package.json` (from `testing/package-template.json`)
-- [ ] `.eslintrc.json` (from `project-structure/.eslintrc-template.json`)
+- [ ] `.eslintrc.json` (from `web-app/.eslintrc-template.json`)
 - [ ] `codecov.yml` (from `project-structure/codecov-template.yml`)
 - [ ] `jest.config.js` (from `testing/jest.config-template.js`)
 - [ ] `jest.setup.js` (from `testing/jest.setup-template.js`)
@@ -703,6 +704,12 @@ chmod +x scripts/check-secrets.sh
 cp genesis/templates/testing/ui.test-template.js tests/ui.test.js
 cp genesis/templates/testing/projects.test-template.js tests/projects.test.js
 cp genesis/templates/testing/workflow.test-template.js tests/workflow.test.js
+cp genesis/templates/testing/app.test-template.js tests/app.test.js
+cp genesis/templates/testing/router.test-template.js tests/router.test.js
+cp genesis/templates/testing/views.test-template.js tests/views.test.js
+cp genesis/templates/testing/project-view.test-template.js tests/project-view.test.js
+cp genesis/templates/testing/ai-mock-ui.test-template.js tests/ai-mock-ui.test.js
+cp genesis/templates/testing/visual-regression.test-template.js tests/visual-regression.test.js
 ```
 
 #### EditorConfig
@@ -976,11 +983,11 @@ Before declaring "Ready to start coding", verify these files exist:
 | `README.md` (>50 lines) | `templates/project-structure/README-template.md` | **CRITICAL** |
 | `.gitignore` | `templates/project-structure/gitignore-template` | **CRITICAL** |
 | `package.json` | `templates/testing/package-template.json` | **CRITICAL** |
-| `.eslintrc.json` | `templates/project-structure/.eslintrc-template.json` | **HIGH** |
+| `.eslintrc.json` | `templates/web-app/.eslintrc-template.json` | **HIGH** |
 | `scripts/setup-macos.sh` | `templates/scripts/setup-macos-web-template.sh` | **HIGH** |
 | `scripts/deploy-web.sh` | `templates/scripts/deploy-web.sh.template` | **HIGH** |
 | `.github/workflows/ci.yml` | `templates/github/workflows/ci-template.yml` | **HIGH** |
-| `tests/*.test.js` | `templates/testing/*-template.js` | **HIGH** |
+| `tests/*.test.js` | `templates/testing/*.test-template.js` | **HIGH** |
 | `genesis/` directory | N/A - **MUST BE DELETED** | **CRITICAL** |
 
 ---

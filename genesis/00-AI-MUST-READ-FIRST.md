@@ -85,7 +85,7 @@ Before starting, verify these files exist in genesis/:
 - [ ] `templates/project-structure/gitignore-template`
 - [ ] `templates/project-structure/README-template.md`
 - [ ] `templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md`
-- [ ] `templates/project-structure/.eslintrc-template.json`
+- [ ] `templates/web-app/.eslintrc-template.json`
 - [ ] `templates/project-structure/codecov-template.yml`
 - [ ] `templates/project-structure/.env.example-template` (RECOMMENDED)
 - [ ] `templates/project-structure/CONTRIBUTING-template.md` (RECOMMENDED)
@@ -103,6 +103,7 @@ Before starting, verify these files exist in genesis/:
 - [ ] `templates/testing/storage.test-template.js`
 - [ ] `templates/testing/workflow.e2e-template.js`
 - [ ] `templates/testing/same-llm-adversarial.test-template.js`
+- [ ] `templates/testing/*.test-template.js` (additional test files - see Section 3.7)
 - [ ] `templates/prompts/phase1-template.md`
 - [ ] `templates/prompts/phase2-template.md`
 - [ ] `templates/prompts/phase3-template.md`
@@ -114,6 +115,7 @@ Before starting, verify these files exist in genesis/:
 - [ ] `templates/scripts/setup-codecov-template.sh`
 - [ ] `templates/scripts/lib/common-template.sh`
 - [ ] `templates/scripts/lib/compact.sh`
+- [ ] `templates/scripts/lib/validate-docs-template.sh`
 - [ ] `templates/git-hooks/pre-commit-template` (RECOMMENDED)
 
 **Examples** (for REFERENCE ONLY - do NOT copy from here):
@@ -193,7 +195,7 @@ Mixing architectures causes drift (duplicate files in docs/ that get out of sync
 - [ ] Copied `REVERSE-INTEGRATION-NOTES.md` from `templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md`
 - [ ] Copied `package.json` from `templates/testing/package-template.json`
 - [ ] Replaced variables in package.json
-- [ ] Copied `.eslintrc.json` from `templates/project-structure/.eslintrc-template.json`
+- [ ] Copied `.eslintrc.json` from `templates/web-app/.eslintrc-template.json`
 - [ ] Copied `codecov.yml` from `templates/project-structure/codecov-template.yml`
 - [ ] Copied `jest.config.js` from `templates/testing/jest.config-template.js`
 - [ ] Copied `jest.setup.js` from `templates/testing/jest.setup-template.js`
@@ -345,6 +347,12 @@ Mixing architectures causes drift (duplicate files in docs/ that get out of sync
   - [ ] If YES: Copied `templates/testing/ui.test-template.js`
   - [ ] If YES: Copied `templates/testing/projects.test-template.js`
   - [ ] If YES: Copied `templates/testing/workflow.test-template.js`
+  - [ ] If YES: Copied `templates/testing/app.test-template.js`
+  - [ ] If YES: Copied `templates/testing/router.test-template.js`
+  - [ ] If YES: Copied `templates/testing/views.test-template.js`
+  - [ ] If YES: Copied `templates/testing/project-view.test-template.js`
+  - [ ] If YES: Copied `templates/testing/ai-mock-ui.test-template.js`
+  - [ ] If YES: Copied `templates/testing/visual-regression.test-template.js`
 - [ ] Decided if EditorConfig is needed
   - [ ] If YES: Copied `templates/project-structure/.editorconfig-template`
 - [ ] Decided if Claude Desktop integration is needed
@@ -367,6 +375,7 @@ Mixing architectures causes drift (duplicate files in docs/ that get out of sync
   - [ ] If YES: Copied `templates/docs/development/DEVELOPMENT-template.md`
   - [ ] If YES: Copied `templates/docs/TESTING-template.md`
   - [ ] If YES: Copied `templates/docs/SHELL_SCRIPT_STANDARDS-template.md`
+  - [ ] If YES: Copied `templates/docs/SHELL_SCRIPT_STYLE_GUIDE-template.md`
 
 ---
 
