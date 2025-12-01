@@ -146,6 +146,24 @@
     </div>
 
     <!-- JavaScript Modules -->
+    <!--
+        ⚠️ CRITICAL: type="module" is REQUIRED for ES6 imports/exports
+
+        All .js files in this project use ES6 modules (import/export syntax).
+        DO NOT use CommonJS (require/module.exports) - it will break in the browser.
+
+        Why ES6 modules?
+        - Native browser support (no bundler needed)
+        - Proper dependency management
+        - Better performance (parallel loading)
+        - Modern JavaScript standard
+
+        Reference implementations:
+        - https://github.com/bordenet/product-requirements-assistant
+        - https://github.com/bordenet/architecture-decision-record
+
+        See: genesis/REFERENCE-IMPLEMENTATIONS.md for module system patterns
+    -->
     <script type="module" src="js/storage.js"></script>
     <script type="module" src="js/ui.js"></script>
     <script type="module" src="js/workflow.js"></script>
