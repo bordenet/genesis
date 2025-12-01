@@ -8,6 +8,71 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added - Module System Validation (2025-12-01)
+
+**CRITICAL FIX**: Prevents CommonJS/ES6 module system mismatches that break browser-based projects.
+
+**Problem**: Genesis templates use ES6 modules (`import`/`export`) for browser compatibility, but AI assistants sometimes generate CommonJS (`require()`/`module.exports`) which fails in browsers with `<script type="module">`.
+
+**Solution**: Comprehensive validation and documentation to enforce ES6-only code generation.
+
+#### New Features
+
+1. **Module System Validator Script** (`scripts/validate-module-system.sh`)
+   - Detects CommonJS `require()` statements in browser code
+   - Detects CommonJS `module.exports` in browser code
+   - Checks for unreplaced template variables (`{{VAR}}`)
+   - Verifies ES6 imports/exports are present
+   - Color-coded output with fix suggestions
+   - Exit code 0 for pass, 1 for fail (CI-friendly)
+
+2. **Integrated Validation in Setup Scripts**
+   - `setup-macos-web-template.sh` now validates module system
+   - Fails fast with helpful error messages
+   - Runs after linting, before completion
+   - Zero performance impact (fast grep checks)
+
+3. **Enhanced Documentation**
+   - **`01-AI-INSTRUCTIONS.md`**: New "Module System Validation" section (113 lines)
+     - Mandatory checklist for all browser-based projects
+     - ES6 vs CommonJS comparison table
+     - Event listener attachment requirements
+     - Template variable validation
+     - Common failures and fixes table
+   - **`REFERENCE-IMPLEMENTATIONS.md`**: New "Module System" section (165 lines)
+     - Correct vs incorrect patterns with examples
+     - When to use bundlers (rarely)
+     - Validation checklist
+     - Real-world testing procedures
+   - **`TROUBLESHOOTING.md`**: Two new sections (203 lines)
+     - "Module System Errors (require is not defined)"
+     - "Event Listeners Not Working"
+     - Step-by-step solutions with code examples
+   - **`index-template.html`**: Enhanced ES6 module documentation
+     - Comprehensive comment block explaining `type="module"`
+     - Links to reference implementations
+
+#### Template Fixes
+
+1. **`same-llm-adversarial-template.js`**
+   - Converted from CommonJS to ES6 modules
+   - Replaced `module.exports` with `export`
+   - Added critical module system warning comment
+   - Last template to be converted - all templates now ES6-only
+
+#### Validation Results
+
+- ✅ Genesis templates: All pass validation (ES6 modules only)
+- ✅ Test project: Bootstrapped and validated successfully
+- ❌ architecture-decision-record: Correctly fails (uses CommonJS)
+
+#### References
+
+- Design Document: `docs/plans/GENESIS-MODULE-SYSTEM-FIX.md`
+- Commits: 0389cd8, 4eea835, 9f5c90b, f59e09c, d72ceea, 143af99
+
+---
+
 ### Changed - Genesis Bootstrapper Improvements (GameWiki Feedback)
 
 - **Renamed `AI-EXECUTION-CHECKLIST.md` to `00-AI-MUST-READ-FIRST.md`** - Sorts to top alphabetically so AI assistants can't miss it
