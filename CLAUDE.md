@@ -75,7 +75,6 @@ style guides and are enforced through automated tooling in CI.
 ### Reference Documents
 
 - **Design Document**: `docs/plans/GENESIS-MODULE-SYSTEM-FIX.md` (551 lines)
-- **Implementation Checklist**: `IMPLEMENTATION-CHECKLIST.md` (354 lines)
 - **Changelog**: `CHANGELOG.md` (see [Unreleased] section)
 - **Troubleshooting**: `TROUBLESHOOTING.md` (692 lines)
 
@@ -267,8 +266,48 @@ try {
 | Max Parameters | 5 | 5 | 5 |
 | Line Length | 120 | 120 | 120 |
 
+## Documentation Hygiene: Automatic Validation
+
+**Problem**: Bootstrap projects accumulate documentation clutter over time - SESSION-CHECKPOINT files after work is complete, extensive "completed work" listings, references to deleted files. Developers have to manually remember to clean these up.
+
+**Solution**: Automatic validation that runs on every commit and rejects commits containing:
+
+- SESSION-CHECKPOINT.md files with no actual remaining work
+- Extensive "✅ completed work" listings (indicates historical clutter)
+- References to deleted files or directories
+- CLAUDE.md files exceeding 600 lines (indicates accumulated cruft)
+- TODO lists in projects marked as complete
+
+**Implementation**: `genesis/scripts/lib/validate-docs.sh` (~188-line shell script that runs in <1 second).
+
+**Benefit**: Documentation stays clean and focused without requiring manual enforcement. Developers get immediate feedback: "Remove that completed work section before you push."
+
+**Where It Works**: All Genesis-bootstrapped projects - the script is generic enough to work for any documentation structure.
+
+**Integration**:
+- Pre-commit hook: Validates docs before commit
+- CI/CD: Runs in `.github/workflows/ci.yml` to catch any bypassed hooks
+- Template: Included in all Genesis-generated projects
+
+**Usage**:
+```bash
+# Manual validation
+./genesis/scripts/lib/validate-docs.sh
+
+# Automatic validation (runs on git commit)
+# No action needed - pre-commit hook handles it
+```
+
+**Common Fixes When Validation Fails**:
+- Delete SESSION-CHECKPOINT.md if project is complete
+- Remove ✅ completed work sections from documentation (move to CHANGELOG if needed)
+- Update references to deleted files
+- Remove TODO lists from completed projects
+- Trim CLAUDE.md if it exceeds 600 lines
+
 ## Resources
 
 - Go Style Guide: `docs/GO_STYLE_GUIDE.md`
 - Python Style Guide: `docs/PYTHON_STYLE_GUIDE.md`
 - CI Configuration: `.github/workflows/ci.yml`
+- Documentation Validator: `genesis/scripts/lib/validate-docs.sh`

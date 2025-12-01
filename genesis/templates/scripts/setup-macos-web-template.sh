@@ -170,6 +170,47 @@ if [[ -f "js/app.js" ]] || [[ -f "docs/js/app.js" ]]; then
     task_ok "Module system validated"
 fi
 
+# Install pre-commit hook for documentation hygiene
+if [ -f "scripts/lib/validate-docs.sh" ]; then
+    task_start "Installing pre-commit hook"
+
+    mkdir -p .git/hooks
+
+    cat > .git/hooks/pre-commit << 'EOF'
+#!/bin/bash
+#
+# Pre-Commit Hook
+# Validates documentation hygiene before committing
+#
+
+set -e
+
+# Get the repository root directory
+REPO_ROOT=$(git rev-parse --show-toplevel)
+
+# Run documentation hygiene validator
+DOC_VALIDATOR="$REPO_ROOT/scripts/lib/validate-docs.sh"
+if [ -f "$DOC_VALIDATOR" ] && [ -x "$DOC_VALIDATOR" ]; then
+    if ! "$DOC_VALIDATOR"; then
+        echo ""
+        echo "❌ Documentation hygiene validation failed!"
+        echo ""
+        echo "Please fix the issues above before committing."
+        echo "Or run: git commit --no-verify (to skip validation)"
+        echo ""
+        exit 1
+    fi
+fi
+
+exit 0
+EOF
+
+    chmod +x .git/hooks/pre-commit
+    chmod +x scripts/lib/validate-docs.sh
+
+    task_ok "Pre-commit hook installed"
+fi
+
 # Done
 echo ""
 print_header "✓ Setup complete! $(get_elapsed_time)"
