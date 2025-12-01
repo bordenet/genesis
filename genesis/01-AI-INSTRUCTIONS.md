@@ -129,7 +129,44 @@ export function toggleTheme() {
 // Missing: addEventListener() call - button won't work!
 ```
 
-**STEP 4: Validate Template Variables**
+**STEP 4: Never Use Node.js Globals Directly**
+
+Browser code CANNOT access Node.js globals. Always guard or use browser-safe alternatives:
+
+```javascript
+// ❌ WRONG - Breaks in browser
+const mode = process.env.AI_MODE;
+const dir = __dirname;
+const file = __filename;
+
+// ✅ CORRECT - Browser-safe with guards
+const getEnvVar = (key, defaultValue) => {
+    if (typeof process !== 'undefined' && process.env && process.env[key]) {
+        return process.env[key];
+    }
+    // Browser fallback: check window.AI_CONFIG or use default
+    if (typeof window !== 'undefined' && window.AI_CONFIG && window.AI_CONFIG[key]) {
+        return window.AI_CONFIG[key];
+    }
+    return defaultValue;
+};
+const mode = getEnvVar('AI_MODE', 'mock');
+
+// ✅ CORRECT - Browser-safe alternatives
+// Instead of process.env: Use window.AI_CONFIG, localStorage, or HTML data attributes
+// Instead of __dirname: Use import.meta.url or relative paths
+// Instead of __filename: Use import.meta.url
+```
+
+**Node.js Globals to NEVER Use Directly**:
+- `process` (process.env, process.cwd, process.platform)
+- `__dirname`
+- `__filename`
+- `require.resolve`
+- `Buffer` (use Uint8Array instead)
+- `global` (use window or globalThis)
+
+**STEP 5: Validate Template Variables**
 
 Before marking ANY file complete, search for unreplaced template variables:
 
@@ -145,9 +182,12 @@ grep -r "{{[A-Z_]*}}" .
 - [ ] Every DOM-handling function has `addEventListener()` binding
 - [ ] All `{{TEMPLATE_VAR}}` replaced with actual values
 - [ ] No CommonJS syntax anywhere in browser code
-- [ ] Tested in browser console (no "require is not defined" errors)
+- [ ] No Node.js globals used directly (process, __dirname, __filename)
+- [ ] All environment config uses browser-safe alternatives
+- [ ] Tested in browser console (no "require is not defined" or "process is not defined" errors)
 - [ ] Dark mode toggle works (requires Tailwind `darkMode: 'class'` config)
 - [ ] All UI buttons/controls are responsive
+- [ ] Footer GitHub link is properly linked (not just gray text)
 
 ### Reference Implementations
 
@@ -166,10 +206,12 @@ grep -r "{{[A-Z_]*}}" .
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | "require is not defined" | CommonJS in browser | Replace with ES6 `import` |
+| "process is not defined" | Node.js globals in browser | Guard with `typeof process !== 'undefined'` |
 | "Cannot find module" | Wrong module syntax | Use ES6 `export` |
 | Buttons don't work | Missing event listeners | Add `addEventListener()` calls |
 | Dark mode broken | Missing Tailwind config | Add `tailwind.config = { darkMode: 'class' }` |
 | `{{VAR}}` in output | Template not replaced | Replace all template variables |
+| Gray GitHub text | Footer link not styled | Ensure `<a>` tag wraps GitHub text |
 
 ---
 
