@@ -7,17 +7,18 @@ Common issues when creating projects from Genesis templates and how to fix them.
 ## Table of Contents
 
 1. [Module System Errors (require is not defined)](#module-system-errors-require-is-not-defined)
-2. [Template Variables Not Replaced](#template-variables-not-replaced)
-3. [Badges Show "Unknown"](#badges-show-unknown)
-4. [GitHub Actions Workflow Fails](#github-actions-workflow-fails)
-5. [npm install Fails](#npm-install-fails)
-6. [Linting Errors](#linting-errors)
-7. [Tests Fail](#tests-fail)
-8. [Dark Mode Doesn't Work](#dark-mode-doesnt-work)
-9. [GitHub Pages 404 Error](#github-pages-404-error)
-10. [Missing Files](#missing-files)
-11. [Deployment Script Fails](#deployment-script-fails)
-12. [Event Listeners Not Working](#event-listeners-not-working)
+2. [Node.js Globals in Browser (process is not defined)](#nodejs-globals-in-browser-process-is-not-defined)
+3. [Template Variables Not Replaced](#template-variables-not-replaced)
+4. [Badges Show "Unknown"](#badges-show-unknown)
+5. [GitHub Actions Workflow Fails](#github-actions-workflow-fails)
+6. [npm install Fails](#npm-install-fails)
+7. [Linting Errors](#linting-errors)
+8. [Tests Fail](#tests-fail)
+9. [Dark Mode Doesn't Work](#dark-mode-doesnt-work)
+10. [GitHub Pages 404 Error](#github-pages-404-error)
+11. [Missing Files](#missing-files)
+12. [Deployment Script Fails](#deployment-script-fails)
+13. [Event Listeners Not Working](#event-listeners-not-working)
 
 ---
 
@@ -91,6 +92,119 @@ import { storage } from './storage';
 ### Reference
 - See: `REFERENCE-IMPLEMENTATIONS.md` (Module System section)
 - See: `01-AI-INSTRUCTIONS.md` (Module System Validation section)
+
+---
+
+## Node.js Globals in Browser (process is not defined)
+
+### Symptoms
+- Browser console shows: `Uncaught ReferenceError: process is not defined`
+- Browser console shows: `Uncaught ReferenceError: __dirname is not defined`
+- Browser console shows: `Uncaught ReferenceError: __filename is not defined`
+- Code works in Node.js but fails in browser
+
+### Cause
+JavaScript files are using Node.js-specific globals (`process`, `__dirname`, `__filename`, etc.) that don't exist in browsers. These globals are only available in Node.js environments.
+
+### Solution
+
+**1. Run the module system validator**:
+```bash
+./scripts/validate-module-system.sh js/
+```
+
+**2. Replace Node.js globals with browser-safe alternatives**:
+
+#### Problem: process.env
+
+❌ **WRONG (breaks in browser)**:
+```javascript
+const AI_MODE = process.env.AI_MODE || "mock";
+const API_KEY = process.env.API_KEY;
+```
+
+✅ **CORRECT (works everywhere)**:
+```javascript
+// Helper function for environment variables
+const getEnvVar = (key, defaultValue = null) => {
+    // Check if running in Node.js
+    if (typeof process !== 'undefined' && process.env && process.env[key]) {
+        return process.env[key];
+    }
+    // Check if running in browser with window.AI_CONFIG
+    if (typeof window !== 'undefined' && window.AI_CONFIG && window.AI_CONFIG[key]) {
+        return window.AI_CONFIG[key];
+    }
+    // Fallback to default
+    return defaultValue;
+};
+
+const AI_MODE = getEnvVar('AI_MODE', 'mock');
+const API_KEY = getEnvVar('API_KEY');
+```
+
+#### Problem: __dirname and __filename
+
+❌ **WRONG (breaks in browser)**:
+```javascript
+const configPath = path.join(__dirname, 'config.json');
+const currentFile = __filename;
+```
+
+✅ **CORRECT (works in browsers)**:
+```javascript
+// Use import.meta.url for ES6 modules
+const currentModuleUrl = import.meta.url;
+
+// Or use relative paths directly
+const configPath = './config.json';
+```
+
+#### Problem: Other Node.js globals
+
+| Node.js Global | Browser Alternative |
+|----------------|---------------------|
+| `process.cwd()` | Use relative paths or `window.location` |
+| `process.platform` | Use `navigator.platform` or `navigator.userAgent` |
+| `Buffer` | Use `Uint8Array` or `TextEncoder/TextDecoder` |
+| `global` | Use `window` or `globalThis` |
+| `require.resolve()` | Use relative import paths |
+
+**3. Configure environment in HTML (for browser deployments)**:
+
+```html
+<!-- index.html -->
+<script>
+    // Define browser-accessible config
+    window.AI_CONFIG = {
+        AI_MODE: 'mock',
+        API_ENDPOINT: 'https://api.example.com',
+        // Add other config here
+    };
+</script>
+<script type="module" src="js/app.js"></script>
+```
+
+**4. Or use localStorage for persistent config**:
+
+```javascript
+// Set config
+localStorage.setItem('AI_MODE', 'mock');
+
+// Get config
+const AI_MODE = localStorage.getItem('AI_MODE') || 'mock';
+```
+
+### Prevention
+- Never use Node.js globals directly in browser code
+- Always guard with `typeof process !== 'undefined'` checks
+- Use browser-safe alternatives (window, localStorage, HTML data attributes)
+- Run `./scripts/validate-module-system.sh` before deployment
+- Test in actual browser, not just Node.js
+
+### Reference
+- See: `01-AI-INSTRUCTIONS.md` (STEP 4: Never Use Node.js Globals Directly)
+- See: `templates/web-app/js/same-llm-adversarial-template.js` (getEnvVar pattern)
 
 ---
 

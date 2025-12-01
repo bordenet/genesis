@@ -195,11 +195,26 @@ class ConfigurationManager {
     }
 
     getPhaseConfig(phase) {
+        // Browser-safe environment variable access
+        // In browsers, use window.AI_CONFIG or fallback to defaults
+        const getEnvVar = (key, defaultValue = null) => {
+            // Check if running in Node.js environment
+            if (typeof process !== 'undefined' && process.env && process.env[key]) {
+                return process.env[key];
+            }
+            // Check if running in browser with window.AI_CONFIG
+            if (typeof window !== 'undefined' && window.AI_CONFIG && window.AI_CONFIG[key]) {
+                return window.AI_CONFIG[key];
+            }
+            return defaultValue;
+        };
+
+        const phaseUpper = phase.toUpperCase();
         return {
-            provider: process.env[`${phase.toUpperCase()}_PROVIDER`] || 'anthropic',
-            model: process.env[`${phase.toUpperCase()}_MODEL`] || 'claude-3-sonnet',
-            endpoint: process.env[`${phase.toUpperCase()}_ENDPOINT`],
-            url: process.env[`${phase.toUpperCase()}_URL`] || process.env[`${phase.toUpperCase()}_ENDPOINT`]
+            provider: getEnvVar(`${phaseUpper}_PROVIDER`, 'anthropic'),
+            model: getEnvVar(`${phaseUpper}_MODEL`, 'claude-3-sonnet'),
+            endpoint: getEnvVar(`${phaseUpper}_ENDPOINT`),
+            url: getEnvVar(`${phaseUpper}_URL`) || getEnvVar(`${phaseUpper}_ENDPOINT`)
         };
     }
 

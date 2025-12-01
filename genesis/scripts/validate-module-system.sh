@@ -63,8 +63,44 @@ else
     echo -e "${GREEN}✅ No CommonJS module.exports found${NC}"
 fi
 
-# Check 3: Check for unreplaced template variables
-echo -e "${BLUE}[3/4]${NC} Checking for unreplaced template variables..."
+# Check 3: Check for Node.js globals in browser code
+echo -e "${BLUE}[3/6]${NC} Checking for Node.js globals (process, __dirname, etc.)..."
+# Look for unguarded usage at variable declaration level (not inside guards)
+# This catches: const x = process.env.FOO (bad)
+# But allows: if (typeof process !== 'undefined') { return process.env.FOO } (good)
+NODEJS_GLOBALS=""
+
+# Check each JS file individually for context
+for jsfile in $(find "$VALIDATE_PATH" -name "*.js" -type f 2>/dev/null); do
+    # Look for direct assignment/declaration with process.env (not inside typeof guard)
+    UNGUARDED=$(grep -nE "^\s*(const|let|var)\s+.*=.*process\.env\." "$jsfile" 2>/dev/null | grep -v "typeof process" || true)
+    if [ -n "$UNGUARDED" ]; then
+        NODEJS_GLOBALS="${NODEJS_GLOBALS}${jsfile}:${UNGUARDED}\n"
+    fi
+
+    # Look for direct assignment with __dirname or __filename
+    UNGUARDED_DIR=$(grep -nE "^\s*(const|let|var)\s+.*=.*(__dirname|__filename)" "$jsfile" 2>/dev/null | grep -v "typeof __dirname" | grep -v "typeof __filename" || true)
+    if [ -n "$UNGUARDED_DIR" ]; then
+        NODEJS_GLOBALS="${NODEJS_GLOBALS}${jsfile}:${UNGUARDED_DIR}\n"
+    fi
+done
+
+if [ -n "$NODEJS_GLOBALS" ]; then
+    echo -e "${RED}❌ Found unguarded Node.js globals in browser code:${NC}"
+    echo -e "$NODEJS_GLOBALS"
+    echo ""
+    echo -e "${YELLOW}Fix: Guard with typeof checks or use browser-safe alternatives${NC}"
+    echo -e "${YELLOW}Example:${NC}"
+    echo -e "${YELLOW}  // BAD: const mode = process.env.AI_MODE;${NC}"
+    echo -e "${YELLOW}  // GOOD: const mode = (typeof process !== 'undefined' && process.env?.AI_MODE) || 'default';${NC}"
+    echo ""
+    VALIDATION_FAILED=1
+else
+    echo -e "${GREEN}✅ No unguarded Node.js globals found${NC}"
+fi
+
+# Check 4: Check for unreplaced template variables
+echo -e "${BLUE}[4/6]${NC} Checking for unreplaced template variables..."
 TEMPLATE_VARS=$(grep -r --include="*.js" --include="*.html" "{{[A-Z_]*}}" "$VALIDATE_PATH" 2>/dev/null || true)
 
 if [ -n "$TEMPLATE_VARS" ]; then
@@ -82,8 +118,8 @@ else
     echo -e "${GREEN}✅ No unreplaced template variables found${NC}"
 fi
 
-# Check 4: Verify ES6 import statements exist
-echo -e "${BLUE}[4/4]${NC} Verifying ES6 import/export usage..."
+# Check 5: Verify ES6 import statements exist
+echo -e "${BLUE}[5/6]${NC} Verifying ES6 import/export usage..."
 JS_FILES=$(find "$VALIDATE_PATH" -name "*.js" -type f 2>/dev/null | wc -l | tr -d ' ')
 
 if [ "$JS_FILES" -gt 0 ]; then
@@ -98,6 +134,29 @@ if [ "$JS_FILES" -gt 0 ]; then
     fi
 else
     echo -e "${YELLOW}⚠️  No JavaScript files found in $VALIDATE_PATH${NC}"
+fi
+
+# Check 6: Verify GitHub footer link is properly linked
+echo -e "${BLUE}[6/6]${NC} Checking for unlinked GitHub text in footer..."
+HTML_FILES=$(find "$VALIDATE_PATH" -name "*.html" -type f 2>/dev/null)
+
+if [ -n "$HTML_FILES" ]; then
+    # Look for "GitHub" text that's not inside an <a> tag
+    UNLINKED_GITHUB=$(echo "$HTML_FILES" | xargs grep -l "GitHub" 2>/dev/null | xargs grep -E ">GitHub<" 2>/dev/null | grep -v "<a[^>]*>GitHub<" || true)
+
+    if [ -n "$UNLINKED_GITHUB" ]; then
+        echo -e "${YELLOW}⚠️  Found unlinked 'GitHub' text in HTML:${NC}"
+        echo "$UNLINKED_GITHUB"
+        echo ""
+        echo -e "${YELLOW}Fix: Wrap GitHub text in <a> tag linking to repository${NC}"
+        echo -e "${YELLOW}Example: <a href=\"https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}\">GitHub</a>${NC}"
+        echo ""
+        # Don't fail validation, just warn
+    else
+        echo -e "${GREEN}✅ GitHub footer links validated${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  No HTML files found in $VALIDATE_PATH${NC}"
 fi
 
 echo ""
