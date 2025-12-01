@@ -127,3 +127,25 @@ jobs:
           markdownlint-cli2 "**/*.md" \
             --ignore node_modules \
             --ignore genesis/examples/hello-world/node_modules
+
+  # Documentation hygiene validation
+  docs:
+    name: Documentation Hygiene
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for git diff
+
+      - name: Validate documentation hygiene
+        run: |
+          chmod +x genesis/scripts/lib/validate-docs.sh
+          # Run validator on all markdown files (not just staged)
+          # In CI, we check all files since pre-commit hook might be bypassed
+          if ls *.md 1> /dev/null 2>&1; then
+            echo "🔍 Validating documentation hygiene..."
+            genesis/scripts/lib/validate-docs.sh || exit 1
+          else
+            echo "✓ No markdown files to validate"
+          fi
