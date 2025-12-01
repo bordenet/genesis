@@ -8,6 +8,56 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added - Phase C: UI Module Test Coverage (2025-12-01)
+
+**ENHANCEMENT**: Comprehensive test coverage for all remaining UI modules.
+
+**New Test Files**:
+
+1. **`ai-mock-ui.test-template.js`** (150 lines, 10 tests)
+   - Tests `initMockModeUI()` - Creates mock mode toggle UI
+   - Tests `toggleMockMode()` - State management and localStorage
+   - Tests `updateMockModeUI()` - UI state updates
+   - Tests production environment detection (hides UI in production)
+   - Tests localStorage persistence across sessions
+
+2. **`project-view.test-template.js`** (150 lines, 12 tests)
+   - Tests `renderProjectView()` - Valid/invalid project rendering
+   - Tests `renderPhaseIndicator()` - All phases, active/completed states
+   - Tests `handlePhaseNavigation()` - Click handling and restrictions
+   - Tests phase completion logic
+   - Tests export button rendering
+   - Tests back button functionality
+
+3. **`views.test-template.js`** (150 lines, 13 tests)
+   - Tests `renderProjectsList()` - Empty state and multiple projects
+   - Tests `renderNewProjectForm()` - With/without existing data
+   - Tests `renderEmptyState()` - Empty state rendering
+   - Tests project card click handlers
+   - Tests form validation and button states
+   - Tests date formatting
+
+**Test Coverage Improvement**:
+- **Before**: 9/12 modules tested (75%)
+- **After**: 12/12 modules tested (100%)
+
+**Modules Now Fully Tested**:
+- ✅ storage (database operations)
+- ✅ router (navigation)
+- ✅ app (initialization)
+- ✅ workflow (phase management)
+- ✅ projects (CRUD operations)
+- ✅ ui (theme, toasts)
+- ✅ same-llm-adversarial (AI strategy)
+- ✅ ai-mock (mock responses)
+- ✅ ai-mock-ui (mock mode toggle) - NEW
+- ✅ project-view (workflow view) - NEW
+- ✅ views (list/form rendering) - NEW
+- ✅ phase2-review (review generation)
+- ✅ phase3-synthesis (ADR synthesis)
+
+All Genesis templates now have comprehensive test coverage for both core logic and UI components.
+
 ### Added - Phase 3: Validation Hardening (2025-12-01)
 
 **ENHANCEMENT**: Comprehensive validation hardening with accessibility, visual regression, and linting.
