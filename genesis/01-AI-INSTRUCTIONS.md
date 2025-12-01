@@ -63,6 +63,116 @@ Read `02-DEPENDENCY-MANAGEMENT.md` for complete details.
 
 ---
 
+## ⚠️ CRITICAL: Module System Validation
+
+**MANDATORY FOR ALL BROWSER-BASED PROJECTS**
+
+All JavaScript files in Genesis web-app templates use **ES6 modules** (`import`/`export`). This is **NOT optional** - it's required for browser compatibility.
+
+### Why ES6 Modules?
+
+- ✅ Native browser support (no bundler needed)
+- ✅ Proper dependency management
+- ✅ Better performance (parallel loading)
+- ✅ Modern JavaScript standard
+- ❌ CommonJS (`require`/`module.exports`) **DOES NOT WORK** in browsers with `<script type="module">`
+
+### Before Writing ANY JavaScript Code
+
+**STEP 1: Declare Module Type**
+```javascript
+/**
+ * Module Name
+ *
+ * ⚠️ CRITICAL: This file MUST use ES6 modules
+ * The browser loads this with <script type="module">
+ * DO NOT use CommonJS (require/module.exports)
+ */
+```
+
+**STEP 2: Use Correct Import/Export Syntax**
+```javascript
+// ✅ CORRECT - ES6 imports
+import { storage } from './storage.js';
+import { showToast } from './ui.js';
+
+// ✅ CORRECT - ES6 exports
+export function myFunction() { }
+export const myConstant = 42;
+export class MyClass { }
+
+// ❌ WRONG - CommonJS (will break in browser)
+const { storage } = require('./storage.js');
+module.exports = { myFunction };
+```
+
+**STEP 3: Attach Event Listeners**
+
+Every DOM-handling function MUST have an `addEventListener()` call:
+
+```javascript
+// ✅ CORRECT - Function defined AND attached
+export function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+}
+
+// Attach listener immediately
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+}
+
+// ❌ WRONG - Function defined but never attached
+export function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+}
+// Missing: addEventListener() call - button won't work!
+```
+
+**STEP 4: Validate Template Variables**
+
+Before marking ANY file complete, search for unreplaced template variables:
+
+```bash
+# Check for unreplaced variables
+grep -r "{{[A-Z_]*}}" .
+# Should return: nothing (all variables replaced)
+```
+
+### Validation Checklist (MANDATORY Before Deployment)
+
+- [ ] All `.js` files use `import`/`export` (no `require()` or `module.exports`)
+- [ ] Every DOM-handling function has `addEventListener()` binding
+- [ ] All `{{TEMPLATE_VAR}}` replaced with actual values
+- [ ] No CommonJS syntax anywhere in browser code
+- [ ] Tested in browser console (no "require is not defined" errors)
+- [ ] Dark mode toggle works (requires Tailwind `darkMode: 'class'` config)
+- [ ] All UI buttons/controls are responsive
+
+### Reference Implementations
+
+**✅ Correct Patterns**:
+- [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) - ES6 modules, no bundler
+- [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) - Fixed to use ES6 modules
+
+**❌ What NOT to Do**:
+- Using `require()` in browser code
+- Using `module.exports` in browser code
+- Defining event handlers without attaching them
+- Leaving `{{TEMPLATE_VAR}}` unreplaced
+
+### Common Failures and Fixes
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| "require is not defined" | CommonJS in browser | Replace with ES6 `import` |
+| "Cannot find module" | Wrong module syntax | Use ES6 `export` |
+| Buttons don't work | Missing event listeners | Add `addEventListener()` calls |
+| Dark mode broken | Missing Tailwind config | Add `tailwind.config = { darkMode: 'class' }` |
+| `{{VAR}}` in output | Template not replaced | Replace all template variables |
+
+---
+
 ## 📋 Prerequisites
 
 Before starting, ensure:

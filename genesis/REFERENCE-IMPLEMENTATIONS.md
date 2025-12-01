@@ -118,3 +118,158 @@ The reference implementations contain ALL the answers to common questions:
 - Minimal viable implementation
 - Good starting point for understanding the basics
 
+---
+
+## ⚠️ CRITICAL: Module System - Browser ES6 Modules
+
+**MANDATORY FOR ALL BROWSER-BASED PROJECTS**
+
+All Genesis web-app templates use **ES6 modules** (`import`/`export`) for browser compatibility. This section explains the correct patterns and common pitfalls.
+
+### ✅ Correct Pattern (No Bundler Needed)
+
+**Step 1: HTML loads modules with `type="module"`**
+```html
+<!-- index.html -->
+<script type="module" src="js/storage.js"></script>
+<script type="module" src="js/ui.js"></script>
+<script type="module" src="js/app.js"></script>
+```
+
+**Step 2: JavaScript files use ES6 import/export**
+```javascript
+// storage.js
+export class Storage {
+    async init() { /* ... */ }
+}
+export const storage = new Storage();
+
+// ui.js
+export function showToast(message, type) { /* ... */ }
+export function toggleTheme() { /* ... */ }
+
+// app.js
+import { storage } from './storage.js';
+import { showToast, toggleTheme } from './ui.js';
+
+async function init() {
+    await storage.init();
+    showToast('App ready!', 'success');
+}
+```
+
+**Step 3: Event listeners are explicitly attached**
+```javascript
+// ui.js
+export function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+// Attach listener immediately (CRITICAL!)
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+}
+```
+
+### ❌ Incorrect Pattern (CommonJS - Breaks in Browser)
+
+**What NOT to do:**
+```javascript
+// ❌ WRONG: Using CommonJS in browser code
+const { storage } = require('./storage.js');  // Error: require is not defined
+module.exports = { showToast };               // Error: module is not defined
+
+// ❌ WRONG: Defining function but not attaching listener
+export function toggleTheme() { /* ... */ }
+// Missing: addEventListener() - button won't work!
+
+// ❌ WRONG: Unreplaced template variables
+const DB_NAME = '{{DB_NAME}}';  // Still a template variable!
+```
+
+### 🎯 Best Practice: ES6 Modules (No Bundler)
+
+**Why ES6 modules are preferred:**
+1. ✅ Native browser support (all modern browsers)
+2. ✅ No build step required (faster development)
+3. ✅ Parallel module loading (better performance)
+4. ✅ Proper dependency management
+5. ✅ Easier debugging (source maps not needed)
+
+**When to use a bundler:**
+- Only if you need code splitting for large apps
+- Only if you need to support very old browsers
+- Only if you need advanced optimizations
+
+**For Genesis projects:** Start with ES6 modules. Only add a bundler if you have a specific need.
+
+### Reference Implementations
+
+**✅ Correct ES6 Module Usage:**
+
+1. **product-requirements-assistant**
+   - All `.js` files use `import`/`export`
+   - No bundler needed for development or production
+   - Event listeners properly attached in `setupGlobalEventListeners()`
+   - See: `docs/js/app.js` lines 50-141
+
+2. **architecture-decision-record** (Fixed)
+   - Originally used CommonJS (broken)
+   - Fixed to use ES6 modules
+   - Added esbuild as temporary workaround (can be removed)
+   - See: `js/storage.js` line 174 (`export const storage = new Storage()`)
+
+### Common Failures and Solutions
+
+| Symptom | Root Cause | Solution |
+|---------|-----------|----------|
+| "require is not defined" | CommonJS in browser | Replace `require()` with `import` |
+| "module is not defined" | CommonJS exports | Replace `module.exports` with `export` |
+| Buttons don't respond | Missing event listeners | Add `addEventListener()` calls |
+| Dark mode doesn't work | Missing Tailwind config | Add `tailwind.config = { darkMode: 'class' }` |
+| `{{VAR}}` in output | Template not replaced | Replace all `{{TEMPLATE_VAR}}` with actual values |
+| Module not found | Missing `.js` extension | Always include `.js` in import paths |
+
+### Validation Checklist
+
+Before deploying ANY browser-based project:
+
+- [ ] All `.js` files use `import`/`export` (no `require()` or `module.exports`)
+- [ ] All import paths include `.js` extension (e.g., `'./storage.js'`)
+- [ ] All DOM-handling functions have `addEventListener()` bindings
+- [ ] All `{{TEMPLATE_VAR}}` replaced with actual values
+- [ ] Tested in browser console (no "require is not defined" errors)
+- [ ] All UI buttons/controls are responsive
+- [ ] Dark mode toggle works (if applicable)
+
+### Testing Module System
+
+**Quick validation:**
+```bash
+# Check for CommonJS in browser code
+grep -r "module\.exports\|require(" js/
+# Should return: nothing (no matches)
+
+# Check for unreplaced template variables
+grep -r "{{[A-Z_]*}}" .
+# Should return: nothing (all variables replaced)
+
+# Test in browser
+# 1. Open browser console
+# 2. Load the app
+# 3. Check for errors (should be none)
+# 4. Test all buttons/toggles (should work)
+```
+
+**Real-world validation:**
+1. Bootstrap a fresh project from templates
+2. Load in browser WITHOUT bundler (just open index.html via http server)
+3. Verify no console errors
+4. Test all UI features (buttons, toggles, forms)
+5. Verify dark mode works
+6. Verify data persists (IndexedDB)
+
+---
+
