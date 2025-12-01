@@ -8,6 +8,62 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added - Phase 3: Validation Hardening (2025-12-01)
+
+**ENHANCEMENT**: Comprehensive validation hardening with accessibility, visual regression, and linting.
+
+**Accessibility Validation** (Added to `validate-module-system.sh`):
+
+1. **Check 7/9: Images Without Alt Text**
+   - Scans all HTML files for `<img>` tags missing `alt` attributes
+   - Warns about accessibility issues (non-blocking)
+   - Provides fix examples with proper alt text
+
+2. **Check 8/9: Buttons Without Accessible Labels**
+   - Detects icon-only buttons that may need `aria-label`
+   - Identifies `<button>` tags with `<svg>` or `<i>` without labels
+   - Warns about potential screen reader issues (non-blocking)
+
+3. **Check 9/9: Semantic HTML Structure**
+   - Verifies presence of `<header>`, `<main>`, `<footer>` elements
+   - Promotes better document structure for accessibility
+   - Warns about missing semantic elements (non-blocking)
+
+**Visual Regression Testing** (`visual-regression.test-template.js`):
+
+- 9 comprehensive Playwright visual regression tests
+- Tests light mode, dark mode, responsive viewports
+- Tests empty states, project lists, workflow views
+- Screenshot comparison with `--update-snapshots` flag
+- Animations disabled for consistent screenshots
+- Full-page and component-level screenshot support
+
+**ESLint Configuration** (`.eslintrc-template.json`):
+
+- Browser environment with ES2021 support
+- **Enforces ES6 modules**: Blocks `require`, `module.exports`, `exports`
+- **Blocks Node.js globals**: `process`, `__dirname`, `__filename`
+- Code style rules: single quotes, semicolons, 2-space indent
+- Space and formatting rules for consistency
+- Test file overrides for Vitest environment
+- Ignores node_modules, dist, build, coverage
+
+**Package Updates** (`package-template.json`):
+
+- **Switched to Vitest** (from Jest) for faster, better ES6 support
+- Added `test:visual` script for visual regression tests
+- Added `validate` and `validate:full` scripts
+- Updated dependencies: `vitest`, `@vitest/coverage-v8`, `happy-dom`
+- Configured Vitest with coverage settings (text, json, html reporters)
+- Removed Jest and jsdom dependencies
+
+**Validation Improvements**:
+
+- Validator now runs 9 checks (was 6): module system + accessibility
+- All accessibility checks are warnings (non-blocking) to avoid false positives
+- ESLint catches Node.js globals and CommonJS at development time
+- Visual regression catches UI regressions before deployment
+
 ### Added - Phase 2: Template Audit & Test Coverage (2025-12-01)
 
 **IMPROVEMENT**: Comprehensive template audit and test coverage improvements.
