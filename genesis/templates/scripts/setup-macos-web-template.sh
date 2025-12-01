@@ -140,7 +140,35 @@ if [[ ${VERBOSE:-0} -eq 1 ]]; then
 else
     npm run lint >/dev/null 2>&1
 fi
-task_ok "Setup validated"
+task_ok "Linting passed"
+
+# Step 4: Module system validation (browser projects only)
+if [[ -f "js/app.js" ]] || [[ -f "docs/js/app.js" ]]; then
+    task_start "Validating module system"
+
+    # Determine JS directory
+    JS_DIR="js"
+    [[ -d "docs/js" ]] && JS_DIR="docs/js"
+
+    # Check for CommonJS (should not exist in browser code)
+    if grep -rE --include="*.js" "=\s*require\(|const\s+.*require\(|let\s+.*require\(|var\s+.*require\(" "$JS_DIR" >/dev/null 2>&1; then
+        task_fail "Found CommonJS require() in browser code"
+        echo ""
+        echo "Browser code must use ES6 modules (import/export), not CommonJS (require/module.exports)"
+        echo "See: genesis/REFERENCE-IMPLEMENTATIONS.md (Module System section)"
+        exit 1
+    fi
+
+    if grep -r --include="*.js" "module\.exports\s*=" "$JS_DIR" >/dev/null 2>&1; then
+        task_fail "Found CommonJS module.exports in browser code"
+        echo ""
+        echo "Browser code must use ES6 modules (import/export), not CommonJS (require/module.exports)"
+        echo "See: genesis/REFERENCE-IMPLEMENTATIONS.md (Module System section)"
+        exit 1
+    fi
+
+    task_ok "Module system validated"
+fi
 
 # Done
 echo ""
