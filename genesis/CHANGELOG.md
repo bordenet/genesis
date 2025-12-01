@@ -8,6 +8,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added - Phase 2: Template Audit & Test Coverage (2025-12-01)
+
+**IMPROVEMENT**: Comprehensive template audit and test coverage improvements.
+
+**Audit Results**:
+- ✅ No incomplete stub implementations found
+- ✅ No TODO/FIXME requiring immediate action
+- ✅ All placeholder text is legitimate (form inputs, documentation)
+- ✅ All error handling is appropriate
+- ⚠️  Test coverage gaps identified and addressed
+
+**Test Coverage Improvements**:
+
+1. **Router Module Tests** (`testing/router.test-template.js`)
+   - 150 lines, 15 comprehensive test cases
+   - Tests `navigateTo()` for all route types (home, new-project, project)
+   - Tests `initRouter()` hashchange listener setup
+   - Tests hash parsing and route parameter extraction
+   - Tests `getCurrentRoute()` state management
+   - Tests error handling for invalid routes
+   - Coverage: All exported functions tested
+
+2. **App Module Tests** (`testing/app.test-template.js`)
+   - 150 lines, 10 comprehensive test cases
+   - Tests initialization sequence (storage → prompts → router)
+   - Tests loading indicator lifecycle (show → hide)
+   - Tests error handling during initialization
+   - Tests event listener setup (theme toggle, export, import, dropdown)
+   - Tests graceful degradation on component failures
+   - Coverage: Core initialization and event binding tested
+
+**Coverage Metrics**:
+- Before Phase 2: 7/12 modules tested (58%)
+- After Phase 2: 9/12 modules tested (75%)
+- Remaining untested: `ai-mock-ui`, `project-view`, `views` (UI-heavy, lower priority)
+
+**Validation**:
+- All new tests follow Vitest conventions
+- All tests use proper mocking for dependencies
+- All tests include setup/teardown with `beforeEach`
+- All tests verify both success and error paths
+
 ### Added - Module System Validation (2025-12-01)
 
 **CRITICAL FIX**: Prevents CommonJS/ES6 module system mismatches that break browser-based projects.
