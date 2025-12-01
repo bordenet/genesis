@@ -6,16 +6,91 @@ Common issues when creating projects from Genesis templates and how to fix them.
 
 ## Table of Contents
 
-1. [Template Variables Not Replaced](#template-variables-not-replaced)
-2. [Badges Show "Unknown"](#badges-show-unknown)
-3. [GitHub Actions Workflow Fails](#github-actions-workflow-fails)
-4. [npm install Fails](#npm-install-fails)
-5. [Linting Errors](#linting-errors)
-6. [Tests Fail](#tests-fail)
-7. [Dark Mode Doesn't Work](#dark-mode-doesnt-work)
-8. [GitHub Pages 404 Error](#github-pages-404-error)
-9. [Missing Files](#missing-files)
-10. [Deployment Script Fails](#deployment-script-fails)
+1. [Module System Errors (require is not defined)](#module-system-errors-require-is-not-defined)
+2. [Template Variables Not Replaced](#template-variables-not-replaced)
+3. [Badges Show "Unknown"](#badges-show-unknown)
+4. [GitHub Actions Workflow Fails](#github-actions-workflow-fails)
+5. [npm install Fails](#npm-install-fails)
+6. [Linting Errors](#linting-errors)
+7. [Tests Fail](#tests-fail)
+8. [Dark Mode Doesn't Work](#dark-mode-doesnt-work)
+9. [GitHub Pages 404 Error](#github-pages-404-error)
+10. [Missing Files](#missing-files)
+11. [Deployment Script Fails](#deployment-script-fails)
+12. [Event Listeners Not Working](#event-listeners-not-working)
+
+---
+
+## Module System Errors (require is not defined)
+
+### Symptoms
+- Browser console shows: `Uncaught ReferenceError: require is not defined`
+- Browser console shows: `Uncaught ReferenceError: module is not defined`
+- JavaScript files don't load in the browser
+- App doesn't initialize
+
+### Cause
+JavaScript files are using CommonJS syntax (`require()`, `module.exports`) instead of ES6 modules (`import`, `export`). Browsers only support ES6 modules when using `<script type="module">`.
+
+### Solution
+
+**1. Run the module system validator**:
+```bash
+./scripts/validate-module-system.sh js/
+```
+
+**2. Replace CommonJS with ES6 modules**:
+
+❌ **WRONG (CommonJS - doesn't work in browsers)**:
+```javascript
+// storage.js
+const { showToast } = require('./ui.js');
+module.exports = { storage };
+```
+
+✅ **CORRECT (ES6 modules - works in browsers)**:
+```javascript
+// storage.js
+import { showToast } from './ui.js';
+export const storage = new Storage();
+```
+
+**3. Common replacements**:
+
+| CommonJS (❌ Wrong) | ES6 Modules (✅ Correct) |
+|---------------------|--------------------------|
+| `const { x } = require('./file.js')` | `import { x } from './file.js'` |
+| `const x = require('./file.js')` | `import x from './file.js'` |
+| `module.exports = { x }` | `export { x }` |
+| `module.exports.x = ...` | `export const x = ...` |
+| `exports.x = ...` | `export const x = ...` |
+
+**4. Verify HTML uses `type="module"`**:
+```html
+<!-- ✅ CORRECT -->
+<script type="module" src="js/app.js"></script>
+
+<!-- ❌ WRONG -->
+<script src="js/app.js"></script>
+```
+
+**5. Always include `.js` extension in imports**:
+```javascript
+// ✅ CORRECT
+import { storage } from './storage.js';
+
+// ❌ WRONG (works in Node.js, not browsers)
+import { storage } from './storage';
+```
+
+### Prevention
+- Use the Genesis templates (already use ES6 modules)
+- Run `./scripts/validate-module-system.sh` before deployment
+- Check browser console for errors during development
+
+### Reference
+- See: `REFERENCE-IMPLEMENTATIONS.md` (Module System section)
+- See: `01-AI-INSTRUCTIONS.md` (Module System Validation section)
 
 ---
 
@@ -380,4 +455,122 @@ npm test
 
 4. **Create an issue**: Document the problem with steps to reproduce
 
+---
+
+## Event Listeners Not Working
+
+### Symptoms
+- Buttons don't respond to clicks
+- Dark mode toggle doesn't work
+- Dropdowns don't open
+- No errors in browser console
+- Functions are defined but not executing
+
+### Cause
+Event listener functions are defined but never attached to DOM elements with `addEventListener()`.
+
+### Solution
+
+**1. Check if event listeners are attached**:
+
+❌ **WRONG (function defined but not attached)**:
+```javascript
+// ui.js
+export function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+}
+// Missing: addEventListener() call - button won't work!
+```
+
+✅ **CORRECT (function defined AND attached)**:
+```javascript
+// ui.js
+export function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+}
+
+// Attach listener immediately
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+}
+```
+
+**2. Verify DOM elements exist**:
+```javascript
+// Always check element exists before attaching
+const button = document.getElementById('my-button');
+if (button) {
+    button.addEventListener('click', handleClick);
+} else {
+    console.warn('Button #my-button not found in DOM');
+}
+```
+
+**3. Check timing (DOM must be loaded first)**:
+```javascript
+// ✅ CORRECT - Wait for DOM
+document.addEventListener('DOMContentLoaded', () => {
+    setupEventListeners();
+});
+
+// ❌ WRONG - Might run before DOM loads
+setupEventListeners();
+```
+
+**4. Use browser DevTools to debug**:
+```javascript
+// Add console.log to verify function is called
+function toggleTheme() {
+    console.log('toggleTheme called');  // Debug line
+    document.documentElement.classList.toggle('dark');
+}
+```
+
+### Common Patterns
+
+**Pattern 1: Centralized setup function**:
+```javascript
+// app.js
+function setupGlobalEventListeners() {
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+    }
+
+    // Export button
+    const exportBtn = document.getElementById('export-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', handleExport);
+    }
+}
+
+// Call on page load
+document.addEventListener('DOMContentLoaded', setupGlobalEventListeners);
+```
+
+**Pattern 2: Module-level attachment**:
+```javascript
+// ui.js
+export function toggleTheme() { /* ... */ }
+
+// Attach immediately (if DOM already loaded)
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+}
+```
+
+### Prevention
+- Use Genesis templates (include proper event listener setup)
+- Test all UI interactions in browser
+- Check browser console for warnings
+- Use `setupGlobalEventListeners()` pattern from templates
+
+### Reference
+- See: `templates/web-app/js/app-template.js` (lines 50-141)
+- See: `REFERENCE-IMPLEMENTATIONS.md` (Event Listener section)
+
+---
 
