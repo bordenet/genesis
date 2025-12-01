@@ -8,26 +8,58 @@ style guides and are enforced through automated tooling in CI.
 
 ## 🚧 ACTIVE WORK IN PROGRESS - READ THIS FIRST 🚧
 
-**Status**: Implementing Bootstrap Quality Fix (Design Complete)
-**Started**: 2025-12-01
-**Design Doc**: `docs/plans/2025-12-01-bootstrap-quality-fix.md`
+**Status**: Design complete, ready to implement after reboot  
+**Started**: 2025-12-01  
+**Root Cause**: Module system mismatch (templates expect ES6, AI generates CommonJS)
 
-### What's Being Fixed
+### Critical Documents (READ THESE FIRST)
+- **Master Context**: `/Users/matt/GitHub/Personal/REBOOT-CONTEXT.md`
+- **Design Document**: `docs/plans/GENESIS-MODULE-SYSTEM-FIX.md` (550 lines, production-ready)
+- **Implementation Checklist**: `IMPLEMENTATION-CHECKLIST.md` (20+ tasks, ready to execute)
+- **Session Checkpoint**: `SESSION-CHECKPOINT-MODULE-SYSTEM-FIX.md` (investigation summary)
+- **Architecture-Decision-Record Context**: `../architecture-decision-record/GENESIS-FIX-CONTEXT.md`
 
-Critical failures discovered in architecture-decision-record after bootstrap:
-1. **Module System Confusion** - CommonJS export caused non-working code
-2. **Event Listeners Not Attached** - UI features declared but not wired to DOM
-3. **Missing Browser Verification** - No automated checks before "complete"
-4. **Incomplete Templates** - TODO/placeholder code instead of working stubs
+### The Problem (Solved in Design)
 
-### Implementation Checklist
+Genesis templates use ES6 modules (`import`/`export`), but AI generates CommonJS (`require`/`module.exports`). Browser `<script type="module">` cannot execute CommonJS → app doesn't load.
 
-**Phase 1: Critical Fixes (Current)**
+Secondary issues:
+1. Event listeners not attached to DOM elements → UI buttons don't work
+2. Template variables not validated → unreplaced `{{VAR}}` strings in output
+3. AI instructions lack module-system enforcement
 
-- [ ] **Day 1: Fix Module System**
-  - [ ] Update `genesis/templates/web-app/js/same-llm-adversarial-template.js`
-    - Remove CommonJS export (`module.exports`)
-    - Replace with ES6 export
+### The Solution (5 Phases, 8-10 hours)
+
+**Phase 1**: Update 12 JS templates + index.html (2-3 hrs)  
+**Phase 2**: Update AI instructions (1 hr)  
+**Phase 3**: Add automated validation script (1-2 hrs)  
+**Phase 4**: Test against failures (1-2 hrs)  
+**Phase 5**: Documentation & changelog (30 min)
+
+Each phase has detailed step-by-step tasks in IMPLEMENTATION-CHECKLIST.md
+
+### After Reboot: Three Options
+
+**Path A (8-10 hours)**: Implement Genesis fix
+- Open `IMPLEMENTATION-CHECKLIST.md`
+- Follow Phase 1-5 tasks exactly
+- Each task has specific file, changes, verification, commit message
+
+**Path B (1-2 hours)**: Test architecture-decision-record E2E tests
+- Reboot reclaims disk space
+- Run: `npx playwright install && npm run test:e2e`
+- 16 E2E tests should pass
+
+**Path C (10-12 hours)**: Do both
+- Path B first (quick win)
+- Then Path A (main feature)
+
+### Next Steps
+
+1. **Reboot machine** (reclaim disk space)
+2. **Read `/Users/matt/GitHub/Personal/REBOOT-CONTEXT.md`** (master context)
+3. **Choose Path A, B, or C** (see above)
+4. **Execute step-by-step** from `IMPLEMENTATION-CHECKLIST.md`
     - See design doc line 90-110 for exact changes
   - [ ] Update `genesis/scripts/verify-templates.sh`
     - Add CommonJS detection check
