@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Genesis Module System Validator
-# Validates that all JavaScript files use ES6 modules (not CommonJS)
+# Genesis Module System & Accessibility Validator
+# Validates JavaScript modules (ES6 vs CommonJS) and HTML accessibility
 #
 # Usage:
 #   ./scripts/validate-module-system.sh [path]
@@ -32,7 +32,7 @@ echo ""
 VALIDATION_FAILED=0
 
 # Check 1: No CommonJS require() in JavaScript files
-echo -e "${BLUE}[1/4]${NC} Checking for CommonJS require() statements..."
+echo -e "${BLUE}[1/9]${NC} Checking for CommonJS require() statements..."
 REQUIRE_MATCHES=$(grep -rE --include="*.js" "=\s*require\(|const\s+.*require\(|let\s+.*require\(|var\s+.*require\(" "$VALIDATE_PATH" 2>/dev/null || true)
 
 if [ -n "$REQUIRE_MATCHES" ]; then
@@ -48,7 +48,7 @@ else
 fi
 
 # Check 2: No CommonJS module.exports in JavaScript files
-echo -e "${BLUE}[2/4]${NC} Checking for CommonJS module.exports..."
+echo -e "${BLUE}[2/9]${NC} Checking for CommonJS module.exports..."
 EXPORTS_MATCHES=$(grep -r --include="*.js" "module\.exports\s*=" "$VALIDATE_PATH" 2>/dev/null || true)
 
 if [ -n "$EXPORTS_MATCHES" ]; then
@@ -64,7 +64,7 @@ else
 fi
 
 # Check 3: Check for Node.js globals in browser code
-echo -e "${BLUE}[3/6]${NC} Checking for Node.js globals (process, __dirname, etc.)..."
+echo -e "${BLUE}[3/9]${NC} Checking for Node.js globals (process, __dirname, etc.)..."
 # Look for unguarded usage at variable declaration level (not inside guards)
 # This catches: const x = process.env.FOO (bad)
 # But allows: if (typeof process !== 'undefined') { return process.env.FOO } (good)
@@ -100,7 +100,7 @@ else
 fi
 
 # Check 4: Check for unreplaced template variables
-echo -e "${BLUE}[4/6]${NC} Checking for unreplaced template variables..."
+echo -e "${BLUE}[4/9]${NC} Checking for unreplaced template variables..."
 TEMPLATE_VARS=$(grep -r --include="*.js" --include="*.html" "{{[A-Z_]*}}" "$VALIDATE_PATH" 2>/dev/null || true)
 
 if [ -n "$TEMPLATE_VARS" ]; then
@@ -119,7 +119,7 @@ else
 fi
 
 # Check 5: Verify ES6 import statements exist
-echo -e "${BLUE}[5/6]${NC} Verifying ES6 import/export usage..."
+echo -e "${BLUE}[5/9]${NC} Verifying ES6 import/export usage..."
 JS_FILES=$(find "$VALIDATE_PATH" -name "*.js" -type f 2>/dev/null | wc -l | tr -d ' ')
 
 if [ "$JS_FILES" -gt 0 ]; then
@@ -137,7 +137,7 @@ else
 fi
 
 # Check 6: Verify GitHub footer link is properly linked
-echo -e "${BLUE}[6/6]${NC} Checking for unlinked GitHub text in footer..."
+echo -e "${BLUE}[6/9]${NC} Checking for unlinked GitHub text in footer..."
 HTML_FILES=$(find "$VALIDATE_PATH" -name "*.html" -type f 2>/dev/null)
 
 if [ -n "$HTML_FILES" ]; then
@@ -154,6 +154,91 @@ if [ -n "$HTML_FILES" ]; then
         # Don't fail validation, just warn
     else
         echo -e "${GREEN}✅ GitHub footer links validated${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  No HTML files found in $VALIDATE_PATH${NC}"
+fi
+
+# Check 7: Accessibility - Images without alt text
+echo -e "${BLUE}[7/9]${NC} Checking for images without alt text..."
+HTML_FILES=$(find "$VALIDATE_PATH" -name "*.html" -type f 2>/dev/null || true)
+
+if [ -n "$HTML_FILES" ]; then
+    MISSING_ALT=""
+    for htmlfile in $HTML_FILES; do
+        # Find <img> tags without alt attribute
+        MISSING=$(grep -nE "<img[^>]*>" "$htmlfile" 2>/dev/null | grep -v "alt=" || true)
+        if [ -n "$MISSING" ]; then
+            MISSING_ALT="${MISSING_ALT}${htmlfile}:\n${MISSING}\n"
+        fi
+    done
+
+    if [ -n "$MISSING_ALT" ]; then
+        echo -e "${YELLOW}⚠️  Found images without alt text:${NC}"
+        echo -e "$MISSING_ALT"
+        echo -e "${YELLOW}Fix: Add alt=\"description\" to all <img> tags${NC}"
+        echo -e "${YELLOW}Example: <img src=\"logo.png\" alt=\"Company logo\">${NC}"
+        echo ""
+        # Warning only, don't fail validation
+    else
+        echo -e "${GREEN}✅ All images have alt text${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  No HTML files found in $VALIDATE_PATH${NC}"
+fi
+
+# Check 8: Accessibility - Buttons without aria-label or text content
+echo -e "${BLUE}[8/9]${NC} Checking for buttons without accessible labels..."
+
+if [ -n "$HTML_FILES" ]; then
+    UNLABELED_BUTTONS=""
+    for htmlfile in $HTML_FILES; do
+        # Find <button> tags that might lack accessible labels
+        # This is a basic check - buttons with only icons need aria-label
+        SUSPICIOUS=$(grep -nE "<button[^>]*><svg|<button[^>]*><i class=" "$htmlfile" 2>/dev/null | grep -v "aria-label=" || true)
+        if [ -n "$SUSPICIOUS" ]; then
+            UNLABELED_BUTTONS="${UNLABELED_BUTTONS}${htmlfile}:\n${SUSPICIOUS}\n"
+        fi
+    done
+
+    if [ -n "$UNLABELED_BUTTONS" ]; then
+        echo -e "${YELLOW}⚠️  Found buttons with icons that may need aria-label:${NC}"
+        echo -e "$UNLABELED_BUTTONS"
+        echo -e "${YELLOW}Fix: Add aria-label to icon-only buttons${NC}"
+        echo -e "${YELLOW}Example: <button aria-label=\"Close menu\"><svg>...</svg></button>${NC}"
+        echo ""
+        # Warning only, don't fail validation
+    else
+        echo -e "${GREEN}✅ No unlabeled icon buttons found${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  No HTML files found in $VALIDATE_PATH${NC}"
+fi
+
+# Check 9: Semantic HTML - Proper heading hierarchy
+echo -e "${BLUE}[9/9]${NC} Checking for semantic HTML structure..."
+
+if [ -n "$HTML_FILES" ]; then
+    SEMANTIC_ISSUES=""
+    for htmlfile in $HTML_FILES; do
+        # Check if file has proper semantic structure (header, main, footer)
+        HAS_MAIN=$(grep -c "<main" "$htmlfile" 2>/dev/null || echo "0")
+        HAS_HEADER=$(grep -c "<header" "$htmlfile" 2>/dev/null || echo "0")
+        HAS_FOOTER=$(grep -c "<footer" "$htmlfile" 2>/dev/null || echo "0")
+
+        if [ "$HAS_MAIN" -eq 0 ] || [ "$HAS_HEADER" -eq 0 ] || [ "$HAS_FOOTER" -eq 0 ]; then
+            SEMANTIC_ISSUES="${SEMANTIC_ISSUES}${htmlfile}: Missing semantic elements (main=$HAS_MAIN, header=$HAS_HEADER, footer=$HAS_FOOTER)\n"
+        fi
+    done
+
+    if [ -n "$SEMANTIC_ISSUES" ]; then
+        echo -e "${YELLOW}⚠️  Found HTML files with missing semantic elements:${NC}"
+        echo -e "$SEMANTIC_ISSUES"
+        echo -e "${YELLOW}Recommendation: Use <header>, <main>, <footer> for better accessibility${NC}"
+        echo ""
+        # Warning only, don't fail validation
+    else
+        echo -e "${GREEN}✅ Semantic HTML structure looks good${NC}"
     fi
 else
     echo -e "${YELLOW}⚠️  No HTML files found in $VALIDATE_PATH${NC}"
