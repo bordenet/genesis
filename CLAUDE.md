@@ -4,6 +4,125 @@ This document defines the coding conventions and quality standards that **must**
 without exception in this repository. These are derived from the bordenet organization's
 style guides and are enforced through automated tooling in CI.
 
+---
+
+## 🚧 ACTIVE WORK IN PROGRESS - READ THIS FIRST 🚧
+
+**Status**: Implementing Bootstrap Quality Fix (Design Complete)
+**Started**: 2025-12-01
+**Design Doc**: `docs/plans/2025-12-01-bootstrap-quality-fix.md`
+
+### What's Being Fixed
+
+Critical failures discovered in architecture-decision-record after bootstrap:
+1. **Module System Confusion** - CommonJS export caused non-working code
+2. **Event Listeners Not Attached** - UI features declared but not wired to DOM
+3. **Missing Browser Verification** - No automated checks before "complete"
+4. **Incomplete Templates** - TODO/placeholder code instead of working stubs
+
+### Implementation Checklist
+
+**Phase 1: Critical Fixes (Current)**
+
+- [ ] **Day 1: Fix Module System**
+  - [ ] Update `genesis/templates/web-app/js/same-llm-adversarial-template.js`
+    - Remove CommonJS export (`module.exports`)
+    - Replace with ES6 export
+    - See design doc line 90-110 for exact changes
+  - [ ] Update `genesis/scripts/verify-templates.sh`
+    - Add CommonJS detection check
+    - See design doc line 112-122 for implementation
+  - [ ] Test with fresh bootstrap
+    - `cp -r genesis/ test-bootstrap/`
+    - Bootstrap new project
+    - Verify modules load in browser
+
+- [ ] **Day 2: Fix Event Listeners**
+  - [ ] Update `genesis/templates/web-app/js/ui-template.js`
+    - Add `setupThemeToggle()` function
+    - Add `setupRelatedProjectsDropdown()` function
+    - See design doc line 145-185 for exact implementation
+  - [ ] Update `genesis/templates/web-app/js/app-template.js`
+    - Import setup functions from ui.js
+    - Call setup functions from `setupGlobalEventListeners()`
+    - See design doc line 187-200 for exact changes
+  - [ ] Test all UI features work
+    - Theme toggle button works
+    - Navigation dropdown opens/closes
+    - No console errors
+
+- [ ] **Day 3: Add Browser Validation**
+  - [ ] Create `genesis/scripts/validate-browser.sh`
+    - See design doc line 220-240 for implementation
+  - [ ] Create `genesis/templates/testing/browser-validation.test-template.js`
+    - See design doc line 242-320 for full test suite
+  - [ ] Update `genesis/templates/testing/package-template.json`
+    - Add Playwright dependency
+  - [ ] Test validation catches known issues
+    - Should detect missing event listeners
+    - Should detect module errors
+    - Should detect console errors/warnings
+
+- [ ] **Day 4: Update Documentation**
+  - [ ] Update `genesis/START-HERE.md`
+    - Add section 3.2.5: Event Listener Pattern
+    - See design doc line 202-218 for content
+    - Update Step 4: Add browser validation step
+    - See design doc line 322-340 for content
+  - [ ] Update `genesis/00-AI-MUST-READ-FIRST.md`
+    - Add browser validation to checklist
+  - [ ] Create troubleshooting guide
+    - Document common module system issues
+    - Document event listener debugging
+
+- [ ] **Day 5: Test Complete Bootstrap**
+  - [ ] Bootstrap fresh project from updated templates
+  - [ ] Verify all UI features work out-of-box
+  - [ ] Verify browser validation catches issues
+  - [ ] Document any remaining gaps in REVERSE-INTEGRATION-NOTES.md
+
+**Phase 2: Template Audit** (Next)
+- Audit all templates for TODO/placeholder code
+- Complete stub implementations
+- Add tests for all functionality
+
+**Phase 3: Validation Hardening** (Future)
+- Add accessibility tests
+- Add visual regression tests
+- Create template linting
+
+### How to Execute This Work
+
+1. **Read design document first**: `docs/plans/2025-12-01-bootstrap-quality-fix.md`
+2. **Work through checklist sequentially**: Don't skip ahead
+3. **Test after each change**: Fresh bootstrap, browser validation
+4. **Update checklist as you go**: Check off completed items
+5. **Clean up when done**: Remove this section from CLAUDE.md
+
+### Commands for Testing
+
+```bash
+# Test module system fix
+grep -r "module\.exports\|require(" genesis/templates/web-app/js/
+
+# Test fresh bootstrap
+rm -rf /tmp/test-bootstrap && cp -r genesis/ /tmp/test-bootstrap/
+
+# Test browser validation
+cd /tmp/test-bootstrap && ./scripts/validate-browser.sh
+```
+
+### Notes for Future Claude Sessions
+
+- Design is complete and approved in `docs/plans/2025-12-01-bootstrap-quality-fix.md`
+- Work through Phase 1 checklist above sequentially
+- Each day's work is independent and can be done in separate sessions
+- Test thoroughly after each change
+- Don't skip browser validation - it's critical
+- When Phase 1 complete, move to Phase 2 (template audit)
+
+---
+
 ## Non-Negotiable Quality Gates
 
 All code changes **MUST** pass before commit/merge:
