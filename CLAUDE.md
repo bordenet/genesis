@@ -311,3 +311,85 @@ try {
 - Python Style Guide: `docs/PYTHON_STYLE_GUIDE.md`
 - CI Configuration: `.github/workflows/ci.yml`
 - Documentation Validator: `genesis/scripts/lib/validate-docs.sh`
+
+## JavaScript Code Style Standards
+
+### Quote Style
+
+All JavaScript code in Genesis templates and spawned projects **MUST** use **single quotes** for strings and imports.
+
+**Rationale**:
+- Single quotes are the JavaScript community standard
+- Matches ESLint default recommendations
+- Consistent with product-requirements-assistant and one-pager (reference implementations)
+- Avoids escaping in HTML strings
+
+**Correct:**
+```javascript
+import { foo } from './bar.js';
+import storage from './storage.js';
+const message = 'Hello world';
+const html = '<div class="container">Content</div>';  // Double quotes inside single quotes
+```
+
+**Incorrect:**
+```javascript
+import { foo } from "./bar.js";  // ❌ Double quotes
+const message = "Hello world";   // ❌ Double quotes
+```
+
+**Exception**: Use double quotes inside single-quoted strings (e.g., HTML attributes).
+
+**Auto-Fix**: Run `npm run lint:fix` to automatically fix quote style violations.
+
+**ESLint Configuration**: All Genesis templates include this in `.eslintrc.json`:
+```json
+{
+  "rules": {
+    "quotes": ["error", "single"]
+  }
+}
+```
+
+### UI Workflow Principles
+
+When generating code for multi-step workflows, **never assume linear user behavior**. Users will skip steps, go backwards, and use the app in unexpected ways.
+
+**BAD - Assumes user followed workflow order:**
+```javascript
+// Assumes user clicked Button A before Button B
+buttonB.addEventListener('click', () => {
+  const data = state.dataFromButtonA;  // ❌ Might be undefined
+  saveData(data);
+});
+```
+
+**GOOD - Auto-generates missing data:**
+```javascript
+// Auto-generates missing data if user skipped Button A
+buttonB.addEventListener('click', () => {
+  let data = state.dataFromButtonA;
+  if (!data) {
+    data = generateDataFromButtonA();  // ✅ Forgiving workflow
+  }
+  saveData(data);
+});
+```
+
+**Testing Strategy**: Always add tests for users skipping steps:
+```javascript
+test('should handle user skipping step 1', async () => {
+  const state = await createState();
+  expect(state.step1Data).toBe('');  // User never did step 1
+  
+  // User goes directly to step 2
+  await handleStep2(state);
+  
+  // System should auto-generate step 1 data
+  const updated = await getState();
+  expect(updated.step1Data).toBeTruthy();
+});
+```
+
+**Reference**: See `docs/GENESIS-UI-WORKFLOW-BUG-PREVENTION.md` for detailed examples and patterns.
+
