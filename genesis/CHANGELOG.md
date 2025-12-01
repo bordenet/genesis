@@ -69,7 +69,92 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 #### References
 
 - Design Document: `docs/plans/GENESIS-MODULE-SYSTEM-FIX.md`
-- Commits: 0389cd8, 4eea835, 9f5c90b, f59e09c, d72ceea, 143af99
+- Commits: 0389cd8, 4eea835, 9f5c90b, f59e09c, d72ceea, 143af99, 0805c3b
+
+---
+
+### Added - Node.js Globals Validation (2025-12-01)
+
+**CRITICAL FIX**: Prevents `process is not defined` errors in browser deployments.
+
+**Problem**: AI-generated code uses Node.js globals (`process.env`, `__dirname`, `__filename`) that don't exist in browsers, causing runtime errors.
+
+**Solution**: Enhanced validation and browser-safe patterns.
+
+#### Enhanced Features
+
+1. **Module System Validator Enhancement** (`scripts/validate-module-system.sh`)
+   - **Check 3/6**: Node.js globals detection
+   - Detects unguarded `process.env` at variable declaration level
+   - Detects unguarded `__dirname` and `__filename` usage
+   - Smart context-aware detection (allows properly guarded usage)
+   - Distinguishes between unsafe direct access and safe typeof guards
+
+2. **Template Fix** (`same-llm-adversarial-template.js`)
+   - Replaced direct `process.env` access with `getEnvVar()` helper
+   - Browser-safe: checks `typeof process !== 'undefined'`
+   - Fallback to `window.AI_CONFIG` for browser environments
+   - Works in both Node.js and browser contexts
+
+3. **AI Instructions Enhancement** (`01-AI-INSTRUCTIONS.md`)
+   - **New STEP 4**: Never Use Node.js Globals Directly (45 lines)
+   - Shows correct vs incorrect patterns
+   - Lists all Node.js globals to avoid
+   - Browser-safe alternatives documented
+   - Added to mandatory validation checklist
+
+4. **Troubleshooting Documentation** (`TROUBLESHOOTING.md`)
+   - **New section**: Node.js Globals in Browser (115 lines)
+   - Symptoms, causes, solutions for `process.env` errors
+   - Code examples for all Node.js globals
+   - Browser alternatives table (process.cwd → window.location, etc.)
+   - Prevention strategies
+
+#### Node.js Globals Covered
+
+| Node.js Global | Browser Alternative |
+|----------------|---------------------|
+| `process.env` | `window.AI_CONFIG` or `localStorage` |
+| `process.cwd()` | Relative paths or `window.location` |
+| `process.platform` | `navigator.platform` or `navigator.userAgent` |
+| `__dirname` | `import.meta.url` or relative paths |
+| `__filename` | `import.meta.url` |
+| `Buffer` | `Uint8Array` or `TextEncoder/TextDecoder` |
+| `global` | `window` or `globalThis` |
+| `require.resolve()` | Relative import paths |
+
+#### Validation Results
+
+- ✅ Genesis templates: Pass (properly guarded usage)
+- ❌ architecture-decision-record: Correctly fails (unguarded usage)
+
+#### References
+
+- User Feedback: architecture-decision-record debugging session
+- Commit: 3a8ff67
+
+---
+
+### Changed - Footer Link Styling (2025-12-01)
+
+**Improvement**: Make footer links more visible and clearly clickable.
+
+**Before**: Gray text with subtle hover effect
+- `class="hover:text-gray-700 dark:hover:text-gray-200"`
+- Low visibility, looks like plain text
+- User feedback: "Gray GitHub text is pretty stupid looking"
+
+**After**: Blue text with underline on hover
+- `class="text-blue-600 dark:text-blue-400 hover:underline"`
+- Clearly indicates clickable links
+- Matches architecture-decision-record styling
+- Better accessibility
+
+**Files Changed**:
+- `templates/web-app/index-template.html` (footer links)
+
+**References**:
+- Commit: bef86c2
 
 ---
 
