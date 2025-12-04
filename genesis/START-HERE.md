@@ -38,10 +38,27 @@ You're in a fresh repository with the `genesis/` directory. Your mission:
 
 **⚠️ STOP!** Before proceeding, you MUST study the reference implementation:
 
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║  ⚠️  CRITICAL: Genesis apps implement a 7-STEP workflow pattern  ⚠️         ║
+║                                                                              ║
+║  Read docs/ADVERSARIAL-WORKFLOW-PATTERN.md BEFORE coding!                  ║
+║                                                                              ║
+║  Common mistake: Auto-generating AI responses (WRONG!)                      ║
+║  Correct pattern: Generating prompts for external AI (RIGHT!)               ║
+║                                                                              ║
+║  See docs/ANTI-PATTERNS.md for what NOT to do.                              ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
 ### Required Reading (in order):
 
-1. **[`REFERENCE-IMPLEMENTATIONS.md`](REFERENCE-IMPLEMENTATIONS.md)** - Overview of working examples
-2. **Study the live example**: https://github.com/bordenet/product-requirements-assistant
+1. **[`docs/ADVERSARIAL-WORKFLOW-PATTERN.md`](docs/ADVERSARIAL-WORKFLOW-PATTERN.md)** - ⭐ **READ THIS FIRST** - The 7-step pattern
+2. **[`docs/ANTI-PATTERNS.md`](docs/ANTI-PATTERNS.md)** - ⭐ **What NOT to do**
+3. **[`REFERENCE-IMPLEMENTATIONS.md`](REFERENCE-IMPLEMENTATIONS.md)** - Overview of working examples
+4. **Study the live example**: https://github.com/bordenet/product-requirements-assistant
    - **CRITICAL**: Browse the repository on GitHub (files below are in THAT repo, not Genesis)
    - **`docs/index.html`** (lines 9-15) - ⭐ **Tailwind dark mode config** (ALWAYS BROKEN WITHOUT THIS!)
    - **`docs/js/app.js`** (lines 145-165) - ⭐ **Dark mode toggle functions** (loadTheme, toggleTheme)
@@ -52,9 +69,9 @@ You're in a fresh repository with the `genesis/` directory. Your mission:
    - **`tests/workflow.test.js`** - Testing async prompts
    - **`scripts/deploy-web.sh`** - ⭐ **Compact mode deployment** (git output redirection)
    - **`scripts/setup-macos.sh`** - ⭐ **Fast, resumable setup** (smart caching)
-3. **[`docs/WORKFLOW-ARCHITECTURE.md`](docs/WORKFLOW-ARCHITECTURE.md)** - Detailed workflow patterns + dark mode fix
-4. **[`docs/REQUIREMENTS-TEMPLATE.md`](docs/REQUIREMENTS-TEMPLATE.md)** - What to ask vs. infer
-5. **[`docs/WORKFLOW-DECISION-TREE.md`](docs/WORKFLOW-DECISION-TREE.md)** - Decision framework
+5. **[`docs/WORKFLOW-ARCHITECTURE.md`](docs/WORKFLOW-ARCHITECTURE.md)** - Detailed workflow patterns + dark mode fix
+6. **[`docs/REQUIREMENTS-TEMPLATE.md`](docs/REQUIREMENTS-TEMPLATE.md)** - What to ask vs. infer
+7. **[`docs/WORKFLOW-DECISION-TREE.md`](docs/WORKFLOW-DECISION-TREE.md)** - Decision framework
 
 ### What You'll Learn:
 

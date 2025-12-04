@@ -14,6 +14,12 @@ All code changes **MUST** pass before commit/merge:
 2. **Code coverage thresholds met** - See language-specific requirements below
 3. **Linting passes** - No warnings or errors
 4. **Security scans pass** - No high/critical vulnerabilities
+5. **Adversarial Workflow Pattern** - All document-generation apps MUST:
+   - Generate prompts for external AI services (NOT auto-generate AI responses)
+   - Implement all 7 steps of the workflow pattern (see `docs/ADVERSARIAL-WORKFLOW-PATTERN.md`)
+   - Have "Copy Prompt" buttons (NOT "Generate with AI" buttons)
+   - Use different AIs for different phases (Claude → Gemini → Claude)
+   - Verify with: `./genesis-validator/scripts/validate-adversarial-workflow.sh`
 
 ## ⚠️ CRITICAL: Fix ALL Linting Issues Immediately
 

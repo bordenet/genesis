@@ -25,6 +25,8 @@
 
 **DO NOT PROCEED** until you've completed these prerequisite steps:
 
+- [ ] Read `docs/ADVERSARIAL-WORKFLOW-PATTERN.md` ⭐ **MOST IMPORTANT - READ FIRST**
+- [ ] Read `docs/ANTI-PATTERNS.md` ⭐ **MANDATORY - Learn what NOT to do**
 - [ ] Read `REFERENCE-IMPLEMENTATIONS.md`
 - [ ] Study https://github.com/bordenet/product-requirements-assistant ⭐ **PRIMARY REFERENCE**
   - [ ] **CRITICAL**: Read `docs/index.html` lines 9-15 - Tailwind dark mode config (ALWAYS BROKEN WITHOUT THIS!)
@@ -43,12 +45,13 @@
 - [ ] Read `docs/WORKFLOW-ARCHITECTURE.md` (includes dark mode implementation guide)
 - [ ] Read `docs/REQUIREMENTS-TEMPLATE.md`
 - [ ] Read `docs/WORKFLOW-DECISION-TREE.md`
-- [ ] Understand the 3-phase workflow pattern (mock, manual, mock)
+- [ ] Understand the **7-STEP** adversarial workflow pattern (NOT 3-phase!)
+- [ ] Understand apps generate PROMPTS, not AI responses
 - [ ] Understand form-to-prompt pattern for Phase 1
 - [ ] Understand template variable replacement (`{variableName}` syntax)
 - [ ] Understand async prompt loading from markdown files
 - [ ] Understand defensive coding patterns
-- [ ] Understand mock vs. manual mode
+- [ ] Understand mock vs. manual mode (mock is for TESTING only!)
 - [ ] **Understand dark mode implementation** (Tailwind config + loadTheme + toggleTheme)
 - [ ] **Understand deployment scripts** (compact mode, git output redirection)
 - [ ] **Understand setup scripts** (fast, resumable, smart caching)
@@ -67,6 +70,57 @@
 **If you skip this step, you will waste time asking questions that are already answered in the reference implementation.**
 
 **📝 IMPORTANT**: Create `REVERSE-INTEGRATION-NOTES.md` in the project root (use template from `genesis/templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md`). Every time you reference the implementations to solve a problem, add a note documenting what Genesis is missing.
+
+---
+
+## 🚨 ADVERSARIAL WORKFLOW REQUIREMENTS (MANDATORY)
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║  ⚠️  YOUR APP MUST IMPLEMENT THE 7-STEP WORKFLOW PATTERN  ⚠️    ║
+║                                                                  ║
+║  Read docs/ADVERSARIAL-WORKFLOW-PATTERN.md BEFORE coding!       ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+**MANDATORY - Your app MUST implement all 7 steps:**
+
+1. [ ] **Step 1**: Gather input from user via form based on document schema
+2. [ ] **Step 2**: Generate prompt for Claude with "ask questions along the way" instruction
+3. [ ] **Step 3**: Collect markdown document from Claude (user manually copies/pastes)
+4. [ ] **Step 4**: Generate adversarial prompt for Gemini with "provide strong critique + ask questions + provide improved version" instruction
+5. [ ] **Step 5**: Collect improved markdown document from Gemini (user manually copies/pastes)
+6. [ ] **Step 6**: Generate synthesis prompt for Claude with BOTH previous drafts + "ask final clarifying questions" instruction
+7. [ ] **Step 7**: Collect final synthesized document from Claude (user manually copies/pastes)
+
+**VERIFICATION CHECKLIST:**
+
+- [ ] App has "Copy Prompt" buttons (NOT "Generate with AI" buttons)
+- [ ] App displays prompts for user to copy (NOT hidden)
+- [ ] Prompts explicitly request AI to ask clarifying questions
+- [ ] Different AIs used for different phases:
+  - [ ] Phase 1 (Step 2-3): Claude
+  - [ ] Phase 2 (Step 4-5): Gemini (different AI for adversarial perspective)
+  - [ ] Phase 3 (Step 6-7): Claude
+- [ ] User manually copies/pastes between app and AI services (NO API calls)
+- [ ] Phase 2 prompt includes complete Phase 1 output (`{phase1Output}`)
+- [ ] Phase 3 prompt includes BOTH Phase 1 AND Phase 2 outputs (`{phase1Output}` + `{phase2Output}`)
+- [ ] Each prompt instructs AI to ask questions
+- [ ] App stores user's pasted responses (doesn't generate them)
+
+**ANTI-PATTERNS TO AVOID:**
+
+- [ ] ❌ NO auto-generation of AI responses (see `docs/ANTI-PATTERNS.md`)
+- [ ] ❌ NO API calls to Claude/GPT APIs in production code
+- [ ] ❌ NO "Generate with AI" buttons
+- [ ] ❌ NO using same AI for all phases
+- [ ] ❌ NO skipping steps
+- [ ] ❌ NO single-shot generation
+- [ ] ❌ NO missing previous outputs in prompts
+
+**CRITICAL:** If you implement ANY of the anti-patterns above, you're building the WRONG app. Stop and read `docs/ADVERSARIAL-WORKFLOW-PATTERN.md` and `docs/ANTI-PATTERNS.md`.
 
 ---
 
