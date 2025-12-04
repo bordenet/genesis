@@ -103,7 +103,7 @@ Before starting, verify these files exist in genesis/:
 - [ ] `templates/testing/storage.test-template.js`
 - [ ] `templates/testing/workflow.e2e-template.js`
 - [ ] `templates/testing/same-llm-adversarial.test-template.js`
-- [ ] `templates/testing/*.test-template.js` (additional test files - see Section 3.7)
+- [ ] Additional test template files (see Section 3.7 for complete list)
 - [ ] `templates/prompts/phase1-template.md`
 - [ ] `templates/prompts/phase2-template.md`
 - [ ] `templates/prompts/phase3-template.md`

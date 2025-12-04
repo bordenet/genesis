@@ -987,7 +987,7 @@ Before declaring "Ready to start coding", verify these files exist:
 | `scripts/setup-macos.sh` | `templates/scripts/setup-macos-web-template.sh` | **HIGH** |
 | `scripts/deploy-web.sh` | `templates/scripts/deploy-web.sh.template` | **HIGH** |
 | `.github/workflows/ci.yml` | `templates/github/workflows/ci-template.yml` | **HIGH** |
-| `tests/*.test.js` | `templates/testing/*.test-template.js` | **HIGH** |
+| `tests/*.test.js` | See Section 3.7 for test templates | **HIGH** |
 | `genesis/` directory | N/A - **MUST BE DELETED** | **CRITICAL** |
 
 ---
