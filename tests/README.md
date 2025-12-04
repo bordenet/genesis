@@ -50,7 +50,7 @@ bash scripts/validate-docs.test.sh
 
 **Implemented:** 10+ test cases
 **Passing:** All (after bug fixes)
-**Coverage:** See TEST_PLAN.md for detailed breakdown
+**Coverage:** See [TEST_PLAN.md](../docs/testing/TEST_PLAN.md) for detailed breakdown
 
 ## Coverage Goals
 
@@ -63,7 +63,7 @@ bash scripts/validate-docs.test.sh
 
 1. Create test file in appropriate category directory
 2. Follow naming convention: `*.test.js` for JavaScript, `*.test.sh` for shell
-3. Use descriptive test names matching TEST_PLAN.md format (e.g., `TS-001`, `BW-002`)
+3. Use descriptive test names matching [TEST_PLAN.md](../docs/testing/TEST_PLAN.md) format (e.g., `TS-001`, `BW-002`)
 4. Import path utilities for proper path resolution:
 
 ```javascript
@@ -80,11 +80,11 @@ const REPO_ROOT = join(__dirname, '..', '..');
 
 ## Test Plan
 
-See [TEST_PLAN.md](../TEST_PLAN.md) in the repository root for comprehensive test coverage plan.
+See [TEST_PLAN.md](../docs/testing/TEST_PLAN.md) for comprehensive test coverage plan.
 
 ## Bugs and Issues
 
-See [TEST_BUGS_REVEALED.md](../TEST_BUGS_REVEALED.md) for discovered defects and remediation status.
+See [TEST_BUGS_REVEALED.md](../docs/testing/TEST_BUGS_REVEALED.md) for discovered defects and remediation status.
 
 ## CI Integration
 
@@ -99,6 +99,6 @@ These tests are integrated into the GitHub Actions CI pipeline:
 When adding tests:
 
 - Follow existing patterns in template-system/ directory
-- Add test IDs matching TEST_PLAN.md (e.g., TS-001, GV-003)
+- Add test IDs matching [TEST_PLAN.md](../docs/testing/TEST_PLAN.md) (e.g., TS-001, GV-003)
 - Document expected behavior and root causes for failures
 - Ensure tests are idempotent and clean up after themselves
