@@ -56,9 +56,9 @@ test.describe('Visual Regression Tests', () => {
   test('new project form', async ({ page }) => {
     // Navigate to new project form
     await page.click('button:has-text("New Project")');
-    
-    // Wait for form to render
-    await page.waitForSelector('input[placeholder*="title"]', { state: 'visible' });
+
+    // Wait for form to render - use name attribute selector
+    await page.waitForSelector('input[name="title"]', { state: 'visible' });
     
     // Take screenshot
     await expect(page).toHaveScreenshot('new-project-form.png', {
@@ -68,11 +68,11 @@ test.describe('Visual Regression Tests', () => {
   });
 
   test('project list with data', async ({ page }) => {
-    // Create a test project via UI
+    // Create a test project via UI - use name attribute selectors
     await page.click('button:has-text("New Project")');
-    await page.fill('input[placeholder*="title"]', 'Test Project');
-    await page.fill('textarea[placeholder*="problems"]', 'Test problem statement');
-    await page.click('button:has-text("Create Project")');
+    await page.fill('input[name="title"]', 'Test Project');
+    await page.fill('textarea[name="problems"]', 'Test problem statement');
+    await page.click('button[type="submit"]:has-text("Create Project")');
     
     // Wait for redirect to home
     await page.waitForURL(/.*#?$/);
@@ -86,11 +86,11 @@ test.describe('Visual Regression Tests', () => {
   });
 
   test('project workflow view', async ({ page }) => {
-    // Create a test project
+    // Create a test project - use name attribute selectors
     await page.click('button:has-text("New Project")');
-    await page.fill('input[placeholder*="title"]', 'Visual Test Project');
-    await page.fill('textarea[placeholder*="problems"]', 'Test problem');
-    await page.click('button:has-text("Create Project")');
+    await page.fill('input[name="title"]', 'Visual Test Project');
+    await page.fill('textarea[name="problems"]', 'Test problem');
+    await page.click('button[type="submit"]:has-text("Create Project")');
     
     // Wait for redirect and click on project
     await page.waitForURL(/.*#?$/);
