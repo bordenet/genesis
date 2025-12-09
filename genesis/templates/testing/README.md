@@ -204,3 +204,56 @@ When adding test templates:
 4. Update this README
 5. Update `../../SUMMARY.md`
 
+
+## Template-Code Sync Validation (NEW)
+
+### The Problem
+
+When code populates template variables but the template doesn't have the corresponding placeholders, user input is silently dropped. This is a **data loss bug** that traditional unit tests won't catch because:
+
+1. Unit tests use **mocks** that can diverge from reality
+2. Mocks pass, but real templates fail
+3. High test coverage creates **false confidence**
+
+### Real-World Example
+
+In [one-pager](https://github.com/bordenet/one-pager), 177 tests passed, but the user's "Additional Context" input was silently dropped because:
+- Code populated `{context}` variable ✅
+- Mock template had `{context}` placeholder ✅
+- **Real template did NOT have `{context}` placeholder** ❌
+
+### Solution: Template-Code Sync Tests
+
+Use `template-sync.test-template.js` which:
+
+1. **Reads REAL template files** (not mocks)
+2. **Verifies all required placeholders exist**
+3. **Tests E2E data flow through real templates**
+
+### Test Patterns
+
+```javascript
+// ❌ BAD: Mock can diverge from reality
+global.fetch = jest.fn(() => Promise.resolve({
+  text: () => Promise.resolve('Hello {context}')  // Mock has {context}
+}));
+// Real template might NOT have {context}!
+
+// ✅ GOOD: Read real template file
+function readRealTemplate(name) {
+  return fs.readFileSync(path.join(__dirname, '..', 'prompts', name), 'utf8');
+}
+
+test('template has context placeholder', () => {
+  const template = readRealTemplate('phase1.md');
+  expect(template).toContain('{context}');  // Tests REAL file
+});
+```
+
+### When to Use
+
+Add template-sync tests whenever:
+- Code substitutes variables into templates
+- User input flows into generated output
+- Templates are loaded from external files
+- Any producer-consumer relationship exists between code and artifacts
