@@ -217,11 +217,13 @@ try {
 **Where It Works**: All Genesis-bootstrapped projects - the script is generic enough to work for any documentation structure.
 
 **Integration**:
+
 - Pre-commit hook: Validates docs before commit
 - CI/CD: Runs in `.github/workflows/ci.yml` to catch any bypassed hooks
 - Template: Included in all Genesis-generated projects
 
 **Usage**:
+
 ```bash
 # Manual validation
 ./genesis/scripts/lib/validate-docs.sh
@@ -231,6 +233,7 @@ try {
 ```
 
 **Common Fixes When Validation Fails**:
+
 - Delete SESSION-CHECKPOINT.md if project is complete
 - Remove ✅ completed work sections from documentation (move to CHANGELOG if needed)
 - Update references to deleted files
@@ -251,12 +254,14 @@ try {
 All JavaScript code in Genesis templates and spawned projects **MUST** use **single quotes** for strings and imports.
 
 **Rationale**:
+
 - Single quotes are the JavaScript community standard
 - Matches ESLint default recommendations
 - Consistent with product-requirements-assistant and one-pager (reference implementations)
 - Avoids escaping in HTML strings
 
 **Correct:**
+
 ```javascript
 import { foo } from './bar.js';
 import storage from './storage.js';
@@ -265,6 +270,7 @@ const html = '<div class="container">Content</div>';  // Double quotes inside si
 ```
 
 **Incorrect:**
+
 ```javascript
 import { foo } from "./bar.js";  // ❌ Double quotes
 const message = "Hello world";   // ❌ Double quotes
@@ -275,6 +281,7 @@ const message = "Hello world";   // ❌ Double quotes
 **Auto-Fix**: Run `npm run lint:fix` to automatically fix quote style violations.
 
 **ESLint Configuration**: All Genesis templates include this in `.eslintrc.json`:
+
 ```json
 {
   "rules": {
@@ -288,6 +295,7 @@ const message = "Hello world";   // ❌ Double quotes
 When generating code for multi-step workflows, **never assume linear user behavior**. Users will skip steps, go backwards, and use the app in unexpected ways.
 
 **BAD - Assumes user followed workflow order:**
+
 ```javascript
 // Assumes user clicked Button A before Button B
 buttonB.addEventListener('click', () => {
@@ -297,6 +305,7 @@ buttonB.addEventListener('click', () => {
 ```
 
 **GOOD - Auto-generates missing data:**
+
 ```javascript
 // Auto-generates missing data if user skipped Button A
 buttonB.addEventListener('click', () => {
@@ -309,6 +318,7 @@ buttonB.addEventListener('click', () => {
 ```
 
 **Testing Strategy**: Always add tests for users skipping steps:
+
 ```javascript
 test('should handle user skipping step 1', async () => {
   const state = await createState();
@@ -338,6 +348,7 @@ This is a **critical class of bug** that has occurred multiple times in Genesis-
 3. **Test the click** - every button must have a test that verifies its click behavior
 
 **BAD - Button exists but no handler:**
+
 ```javascript
 // In render function
 container.innerHTML = `
@@ -346,6 +357,7 @@ container.innerHTML = `
 ```
 
 **GOOD - Handler wired immediately after render:**
+
 ```javascript
 // In render function
 container.innerHTML = `
@@ -369,6 +381,7 @@ grep -rn "view-prompt-btn" --include="*.js" src/  # Should show addEventListener
 ```
 
 **Testing Pattern**:
+
 ```javascript
 test('View Full Prompt button opens modal', () => {
     render(<PhaseView />);
@@ -377,4 +390,3 @@ test('View Full Prompt button opens modal', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
 });
 ```
-

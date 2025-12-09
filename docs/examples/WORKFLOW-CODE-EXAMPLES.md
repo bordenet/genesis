@@ -155,6 +155,7 @@ function renderPhaseUI(project, phase) {
 ## Prompt Template Examples
 
 **`prompts/phase1.md`:**
+
 ```markdown
 You are an expert. Help me create a {document_type}.
 
@@ -165,6 +166,7 @@ Generate a comprehensive document. **Ask clarifying questions as you go.**
 ```
 
 **`prompts/phase2.md`:**
+
 ```markdown
 Review this document critically. Provide:
 1. Strong critique of weaknesses
@@ -176,6 +178,7 @@ Review this document critically. Provide:
 ```
 
 **`prompts/phase3.md`:**
+
 ```markdown
 Synthesize the original draft and the reviewer's improvements.
 
@@ -187,4 +190,3 @@ Synthesize the original draft and the reviewer's improvements.
 
 Create the final document combining the best of both.
 ```
-
