@@ -39,7 +39,7 @@ jobs:
         run: npm run test:coverage
       
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./genesis/examples/hello-world/coverage/lcov.info
           flags: javascript
@@ -73,7 +73,7 @@ jobs:
           go test -v ./...
       
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         continue-on-error: true
         with:
           files: ./genesis-validator/coverage.out
