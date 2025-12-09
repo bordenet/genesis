@@ -1,9 +1,91 @@
+# =============================================================================
+# Genesis .gitignore
+# =============================================================================
 
-#Ignore vscode AI rules
+# IDE/Editor
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# VS Code AI rules (generated, not for version control)
 .github/instructions/codacy.instructions.md
 
-# Genesis Validator
+# =============================================================================
+# JavaScript / Node.js
+# =============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Coverage & Test artifacts
+coverage/
+.nyc_output/
+*.lcov
+
+# Build outputs
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# =============================================================================
+# Go (genesis-validator)
+# =============================================================================
 genesis-validator/bin/
 genesis-validator/coverage.out
 genesis-validator/coverage.html
-.DS_Store
+genesis-validator/coverage.txt
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go test artifacts
+*.test
+*.out
+
+# =============================================================================
+# Python (future use)
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+*.egg-info/
+.eggs/
+*.egg
+
+# =============================================================================
+# OS Generated
+# =============================================================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.Spotlight-V100
+.Trashes
+
+# =============================================================================
+# Temporary files
+# =============================================================================
+*.tmp
+*.temp
+*.log
+*.bak
