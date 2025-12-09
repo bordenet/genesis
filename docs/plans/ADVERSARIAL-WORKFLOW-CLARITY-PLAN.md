@@ -55,7 +55,7 @@ The developer/AI built an app that:
 
 ### Step 4: Construct Adversarial Prompt for Gemini (Phase 2)
 - Load `prompts/phase2.md` template
-- Inject Phase 1 result: `{phase1Output}` → Claude's markdown document
+- Inject Phase 1 result: `{phase1_output}` → Claude's markdown document
 - Prompt should say: "Review this document. Provide STRONG critique, identify gaps, ask questions to disambiguate, and provide an IMPROVED version of the document."
 - Display with "Copy Prompt" button
 - Include "forget all previous sessions" clause if same-LLM detection triggers
@@ -72,8 +72,8 @@ The developer/AI built an app that:
 ### Step 6: Generate Final Synthesis Prompt for Claude (Phase 3)
 - Load `prompts/phase3.md` template
 - Inject both previous results:
-  - `{phase1Output}` → Claude's original
-  - `{phase2Output}` → Gemini's critique and improvements
+  - `{phase1_output}` → Claude's original
+  - `{phase2_output}` → Gemini's critique and improvements
 - Prompt should say: "Consider the improvements made by the reviewer. Create a final document that benefits from both drafts. Ask any remaining clarifying questions."
 - Display with "Copy Prompt" button
 

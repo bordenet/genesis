@@ -205,7 +205,7 @@ Phase 1 response retrieved
   ↓
 generatePrompt() loads prompts/phase2.md
   ↓
-{phase1Output} replaced with Phase 1 response
+{phase1_output} replaced with Phase 1 response
   ↓
 Prompt displayed to user
   ↓
@@ -222,7 +222,7 @@ Phase 1 & 2 responses retrieved
   ↓
 generatePrompt() loads prompts/phase3.md
   ↓
-{phase1Output} and {phase2Output} replaced
+{phase1_output} and {phase2_output} replaced
   ↓
 Prompt displayed to user
   ↓
@@ -319,11 +319,11 @@ Please create a crisp, professional one-pager...
 - Any other form fields
 
 **Phase 2** (from previous phase):
-- `{phase1Output}` - Complete response from Phase 1
+- `{phase1_output}` - Complete response from Phase 1
 
 **Phase 3** (from all previous phases):
-- `{phase1Output}` - Complete response from Phase 1
-- `{phase2Output}` - Complete response from Phase 2
+- `{phase1_output}` - Complete response from Phase 1
+- `{phase2_output}` - Complete response from Phase 2
 
 ### Implementation
 
@@ -391,8 +391,8 @@ const phase1Output = project.phases[0]?.response || '[Phase 1 not completed]';
 global.fetch = async (url) => {
   const templates = {
     'prompts/phase1.md': 'Phase 1 template with {projectName}',
-    'prompts/phase2.md': 'Phase 2 template with {phase1Output}',
-    'prompts/phase3.md': 'Phase 3 template with {phase1Output} and {phase2Output}'
+    'prompts/phase2.md': 'Phase 2 template with {phase1_output}',
+    'prompts/phase3.md': 'Phase 3 template with {phase1_output} and {phase2_output}'
   };
 
   return {

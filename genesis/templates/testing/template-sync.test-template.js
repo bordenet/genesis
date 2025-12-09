@@ -63,9 +63,9 @@ describe('Template-Code Sync Validation', () => {
    * Phase 2 and 3 templates need to reference previous phase outputs.
    */
   describe('Phase 2 Template - Cross-Phase References', () => {
-    test('CRITICAL: phase2.md MUST contain {phase1Output} or {phase1Response} placeholder', () => {
+    test('CRITICAL: phase2.md MUST contain {phase1_output} placeholder', () => {
       const template = readRealTemplate('phase2.md');
-      const hasPhase1 = template.includes('{phase1Output}') || template.includes('{phase1Response}');
+      const hasPhase1 = template.includes('{phase1_output}');
       expect(hasPhase1).toBe(true);
     });
   });
@@ -73,13 +73,13 @@ describe('Template-Code Sync Validation', () => {
   describe('Phase 3 Template - Cross-Phase References', () => {
     test('CRITICAL: phase3.md MUST contain phase 1 output placeholder', () => {
       const template = readRealTemplate('phase3.md');
-      const hasPhase1 = template.includes('{phase1Output}') || template.includes('{phase1Response}');
+      const hasPhase1 = template.includes('{phase1_output}');
       expect(hasPhase1).toBe(true);
     });
 
     test('CRITICAL: phase3.md MUST contain phase 2 output placeholder', () => {
       const template = readRealTemplate('phase3.md');
-      const hasPhase2 = template.includes('{phase2Output}') || template.includes('{phase2Response}');
+      const hasPhase2 = template.includes('{phase2_output}');
       expect(hasPhase2).toBe(true);
     });
   });

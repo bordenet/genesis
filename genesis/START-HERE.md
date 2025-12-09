@@ -55,44 +55,14 @@ You're in a fresh repository with the `genesis/` directory. Your mission:
 
 ### Required Reading (in order):
 
-1. **[`docs/ADVERSARIAL-WORKFLOW-PATTERN.md`](docs/ADVERSARIAL-WORKFLOW-PATTERN.md)** - ⭐ **READ THIS FIRST** - The 7-step pattern
-2. **[`docs/ANTI-PATTERNS.md`](docs/ANTI-PATTERNS.md)** - ⭐ **What NOT to do**
-3. **[`REFERENCE-IMPLEMENTATIONS.md`](REFERENCE-IMPLEMENTATIONS.md)** - Overview of working examples
+1. **[`docs/AI-QUICK-REFERENCE.md`](docs/AI-QUICK-REFERENCE.md)** - ⭐ **CHEAT SHEET** - Keep this open while coding (~130 lines)
+2. **[`docs/ADVERSARIAL-WORKFLOW-PATTERN.md`](docs/ADVERSARIAL-WORKFLOW-PATTERN.md)** - The 7-step pattern (~500 lines)
+3. **[`docs/ANTI-PATTERNS.md`](docs/ANTI-PATTERNS.md)** - What NOT to do
 4. **Study the live example**: https://github.com/bordenet/product-requirements-assistant
-   - **CRITICAL**: Browse the repository on GitHub (files below are in THAT repo, not Genesis)
-   - **`docs/index.html`** (lines 9-15) - ⭐ **Tailwind dark mode config** (ALWAYS BROKEN WITHOUT THIS!)
-   - **`docs/js/app.js`** (lines 145-165) - ⭐ **Dark mode toggle functions** (loadTheme, toggleTheme)
-   - **`js/workflow.js`** - Phase architecture, prompt loading, data flow
-   - **`js/app.js`** - Form rendering, phase transitions, UI logic
-   - **`prompts/phase1.md`** - Prompt template with variables
-   - **`templates/prd-template.md`** - Document structure (in product-requirements-assistant repo)
-   - **`tests/workflow.test.js`** - Testing async prompts
-   - **`scripts/deploy-web.sh`** - ⭐ **Compact mode deployment** (git output redirection)
-   - **`scripts/setup-macos.sh`** - ⭐ **Fast, resumable setup** (smart caching)
-5. **[`docs/WORKFLOW-ARCHITECTURE.md`](docs/WORKFLOW-ARCHITECTURE.md)** - Detailed workflow patterns + dark mode fix
-6. **[`docs/REQUIREMENTS-TEMPLATE.md`](docs/REQUIREMENTS-TEMPLATE.md)** - What to ask vs. infer
-7. **[`docs/WORKFLOW-DECISION-TREE.md`](docs/WORKFLOW-DECISION-TREE.md)** - Decision framework
-
-### What You'll Learn:
-
-- ✅ **Dark mode toggle** (Tailwind `darkMode: 'class'` config) - **CRITICAL!**
-- ✅ **loadTheme()** function (prevents flash of wrong theme)
-- ✅ **toggleTheme()** function (works with Tailwind class mode)
-- ✅ 3-phase workflow pattern (mock, manual, mock)
-- ✅ Form-to-prompt pattern for Phase 1
-- ✅ Template variable replacement (`{variableName}` syntax)
-- ✅ Async prompt loading from markdown files
-- ✅ Defensive coding patterns
-- ✅ Mock mode vs. manual mode
-- ✅ How form fields map to template sections
-- ✅ How to structure prompts in separate files
-- ✅ How to test async prompt loading
-- ✅ **Deployment scripts** (compact mode, quality gates)
-- ✅ **Setup scripts** (fast, resumable, smart caching)
 
 ### Why This Matters:
 
-**This will answer 90% of your questions BEFORE you ask the user.**
+**The AI-QUICK-REFERENCE.md will answer 90% of your questions BEFORE you ask the user.**
 
 The reference implementation shows you EXACTLY how to:
 - **Fix dark mode toggle** (broken in EVERY Genesis project without Tailwind config)

@@ -178,7 +178,7 @@ Evaluate the document on:
 
 ## Original Document
 
-{phase1Output}
+{phase1_output}
 
 ---
 

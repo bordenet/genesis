@@ -113,9 +113,9 @@ When ready, provide your improved version in this format:
 
 ---
 
-**PASTE THE {{DOCUMENT_TYPE}} TO REVIEW BELOW THIS LINE:**
+**{{DOCUMENT_TYPE}} TO REVIEW:**
 
 ---
 
-{User will paste Phase 1 output here}
+{phase1_output}
 
