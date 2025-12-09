@@ -29,14 +29,14 @@ test.describe('{{PROJECT_TITLE}} Workflow', () => {
   test('creates new project', async ({ page }) => {
     // Click new project button
     await page.click('button:has-text("New Project")');
-    
-    // Fill project form
-    await page.fill('input[name="name"]', 'Test Project');
-    await page.fill('textarea[name="description"]', 'Test Description');
-    
-    // Submit form
-    await page.click('button:has-text("Create")');
-    
+
+    // Fill project form - field names match views-template.js
+    await page.fill('input[name="title"]', 'Test Project');
+    await page.fill('textarea[name="problems"]', 'Test problem description');
+
+    // Submit form - use specific selector to avoid matching heading text
+    await page.click('button[type="submit"]:has-text("Create Project")');
+
     // Verify project created
     await expect(page.locator('h2')).toContainText('Test Project');
     await expect(page.locator('.phase-indicator')).toContainText('Phase 1');
@@ -45,8 +45,9 @@ test.describe('{{PROJECT_TITLE}} Workflow', () => {
   test('completes {{PHASE_COUNT}}-phase workflow', async ({ page }) => {
     // Create project
     await page.click('button:has-text("New Project")');
-    await page.fill('input[name="name"]', 'Workflow Test');
-    await page.click('button:has-text("Create")');
+    await page.fill('input[name="title"]', 'Workflow Test');
+    await page.fill('textarea[name="problems"]', 'Workflow test problems');
+    await page.click('button[type="submit"]:has-text("Create Project")');
     
     // Phase 1
     await expect(page.locator('.phase-indicator')).toContainText('Phase 1');
@@ -73,8 +74,9 @@ test.describe('{{PROJECT_TITLE}} Workflow', () => {
   test('saves and loads project', async ({ page }) => {
     // Create project
     await page.click('button:has-text("New Project")');
-    await page.fill('input[name="name"]', 'Save Test');
-    await page.click('button:has-text("Create")');
+    await page.fill('input[name="title"]', 'Save Test');
+    await page.fill('textarea[name="problems"]', 'Save test problems');
+    await page.click('button[type="submit"]:has-text("Create Project")');
     
     // Add content
     await page.fill('textarea[name="response"]', 'Test content');
@@ -99,8 +101,9 @@ test.describe('{{PROJECT_TITLE}} Workflow', () => {
   test('exports project', async ({ page }) => {
     // Create project
     await page.click('button:has-text("New Project")');
-    await page.fill('input[name="name"]', 'Export Test');
-    await page.click('button:has-text("Create")');
+    await page.fill('input[name="title"]', 'Export Test');
+    await page.fill('textarea[name="problems"]', 'Export test problems');
+    await page.click('button[type="submit"]:has-text("Create Project")');
     
     // Add content
     await page.fill('textarea[name="response"]', 'Export content');
@@ -147,8 +150,9 @@ test.describe('{{PROJECT_TITLE}} Workflow', () => {
   test('deletes project', async ({ page }) => {
     // Create project
     await page.click('button:has-text("New Project")');
-    await page.fill('input[name="name"]', 'Delete Test');
-    await page.click('button:has-text("Create")');
+    await page.fill('input[name="title"]', 'Delete Test');
+    await page.fill('textarea[name="problems"]', 'Delete test problems');
+    await page.click('button[type="submit"]:has-text("Create Project")');
     
     // Go back to project list
     await page.click('button:has-text("Back")');
@@ -183,11 +187,12 @@ test.describe('{{PROJECT_TITLE}} Workflow', () => {
   test('handles errors gracefully', async ({ page }) => {
     // Trigger error (e.g., invalid input)
     await page.click('button:has-text("New Project")');
-    await page.click('button:has-text("Create")'); // Submit without name
-    
-    // Verify error message
-    await expect(page.locator('.error-message')).toBeVisible();
-    await expect(page.locator('.error-message')).toContainText('required');
+    // Submit without filling required fields
+    await page.click('button[type="submit"]:has-text("Create Project")');
+
+    // Verify validation prevents submission (HTML5 required attribute)
+    // The form should not submit and the title input should show validation
+    await expect(page.locator('input[name="title"]:invalid')).toBeVisible();
   });
 
   test('is mobile responsive', async ({ page }) => {
