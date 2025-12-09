@@ -240,11 +240,11 @@ describe('Same-LLM Adversarial Configuration Tests', () => {
             expect(result).toContain('reconstruct');
         });
 
-        test('should preserve {phase1Output} placeholder in replacement', () => {
-            const promptWithForget = 'Forget all previous. Review {phase1Output}';
+        test('should preserve {phase1_output} placeholder in replacement', () => {
+            const promptWithForget = 'Forget all previous. Review {phase1_output}';
             const result = promptAugmenter.generateGeminiStylePrompt(promptWithForget);
 
-            expect(result).toContain('{phase1Output}');
+            expect(result).toContain('{phase1_output}');
         });
     });
 
@@ -377,7 +377,7 @@ Scrutinize the document below and provide constructive criticism.
 
 ## Original Document
 
-{phase1Output}`;
+{phase1_output}`;
 
             // Test the augmentation
             const result = promptAugmenter.generateGeminiStylePrompt(actualPhase2Prompt);
@@ -391,7 +391,7 @@ Scrutinize the document below and provide constructive criticism.
             expect(result).not.toContain('Forget all previous sessions and context');
 
             // Verify it maintains the core functionality
-            expect(result).toContain('{phase1Output}');
+            expect(result).toContain('{phase1_output}');
             expect(result).toContain('**REMEMBER**: You are Google Gemini');
 
             // Verify the forget clause was successfully removed

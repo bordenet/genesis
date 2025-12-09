@@ -325,3 +325,56 @@ test('should handle user skipping step 1', async () => {
 
 **Reference**: See `docs/GENESIS-UI-WORKFLOW-BUG-PREVENTION.md` for detailed examples and patterns.
 
+### ⚠️ CRITICAL: All Clickable Elements MUST Have Event Handlers
+
+**Problem**: "Stillborn apps" - UI looks complete but buttons do nothing because event handlers were never wired up.
+
+This is a **critical class of bug** that has occurred multiple times in Genesis-derived projects. Buttons like "View Full Prompt" exist in the HTML but have no corresponding `addEventListener()` call.
+
+**MANDATE**: After creating ANY clickable element (button, link with click behavior, icon button), you MUST:
+
+1. **Immediately wire the event handler** in the same function or a dedicated `attachEventListeners()` function
+2. **Verify the handler exists** - search the file for `addEventListener` or `onclick` referencing that element
+3. **Test the click** - every button must have a test that verifies its click behavior
+
+**BAD - Button exists but no handler:**
+```javascript
+// In render function
+container.innerHTML = `
+    <button id="view-prompt-btn">View Full Prompt</button>  // ❌ No handler!
+`;
+```
+
+**GOOD - Handler wired immediately after render:**
+```javascript
+// In render function
+container.innerHTML = `
+    <button id="view-prompt-btn">View Full Prompt</button>
+`;
+
+// Wire up event handler
+document.getElementById('view-prompt-btn').addEventListener('click', () => {
+    showPromptModal(prompt);  // ✅ Handler exists
+});
+```
+
+**Verification Checklist** (run before committing any UI code):
+
+```bash
+# Find all buttons/clickable elements
+grep -rn "button\|onclick\|click" --include="*.js" --include="*.html" src/
+
+# For each button ID, verify addEventListener exists
+grep -rn "view-prompt-btn" --include="*.js" src/  # Should show addEventListener call
+```
+
+**Testing Pattern**:
+```javascript
+test('View Full Prompt button opens modal', () => {
+    render(<PhaseView />);
+    const btn = screen.getByText('View Full Prompt');
+    fireEvent.click(btn);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+});
+```
+

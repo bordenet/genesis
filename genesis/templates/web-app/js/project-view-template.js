@@ -12,7 +12,7 @@
 
 import { getProject, updatePhase } from './projects.js';
 import { getPhaseMetadata, generatePromptForPhase, exportFinalPRD } from './workflow.js';
-import { escapeHtml, showToast, copyToClipboard } from './ui.js';
+import { escapeHtml, showToast, copyToClipboard, showPromptModal } from './ui.js';
 import { navigateTo } from './router.js';
 
 /**
@@ -213,6 +213,15 @@ function attachPhaseEventListeners(project, phase) {
             showToast('Please enter a response', 'warning');
         }
     });
+
+    // Wire up "View Full Prompt" button if it exists
+    const viewPromptBtn = document.querySelector('.view-prompt-btn');
+    if (viewPromptBtn && project.phases[phase].prompt) {
+        viewPromptBtn.addEventListener('click', () => {
+            const phaseNames = ['', 'Phase 1: Initial Draft', 'Phase 2: Adversarial Review', 'Phase 3: Final Synthesis'];
+            showPromptModal(project.phases[phase].prompt, phaseNames[phase]);
+        });
+    }
 
     if (prevPhaseBtn) {
         prevPhaseBtn.addEventListener('click', () => {

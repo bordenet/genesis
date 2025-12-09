@@ -207,11 +207,11 @@ Please create a crisp, professional one-pager...
 - Any other form fields
 
 **Phase 2** (from previous phase):
-- `{phase1Output}` - Complete response from Phase 1
+- `{phase1_output}` - Complete response from Phase 1
 
 **Phase 3** (from all previous phases):
-- `{phase1Output}` - Complete response from Phase 1
-- `{phase2Output}` - Complete response from Phase 2
+- `{phase1_output}` - Complete response from Phase 1
+- `{phase2_output}` - Complete response from Phase 2
 
 ### Implementation
 

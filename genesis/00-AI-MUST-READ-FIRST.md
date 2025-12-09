@@ -23,53 +23,30 @@
 
 ## ⚠️ BEFORE YOU START (MANDATORY)
 
-**DO NOT PROCEED** until you've completed these prerequisite steps:
+### Essential Reading (in order):
 
-- [ ] Read `docs/ADVERSARIAL-WORKFLOW-PATTERN.md` ⭐ **MOST IMPORTANT - READ FIRST**
-- [ ] Read `docs/ANTI-PATTERNS.md` ⭐ **MANDATORY - Learn what NOT to do**
-- [ ] Read `REFERENCE-IMPLEMENTATIONS.md`
-- [ ] Study https://github.com/bordenet/product-requirements-assistant ⭐ **PRIMARY REFERENCE**
-  - [ ] **CRITICAL**: Read `docs/index.html` lines 9-15 - Tailwind dark mode config (ALWAYS BROKEN WITHOUT THIS!)
-  - [ ] **CRITICAL**: Read `docs/js/app.js` lines 145-165 - Dark mode toggle functions (loadTheme, toggleTheme)
-  - [ ] Read `js/workflow.js` - Phase architecture, prompt loading, data flow
-  - [ ] Read `js/app.js` - Form rendering, phase transitions, UI logic
-  - [ ] Read `prompts/phase1.md` - Prompt template with variables
-  - [ ] Read `templates/prd-template.md` - Document structure (in THAT repo, not Genesis)
-  - [ ] Read `tests/workflow.test.js` - Testing async prompts
-  - [ ] Read `scripts/deploy-web.sh` - Compact mode deployment with quality gates
-  - [ ] Read `scripts/setup-macos.sh` - Fast, resumable setup with smart caching
-- [ ] Study https://github.com/bordenet/one-pager ⭐ **SECONDARY REFERENCE**
-  - [ ] Read `index.html` - Related projects dropdown, UI patterns
-  - [ ] Read `GENESIS-DARK-MODE-IMPLEMENTATION.md` - Lessons learned
-  - [ ] Read `GENESIS-PROCESS-IMPROVEMENTS.md` - What went wrong and how to fix it
-- [ ] Read `docs/WORKFLOW-ARCHITECTURE.md` (includes dark mode implementation guide)
-- [ ] Read `docs/REQUIREMENTS-TEMPLATE.md`
-- [ ] Read `docs/WORKFLOW-DECISION-TREE.md`
-- [ ] Understand the **7-STEP** adversarial workflow pattern (NOT 3-phase!)
-- [ ] Understand apps generate PROMPTS, not AI responses
-- [ ] Understand form-to-prompt pattern for Phase 1
-- [ ] Understand template variable replacement (`{variableName}` syntax)
-- [ ] Understand async prompt loading from markdown files
-- [ ] Understand defensive coding patterns
-- [ ] Understand mock vs. manual mode (mock is for TESTING only!)
-- [ ] **Understand dark mode implementation** (Tailwind config + loadTheme + toggleTheme)
-- [ ] **Understand deployment scripts** (compact mode, git output redirection)
-- [ ] **Understand setup scripts** (fast, resumable, smart caching)
+1. **[`docs/AI-QUICK-REFERENCE.md`](docs/AI-QUICK-REFERENCE.md)** - ⭐ **CHEAT SHEET** - Keep open while coding (~130 lines)
+2. **[`docs/ADVERSARIAL-WORKFLOW-PATTERN.md`](docs/ADVERSARIAL-WORKFLOW-PATTERN.md)** - The 7-step pattern (~500 lines)
+3. **[`docs/ANTI-PATTERNS.md`](docs/ANTI-PATTERNS.md)** - What NOT to do
 
-**Why this matters**: This will answer 90% of your questions BEFORE you ask the user. You'll know:
-- ✅ **How to fix dark mode** (CRITICAL - broken in every Genesis project without Tailwind config)
-- ✅ How to structure workflow phases (default: 3 phases)
-- ✅ How to load prompts from markdown files (always in `prompts/` directory)
-- ✅ How to handle form data and template variables
-- ✅ How to implement mock mode for development
-- ✅ How to write defensive code with proper validation
-- ✅ How to test async functionality
-- ✅ **How to write deployment scripts** (compact mode, quality gates)
-- ✅ **How to write setup scripts** (fast, resumable, smart caching)
+### Reference Implementation:
 
-**If you skip this step, you will waste time asking questions that are already answered in the reference implementation.**
+Study https://github.com/bordenet/product-requirements-assistant - especially:
+- `js/workflow.js` - Phase architecture
+- `prompts/phase1.md` - Prompt template pattern
+- `docs/index.html` lines 9-15 - Tailwind dark mode config (CRITICAL!)
 
-**📝 IMPORTANT**: Create `REVERSE-INTEGRATION-NOTES.md` in the project root (use template from `genesis/templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md`). Every time you reference the implementations to solve a problem, add a note documenting what Genesis is missing.
+### Key Concepts to Understand:
+
+| Concept | Summary |
+|---------|---------|
+| 7-Step Workflow | User Input → Prompt → Claude → Prompt → Gemini → Prompt → Claude |
+| Apps generate PROMPTS | NOT AI responses - user copies to external AI |
+| Template variables | `{project_name}`, `{phase1_output}`, `{phase2_output}` |
+| Dark mode | Tailwind `darkMode: 'class'` + loadTheme() in head |
+| Event handlers | Wire ALL buttons immediately after rendering |
+
+**📝 IMPORTANT**: Create `REVERSE-INTEGRATION-NOTES.md` to document what Genesis is missing.
 
 ---
 
@@ -105,8 +82,8 @@
   - [ ] Phase 2 (Step 4-5): Gemini (different AI for adversarial perspective)
   - [ ] Phase 3 (Step 6-7): Claude
 - [ ] User manually copies/pastes between app and AI services (NO API calls)
-- [ ] Phase 2 prompt includes complete Phase 1 output (`{phase1Output}`)
-- [ ] Phase 3 prompt includes BOTH Phase 1 AND Phase 2 outputs (`{phase1Output}` + `{phase2Output}`)
+- [ ] Phase 2 prompt includes complete Phase 1 output (`{phase1_output}`)
+- [ ] Phase 3 prompt includes BOTH Phase 1 AND Phase 2 outputs (`{phase1_output}` + `{phase2_output}`)
 - [ ] Each prompt instructs AI to ask questions
 - [ ] App stores user's pasted responses (doesn't generate them)
 
@@ -119,8 +96,11 @@
 - [ ] ❌ NO skipping steps
 - [ ] ❌ NO single-shot generation
 - [ ] ❌ NO missing previous outputs in prompts
+- [ ] ❌ NO buttons without event handlers (creates "stillborn apps")
 
 **CRITICAL:** If you implement ANY of the anti-patterns above, you're building the WRONG app. Stop and read `docs/ADVERSARIAL-WORKFLOW-PATTERN.md` and `docs/ANTI-PATTERNS.md`.
+
+**⚠️ STILLBORN APP PREVENTION:** Every clickable element (button, link, icon) MUST have an event handler wired up. After creating a button in HTML/JSX, immediately add the `addEventListener()` call. Search for button IDs in your codebase to verify handlers exist.
 
 ---
 

@@ -23,6 +23,7 @@
 5. [Missing-Context Anti-Pattern](#anti-pattern-5-missing-context)
 6. [Single-Shot Anti-Pattern](#anti-pattern-6-single-shot-generation)
 7. [Mock-Mode-Confusion Anti-Pattern](#anti-pattern-7-mock-mode-confusion)
+8. [Stillborn App Anti-Pattern](#anti-pattern-8-stillborn-app)
 
 ---
 
@@ -305,7 +306,7 @@ Review the following complete Product Requirements Document.
 
 **DOCUMENT TO REVIEW:**
 
-{phase1Output}
+{phase1_output}
 
 **YOUR TASK:**
 1. Identify gaps, vague statements, unrealistic claims
@@ -535,6 +536,93 @@ Before considering your implementation complete, verify:
    - Add "ask clarifying questions" instruction
    - Add "forget previous sessions" to Phase 2
    - Inject full previous outputs
+
+---
+
+---
+
+## Anti-Pattern #8: Stillborn App
+
+### ❌ WRONG: Buttons Exist But Have No Event Handlers
+
+```javascript
+// ❌ BAD CODE - Button created but never wired up
+function renderPhaseContent(project, phase) {
+    container.innerHTML = `
+        <div class="prompt-section">
+            <p class="prompt-preview">${prompt.substring(0, 200)}...</p>
+            <button class="view-prompt-btn">View Full Prompt</button>
+        </div>
+    `;
+    // ❌ Missing: No addEventListener for view-prompt-btn!
+}
+```
+
+**Problems:**
+
+- UI looks complete but buttons do nothing when clicked
+- User thinks app is broken or incomplete
+- Critical functionality is inaccessible
+- Hard to detect without manually testing every button
+
+### ✅ CORRECT: Wire Event Handlers Immediately After Render
+
+```javascript
+// ✅ GOOD CODE - Handler wired immediately after render
+function renderPhaseContent(project, phase) {
+    container.innerHTML = `
+        <div class="prompt-section">
+            <p class="prompt-preview">${prompt.substring(0, 200)}...</p>
+            <button class="view-prompt-btn">View Full Prompt</button>
+        </div>
+    `;
+
+    // ✅ Wire up event handler immediately
+    const viewPromptBtn = container.querySelector('.view-prompt-btn');
+    if (viewPromptBtn) {
+        viewPromptBtn.addEventListener('click', () => {
+            showPromptModal(project.phases[phase].prompt);
+        });
+    }
+}
+```
+
+**Benefits:**
+
+- Every button does what user expects
+- App feels complete and polished
+- Critical functionality accessible
+- Easy to verify with grep or tests
+
+### Detection Checklist
+
+Run these commands to detect stillborn buttons:
+
+```bash
+# Find all buttons in HTML/JS
+grep -rn "button\|Button" --include="*.js" --include="*.html" src/
+
+# For each button ID/class, verify handler exists
+grep -rn "view-prompt-btn" --include="*.js" src/
+# Should show BOTH the button creation AND addEventListener
+```
+
+### Testing Pattern
+
+```javascript
+test('View Full Prompt button opens modal', () => {
+    renderPhaseContent(mockProject, 1);
+
+    const btn = document.querySelector('.view-prompt-btn');
+    expect(btn).toBeTruthy();  // Button exists
+
+    btn.click();  // Simulate click
+
+    // Verify modal opened
+    const modal = document.querySelector('.prompt-modal');
+    expect(modal).toBeTruthy();  // Modal appeared
+});
+```
 
 ---
 

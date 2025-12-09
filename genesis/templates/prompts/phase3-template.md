@@ -116,17 +116,17 @@ Provide the final synthesized {{DOCUMENT_TYPE}} in this format:
 
 ---
 
-**PASTE PHASE 1 VERSION BELOW:**
+**PHASE 1 VERSION ({{PHASE_1_AI}}):**
 
 ---
 
-{User will paste Phase 1 output here}
+{phase1_output}
 
 ---
 
-**PASTE PHASE 2 VERSION BELOW:**
+**PHASE 2 VERSION ({{PHASE_2_AI}}):**
 
 ---
 
-{User will paste Phase 2 output here}
+{phase2_output}
 
