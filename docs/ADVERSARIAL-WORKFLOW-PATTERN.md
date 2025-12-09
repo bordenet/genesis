@@ -4,7 +4,7 @@
 
 ---
 
-```
+```text
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                              ║
 ║  ⚠️  THIS IS THE MOST IMPORTANT PATTERN IN GENESIS  ⚠️                      ║
@@ -37,6 +37,7 @@ The 7-Step Adversarial Workflow Pattern is a systematic approach to generating h
 **Core Principle:** Different AI models provide different perspectives. By having one AI (Claude) generate a draft, another AI (Gemini) critique and improve it, and then Claude synthesize the best of both, we produce documents far superior to single-AI generation.
 
 **Key Characteristics:**
+
 - ✅ Apps generate PROMPTS for external AI services
 - ✅ Users manually copy/paste between app and AI services
 - ✅ Different AIs provide independent perspectives
@@ -45,6 +46,7 @@ The 7-Step Adversarial Workflow Pattern is a systematic approach to generating h
 - ✅ Final document benefits from adversarial review
 
 **Anti-Pattern (WRONG):**
+
 - ❌ Apps auto-generate AI responses
 - ❌ Same AI used for all phases
 - ❌ No questions asked
@@ -57,6 +59,7 @@ The 7-Step Adversarial Workflow Pattern is a systematic approach to generating h
 ### The Problem with Single-AI Document Generation
 
 When a single AI generates a document in one shot:
+
 - **Blind spots:** Every AI has biases and knowledge gaps
 - **No review:** Errors and omissions go unnoticed
 - **No iteration:** User doesn't get to refine through questions
@@ -65,6 +68,7 @@ When a single AI generates a document in one shot:
 ### The Power of Adversarial Review
 
 When multiple AIs collaborate adversarially:
+
 - **Diverse perspectives:** Claude's strengths + Gemini's strengths
 - **Error detection:** What one AI misses, another catches
 - **Question-driven refinement:** User clarifies ambiguities iteratively
@@ -73,7 +77,8 @@ When multiple AIs collaborate adversarially:
 ### Real-World Example
 
 **Single-AI approach:**
-```
+
+```text
 User: "Generate a PRD for a mobile app"
 AI: [generates 500-line document]
 Result: Missing key sections, some assumptions are wrong, no user input
@@ -81,7 +86,8 @@ Quality: 6/10
 ```
 
 **Adversarial approach:**
-```
+
+```text
 Step 1-3: Claude generates initial draft, asking questions
           "What's your target user age range?"
           "How will you monetize?"
@@ -222,7 +228,7 @@ Quality: 9/10
 
 ## Data Flow Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                         THE 7-STEP WORKFLOW                                 │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -431,7 +437,7 @@ Use this checklist to verify correct implementation:
 - [ ] Completion screen celebrates success
 - [ ] Download/export options available
 
-### Quality Checklist
+### Workflow Quality Checklist
 
 - [ ] Different AIs used (Claude → Gemini → Claude)
 - [ ] Each prompt requests questions
@@ -462,6 +468,7 @@ Study these working implementations:
 ### What to Study in References
 
 In `product-requirements-assistant`, study:
+
 - `js/workflow.js` lines 45-120: Phase management
 - `js/app.js` lines 67-89: Prompt generation
 - `prompts/phase1.md`: Template variable pattern
@@ -480,6 +487,7 @@ In `product-requirements-assistant`, study:
 ### Success Indicators
 
 You've implemented the pattern correctly if:
+
 - ✅ App never auto-generates AI content
 - ✅ User manually copies/pastes to external AIs
 - ✅ Three distinct AI interactions occur
@@ -491,12 +499,14 @@ You've implemented the pattern correctly if:
 **NEVER deviate from this pattern** for document-generation apps. This is a proven, battle-tested approach.
 
 Only deviate if:
+
 - You're building a completely different type of app (not document generation)
 - You have a compelling reason AND document it extensively
 
 ### Getting Help
 
 If you're unsure about implementation:
+
 1. Re-read this document
 2. Study the reference implementations
 3. Check `docs/ANTI-PATTERNS.md`

@@ -124,9 +124,9 @@ jobs:
 
       - name: Lint Markdown files
         run: |
-          markdownlint-cli2 "**/*.md" \
-            --ignore node_modules \
-            --ignore genesis/examples/hello-world/node_modules
+          markdownlint-cli2 "*.md" "docs/**/*.md" ".claude/**/*.md" ".github/**/*.md" \
+            "genesis/*.md" "genesis/templates/**/*.md" "genesis/scripts/**/*.md" \
+            "genesis/examples/hello-world/*.md" "genesis-validator/**/*.md"
 
   # Documentation hygiene validation
   docs:

@@ -8,7 +8,7 @@
 
 Genesis apps generate **PROMPTS** for external AI services. They do NOT auto-generate AI responses.
 
-```
+```text
 User Input → App generates PROMPT → User copies to Claude/Gemini → User pastes response back
 ```
 
@@ -30,6 +30,7 @@ User Input → App generates PROMPT → User copies to Claude/Gemini → User pa
 | 7 | Collect Final | Claude | User pastes synthesized document |
 
 **Key Points:**
+
 - Phase 2 uses DIFFERENT AI (Gemini) for adversarial perspective
 - Each prompt tells AI to "ask clarifying questions"
 - App stores responses, never generates them
@@ -38,7 +39,7 @@ User Input → App generates PROMPT → User copies to Claude/Gemini → User pa
 
 ## Critical Placeholders (snake_case)
 
-```
+```text
 {project_name}     - From form input
 {project_description} - From form input
 {phase1_output}    - AI response from Phase 1
@@ -65,6 +66,7 @@ document.getElementById('view-btn').addEventListener('click', () => { ... });
 ## Dark Mode (Always Broken Without This)
 
 In `index.html` head:
+
 ```html
 <script>
   if (localStorage.theme === 'dark' || (!localStorage.theme && 
@@ -75,6 +77,7 @@ In `index.html` head:
 ```
 
 In Tailwind config:
+
 ```javascript
 module.exports = { darkMode: 'class', ... }
 ```
@@ -98,6 +101,7 @@ function replaceVars(template, vars) {
 ## ES6 Modules Only
 
 All browser JS must use ES6:
+
 ```javascript
 // ✅ CORRECT
 import { foo } from './bar.js';
@@ -113,6 +117,7 @@ module.exports = { baz };
 ## Quality Gates
 
 Before any commit:
+
 - [ ] All tests pass: `npm test`
 - [ ] Lint passes: `npm run lint`
 - [ ] Coverage ≥ 85%
@@ -159,4 +164,3 @@ Before any commit:
 > "The app generates prompts, not responses. The user is the bridge between your app and the AI services."
 
 **This document is your cheat sheet. Keep it open while coding.**
-
