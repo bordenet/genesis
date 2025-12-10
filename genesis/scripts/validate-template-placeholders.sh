@@ -62,6 +62,11 @@ EXCLUDE_FILES=(
     "REFERENCE-IMPLEMENTATIONS.md"
 )
 
+# Special case: if scanning from genesis repo root, exclude genesis/ directory
+if [[ "$SCAN_DIR" == "." ]] && [[ -d "genesis" ]]; then
+    EXCLUDE_DIRS+=("genesis")
+fi
+
 echo "🔍 Scanning for unreplaced template placeholders in: $SCAN_DIR"
 echo ""
 
