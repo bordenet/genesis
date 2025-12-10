@@ -29,6 +29,7 @@ SCAN_DIR="${1:-.}"
 EXCLUDE_DIRS=(
     "node_modules"
     ".git"
+    "coverage"
     "genesis/templates"
     "genesis/examples"
     "genesis/docs"
