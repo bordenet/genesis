@@ -82,7 +82,7 @@ cd "$PROJECT_DIR"
 
 echo -e "${YELLOW}Issue #3: Template Placeholder Validation${NC}"
 run_test_with_output "No unreplaced {{VARIABLES}}" \
-    "! grep -r '{{[A-Z_][A-Z0-9_]*}}' --include='*.js' --include='*.html' --include='*.css' --exclude='*-template.*' --exclude='*.test.js' --exclude-dir=node_modules --exclude-dir=tests ."
+    "! grep -r '{{[A-Z_][A-Z0-9_]*}}' --include='*.js' --include='*.html' --include='*.css' --exclude='*-template.*' --exclude='*.test.js' --exclude-dir=node_modules --exclude-dir=tests --exclude-dir=coverage ."
 
 echo -e "${YELLOW}Issue #2: HTML Element Consistency${NC}"
 run_test "Container ID exists in HTML" \
