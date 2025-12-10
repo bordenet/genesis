@@ -4,21 +4,107 @@ Common issues when creating projects from Genesis templates and how to fix them.
 
 ---
 
+## 🚨 Critical Issues (Reverse-Integration Findings)
+
+**Source**: Power Statement Assistant project (2024-12-09)
+**Status**: All 7 issues have been fixed in Genesis templates as of 2024-12-09
+
+These were the most common issues that prevented generated apps from working immediately after generation. They have all been fixed in the templates, but this section documents them for reference and troubleshooting.
+
+### Quick Validation
+
+Run these scripts to validate your generated project:
+
+```bash
+# Check for unreplaced template placeholders (Issue #3)
+./genesis/scripts/validate-template-placeholders.sh .
+
+# Comprehensive test suite (all 7 issues)
+./genesis/scripts/test-generated-project.sh .
+```
+
+### Issue #1: Storage Export Mismatch ✅ FIXED
+
+**Symptom**: `TypeError: storage.saveProject is not a function`
+
+**Cause**: Template used named export (`export const storage = new Storage()`) but imports expected default export (`import storage from './storage.js'`)
+
+**Fix**: Changed to `export default new Storage()` in storage-template.js
+
+### Issue #2: HTML Element ID Mismatch ✅ FIXED
+
+**Symptom**: `Cannot read properties of null (reading 'appendChild')`
+
+**Cause**: JavaScript referenced `app-container` but HTML used different ID
+
+**Fix**: Standardized on `id="app-container"` throughout templates
+
+### Issue #3: Unreplaced Template Placeholders ✅ VALIDATION ADDED
+
+**Symptom**: App shows `{{PROJECT_NAME}}` or `{{DB_NAME}}` in UI or code
+
+**Cause**: Template generation script didn't replace all variables
+
+**Fix**: Created `validate-template-placeholders.sh` script that runs automatically
+
+### Issue #4: Missing Workflow Functions ✅ FIXED
+
+**Symptom**: `ReferenceError: getPhaseMetadata is not defined`
+
+**Cause**: project-view.js expected standalone functions but workflow.js only had class methods
+
+**Fix**: Added standalone exported functions to workflow-template.js:
+- `getPhaseMetadata(phaseNumber)`
+- `generatePromptForPhase(project, phaseNumber)`
+- `exportFinalDocument(project)`
+
+### Issue #5: PRD-Specific Naming ✅ FIXED
+
+**Symptom**: Generated app references "PRD" instead of generic document type
+
+**Cause**: Template used `exportFinalPRD` instead of generic name
+
+**Fix**: Changed to `exportFinalDocument` and `export-document-btn` throughout
+
+### Issue #6: Missing HTML Elements ✅ FIXED
+
+**Symptom**: `Cannot read properties of null (reading 'classList')`
+
+**Cause**: JavaScript referenced `loading-overlay` or `toast-container` but HTML didn't have them
+
+**Fix**: Added both elements to index-template.html
+
+### Issue #7: Missing Storage Methods ✅ FIXED
+
+**Symptom**: `TypeError: storage.getPrompt is not a function`
+
+**Cause**: app.js and other files called methods that didn't exist in Storage class
+
+**Fix**: Added missing methods to storage-template.js:
+- `getPrompt(phase)`
+- `savePrompt(phase, content)`
+- `getSetting(key)`
+- `saveSetting(key, value)`
+- `getStorageEstimate()` (alias for getStorageInfo)
+
+---
+
 ## Table of Contents
 
-1. [Module System Errors (require is not defined)](#module-system-errors-require-is-not-defined)
-2. [Node.js Globals in Browser (process is not defined)](#nodejs-globals-in-browser-process-is-not-defined)
-3. [Template Variables Not Replaced](#template-variables-not-replaced)
-4. [Badges Show "Unknown"](#badges-show-unknown)
-5. [GitHub Actions Workflow Fails](#github-actions-workflow-fails)
-6. [npm install Fails](#npm-install-fails)
-7. [Linting Errors](#linting-errors)
-8. [Tests Fail](#tests-fail)
-9. [Dark Mode Doesn't Work](#dark-mode-doesnt-work)
-10. [GitHub Pages 404 Error](#github-pages-404-error)
-11. [Missing Files](#missing-files)
-12. [Deployment Script Fails](#deployment-script-fails)
-13. [Event Listeners Not Working](#event-listeners-not-working)
+1. [Critical Issues (Reverse-Integration Findings)](#-critical-issues-reverse-integration-findings)
+2. [Module System Errors (require is not defined)](#module-system-errors-require-is-not-defined)
+3. [Node.js Globals in Browser (process is not defined)](#nodejs-globals-in-browser-process-is-not-defined)
+4. [Template Variables Not Replaced](#template-variables-not-replaced)
+5. [Badges Show "Unknown"](#badges-show-unknown)
+6. [GitHub Actions Workflow Fails](#github-actions-workflow-fails)
+7. [npm install Fails](#npm-install-fails)
+8. [Linting Errors](#linting-errors)
+9. [Tests Fail](#tests-fail)
+10. [Dark Mode Doesn't Work](#dark-mode-doesnt-work)
+11. [GitHub Pages 404 Error](#github-pages-404-error)
+12. [Missing Files](#missing-files)
+13. [Deployment Script Fails](#deployment-script-fails)
+14. [Event Listeners Not Working](#event-listeners-not-working)
 
 ---
 

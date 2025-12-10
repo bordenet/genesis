@@ -8,6 +8,74 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed - Reverse-Integration: 7 Critical Issues (2024-12-09)
+
+**SOURCE**: Power Statement Assistant project reverse-integration findings
+
+**IMPACT**: All 7 issues prevented generated apps from working immediately after generation. All have been fixed.
+
+**Issue #1: Storage Export Mismatch** ✅ FIXED
+- **Problem**: Template used named export but imports expected default export
+- **Symptom**: `TypeError: storage.saveProject is not a function`
+- **Fix**: Changed `genesis/templates/web-app/js/storage-template.js` line 174 from `export const storage = new Storage()` to `export default new Storage()`
+- **Files Modified**: `storage-template.js`, `storage.test-template.js`
+
+**Issue #2: HTML Element ID Consistency** ✅ ALREADY FIXED
+- **Problem**: JavaScript referenced elements that didn't exist in HTML
+- **Status**: Template already uses `id="app-container"` consistently
+- **Verified**: `loading-overlay` and `toast-container` present in template
+
+**Issue #3: Unreplaced Template Placeholders** ✅ VALIDATION ADDED
+- **Problem**: No automated check for unreplaced `{{VARIABLES}}`
+- **Symptom**: App shows `{{PROJECT_NAME}}` or `{{DB_NAME}}` in UI
+- **Fix**: Created `genesis/scripts/validate-template-placeholders.sh`
+- **Features**: Scans all files, excludes templates/docs, fails loudly if placeholders found
+- **Integration**: Can be added to CI/CD pipeline
+
+**Issue #4: Missing Workflow Functions** ✅ FIXED
+- **Problem**: project-view expected standalone functions but workflow only had class methods
+- **Symptom**: `ReferenceError: getPhaseMetadata is not defined`
+- **Fix**: Added 3 standalone exported functions to `workflow-template.js`:
+  - `getPhaseMetadata(phaseNumber)`
+  - `generatePromptForPhase(project, phaseNumber)`
+  - `exportFinalDocument(project)`
+- **Files Modified**: `workflow-template.js`
+
+**Issue #5: PRD-Specific Naming** ✅ FIXED
+- **Problem**: Template used `exportFinalPRD` instead of generic name
+- **Symptom**: Generated apps reference "PRD" instead of document type
+- **Fix**: Changed to `exportFinalDocument` and `export-document-btn` throughout
+- **Files Modified**: `project-view-template.js`
+
+**Issue #6: Missing HTML Elements** ✅ ALREADY FIXED
+- **Problem**: JavaScript referenced elements that didn't exist
+- **Status**: Both `loading-overlay` and `toast-container` already in template
+- **Verified**: No changes needed
+
+**Issue #7: Missing Storage Methods** ✅ FIXED
+- **Problem**: app.js called methods that didn't exist in Storage class
+- **Symptom**: `TypeError: storage.getPrompt is not a function`
+- **Fix**: Added 5 methods to `storage-template.js`:
+  - `getPrompt(phase)` - Get prompt for specific phase
+  - `savePrompt(phase, content)` - Save prompt for specific phase
+  - `getSetting(key)` - Get setting value
+  - `saveSetting(key, value)` - Save setting value
+  - `getStorageEstimate()` - Alias for getStorageInfo()
+- **Files Modified**: `storage-template.js`, `storage.test-template.js`
+
+**New Validation Scripts**:
+- `genesis/scripts/validate-template-placeholders.sh` - Checks for unreplaced `{{VARIABLES}}`
+- `genesis/scripts/test-generated-project.sh` - Comprehensive test suite for all 7 issues
+
+**Documentation Updates**:
+- Added "Critical Issues" section to `TROUBLESHOOTING.md`
+- Updated `README.md` with validation script documentation
+- Updated `CHANGELOG.md` with reverse-integration findings
+
+**Success Metric**: 100% of generated apps should work immediately after generation (no debugging required)
+
+---
+
 ### Added - Phase C: UI Module Test Coverage (2025-12-01)
 
 **ENHANCEMENT**: Comprehensive test coverage for all remaining UI modules.
