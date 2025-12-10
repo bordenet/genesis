@@ -161,3 +161,38 @@ export class Workflow {
     }
 }
 
+/**
+ * Standalone helper functions for use in views
+ * These provide a simpler API for common workflow operations
+ */
+
+/**
+ * Get metadata for a specific phase
+ * @param {number} phaseNumber - Phase number (1, 2, 3, etc.)
+ * @returns {Object} Phase metadata
+ */
+export function getPhaseMetadata(phaseNumber) {
+    return WORKFLOW_CONFIG.phases.find(p => p.number === phaseNumber);
+}
+
+/**
+ * Generate prompt for a specific phase
+ * @param {Object} project - Project object
+ * @param {number} phaseNumber - Phase number
+ * @returns {Promise<string>} Generated prompt
+ */
+export async function generatePromptForPhase(project, phaseNumber) {
+    const workflow = new Workflow(project);
+    workflow.currentPhase = phaseNumber;
+    return await workflow.generatePrompt();
+}
+
+/**
+ * Export final document as Markdown
+ * @param {Object} project - Project object
+ * @returns {string} Markdown content
+ */
+export function exportFinalDocument(project) {
+    const workflow = new Workflow(project);
+    return workflow.exportAsMarkdown();
+}

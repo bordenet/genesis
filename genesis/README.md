@@ -330,9 +330,33 @@ All files from [bordenet/scripts/starter-kit](https://github.com/bordenet/script
 - ~50 files total
 - <30 minute setup
 
-### ✅ Validation
+### ✅ Validation & Quality Assurance
 
-- `validation/validate-genesis.sh` - Validates Genesis structure
+Genesis includes comprehensive validation scripts to ensure generated projects work on first try:
+
+**Template Placeholder Validation** (`scripts/validate-template-placeholders.sh`):
+- Scans for unreplaced `{{VARIABLES}}` in generated code
+- Prevents Issue #3 from reverse-integration findings
+- Runs automatically in CI/CD pipeline
+- Usage: `./genesis/scripts/validate-template-placeholders.sh .`
+
+**Generated Project Test Suite** (`scripts/test-generated-project.sh`):
+- Comprehensive test for all 7 critical issues from reverse-integration
+- Validates storage exports, HTML elements, workflow functions, naming conventions
+- Checks for missing methods and event handlers
+- Runs linting and tests if available
+- Usage: `./genesis/scripts/test-generated-project.sh .`
+
+**Genesis Structure Validation** (`validation/validate-genesis.sh`):
+- Validates Genesis template system structure
+- Ensures all required files are present
+- Checks template consistency
+
+**Reverse-Integration Process**:
+- All improvements from generated projects are documented
+- Critical issues are tracked and fixed in templates
+- See `TROUBLESHOOTING.md` for the 7 critical issues that were fixed
+- See `REVERSE-INTEGRATION-NOTES.md` in generated projects for findings
 
 ---
 

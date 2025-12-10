@@ -11,7 +11,7 @@
  */
 
 import { getProject, updatePhase } from './projects.js';
-import { getPhaseMetadata, generatePromptForPhase, exportFinalPRD } from './workflow.js';
+import { getPhaseMetadata, generatePromptForPhase, exportFinalDocument } from './workflow.js';
 import { escapeHtml, showToast, copyToClipboard, showPromptModal } from './ui.js';
 import { navigateTo } from './router.js';
 
@@ -47,7 +47,7 @@ export async function renderProjectView(projectId) {
                         ${escapeHtml(project.problems)}
                     </p>
                 </div>
-                <button id="export-prd-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                <button id="export-document-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                     Export {{DOCUMENT_TYPE}}
                 </button>
             </div>
@@ -87,7 +87,17 @@ export async function renderProjectView(projectId) {
 
     // Event listeners
     document.getElementById('back-btn').addEventListener('click', () => navigateTo('home'));
-    document.getElementById('export-prd-btn').addEventListener('click', () => exportFinalPRD(project));
+    document.getElementById('export-document-btn').addEventListener('click', () => {
+        const markdown = exportFinalDocument(project);
+        const blob = new Blob([markdown], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${project.title.replace(/\s+/g, '-')}.md`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Document exported successfully', 'success');
+    });
     
     document.querySelectorAll('.phase-tab').forEach(tab => {
         tab.addEventListener('click', () => {

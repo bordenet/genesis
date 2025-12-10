@@ -168,8 +168,83 @@ class Storage {
 
         return data.projects.length;
     }
+
+    /**
+     * Get a prompt from the prompts store
+     * @param {number} phase - Phase number
+     * @returns {Promise<string>} Prompt content
+     */
+    async getPrompt(phase) {
+        const tx = this.db.transaction('prompts', 'readonly');
+        const store = tx.objectStore('prompts');
+
+        return new Promise((resolve, reject) => {
+            const request = store.get(phase);
+            request.onsuccess = () => resolve(request.result?.content || '');
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    /**
+     * Save a prompt to the prompts store
+     * @param {number} phase - Phase number
+     * @param {string} content - Prompt content
+     * @returns {Promise<void>}
+     */
+    async savePrompt(phase, content) {
+        const tx = this.db.transaction('prompts', 'readwrite');
+        const store = tx.objectStore('prompts');
+
+        return new Promise((resolve, reject) => {
+            const request = store.put({ phase, content });
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    /**
+     * Get a setting from the settings store
+     * @param {string} key - Setting key
+     * @returns {Promise<any>} Setting value
+     */
+    async getSetting(key) {
+        const tx = this.db.transaction('settings', 'readonly');
+        const store = tx.objectStore('settings');
+
+        return new Promise((resolve, reject) => {
+            const request = store.get(key);
+            request.onsuccess = () => resolve(request.result?.value);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    /**
+     * Save a setting to the settings store
+     * @param {string} key - Setting key
+     * @param {any} value - Setting value
+     * @returns {Promise<void>}
+     */
+    async saveSetting(key, value) {
+        const tx = this.db.transaction('settings', 'readwrite');
+        const store = tx.objectStore('settings');
+
+        return new Promise((resolve, reject) => {
+            const request = store.put({ key, value });
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    /**
+     * Get storage estimate (alias for getStorageInfo for compatibility)
+     * @returns {Promise<Object|null>} Storage estimate
+     */
+    async getStorageEstimate() {
+        return this.getStorageInfo();
+    }
 }
 
-// Export singleton instance
-export const storage = new Storage();
+// Export singleton instance as default export
+// This matches the pattern used in product-requirements-assistant
+export default new Storage();
 
