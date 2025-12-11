@@ -399,7 +399,7 @@ Before starting, ensure:
 - [ ] **MANDATORY**: GitHub Actions workflows exist in `.github/workflows/`
 - [ ] Test `scripts/setup-macos.sh` runs without errors
 - [ ] Test web app loads in browser (if applicable)
-- [ ] **RECOMMENDED**: Review `FIRST-RUN-CHECKLIST.md` and complete all items
+- [ ] **RECOMMENDED**: Review `CHECKLIST.md` and complete all items
 
 ---
 
