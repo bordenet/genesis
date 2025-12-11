@@ -640,7 +640,7 @@ npm test
 
 1. **Check Genesis documentation**:
    - `genesis/START-HERE.md`
-   - `genesis/00-AI-MUST-READ-FIRST.md`
+   - `genesis/CHECKLIST.md`
    - `genesis/TESTING-PROCEDURE.md`
 
 2. **Compare with reference implementations**:

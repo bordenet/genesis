@@ -3,20 +3,21 @@
 ```text
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                              ║
-║   🚨 STOP! READ 00-AI-MUST-READ-FIRST.md BEFORE PROCEEDING! 🚨              ║
+║   🚨 STOP! READ CHECKLIST.md BEFORE PROCEEDING! 🚨                          ║
 ║                                                                              ║
-║   The checklist in that file is MANDATORY. Projects fail without it:         ║
-║   • GameWiki: genesis/ not deleted, README stub, missing CLAUDE.md           ║
-║   • These are UNACCEPTABLE outcomes that waste user time                     ║
+║   The checklist is MANDATORY. Projects fail without it:                      ║
+║   • genesis/ directory left in repo (bloat, confusion)                       ║
+║   • Missing CLAUDE.md, README.md, .gitignore                                 ║
+║   • Unreplaced {{VARIABLES}} in files                                        ║
 ║                                                                              ║
-║   👉 Open 00-AI-MUST-READ-FIRST.md NOW and keep it open while working        ║
+║   👉 Open CHECKLIST.md NOW and keep it open while working                    ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 **For AI Assistants**: This is your ONLY entry point. Read this file completely, then execute the steps below.
 
-**Verification**: Use [`00-AI-MUST-READ-FIRST.md`](00-AI-MUST-READ-FIRST.md) to verify you've completed all steps.
+**Verification**: Use [`CHECKLIST.md`](CHECKLIST.md) to verify you've completed all steps.
 
 ---
 

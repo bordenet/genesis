@@ -210,7 +210,7 @@ The same-LLM adversarial system is based on the validated implementation from th
 ## 🔗 Related Documentation
 
 - [START-HERE.md](START-HERE.md) - Genesis setup instructions
-- [00-AI-MUST-READ-FIRST.md](00-AI-MUST-READ-FIRST.md) - Execution checklist
+- [CHECKLIST.md](CHECKLIST.md) - Consolidated execution checklist
 - [REFERENCE-IMPLEMENTATIONS.md](REFERENCE-IMPLEMENTATIONS.md) - Reference projects
 - [TESTING-PROCEDURE.md](TESTING-PROCEDURE.md) - Testing guidelines
 
