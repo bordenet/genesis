@@ -1,176 +1,80 @@
-# Genesis Examples
+# Genesis Examples & Reference Implementations
 
-## ⚠️ IMPORTANT: Examples are for REFERENCE ONLY
+## 🔗 Live Reference Implementations (PREFERRED)
 
-**DO NOT copy files from examples/** - use `genesis/templates/` instead!
+These are **actively maintained** Genesis-derived projects. **Use these as your primary reference!**
 
-## Purpose
+| Project | Description | Phases | Live Demo |
+|---------|-------------|--------|-----------|
+| [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) | **The original** - PRD generation | 3 | [Demo](https://bordenet.github.io/product-requirements-assistant/) |
+| [one-pager](https://github.com/bordenet/one-pager) | Concise one-page documents | 2 | [Demo](https://bordenet.github.io/one-pager/) |
+| [power-statement-assistant](https://github.com/bordenet/power-statement-assistant) | Power statements via adversarial challenge | 3 | [Demo](https://bordenet.github.io/power-statement-assistant/) |
+| [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) | ADR document generation | 3 | [Demo](https://bordenet.github.io/architecture-decision-record/) |
+| [bloginator](https://github.com/bordenet/bloginator) | Blog generation from prior art | 3 | [Demo](https://bordenet.github.io/bloginator/) |
+| [strategic-proposal](https://github.com/bordenet/strategic-proposal) | Strategic proposals with pain points | 3 | [Demo](https://bordenet.github.io/strategic-proposal/) |
 
-This directory contains complete example projects created using Genesis templates. These examples demonstrate how to use Genesis to create different types of AI-assisted workflow applications.
+### Why Use Live References?
 
-**Examples are for STUDYING, not COPYING:**
-- ✅ **Study the code** to understand patterns
-- ✅ **Run locally** to see how they work
-- ✅ **Reference** when you have questions
-- ❌ **DO NOT copy files** from here to your project
-- ❌ **Use `genesis/templates/`** for copying files instead
+✅ **Always up-to-date** - Bug fixes applied continuously
+✅ **Battle-tested** - Real users, real feedback
+✅ **Best practices** - Latest patterns and conventions
+❌ **Stale copies** - In-repo examples get outdated fast
 
-**Why?** Examples may be outdated or customized for specific use cases. Templates are the source of truth.
+---
 
-## Examples
+## 📁 Local Examples
 
-### 1. Minimal Example (`minimal/`)
+### hello-world/
 
-**Purpose**: Simplest possible Genesis project - single-phase workflow
+A **minimal working example** included in this repo for quick testing.
 
-**Features**:
-- 1-phase workflow
-- Single AI model (Claude Sonnet 4.5)
-- Basic UI
-- No backend
-- Minimal dependencies
+**Purpose**: Verify Genesis templates work without network access.
 
-**Use Case**: Quick prototypes, simple AI-assisted tasks
+**Use for**:
+- Testing Genesis template changes locally
+- Quick sanity checks
+- Offline development
 
-**Files**:
-- `web/index.html` - Main web app
-- `web/js/app.js` - Application logic
-- `scripts/setup-macos.sh` - Setup script
-- `docs/README.md` - Documentation
+**NOT for**:
+- Learning best practices (use live references above)
+- Starting new projects (use templates instead)
 
-**To Run**:
+---
+
+## 🎯 How to Study References
+
+### 1. Clone and Explore
 ```bash
-cd minimal/web
-python3 -m http.server 8000
-# Open http://localhost:8000
+git clone https://github.com/bordenet/product-requirements-assistant.git
+cd product-requirements-assistant
+npm install && npm test
 ```
 
-### 2. One-Pager Example (`one-pager/`)
+### 2. Key Files to Study
+- `js/workflow.js` - Phase architecture
+- `prompts/*.md` - Prompt templates
+- `index.html` - Tailwind dark mode setup
+- `tests/*.test.js` - Test patterns
 
-**Purpose**: Complete 3-phase workflow for creating one-page documents
+### 3. Compare Multiple Projects
+See how different document types adapt the same patterns:
+- PRD (3 phases, structured form)
+- One-Pager (2 phases, minimal form)
+- Power Statement (3 phases, adversarial focus)
 
-**Features**:
-- 3-phase workflow (Draft → Review → Finalize)
-- Multiple AI models (Claude, Gemini)
-- Complete UI with dark mode
-- Export to Markdown
-- Full documentation
+---
 
-**Use Case**: Creating one-pagers, briefs, summaries
+## ⚠️ IMPORTANT
 
-**Files**:
-- `web/` - Complete web application
-- `scripts/` - Setup and validation scripts
-- `docs/` - Full documentation
-- `prompts/` - Prompt templates
+**DO NOT copy files from `examples/`** - use `genesis/templates/` instead!
 
-**To Run**:
-```bash
-cd one-pager
-./scripts/setup-macos.sh
-cd web
-python3 -m http.server 8000
-# Open http://localhost:8000
-```
+Examples may be outdated. Templates are the source of truth.
 
-## How to Use Examples
+---
 
-### As Learning Material
+## 📚 Related Documentation
 
-1. **Read the code**: Examples show best practices
-2. **Compare to templates**: See how templates are customized
-3. **Run locally**: Test the examples yourself
-4. **Modify**: Experiment with changes
-
-### As Starting Points
-
-1. **Copy example**: `cp -r examples/one-pager my-project`
-2. **Customize**: Modify for your use case
-3. **Rename**: Update project name throughout
-4. **Deploy**: Push to GitHub, enable Pages
-
-### As Test Cases
-
-1. **Validation**: Examples verify Genesis templates work
-2. **Regression testing**: Changes to Genesis should not break examples
-3. **Documentation**: Examples demonstrate features
-
-## Example Comparison
-
-| Feature | Minimal | One-Pager |
-|---------|---------|-----------|
-| Phases | 1 | 3 |
-| AI Models | 1 (Claude) | 2 (Claude, Gemini) |
-| Dark Mode | ❌ | ✅ |
-| Export | ❌ | ✅ |
-| Documentation | Basic | Complete |
-| Tests | ❌ | ✅ |
-| CI/CD | ❌ | ✅ |
-| Complexity | Low | Medium |
-| Setup Time | 5 min | 15 min |
-| Lines of Code | ~200 | ~800 |
-
-## Creating New Examples
-
-To add a new example:
-
-1. **Create directory**: `mkdir examples/my-example`
-2. **Use Genesis**: Follow `../01-AI-INSTRUCTIONS.md`
-3. **Customize**: Tailor to specific use case
-4. **Test**: Verify everything works
-5. **Document**: Add README.md
-6. **Update this file**: Add to examples list
-
-## Quality Standards
-
-All examples must meet these standards:
-
-### Functionality
-- ✅ All features work as documented
-- ✅ No console errors
-- ✅ Handles edge cases gracefully
-- ✅ Mobile responsive
-
-### Code Quality
-- ✅ Passes all linting (shellcheck, eslint)
-- ✅ No TODO comments
-- ✅ Proper error handling
-- ✅ Clear variable names
-
-### Documentation
-- ✅ README.md in root
-- ✅ Setup instructions
-- ✅ Usage examples
-- ✅ Architecture overview
-
-### Testing
-- ✅ Tested on macOS
-- ✅ Tested in Chrome, Firefox, Safari
-- ✅ Tested on mobile
-- ✅ All scripts tested
-
-## Related Documentation
-
-- **Genesis Plan**: `../00-GENESIS-PLAN.md`
-- **AI Instructions**: `../01-AI-INSTRUCTIONS.md`
-- **Templates**: `../templates/README.md`
-- **Quality Standards**: `../05-QUALITY-STANDARDS.md`
-
-## Maintenance
-
-When updating examples:
-1. Test all functionality
-2. Update documentation
-3. Verify linting passes
-4. Update screenshots (if any)
-5. Update this README
-6. Update `../SUMMARY.md`
-
-## Future Examples
-
-Planned examples (not yet implemented):
-- **Multi-model**: 5-phase workflow with different AI models per phase
-- **Backend-enabled**: Example with optional backend API
-- **Desktop-client**: Example with Electron wrapper
-- **Mobile-first**: Example optimized for mobile devices
+- [REFERENCE-IMPLEMENTATIONS.md](../REFERENCE-IMPLEMENTATIONS.md) - Detailed reference guide
+- [CHECKLIST.md](../CHECKLIST.md) - Project creation checklist
+- [templates/README.md](../templates/README.md) - Template documentation
 
