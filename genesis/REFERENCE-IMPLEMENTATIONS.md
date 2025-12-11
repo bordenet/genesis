@@ -2,6 +2,23 @@
 
 **⚠️ CRITICAL: Study these BEFORE implementing ANY Genesis project!**
 
+These are **actively maintained** projects. Use them as your primary reference!
+
+## 🔗 Live Projects
+
+| Project | Phases | Key Features | Links |
+|---------|--------|--------------|-------|
+| **product-requirements-assistant** | 3 | The original, structured forms | [Repo](https://github.com/bordenet/product-requirements-assistant) • [Demo](https://bordenet.github.io/product-requirements-assistant/) |
+| **one-pager** | 2 | Minimal workflow | [Repo](https://github.com/bordenet/one-pager) • [Demo](https://bordenet.github.io/one-pager/) |
+| **power-statement-assistant** | 3 | Adversarial focus, recent bug fixes | [Repo](https://github.com/bordenet/power-statement-assistant) • [Demo](https://bordenet.github.io/power-statement-assistant/) |
+| **architecture-decision-record** | 3 | ADR generation | [Repo](https://github.com/bordenet/architecture-decision-record) • [Demo](https://bordenet.github.io/architecture-decision-record/) |
+| **bloginator** | 3 | Blog from prior art | [Repo](https://github.com/bordenet/bloginator) • [Demo](https://bordenet.github.io/bloginator/) |
+| **strategic-proposal** | 3 | Proposals with pain points | [Repo](https://github.com/bordenet/strategic-proposal) • [Demo](https://bordenet.github.io/strategic-proposal/) |
+
+---
+
+## What to Study
+
 The reference implementations contain ALL the answers to common questions:
 - How dark mode toggle works (Tailwind config)
 - How prompts are structured and loaded
@@ -11,6 +28,8 @@ The reference implementations contain ALL the answers to common questions:
 - How defensive coding is implemented
 
 **DO NOT skip this step!** Studying the reference implementations will save hours of debugging.
+
+---
 
 ## 1. Product Requirements Assistant (3-Phase PRD Generator)
 **Repository**: https://github.com/bordenet/product-requirements-assistant
