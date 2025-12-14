@@ -1,7 +1,7 @@
 /**
  * Router Module
  * Handles client-side routing for multi-project navigation
- * 
+ *
  * This module provides hash-based routing to navigate between:
  * - Home view (project list)
  * - New project form
@@ -10,6 +10,7 @@
 
 import { renderProjectsList, renderNewProjectForm } from './views.js';
 import { renderProjectView } from './project-view.js';
+import storage from './storage.js';
 
 const routes = {
     'home': renderProjectsList,
@@ -25,10 +26,10 @@ let currentParams = null;
  * @param {string} route - Route name ('home', 'new-project', 'project')
  * @param {...any} params - Route parameters (e.g., project ID)
  */
-export function navigateTo(route, ...params) {
+export async function navigateTo(route, ...params) {
     currentRoute = route;
     currentParams = params;
-    
+
     // Update URL hash
     if (route === 'home') {
         window.location.hash = '';
@@ -37,15 +38,18 @@ export function navigateTo(route, ...params) {
     } else if (route === 'project' && params[0]) {
         window.location.hash = `#project/${params[0]}`;
     }
-    
+
     // Render the route
     const handler = routes[route];
     if (handler) {
-        handler(...params);
+        await handler(...params);
     } else {
         console.error(`Route not found: ${route}`);
         navigateTo('home');
     }
+
+    // Update storage info after every route render
+    await updateStorageInfo();
 }
 
 /**
@@ -85,5 +89,17 @@ function handleHashChange() {
  */
 export function getCurrentRoute() {
     return { route: currentRoute, params: currentParams };
+}
+
+/**
+ * Update storage info in footer
+ * Called after every route render to ensure footer stats are always current
+ */
+export async function updateStorageInfo() {
+    const projects = await storage.getAllProjects();
+    const storageInfo = document.getElementById('storage-info');
+    if (storageInfo) {
+        storageInfo.textContent = `${projects.length} project${projects.length !== 1 ? 's' : ''} stored locally`;
+    }
 }
 

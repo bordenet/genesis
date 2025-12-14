@@ -100,6 +100,17 @@ export async function updateProject(projectId, updates) {
 }
 
 /**
+ * Update project title
+ * Used when a better title is extracted from the final AI output
+ * @param {string} projectId - Project ID
+ * @param {string} newTitle - New title to set
+ * @returns {Promise<Object>} Updated project object
+ */
+export async function updateProjectTitle(projectId, newTitle) {
+    return updateProject(projectId, { title: newTitle.trim() });
+}
+
+/**
  * Delete a project
  * @param {string} id - Project ID
  * @returns {Promise<void>}
