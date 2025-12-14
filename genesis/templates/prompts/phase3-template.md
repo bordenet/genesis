@@ -42,6 +42,8 @@ Compare the two versions below and create a final {{DOCUMENT_TYPE}} that:
 - If both versions have merit but conflict, ask the user to choose
 - If information is missing in both, ask for it
 
+**Important: Do NOT provide the final synthesized document until all clarifying questions have been answered.** Ask your questions first, wait for answers, then synthesize.
+
 ### Step 3: Synthesize
 - Combine the best elements into a cohesive document
 - Choose the more specific, measurable version when options exist

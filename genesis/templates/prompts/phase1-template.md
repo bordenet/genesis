@@ -126,5 +126,16 @@ Create a well-structured {{DOCUMENT_TYPE}} with the following sections:
 - Use tables for comparisons or structured data
 - Keep paragraphs short (3-4 sentences max)
 
+### Important: Clarifying Questions First
+
+**Do NOT provide the final markdown document until all clarifying questions have been answered.**
+
+If the context provided above is incomplete or ambiguous:
+1. First, ask 3-5 clarifying questions to fill in gaps
+2. Wait for the user to answer those questions
+3. Only then generate the complete {{DOCUMENT_TYPE}}
+
+If the context is sufficiently detailed, proceed directly with the document.
+
 Generate the {{DOCUMENT_TYPE}} now based on the context provided above.
 

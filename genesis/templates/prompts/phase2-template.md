@@ -78,6 +78,17 @@ Evaluate the document on these dimensions:
 5. **Iterate**: Continue refining until you have a superior version
 6. **Final Output**: Provide the improved {{DOCUMENT_TYPE}} as markdown
 
+### Important: Clarifying Questions First
+
+**Do NOT provide the final improved document until all clarifying questions have been answered.**
+
+If you identify gaps or ambiguities in the original document:
+1. First, present your assessment scores and ask 3-5 clarifying questions
+2. Wait for the user to answer those questions
+3. Only then generate the improved {{DOCUMENT_TYPE}}
+
+If the document is sufficiently clear to improve directly, proceed with your improved version.
+
 ## Critical Rules
 
 - ❌ **NO CODE**: Never provide code, JSON schemas, SQL queries, or technical implementation
