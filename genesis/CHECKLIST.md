@@ -12,6 +12,7 @@
 1. **[`docs/AI-QUICK-REFERENCE.md`](docs/AI-QUICK-REFERENCE.md)** - Cheat sheet (~130 lines)
 2. **[`docs/ADVERSARIAL-WORKFLOW-PATTERN.md`](docs/ADVERSARIAL-WORKFLOW-PATTERN.md)** - The 7-step pattern
 3. **[`docs/ANTI-PATTERNS.md`](docs/ANTI-PATTERNS.md)** - What NOT to do
+4. **[`docs/UX-PATTERNS.md`](docs/UX-PATTERNS.md)** - 8 critical UX patterns
 
 ### Reference Implementation:
 Study https://github.com/bordenet/product-requirements-assistant - especially:
@@ -20,6 +21,7 @@ Study https://github.com/bordenet/product-requirements-assistant - especially:
 - `docs/index.html` lines 9-15 - Tailwind dark mode config
 
 ### Key Concepts:
+
 | Concept | Summary |
 |---------|---------|
 | 7-Step Workflow | User Input → Prompt → Claude → Prompt → Gemini → Prompt → Claude |
@@ -101,6 +103,21 @@ A Genesis project is complete when:
 - [ ] Different AIs used: Phase 1 (Claude) → Phase 2 (Gemini) → Phase 3 (Claude)
 - [ ] Each prompt includes previous phase outputs
 - [ ] App stores user's pasted responses (doesn't generate them)
+
+---
+
+## 🎨 UX PATTERNS VERIFICATION
+
+**Verify all 8 critical UX patterns are working.** See [`docs/UX-PATTERNS.md`](docs/UX-PATTERNS.md) for details.
+
+- [ ] **Sequential Button Reveal**: Open AI button disabled until Copy Prompt clicked
+- [ ] **Sequential Textarea Enable**: Response textarea disabled until prompt copied
+- [ ] **Shared Browser Tab**: All AI links use `target="ai-assistant-tab"`
+- [ ] **Auto-Advance on Save**: Saving response auto-advances to next phase
+- [ ] **Step A/B Labeling**: Sub-steps use letters (A/B), not numbers
+- [ ] **Dynamic AI Name Labels**: Show "Claude"/"Gemini", not generic "AI"
+- [ ] **Footer Stats Auto-Update**: Project count updates after create/delete
+- [ ] **Phase Tab Underline Sync**: Active tab underline updates from all navigation
 
 ---
 
