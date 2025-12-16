@@ -23,16 +23,9 @@ global.localStorage = {
   }
 };
 
-// Mock window.location
-delete window.location;
-window.location = {
-  hostname: 'localhost',
-  href: 'http://localhost/',
-  origin: 'http://localhost',
-  pathname: '/',
-  search: '',
-  hash: ''
-};
+// Note: window.location is provided by JSDOM and defaults to 'about:blank'
+// Tests that need to check localhost behavior should use the actual JSDOM location
+// or mock the isLocalhost function directly in the module being tested
 
 // Mock navigator.clipboard
 global.navigator.clipboard = {

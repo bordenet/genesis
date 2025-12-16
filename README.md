@@ -3,9 +3,11 @@
 Project template system for AI-assisted workflow applications.
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/bordenet/genesis/actions/workflows/ci.yml/badge.svg)](https://github.com/bordenet/genesis/actions/workflows/ci.yml)
 [![JS Coverage](https://img.shields.io/badge/JS%20coverage-95.7%25-brightgreen.svg)](genesis/examples/hello-world)
 [![Go Coverage](https://img.shields.io/badge/Go%20coverage-93.3%25-brightgreen.svg)](genesis-validator)
-[![Tests](https://img.shields.io/badge/tests-128%20passing-brightgreen.svg)](genesis/examples/hello-world)
+[![Tests](https://img.shields.io/badge/tests-91%20passing-brightgreen.svg)](genesis/examples/hello-world)
+[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-blue.svg)](https://github.com/bordenet/genesis/security/dependabot)
 
 ## What This Is
 
