@@ -698,6 +698,10 @@ cp genesis/templates/testing/views.test-template.js tests/views.test.js
 cp genesis/templates/testing/project-view.test-template.js tests/project-view.test.js
 cp genesis/templates/testing/ai-mock-ui.test-template.js tests/ai-mock-ui.test.js
 cp genesis/templates/testing/visual-regression.test-template.js tests/visual-regression.test.js
+
+# Critical bug-prevention tests (RECOMMENDED):
+cp genesis/templates/testing/event-handlers.test-template.js tests/event-handlers.test.js  # Prevents "stillborn apps" with unwired buttons
+cp genesis/templates/testing/template-sync.test-template.js tests/template-sync.test.js    # Prevents silent data loss from missing template placeholders
 ```
 
 #### EditorConfig
