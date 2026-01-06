@@ -29,7 +29,7 @@ func main() {
 	config.GenesisRoot = *genesisRoot
 	config.TemplatesDir = *genesisRoot + "/templates"
 	config.StartHereFile = *genesisRoot + "/START-HERE.md"
-	config.ChecklistFile = *genesisRoot + "/00-AI-MUST-READ-FIRST.md"
+	config.ChecklistFile = *genesisRoot + "/CHECKLIST.md"
 
 	// Run validation
 	v := validator.NewValidator(config)

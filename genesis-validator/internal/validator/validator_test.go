@@ -332,7 +332,7 @@ func TestDefaultConfig(t *testing.T) {
 		t.Errorf("Expected StartHereFile 'genesis/START-HERE.md', got '%s'", config.StartHereFile)
 	}
 
-	if config.ChecklistFile != "genesis/00-AI-MUST-READ-FIRST.md" {
-		t.Errorf("Expected ChecklistFile 'genesis/00-AI-MUST-READ-FIRST.md', got '%s'", config.ChecklistFile)
+	if config.ChecklistFile != "genesis/CHECKLIST.md" {
+		t.Errorf("Expected ChecklistFile 'genesis/CHECKLIST.md', got '%s'", config.ChecklistFile)
 	}
 }

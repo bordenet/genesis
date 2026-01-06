@@ -65,7 +65,7 @@ func DefaultConfig() *Config {
 		GenesisRoot:    "genesis",
 		TemplatesDir:   "genesis/templates",
 		StartHereFile:  "genesis/START-HERE.md",
-		ChecklistFile:  "genesis/00-AI-MUST-READ-FIRST.md",
+		ChecklistFile:  "genesis/CHECKLIST.md",
 		Verbose:        false,
 		GeneratePrompt: true,
 	}

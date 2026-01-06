@@ -55,7 +55,7 @@ venv/
 htmlcov/
 
 # ------------------------------------------------------------------------------
-# Go (conditional)
+# Go (conditional - remove IF/END IF comments during project generation)
 # ------------------------------------------------------------------------------
 # IF {{ENABLE_BACKEND}}
 *.exe
@@ -94,7 +94,7 @@ desktop.ini
 ehthumbs.db
 
 # ------------------------------------------------------------------------------
-# Desktop Clients (conditional)
+# Desktop Clients (conditional - remove IF/END IF comments during project generation)
 # ------------------------------------------------------------------------------
 # IF {{ENABLE_DESKTOP_CLIENTS}}
 dist/
@@ -129,12 +129,11 @@ dist/
 *.log
 
 # ------------------------------------------------------------------------------
-# GitHub Pages Architecture B (conditional)
+# GitHub Pages Architecture B (conditional - remove IF/END IF comments during project generation)
 # ------------------------------------------------------------------------------
 # IF {{GITHUB_PAGES_FROM_ROOT}}
 # When GitHub Pages serves from root, docs/ should ONLY contain documentation,
 # NOT copies of app files. This prevents drift between root and docs/.
-# See: genesis/docs/deployment/GITHUB-PAGES-template.md for architecture details
 docs/js/
 docs/css/
 docs/index.html
