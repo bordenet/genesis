@@ -191,8 +191,12 @@ grep -r "{{[A-Z_]*}}" .
 
 ### Reference Implementations
 
+**⭐ PRIMARY REFERENCE** (study this first):
+- [one-pager](https://github.com/bordenet/one-pager) - **Working example of a Genesis-generated project**
+
 **✅ Correct Patterns**:
 - [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) - ES6 modules, no bundler
+- [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant) - PR-FAQ workflow with all UX patterns
 - [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) - Fixed to use ES6 modules
 
 **❌ What NOT to Do**:
@@ -309,10 +313,19 @@ Before starting, ensure:
    - Remove `-template` suffix from filenames
    - Set correct file permissions (scripts should be executable)
 
-4. **Create .gitignore**:
+4. **Create .gitignore** (CRITICAL - Clean up conditionals):
    - Copy from `genesis/templates/project-structure/gitignore-template`
-   - Replace variables
+   - Replace all `{{VARIABLES}}` with actual values
+   - **MANDATORY**: Process conditional blocks:
+     - If `{{ENABLE_BACKEND}}` is true: Keep Go entries, remove `# IF` and `# END IF` comments
+     - If `{{ENABLE_BACKEND}}` is false: Remove entire Go section (from `# IF` to `# END IF`)
+     - If `{{ENABLE_DESKTOP_CLIENTS}}` is true: Keep desktop entries, remove comments
+     - If `{{ENABLE_DESKTOP_CLIENTS}}` is false: Remove entire desktop section
+     - If `{{GITHUB_PAGES_FROM_ROOT}}` is true: Keep docs/ entries, remove comments
+     - If `{{GITHUB_PAGES_FROM_ROOT}}` is false: Remove entire GitHub Pages section
+   - **VERIFY**: No `# IF {{`, `# END IF`, or `{{VARIABLE}}` patterns remain in final file
    - Save as `.gitignore`
+   - **Reference**: See [one-pager/.gitignore](https://github.com/bordenet/one-pager/blob/main/.gitignore) for example
 
 5. **Create .env.example**:
    - Copy from `genesis/templates/project-structure/.env.example-template`
@@ -697,13 +710,16 @@ Project is complete when:
 
 ## 📚 Reference Documents
 
+**⭐ PRIMARY WORKING EXAMPLE** (study this first):
+- **[one-pager](https://github.com/bordenet/one-pager)** - Complete Genesis-generated project with all patterns implemented
+
 Read these before starting:
 1. `00-GENESIS-PLAN.md` - Understand the system architecture
 2. `05-QUALITY-STANDARDS.md` - Professional quality standards (MANDATORY)
 3. `templates/docs/SHELL_SCRIPT_STANDARDS-template.md` - Shell script standards (MANDATORY)
 4. `integration/DEVELOPMENT_PROTOCOLS.md` - AI development protocols
 5. `integration/PROJECT_SETUP_CHECKLIST.md` - Detailed setup steps
-6. `examples/one-pager/README.md` - Example implementation
+6. `docs/UX-PATTERNS.md` - 12 critical UX patterns for workflow apps
 
 **Shell Script References**:
 - ⭐ **[product-requirements-assistant/scripts/](https://github.com/bordenet/product-requirements-assistant/tree/main/scripts)** - PRIMARY REFERENCE for all scripts

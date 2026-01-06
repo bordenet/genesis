@@ -7,8 +7,14 @@
 
 [![CI](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions/workflows/ci.yml/badge.svg)](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}}/branch/main/graph/badge.svg)](https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}})
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/{{GITHUB_USER}}/{{GITHUB_REPO}})](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/releases/latest)
+[![GitHub Pages](https://img.shields.io/badge/demo-live-brightgreen)]({{GITHUB_PAGES_URL}})
+[![Node.js 18+](https://img.shields.io/badge/node-18+-brightgreen.svg)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Linting: ESLint](https://img.shields.io/badge/linting-ESLint-4B32C3)](https://eslint.org/)
+[![Testing: Vitest](https://img.shields.io/badge/testing-Vitest-6E9F18)](https://vitest.dev/)
+[![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/graphs/commit-activity)
+[![GitHub issues](https://img.shields.io/github/issues/{{GITHUB_USER}}/{{GITHUB_REPO}}.svg)](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/{{GITHUB_USER}}/{{GITHUB_REPO}}.svg)](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/pulls)
 
 {{PROJECT_DESCRIPTION}}
 
@@ -74,6 +80,74 @@ python3 -m http.server 8000
 
 ---
 
+## What is {{DOCUMENT_TYPE}}?
+
+{{DOCUMENT_TYPE_DESCRIPTION}}
+
+For methodology details, see the [Adversarial AI Workflow documentation](https://github.com/bordenet/genesis).
+
+### When to Use
+
+| ✅ Use When | ⏭️ Skip When |
+|-------------|--------------|
+| {{USE_CASE_1}} | {{SKIP_CASE_1}} |
+| {{USE_CASE_2}} | {{SKIP_CASE_2}} |
+| {{USE_CASE_3}} | {{SKIP_CASE_3}} |
+
+---
+
+## How It Works: Adversarial AI Workflow
+
+This tool uses an **adversarial AI approach** with multiple AI models to produce higher-quality outputs:
+
+### Why Two Different AIs?
+
+Using different AI models (e.g., Claude → Gemini → Claude) prevents **confirmation bias**:
+
+- **Single AI**: Tends to agree with itself, missing blind spots
+- **Multiple AIs**: Each AI challenges the other's assumptions, catches errors, and improves quality
+
+### Phase Breakdown
+
+<!-- markdownlint-disable MD055 MD056 -->
+| Phase | AI Model | Purpose |
+|-------|----------|---------|
+{{#each PHASES}}
+| {{number}}. {{name}} | {{ai_model}} | {{purpose}} |
+{{/each}}
+<!-- markdownlint-enable MD055 MD056 -->
+
+---
+
+## Quality Criteria
+
+{{DOCUMENT_TYPE}} documents are scored on these criteria:
+
+| Criterion | Weight | Description |
+|-----------|--------|-------------|
+| {{QUALITY_CRITERION_1}} | {{QUALITY_WEIGHT_1}} | {{QUALITY_DESC_1}} |
+| {{QUALITY_CRITERION_2}} | {{QUALITY_WEIGHT_2}} | {{QUALITY_DESC_2}} |
+| {{QUALITY_CRITERION_3}} | {{QUALITY_WEIGHT_3}} | {{QUALITY_DESC_3}} |
+
+**Target Score**: 70+ (validated by [genesis-validator](https://github.com/bordenet/genesis))
+
+### Words to Avoid
+
+These fluff words weaken your document. Replace with specific, measurable alternatives:
+
+| ❌ Avoid | ✅ Better Alternative |
+|---------|----------------------|
+| leverage | use |
+| utilize | use |
+| robust | reliable, tested |
+| scalable | handles 10K users |
+| seamless | one-click, automatic |
+| innovative | first to market, unique approach |
+| cutting-edge | uses [specific technology] |
+| synergy | collaboration, combined effect |
+
+---
+
 ## Features
 
 - **{{PHASE_COUNT}}-Phase Workflow**: {{WORKFLOW_DESCRIPTION}}
@@ -83,7 +157,7 @@ python3 -m http.server 8000
 - **Dark Mode**: Automatic dark mode support
 - **Privacy-First**: No server, no tracking, no data collection
 
-## How It Works
+## Workflow Details
 
 ### Workflow Overview
 
@@ -251,6 +325,18 @@ Automatic deployment to GitHub Pages on push to `main` branch via GitHub Actions
 
 ---
 
+## Related Projects
+
+| Project | Description |
+|---------|-------------|
+| [Genesis](https://github.com/bordenet/genesis) | Project template system that generated this app |
+| [genesis-validator](https://github.com/bordenet/genesis) | Validates document quality (Go CLI) |
+| [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) | PRD generation workflow |
+| [one-pager](https://github.com/bordenet/one-pager) | One-pager document assistant |
+| [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant) | PR-FAQ document assistant |
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
@@ -265,7 +351,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-Built with the [Genesis Project Template System](https://github.com/bordenet/product-requirements-assistant/tree/main/genesis).
+Built with the [Genesis Project Template System](https://github.com/bordenet/genesis).
 
 ---
 
