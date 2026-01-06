@@ -131,11 +131,18 @@ func TestGeneratePrompt_WithMissingFiles(t *testing.T) {
 }
 
 func TestGeneratePrompt_WithInconsistencies(t *testing.T) {
+	// Note: Doc consistency check between START-HERE.md and CHECKLIST.md was removed
+	// because CHECKLIST.md is a high-level verification document that intentionally
+	// doesn't list every template file. START-HERE.md is the single source of truth.
+	// This test now verifies that doc_mismatch inconsistencies are not displayed.
+
 	config := DefaultConfig()
 	generator := NewPromptGenerator(config)
 
 	result := &ValidationResult{
 		TemplateFiles: []string{"file1.txt"},
+		// Even if doc_mismatch inconsistencies exist in the result,
+		// they should not be displayed in the prompt
 		Inconsistencies: []Inconsistency{
 			{
 				Type:        "doc_mismatch",
@@ -148,19 +155,23 @@ func TestGeneratePrompt_WithInconsistencies(t *testing.T) {
 	prompt := generator.GeneratePrompt(result)
 
 	if prompt == "" {
-		t.Fatal("Expected non-empty prompt for result with inconsistencies")
+		t.Fatal("Expected non-empty prompt even with only doc_mismatch inconsistencies")
 	}
 
-	expectedContent := []string{
-		"Documentation Inconsistencies",
+	// Verify doc_mismatch content is NOT displayed (since we removed this check)
+	unexpectedContent := []string{
 		"START-HERE.md ↔ 00-AI-MUST-READ-FIRST.md Mismatches",
-		"test-file.txt",
-		"File referenced in START-HERE but not in checklist",
+		"START-HERE.md ↔ CHECKLIST.md Mismatches",
 	}
 
-	for _, content := range expectedContent {
-		if !strings.Contains(prompt, content) {
-			t.Errorf("Prompt missing expected content: %s", content)
+	for _, content := range unexpectedContent {
+		if strings.Contains(prompt, content) {
+			t.Errorf("Prompt should NOT contain doc_mismatch content: %s", content)
 		}
+	}
+
+	// Should still contain basic structure
+	if !strings.Contains(prompt, "Validation Summary") {
+		t.Error("Prompt should contain Validation Summary")
 	}
 }
