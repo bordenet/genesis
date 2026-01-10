@@ -390,3 +390,70 @@ test('View Full Prompt button opens modal', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
 });
 ```
+
+### Clipboard Operations Pattern (MANDATORY)
+
+The `copyToClipboard` function follows a **throw-on-error** pattern. This is mandatory across all projects.
+
+**CORRECT Implementation:**
+
+```javascript
+/**
+ * Copy text to clipboard
+ * @param {string} text - Text to copy
+ * @returns {Promise<void>} Resolves if successful, throws if failed
+ */
+export async function copyToClipboard(text) {
+  await navigator.clipboard.writeText(text);
+}
+```
+
+**CORRECT Caller Pattern:**
+
+```javascript
+document.getElementById('copy-btn').addEventListener('click', async () => {
+  try {
+    await copyToClipboard(textToCopy);
+    showToast('Copied to clipboard!', 'success');
+  } catch {
+    showToast('Failed to copy to clipboard', 'error');
+  }
+});
+```
+
+**Rules:**
+1. ✅ `copyToClipboard` MUST throw on error (not return boolean)
+2. ✅ `copyToClipboard` MUST NOT show toast internally
+3. ✅ Callers MUST handle their own success/error toasts
+4. ✅ Callers MAY customize toast message for context (e.g., "Prompt copied!")
+
+**Why This Pattern?**
+- Callers have context for appropriate messages ("Prompt copied" vs "URL copied")
+- Error handling is explicit and visible in calling code
+- No hidden side effects in utility functions
+- Testable: can verify function throws without mocking toast
+
+### Dark Mode Requirements (MANDATORY)
+
+**Every color class MUST have a dark mode counterpart.** This is non-negotiable.
+
+| Light Mode | Dark Mode Equivalent |
+|------------|---------------------|
+| `bg-white` | `dark:bg-gray-800` |
+| `bg-gray-50` | `dark:bg-gray-900` |
+| `text-gray-900` | `dark:text-white` |
+| `text-gray-700` | `dark:text-gray-300` |
+| `border-gray-300` | `dark:border-gray-600` |
+| `placeholder:text-gray-500` | `dark:placeholder:text-gray-400` |
+
+**WRONG:**
+```html
+<div class="bg-white text-gray-900">  <!-- Invisible in dark mode! -->
+```
+
+**CORRECT:**
+```html
+<div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+```
+
+**Reference**: See `genesis/templates/docs/UI_STYLE_GUIDE-template.md` for complete patterns.

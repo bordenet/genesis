@@ -174,18 +174,26 @@ export function escapeHtml(text) {
 
 /**
  * Copy text to clipboard
+ *
+ * IMPORTANT: This function throws on error and does NOT show toast notifications.
+ * Callers are responsible for handling errors and showing appropriate feedback.
+ * This pattern allows callers to customize messages (e.g., "Prompt copied!" vs "URL copied!").
+ *
  * @param {string} text - Text to copy
- * @returns {Promise<boolean>} True if successful, false otherwise
+ * @returns {Promise<void>} Resolves if successful, throws if failed
+ * @throws {Error} If clipboard access fails
+ *
+ * @example
+ * // Caller handles success/error feedback
+ * try {
+ *   await copyToClipboard(promptText);
+ *   showToast('Prompt copied to clipboard!', 'success');
+ * } catch {
+ *   showToast('Failed to copy prompt', 'error');
+ * }
  */
 export async function copyToClipboard(text) {
-    try {
-        await navigator.clipboard.writeText(text);
-        showToast('Copied to clipboard!', 'success');
-        return true;
-    } catch (error) {
-        showToast('Failed to copy to clipboard', 'error');
-        return false;
-    }
+    await navigator.clipboard.writeText(text);
 }
 
 /**
@@ -228,7 +236,12 @@ export function showPromptModal(prompt, title = 'Full Prompt') {
     modal.querySelector('#close-prompt-modal').addEventListener('click', closeModal);
     modal.querySelector('#close-modal-btn').addEventListener('click', closeModal);
     modal.querySelector('#copy-modal-prompt').addEventListener('click', async () => {
-        await copyToClipboard(prompt);
+        try {
+            await copyToClipboard(prompt);
+            showToast('Copied to clipboard!', 'success');
+        } catch {
+            showToast('Failed to copy to clipboard', 'error');
+        }
     });
 
     // Close on background click

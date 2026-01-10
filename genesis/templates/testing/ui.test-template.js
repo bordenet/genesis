@@ -87,15 +87,26 @@ describe('UI Module', () => {
     test('should copy text to clipboard', async () => {
       const text = 'Test content';
       await copyToClipboard(text);
-      
+
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(text);
     });
 
-    test('should handle clipboard errors gracefully', async () => {
-      navigator.clipboard.writeText.mockRejectedValueOnce(new Error('Clipboard error'));
-      
-      // Should not throw
-      await expect(copyToClipboard('test')).resolves.not.toThrow();
+    test('should throw error on clipboard failure (callers must handle)', async () => {
+      navigator.clipboard.writeText.mockRejectedValueOnce(new Error('Clipboard access denied'));
+
+      // Function should throw - callers are responsible for error handling
+      await expect(copyToClipboard('test')).rejects.toThrow('Clipboard access denied');
+    });
+
+    test('should not show any toast notifications internally', async () => {
+      // Clear any existing toast container
+      document.body.innerHTML = '<div id="toast-container"></div>';
+      const container = document.getElementById('toast-container');
+
+      await copyToClipboard('test text');
+
+      // No toasts should be created - callers handle their own feedback
+      expect(container.children.length).toBe(0);
     });
   });
 
