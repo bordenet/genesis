@@ -781,6 +781,9 @@ cp genesis/templates/docs/SHELL_SCRIPT_STANDARDS-template.md docs/SHELL_SCRIPT_S
 # Shell script style guide (coding: 400-line limit, naming, structure)
 cp genesis/templates/docs/SHELL_SCRIPT_STYLE_GUIDE-template.md docs/SHELL_SCRIPT_STYLE_GUIDE.md
 
+# UI style guide (dark mode, clipboard patterns, button styling)
+cp genesis/templates/docs/UI_STYLE_GUIDE-template.md docs/UI_STYLE_GUIDE.md
+
 # Replace {{PROJECT_NAME}}, {{GITHUB_USER}}, {{GITHUB_REPO}} in all docs
 # Note: Most projects don't need this level of documentation
 ```
@@ -791,6 +794,7 @@ cp genesis/templates/docs/SHELL_SCRIPT_STYLE_GUIDE-template.md docs/SHELL_SCRIPT
 - **Validation script**: Only if you want automated project structure validation
 - **Playwright**: Only if you need browser-based E2E tests (Jest is usually sufficient)
 - **Documentation templates**: Only for large/complex projects that need extensive docs
+- **UI Style Guide**: Only for web apps that need consistent UI patterns
 
 ---
 
