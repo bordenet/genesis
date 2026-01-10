@@ -179,6 +179,10 @@ export function escapeHtml(text) {
  * Callers are responsible for handling errors and showing appropriate feedback.
  * This pattern allows callers to customize messages (e.g., "Prompt copied!" vs "URL copied!").
  *
+ * Uses a fallback chain for maximum compatibility:
+ * 1. Modern Clipboard API (navigator.clipboard.writeText)
+ * 2. Legacy execCommand('copy') for older browsers and iPad/mobile
+ *
  * @param {string} text - Text to copy
  * @returns {Promise<void>} Resolves if successful, throws if failed
  * @throws {Error} If clipboard access fails
@@ -193,7 +197,38 @@ export function escapeHtml(text) {
  * }
  */
 export async function copyToClipboard(text) {
-    await navigator.clipboard.writeText(text);
+    // Try modern Clipboard API first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return;
+        } catch {
+            // Fall through to legacy method
+        }
+    }
+
+    // Fallback for iOS Safari, older browsers, or when Clipboard API fails
+    // This method requires a user gesture but is more widely supported
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    // Prevent scrolling to bottom on iOS
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        if (!successful) {
+            throw new Error('Copy command failed');
+        }
+    } catch {
+        document.body.removeChild(textArea);
+        throw new Error('Failed to copy to clipboard');
+    }
 }
 
 /**

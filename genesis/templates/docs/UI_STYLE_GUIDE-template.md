@@ -83,12 +83,41 @@ placeholder:text-gray-500 dark:placeholder:text-gray-400
 
 ### Clipboard Operations (`copyToClipboard`)
 
-The `copyToClipboard` function follows a **throw-on-error** pattern.
+The `copyToClipboard` function follows a **throw-on-error** pattern with a **fallback chain** for iPad/mobile compatibility.
 
-**Implementation Pattern:**
+**Implementation Pattern (with iPad/mobile fallback):**
 ```javascript
 export async function copyToClipboard(text) {
-  await navigator.clipboard.writeText(text);
+  // Try modern Clipboard API first
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      // Fall through to legacy method
+    }
+  }
+
+  // Fallback for iOS Safari, older browsers, or when Clipboard API fails
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-999999px';
+  textArea.style.top = '-999999px';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    if (!successful) {
+      throw new Error('Copy command failed');
+    }
+  } catch (err) {
+    document.body.removeChild(textArea);
+    throw new Error('Failed to copy to clipboard');
+  }
 }
 ```
 
@@ -107,6 +136,7 @@ try {
 2. ✅ `copyToClipboard` MUST NOT show toast internally
 3. ✅ Callers MUST handle their own success/error toasts
 4. ✅ Callers MAY customize toast message for context
+5. ✅ `copyToClipboard` MUST use fallback for iPad/mobile compatibility
 
 ---
 
