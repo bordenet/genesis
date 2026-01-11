@@ -18,6 +18,7 @@ This directory contains testing templates, configuration, and examples for imple
 5. **`workflow.test-template.js`** - Example tests for workflow module
 6. **`ui.test-template.js`** - Example tests for UI module
 7. **`setup-macos.bats-template`** - Example tests for setup script
+8. **`form-prompt-integration.test-template.js`** - **CRITICAL**: Tests that form fields match prompt template placeholders (prevents silent data loss)
 
 ### E2E Testing
 
