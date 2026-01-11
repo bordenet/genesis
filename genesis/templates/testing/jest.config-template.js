@@ -29,15 +29,13 @@ export default {
   ],
 
   // Coverage thresholds (ENFORCED)
-  // NOTE: Adjust these thresholds based on your project's maturity
-  // - New projects: Start with 25/15/30/25
-  // - Mature projects: Aim for 60/45/60/60 or higher
+  // Standard: 50/40/50/50 across all genesis-derived projects
   coverageThreshold: {
     global: {
-      statements: 60,
-      branches: 45,
-      functions: 60,
-      lines: 60
+      statements: 50,
+      branches: 40,
+      functions: 50,
+      lines: 50
     }
   },
 
