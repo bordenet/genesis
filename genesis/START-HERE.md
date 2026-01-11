@@ -300,6 +300,10 @@ cp genesis/templates/project-structure/.env.example-template .env.example
 cp genesis/templates/project-structure/CONTRIBUTING-template.md CONTRIBUTING.md
 # Replace {{PROJECT_NAME}}, {{GITHUB_USER}}, {{GITHUB_REPO}}
 
+# Copy DESIGN-PATTERNS.md (RECOMMENDED - documents shared architecture patterns)
+cp genesis/templates/project-structure/DESIGN-PATTERNS-template.md DESIGN-PATTERNS.md
+# Replace {{PHASE_COUNT}} with your workflow's phase count (e.g., 3)
+
 # Copy GitHub Actions workflows (MANDATORY - badges in README.md reference these!)
 mkdir -p .github/workflows
 cp genesis/templates/github/workflows/ci-template.yml .github/workflows/ci.yml
@@ -584,6 +588,7 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 **Core Files** (RECOMMENDED):
 - [ ] `.env.example` (from `project-structure/.env.example-template`)
 - [ ] `CONTRIBUTING.md` (from `project-structure/CONTRIBUTING-template.md`)
+- [ ] `DESIGN-PATTERNS.md` (from `project-structure/DESIGN-PATTERNS-template.md`)
 
 **GitHub Actions** (MANDATORY - badges in README.md reference these!):
 - [ ] `.github/workflows/ci.yml` (from `github/workflows/ci-template.yml`)
