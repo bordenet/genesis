@@ -53,7 +53,7 @@ A Genesis project is complete when:
 - [ ] Did NOT ask questions answered by reference implementation
 
 ### Phase 2: Copy Templates
-- [ ] Copied all core files (.gitignore, CLAUDE.md, README.md, package.json, etc.)
+- [ ] Copied all core files (.gitignore, CLAUDE.md, DESIGN-PATTERNS.md, README.md, package.json, etc.)
 - [ ] Copied all web app files (index.html, js/*.js, css/*.css)
 - [ ] Copied all test files (tests/*.test.js)
 - [ ] Copied all prompt files (prompts/*.md)

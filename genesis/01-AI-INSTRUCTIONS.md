@@ -399,6 +399,7 @@ Before starting, ensure:
     - Process files in `genesis/templates/docs/`
     - Update architecture docs for user's choices
     - Create CLAUDE.md with project-specific guidance
+    - Create DESIGN-PATTERNS.md from template (describes shared architecture patterns)
 
 **Validation**: After creating all files, verify:
 - [ ] All template variables have been replaced
