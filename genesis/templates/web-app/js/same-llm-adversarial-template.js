@@ -98,12 +98,12 @@ Provide your alternative analysis:`;
         };
     }
 
-    async executePhase1(userInput) {
+    async executePhase1(_userInput) {
         // Mock Phase 1 execution
         return "Mock Phase 1 output - comprehensive initial analysis";
     }
 
-    async executePhase3(phase1Output, phase2Output, userInput) {
+    async executePhase3(_phase1Output, _phase2Output, _userInput) {
         // Mock Phase 3 execution
         return "Mock Phase 3 output - synthesis of both perspectives";
     }
@@ -466,11 +466,45 @@ class AdversarialQualityValidator {
     }
 }
 
+// Backward-compatible helper functions for legacy API
+function detectSameLLM(phase1Model, phase2Model) {
+    const model1 = phase1Model.toLowerCase().split(/\s+/)[0];
+    const model2 = phase2Model.toLowerCase().split(/\s+/)[0];
+    return model1 === model2;
+}
+
+function getAdversarialStrategy(currentModel) {
+    const strategies = {
+        'claude': 'Gemini personality simulation - Focus on counterarguments and alternative perspectives',
+        'gemini': 'Claude personality simulation - Focus on comprehensive analysis and edge cases',
+        'chatgpt': 'Alternative model perspective - Focus on unconventional approaches'
+    };
+    const key = Object.keys(strategies).find(k => currentModel.toLowerCase().includes(k));
+    return strategies[key] || 'Generate critical feedback from a different perspective';
+}
+
+function applyAdversarialPrompt(basePrompt, model) {
+    const strategy = getAdversarialStrategy(model);
+    return `${basePrompt}\n\n[ADVERSARIAL MODE: ${strategy}]`;
+}
+
+const SAME_LLM_CONFIG = {
+    detectSameLLM,
+    getAdversarialStrategy,
+    applyAdversarialPrompt,
+    enabled: true
+};
+
 // ✅ ES6 exports for browser compatibility
 export {
     SameLLMAdversarialSystem,
     ConfigurationManager,
     AdversarialPromptAugmenter,
-    AdversarialQualityValidator
+    AdversarialQualityValidator,
+    // Backward-compatible exports
+    detectSameLLM,
+    getAdversarialStrategy,
+    applyAdversarialPrompt,
+    SAME_LLM_CONFIG
 };
 
