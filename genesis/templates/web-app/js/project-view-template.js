@@ -191,7 +191,7 @@ function renderPhaseContent(project, phase) {
                 </h4>
                 <div class="flex flex-wrap gap-3">
                     <button id="copy-prompt-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                        📋 Copy Prompt to Clipboard
+                        📋 ${phaseData.prompt ? 'Copy Prompt Again' : 'Generate & Copy Prompt'}
                     </button>
                     <a
                         id="open-ai-btn"
@@ -208,19 +208,9 @@ function renderPhaseContent(project, phase) {
                         🚀 Open ${meta.ai || meta.aiModel}
                     </a>
                 </div>
-                ${phaseData.prompt ? `
-                    <div class="mt-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Generated Prompt:</span>
-                            <button class="view-prompt-btn text-blue-600 dark:text-blue-400 hover:underline text-sm">
-                                View Full Prompt
-                            </button>
-                        </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
-                            ${escapeHtml(phaseData.prompt.substring(0, 200))}...
-                        </p>
-                    </div>
-                ` : ''}
+                <button id="view-prompt-btn" class="px-4 py-3 text-blue-600 dark:text-blue-400 hover:underline font-medium ${phaseData.prompt ? '' : 'hidden'}">
+                    👁️ View Prompt
+                </button>
             </div>
 
             <!-- Step B: Paste Response -->
@@ -292,6 +282,7 @@ function attachPhaseEventListeners(project, phase) {
     const prevPhaseBtn = document.getElementById('prev-phase-btn');
     const nextPhaseBtn = document.getElementById('next-phase-btn');
     const openAiBtn = document.getElementById('open-ai-btn');
+    const viewPromptBtn = document.getElementById('view-prompt-btn');
     const phaseCount = WORKFLOW_CONFIG.phaseCount;
     const isFinalPhase = phase === phaseCount;
     const meta = getPhaseMetadata(phase);
@@ -303,6 +294,16 @@ function attachPhaseEventListeners(project, phase) {
 
         // Mark that prompt has been copied for this phase
         promptCopiedForCurrentPhase = true;
+
+        // Update button text to indicate prompt can be copied again
+        copyPromptBtn.innerHTML = '📋 Copy Prompt Again';
+
+        // Show the View Prompt button
+        if (viewPromptBtn) {
+            viewPromptBtn.classList.remove('hidden');
+            // Store prompt for viewing
+            viewPromptBtn.dataset.prompt = prompt;
+        }
 
         // Enable the response textarea
         if (responseTextarea) {
@@ -353,13 +354,15 @@ function attachPhaseEventListeners(project, phase) {
         }
     });
 
-    // Wire up "View Full Prompt" button if it exists
-    const viewPromptBtn = document.querySelector('.view-prompt-btn');
-    if (viewPromptBtn && project.phases[phase].prompt) {
+    // Wire up "View Prompt" button
+    if (viewPromptBtn) {
         viewPromptBtn.addEventListener('click', () => {
-            const meta = getPhaseMetadata(phase);
-            const phaseName = meta.title || meta.name || `Phase ${phase}`;
-            showPromptModal(project.phases[phase].prompt, phaseName);
+            // Use stored prompt from dataset or from project phases
+            const prompt = viewPromptBtn.dataset.prompt || project.phases[phase].prompt;
+            if (prompt) {
+                const phaseName = meta.title || meta.name || `Phase ${phase}`;
+                showPromptModal(prompt, phaseName);
+            }
         });
     }
 
