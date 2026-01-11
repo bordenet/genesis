@@ -2,11 +2,18 @@
  * Jest Setup File
  *
  * This file runs before each test suite to set up the testing environment.
+ *
+ * NOTE: For Jest 29.x with ESM, we import jest from @jest/globals and expose it globally.
+ * This avoids ESM/CommonJS compatibility issues that occur in Jest 30.x.
  */
 
 // Mock IndexedDB for testing
 import 'fake-indexeddb/auto';
 import { webcrypto } from 'node:crypto';
+import { jest } from '@jest/globals';
+
+// Expose jest globally for test files (required for Jest 29.x ESM)
+global.jest = jest;
 
 // Polyfill crypto.randomUUID for Node.js
 Object.defineProperty(globalThis, 'crypto', {
