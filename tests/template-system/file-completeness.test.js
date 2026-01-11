@@ -153,7 +153,7 @@ describe('TS-002: Template File Completeness', () => {
     describe('Documentation Files', () => {
         const requiredDocs = [
             'START-HERE.md',
-            '00-AI-MUST-READ-FIRST.md'  // This is the actual file name
+            '01-AI-INSTRUCTIONS.md'  // This is the actual file name
         ];
 
         requiredDocs.forEach(doc => {

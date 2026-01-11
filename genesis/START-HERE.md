@@ -702,6 +702,7 @@ cp genesis/templates/testing/visual-regression.test-template.js tests/visual-reg
 # Critical bug-prevention tests (RECOMMENDED):
 cp genesis/templates/testing/event-handlers.test-template.js tests/event-handlers.test.js  # Prevents "stillborn apps" with unwired buttons
 cp genesis/templates/testing/template-sync.test-template.js tests/template-sync.test.js    # Prevents silent data loss from missing template placeholders
+cp genesis/templates/testing/form-prompt-integration.test-template.js tests/form-prompt-integration.test.js  # Ensures form fields match prompt placeholders
 ```
 
 #### EditorConfig
