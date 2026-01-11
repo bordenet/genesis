@@ -242,8 +242,9 @@ export async function copyToClipboard(text) {
  * Displays the complete prompt with copy functionality
  * @param {string} prompt - Full prompt text to display
  * @param {string} title - Modal title (default: 'Full Prompt')
+ * @param {Function} [onCopySuccess] - Optional callback to run after successful copy (e.g., enable workflow progression)
  */
-export function showPromptModal(prompt, title = 'Full Prompt') {
+export function showPromptModal(prompt, title = 'Full Prompt', onCopySuccess = null) {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
     modal.innerHTML = `
@@ -280,6 +281,10 @@ export function showPromptModal(prompt, title = 'Full Prompt') {
         try {
             await copyToClipboard(prompt);
             showToast('Copied to clipboard!', 'success');
+            // Run callback to enable workflow progression (Open AI button, textarea, etc.)
+            if (onCopySuccess) {
+                onCopySuccess();
+            }
         } catch {
             showToast('Failed to copy to clipboard', 'error');
         }
