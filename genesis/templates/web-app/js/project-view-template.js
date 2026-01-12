@@ -300,7 +300,8 @@ function attachPhaseEventListeners(project, phase) {
 
         // Show the View Prompt button
         if (viewPromptBtn) {
-            viewPromptBtn.classList.remove('hidden');
+            viewPromptBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
+            viewPromptBtn.disabled = false;
             // Store prompt for viewing
             viewPromptBtn.dataset.prompt = prompt;
         }
