@@ -41,6 +41,26 @@ When you detect ANY linting issue, fix it immediately - regardless of whether it
 
 ## 🎯 Core Principles
 
+### 0. MANDATORY: Manual Deployment After CI Passes
+
+**ALL deployments MUST follow this 3-step process:**
+
+```bash
+# Step 1: Push changes to GitHub
+git add .
+git commit -m "feat: description of changes"
+git push origin main
+
+# Step 2: WAIT for CI to pass
+# Check: https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions
+# ⚠️ DO NOT PROCEED until all checks are GREEN
+
+# Step 3: Deploy ONLY after CI passes
+./scripts/deploy-web.sh
+```
+
+**Why**: CI is the single source of truth for code quality.
+
 ### 1. Complete the Full Workflow
 
 When asked to do a task:
