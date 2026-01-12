@@ -124,6 +124,36 @@ npm run lint
 npm run test:coverage
 ```
 
+## MANDATORY: Manual Deployment After CI Passes
+
+**ALL deployments to genesis-derived projects MUST follow this 3-step process:**
+
+```bash
+# Step 1: Push changes to GitHub
+git add .
+git commit -m "feat: description of changes"
+git push origin main
+
+# Step 2: WAIT for CI to pass
+# Check: https://github.com/bordenet/{repo-name}/actions
+# ⚠️ DO NOT PROCEED until all checks are GREEN
+
+# Step 3: Deploy ONLY after CI passes
+./scripts/deploy-web.sh
+```
+
+**Why**:
+- CI runs comprehensive quality gates (lint, test, coverage, security checks)
+- Deploying before CI passes can ship broken code
+- CI is the single source of truth for code quality
+
+**If CI Fails**:
+1. **DO NOT** deploy
+2. Fix the issues locally
+3. Push fixes
+4. Wait for CI to pass
+5. THEN deploy
+
 ## Code Review Standards
 
 All code must meet these standards before merge:
