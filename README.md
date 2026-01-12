@@ -26,6 +26,7 @@ Template system that generates complete web applications for AI-assisted documen
 - [Project Structure](#project-structure)
 - [Testing](#testing)
 - [Documentation](#documentation)
+- [Consistency Checker](#consistency-checker)
 - [License](#license)
 
 ---
@@ -182,6 +183,30 @@ npm run lint             # ESLint
 **one-pager**: [GitHub](https://github.com/bordenet/one-pager) | [Demo](https://bordenet.github.io/one-pager/)
 
 Both demonstrate the 3-phase workflow pattern with working CI/CD and deployment.
+
+---
+
+## Consistency Checker
+
+Genesis includes an automated tool for detecting structural drift across derived repositories.
+
+```bash
+# Run consistency check
+node consistency-checker/fingerprint.js
+
+# Save baseline for tracking
+node consistency-checker/fingerprint.js --save-baseline
+
+# Compare to baseline
+node consistency-checker/fingerprint.js --baseline
+```
+
+**Current Status** (2024-01-11):
+- Average similarity: **95.3%** across 6 repos
+- Most similar: one-pager ↔ product-requirements (98.5%)
+- Least similar: pr-faq ↔ strategic-proposal (91%)
+
+See [`consistency-checker/README.md`](consistency-checker/README.md) for full documentation.
 
 ---
 

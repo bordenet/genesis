@@ -270,12 +270,36 @@ try {
 - Remove TODO lists from completed projects
 - Trim CLAUDE.md if it exceeds 600 lines
 
+## Consistency Checker
+
+Genesis includes an automated tool to detect structural drift across derived repositories.
+
+```bash
+# Run consistency check (from workspace root)
+node genesis/consistency-checker/fingerprint.js
+
+# Save baseline for tracking
+node genesis/consistency-checker/fingerprint.js --save-baseline
+
+# Compare to baseline
+node genesis/consistency-checker/fingerprint.js --baseline
+```
+
+**When to Run**:
+- After making changes to multiple repos
+- Before major releases
+- When onboarding new repos
+- As part of periodic maintenance
+
+See [`consistency-checker/README.md`](consistency-checker/README.md) for full documentation.
+
 ## Resources
 
 - Go Style Guide: `docs/GO_STYLE_GUIDE.md`
 - Python Style Guide: `docs/PYTHON_STYLE_GUIDE.md`
 - CI Configuration: `.github/workflows/ci.yml`
 - Documentation Validator: `genesis/scripts/lib/validate-docs.sh`
+- Consistency Checker: `consistency-checker/fingerprint.js`
 
 ## JavaScript Code Style Standards
 
