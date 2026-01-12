@@ -51,7 +51,6 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - **`docs/`** - Documentation templates (architecture, deployment, development)
 - **`github/`** - GitHub-specific files (workflows, issue templates)
 - **`git-hooks/`** - Git hook templates (pre-commit, pre-push)
-- **`hooks/`** - Additional hook templates
 - **`backend/`** - Backend API templates (optional, for future use)
 
 ## Template Variable System

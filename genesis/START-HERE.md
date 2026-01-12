@@ -767,6 +767,12 @@ npm install -D @playwright/test
 # If you want comprehensive documentation:
 mkdir -p docs/architecture docs/deployment docs/development
 
+# Core project documentation (RECOMMENDED)
+cp genesis/templates/docs/CLAUDE-template.md docs/CLAUDE.md
+cp genesis/templates/docs/README-template.md docs/README.md
+cp genesis/templates/docs/TROUBLESHOOTING-template.md docs/TROUBLESHOOTING.md
+cp genesis/templates/docs/PROMPT_TUNING-template.md docs/PROMPT_TUNING.md
+
 # Architecture documentation
 cp genesis/templates/docs/architecture/ARCHITECTURE-template.md docs/architecture/ARCHITECTURE.md
 
