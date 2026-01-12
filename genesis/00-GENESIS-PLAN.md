@@ -1,9 +1,10 @@
 # Genesis Project Template System - Master Plan
 
-**Version**: 1.0  
-**Created**: 2025-11-20  
-**Status**: PLANNING COMPLETE - READY FOR IMPLEMENTATION  
-**Review Count**: 2 (Double-checked as requested)
+**Version**: 1.0
+**Created**: 2025-11-20
+**Status**: HISTORICAL PLANNING DOCUMENT
+
+> ⚠️ **NOTE**: This is the original planning document for Genesis. The actual implementation uses manual template copying via [`START-HERE.md`](START-HERE.md), not the config-based generation described here. This document is preserved for historical reference.
 
 ---
 
