@@ -56,9 +56,9 @@ You're in a fresh repository with the `genesis/` directory. Your mission:
 
 ### Required Reading (in order):
 
-1. **[`docs/AI-QUICK-REFERENCE.md`](docs/AI-QUICK-REFERENCE.md)** - ⭐ **CHEAT SHEET** - Keep this open while coding (~130 lines)
-2. **[`docs/ADVERSARIAL-WORKFLOW-PATTERN.md`](docs/ADVERSARIAL-WORKFLOW-PATTERN.md)** - The 7-step pattern (~500 lines)
-3. **[`docs/ANTI-PATTERNS.md`](docs/ANTI-PATTERNS.md)** - What NOT to do
+1. **[`docs/AI-QUICK-REFERENCE.md`](../docs/AI-QUICK-REFERENCE.md)** - ⭐ **CHEAT SHEET** - Keep this open while coding (~130 lines)
+2. **[`docs/ADVERSARIAL-WORKFLOW-PATTERN.md`](../docs/ADVERSARIAL-WORKFLOW-PATTERN.md)** - The 7-step pattern (~500 lines)
+3. **[`docs/ANTI-PATTERNS.md`](../docs/ANTI-PATTERNS.md)** - What NOT to do
 4. **Study the live example**: https://github.com/bordenet/product-requirements-assistant
 
 ### Why This Matters:
