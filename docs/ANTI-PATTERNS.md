@@ -629,7 +629,7 @@ test('View Full Prompt button opens modal', () => {
 ## References
 
 - [ADVERSARIAL-WORKFLOW-PATTERN.md](ADVERSARIAL-WORKFLOW-PATTERN.md) - Complete correct pattern
-- [WORKFLOW-ARCHITECTURE.md](WORKFLOW-ARCHITECTURE.md) - Architecture guide
+- [WORKFLOW-ARCHITECTURE.md](../genesis/docs/WORKFLOW-ARCHITECTURE.md) - Architecture guide
 - Reference implementation: https://github.com/bordenet/product-requirements-assistant
 
 ---

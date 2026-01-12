@@ -168,7 +168,7 @@ npm run lint             # ESLint
 
 **For AI Assistants**:
 - [`genesis/START-HERE.md`](genesis/START-HERE.md) - Primary entry point
-- [`genesis/AI-EXECUTION-CHECKLIST.md`](genesis/AI-EXECUTION-CHECKLIST.md) - Detailed checklist
+- [`genesis/CHECKLIST.md`](genesis/CHECKLIST.md) - Detailed checklist
 
 **For Humans**:
 - [`genesis/02-QUICK-START.md`](genesis/02-QUICK-START.md) - Quick start
