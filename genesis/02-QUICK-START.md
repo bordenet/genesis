@@ -1,6 +1,6 @@
 # Genesis Quick Start Guide
 
-**For Humans**: This is a human-readable quick start. For AI instructions, see `01-AI-INSTRUCTIONS.md`.
+**For Humans**: This is a human-readable quick start. For AI instructions, see [`START-HERE.md`](START-HERE.md).
 
 ---
 
@@ -10,28 +10,27 @@ Genesis is a **project template system** that lets you create new AI-assisted wo
 
 **Use Cases**:
 - One-Pager document generator
-- Meeting notes assistant
-- Code review helper
-- Design critique tool
+- ADR (Architecture Decision Record) generator
+- PRD (Product Requirements Document) generator
 - Any multi-phase AI workflow
 
 ---
 
-## Quick Start (5 Minutes)
+## Quick Start
 
-### Option 1: With AI Assistant (Recommended)
+### With AI Assistant (Recommended)
 
-1. **Copy Genesis to new directory**:
+1. **Copy Genesis to new repo**:
    ```bash
-   mkdir my-new-project
-   cp -r genesis/* my-new-project/
-   cd my-new-project
+   git clone https://github.com/yourusername/your-new-repo.git
+   cd your-new-repo
+   cp -r /path/to/genesis/genesis .
    ```
 
-2. **Open with AI assistant** (Claude, Cursor, etc.):
+2. **Open with AI assistant** (Claude, Cursor, Augment, etc.):
    ```
    "I want to create a new project from the Genesis template system.
-   Please read 01-AI-INSTRUCTIONS.md and help me set it up."
+   Please read genesis/START-HERE.md and help me set it up."
    ```
 
 3. **Answer AI's questions** about your project
@@ -42,52 +41,9 @@ Genesis is a **project template system** that lets you create new AI-assisted wo
 
 ---
 
-### Option 2: Manual Setup
+### Manual Setup
 
-1. **Copy Genesis**:
-   ```bash
-   mkdir my-new-project
-   cp -r genesis/* my-new-project/
-   cd my-new-project
-   ```
-
-2. **Edit configuration**:
-   ```bash
-   # Create config file
-   cp templates/config.template.json config.json
-   
-   # Edit config.json with your project details
-   nano config.json
-   ```
-
-3. **Run generation script**:
-   ```bash
-   ./scripts/generate-project.sh
-   ```
-
-4. **Initialize git**:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit from Genesis"
-   ```
-
-5. **Create GitHub repo**:
-   ```bash
-   gh repo create username/my-new-project --public --source=. --remote=origin
-   git push -u origin main
-   ```
-
-6. **Enable GitHub Pages**:
-   - Go to repo Settings → Pages
-   - Source: Deploy from branch
-   - Branch: `main`, Folder: `/docs`
-   - Save
-
-7. **Visit your app**:
-   ```
-   https://username.github.io/my-new-project/
-   ```
+For manual setup, follow the step-by-step instructions in [`START-HERE.md`](START-HERE.md).
 
 ---
 
@@ -128,81 +84,26 @@ Genesis is a **project template system** that lets you create new AI-assisted wo
 
 ## Examples
 
-### Minimal Project
-See `examples/minimal/` for the simplest possible project.
+### Hello World
+See [`examples/hello-world/`](examples/hello-world/) for a minimal working example.
 
 **Features**:
-- Single-phase workflow
+- 3-phase workflow
 - Basic web UI
 - No backend
-- ~50 files
+- Full test coverage
 
 **Time to deploy**: <30 minutes
 
 ---
 
-### One-Pager Assistant
-See `examples/one-pager/` for a complete example.
+### Live Reference Implementations
 
-**Features**:
-- 2-phase workflow (Draft → Review)
-- Scoring system (1-10)
-- Feedback generation
-- Professional UI
-- ~100 files
+Study these production projects built with Genesis:
 
-**Time to deploy**: <1 hour
-
----
-
-## Customization
-
-### Change Workflow Phases
-
-Edit `config.json`:
-```json
-{
-  "workflow": {
-    "phases": [
-      {
-        "number": 1,
-        "name": "Your Phase Name",
-        "ai_model": "Claude Sonnet 4.5",
-        "prompt_file": "prompts/phase1.txt"
-      }
-    ]
-  }
-}
-```
-
-### Change Deployment Target
-
-Edit `config.json`:
-```json
-{
-  "deployment": {
-    "branch": "main",
-    "folder": "docs",  // or "web"
-    "auto_deploy": true
-  }
-}
-```
-
-### Enable Backend
-
-Edit `config.json`:
-```json
-{
-  "architecture": {
-    "enable_backend": true
-  }
-}
-```
-
-Then run:
-```bash
-./scripts/generate-backend.sh
-```
+1. **[product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant)** - PRD generator
+2. **[one-pager](https://github.com/bordenet/one-pager)** - One-pager generator
+3. **[architecture-decision-record](https://github.com/bordenet/architecture-decision-record)** - ADR generator
 
 ---
 
@@ -210,7 +111,7 @@ Then run:
 
 ### GitHub Pages shows 404
 - Check Settings → Pages is enabled
-- Verify source folder is correct (docs/ or web/)
+- Verify source is set to "GitHub Actions"
 - Wait 1-2 minutes for deployment
 
 ### Web app is blank
@@ -221,28 +122,28 @@ Then run:
 ### CI pipeline fails
 - Check GitHub Actions tab
 - Review error logs
-- Verify all secrets are set
+- Verify all tests pass locally first
 
 ---
 
 ## Next Steps
 
 1. **Customize prompts**: Edit files in `prompts/`
-2. **Update branding**: Edit `docs/index.html` and `docs/css/styles.css`
-3. **Add features**: See `03-CUSTOMIZATION-GUIDE.md`
-4. **Deploy**: Push to GitHub, enable Pages
+2. **Update branding**: Edit `index.html` and `css/styles.css`
+3. **Add features**: See [`03-CUSTOMIZATION-GUIDE.md`](03-CUSTOMIZATION-GUIDE.md)
+4. **Deploy**: Use `./scripts/deploy-web.sh`
 
 ---
 
 ## Support
 
-- **Documentation**: See `docs/` folder
-- **Examples**: See `examples/` folder
-- **Issues**: Check `integration/DEVELOPMENT_PROTOCOLS.md`
+- **Start Here**: [`START-HERE.md`](START-HERE.md)
+- **Troubleshooting**: [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)
+- **Reference**: [`REFERENCE-IMPLEMENTATIONS.md`](REFERENCE-IMPLEMENTATIONS.md)
 
 ---
 
 **Ready to create your first project?** 🚀
 
-Choose Option 1 (with AI) for the easiest experience!
+Open START-HERE.md with an AI assistant for the easiest experience!
 
