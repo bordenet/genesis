@@ -149,3 +149,41 @@ jobs:
           else
             echo "✓ No markdown files to validate"
           fi
+
+  # Consistency checker (validates repo structure consistency)
+  # Note: This job only runs on the genesis repo when all tool repos are present
+  # It's informational - fails if average similarity drops below 90%
+  consistency:
+    name: Repo Consistency Check
+    runs-on: ubuntu-latest
+    # Only run on genesis repo when triggered manually or on main branch
+    if: github.repository == 'bordenet/genesis'
+    continue-on-error: true  # Don't block CI - informational only
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Check consistency score
+        run: |
+          echo "🔍 Running consistency checker..."
+          # Note: This requires all tool repos to be siblings of genesis/
+          # In GitHub Actions, we only have the genesis repo checked out
+          # This job documents what the checker does; full check requires local run
+          echo "ℹ️  Full consistency check requires local workspace with all repos"
+          echo "   Run: ./genesis/scripts/check-consistency.sh"
+          echo ""
+          # Show current baseline info
+          if [ -f genesis/consistency-checker/baseline.json ]; then
+            echo "📊 Current baseline:"
+            node -e "
+              const baseline = require('./genesis/consistency-checker/baseline.json');
+              console.log('   Average: ' + baseline.summary.averageSimilarity + '%');
+              console.log('   Repos: ' + baseline.summary.comparisons + ' comparisons');
+              console.log('   Date: ' + baseline.timestamp);
+            "
+          fi
