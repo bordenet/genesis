@@ -66,15 +66,49 @@ echo "📁 Checking required files..."
 echo "───────────────────────────────────────────────────────────────"
 
 # Critical files that MUST exist
-check_file "CLAUDE.md" "CRITICAL"
 check_file "README.md" "CRITICAL"
 check_file ".gitignore" "CRITICAL"
 check_file "package.json" "CRITICAL"
-check_file ".eslintrc.json" "HIGH"
-check_file "jest.config.js" "HIGH"
-check_dir "scripts" "HIGH"
-check_dir "tests" "HIGH"
-check_file ".github/workflows/ci.yml" "HIGH"
+check_file "index.html" "CRITICAL"
+check_file "LICENSE" "CRITICAL"
+
+# Documentation (CRITICAL for consistency)
+check_file "docs/CLAUDE.md" "CRITICAL"
+check_file "docs/DESIGN-PATTERNS.md" "CRITICAL"
+check_file "docs/UI_STYLE_GUIDE.md" "HIGH"
+check_file "CONTRIBUTING.md" "HIGH"
+
+# Configuration files
+check_file "jest.config.js" "CRITICAL"
+check_file "jest.setup.js" "CRITICAL"
+check_file "eslint.config.js" "HIGH"
+check_file "codecov.yml" "HIGH"
+
+# Directories
+check_dir "scripts" "CRITICAL"
+check_dir "js" "CRITICAL"
+check_dir "css" "CRITICAL"
+check_dir "prompts" "CRITICAL"
+check_dir "tests" "CRITICAL"
+check_dir ".github/workflows" "CRITICAL"
+
+# Scripts
+check_file "scripts/setup-macos.sh" "CRITICAL"
+check_file "scripts/deploy-web.sh" "CRITICAL"
+check_file "scripts/lib/common.sh" "HIGH"
+
+# CI/CD
+check_file ".github/workflows/ci.yml" "CRITICAL"
+
+# Prompts (3-phase workflow)
+check_file "prompts/phase1.md" "CRITICAL"
+check_file "prompts/phase2.md" "CRITICAL"
+check_file "prompts/phase3.md" "CRITICAL"
+
+# Core JS files
+check_file "js/workflow.js" "CRITICAL"
+check_file "js/storage.js" "HIGH"
+check_file "js/app.js" "HIGH"
 
 echo ""
 echo "🚫 Checking genesis/ directory is deleted..."
@@ -116,6 +150,41 @@ if [ -f "README.md" ]; then
         ((ERRORS++))
     else
         echo -e "${GREEN}✓${NC} README.md has $README_LINES lines"
+    fi
+fi
+
+echo ""
+echo "📋 Checking CLAUDE.md has deployment policy..."
+echo "───────────────────────────────────────────────────────────────"
+
+if [ -f "docs/CLAUDE.md" ]; then
+    if grep -q "CI to pass" docs/CLAUDE.md 2>/dev/null || grep -q "CI Passes" docs/CLAUDE.md 2>/dev/null; then
+        echo -e "${GREEN}✓${NC} CLAUDE.md contains deployment policy"
+    else
+        echo -e "${YELLOW}⚠ WARNING: CLAUDE.md may be missing deployment policy${NC}"
+        ((WARNINGS++))
+    fi
+fi
+
+echo ""
+echo "🧪 Checking test configuration..."
+echo "───────────────────────────────────────────────────────────────"
+
+if [ -f "jest.config.js" ]; then
+    if grep -q "coverageThreshold" jest.config.js 2>/dev/null; then
+        echo -e "${GREEN}✓${NC} jest.config.js has coverage thresholds"
+    else
+        echo -e "${YELLOW}⚠ WARNING: jest.config.js missing coverage thresholds${NC}"
+        ((WARNINGS++))
+    fi
+fi
+
+if [ -f "package.json" ]; then
+    if grep -q '"test:coverage"' package.json 2>/dev/null; then
+        echo -e "${GREEN}✓${NC} package.json has test:coverage script"
+    else
+        echo -e "${RED}✗ CRITICAL: package.json missing test:coverage script${NC}"
+        ((ERRORS++))
     fi
 fi
 
