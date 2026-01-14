@@ -307,3 +307,132 @@ export function showPromptModal(prompt, title = 'Full Prompt', onCopySuccess = n
     document.addEventListener('keydown', handleEscape);
 }
 
+/**
+ * Show document preview modal with formatted markdown
+ * Displays the final document with copy and download options
+ * Uses marked.js for markdown rendering (must be loaded via CDN)
+ * @param {string} markdown - Markdown content to display
+ * @param {string} title - Modal title (default: 'Document Preview')
+ * @param {string} filename - Filename for download (default: 'document.md')
+ */
+export function showDocumentPreviewModal(markdown, title = 'Document Preview', filename = 'document.md') {
+    // Check if marked is available
+    if (typeof marked === 'undefined') {
+        console.error('marked.js is not loaded. Add <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> to your HTML.');
+        showToast('Preview not available - marked.js not loaded', 'error');
+        return;
+    }
+
+    // Configure marked for safe rendering
+    marked.setOptions({
+        breaks: true,
+        gfm: true
+    });
+
+    const renderedHtml = marked.parse(markdown);
+
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">${escapeHtml(title)}</h3>
+                <button id="close-preview-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex-1 overflow-auto p-6">
+                <div class="prose prose-sm dark:prose-invert max-w-none markdown-preview">
+                    ${renderedHtml}
+                </div>
+            </div>
+            <div class="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    💡 Copy to paste into Word, Google Docs, or Notion with formatting preserved
+                </p>
+                <div class="flex gap-3">
+                    <button id="copy-preview-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        Copy All
+                    </button>
+                    <button id="download-preview-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download .md
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const closeModal = () => modal.remove();
+
+    modal.querySelector('#close-preview-modal').addEventListener('click', closeModal);
+
+    // Copy formatted content (HTML for rich paste)
+    modal.querySelector('#copy-preview-btn').addEventListener('click', async () => {
+        try {
+            // Try to copy as rich text (HTML) for better paste experience
+            const previewContent = modal.querySelector('.markdown-preview');
+            if (navigator.clipboard && navigator.clipboard.write) {
+                const blob = new Blob([previewContent.innerHTML], { type: 'text/html' });
+                const plainBlob = new Blob([markdown], { type: 'text/plain' });
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'text/html': blob,
+                        'text/plain': plainBlob
+                    })
+                ]);
+            } else {
+                // Fallback to plain text
+                await copyToClipboard(markdown);
+            }
+            showToast('Copied to clipboard!', 'success');
+        } catch {
+            // Final fallback
+            try {
+                await copyToClipboard(markdown);
+                showToast('Copied as plain text', 'success');
+            } catch {
+                showToast('Failed to copy to clipboard', 'error');
+            }
+        }
+    });
+
+    // Download as markdown file
+    modal.querySelector('#download-preview-btn').addEventListener('click', () => {
+        const blob = new Blob([markdown], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Downloaded ' + filename, 'success');
+    });
+
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Close on Escape key
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+}
