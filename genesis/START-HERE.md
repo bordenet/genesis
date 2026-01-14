@@ -343,6 +343,7 @@ mkdir -p js
 # Core application files (MANDATORY)
 cp genesis/templates/web-app/js/app-template.js js/app.js
 cp genesis/templates/web-app/js/storage-template.js js/storage.js
+cp genesis/templates/web-app/js/prompts-template.js js/prompts.js
 cp genesis/templates/web-app/js/workflow-template.js js/workflow.js
 
 # Multi-project architecture (MANDATORY - enables project management)
@@ -598,6 +599,7 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `index.html` (from `web-app/index-template.html`)
 - [ ] `js/app.js` (from `web-app/js/app-template.js`)
 - [ ] `js/storage.js` (from `web-app/js/storage-template.js`)
+- [ ] `js/prompts.js` (from `web-app/js/prompts-template.js`)
 - [ ] `js/workflow.js` (from `web-app/js/workflow-template.js`)
 - [ ] `js/router.js` (from `web-app/js/router-template.js`)
 - [ ] `js/views.js` (from `web-app/js/views-template.js`)

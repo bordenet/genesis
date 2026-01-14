@@ -1,22 +1,18 @@
 /**
  * Workflow Module
  * Manages the {{PHASE_COUNT}}-phase workflow for {{PROJECT_TITLE}}
+ * @module workflow
  */
 
-export const WORKFLOW_CONFIG = {
-    phaseCount: {{PHASE_COUNT}},
-    phases: [
-        {{#each PHASES}}
-        {
-            number: {{number}},
-            name: '{{name}}',
-            aiModel: '{{ai_model}}',
-            promptFile: '{{prompt_file}}',
-            description: '{{description}}'
-        }{{#unless @last}},{{/unless}}
-        {{/each}}
-    ]
-};
+import {
+  WORKFLOW_CONFIG,
+  generatePhase1Prompt as genPhase1,
+  generatePhase2Prompt as genPhase2,
+  generatePhase3Prompt as genPhase3
+} from './prompts.js';
+
+// Re-export WORKFLOW_CONFIG for backward compatibility
+export { WORKFLOW_CONFIG };
 
 export class Workflow {
     constructor(project) {
@@ -74,30 +70,42 @@ export class Workflow {
 
     /**
      * Generate prompt for current phase
+     * Uses prompts.js module for template loading and variable replacement
      */
     async generatePrompt() {
-        const phase = this.getCurrentPhase();
-        
-        // Load prompt template
-        const response = await fetch(`../${phase.promptFile}`);
-        let template = await response.text();
+      const p = this.project;
+      const formData = {
+        title: p.title || '',
+        description: p.description || '',
+        context: p.context || ''
+        // Add additional form fields as needed
+      };
 
-        // Replace variables in template
-        template = this.replaceVariables(template);
-
-        return template;
+      switch (this.currentPhase) {
+      case 1:
+        return await genPhase1(formData);
+      case 2:
+        return await genPhase2(p.phase1_output || '[Phase 1 output not yet generated]');
+      case 3:
+        return await genPhase3(
+          p.phase1_output || '[Phase 1 output not yet generated]',
+          p.phase2_output || '[Phase 2 output not yet generated]'
+        );
+      default:
+        throw new Error(`Invalid phase: ${this.currentPhase}`);
+      }
     }
 
     /**
-     * Replace variables in prompt template
+     * Replace variables in prompt template - legacy method kept for backward compatibility
      */
     replaceVariables(template) {
         let result = template;
 
-        // Replace project-specific variables
-        result = result.replace(/\{project_title\}/g, this.project.title || '');
-        result = result.replace(/\{project_description\}/g, this.project.description || '');
-        result = result.replace(/\{user_context\}/g, this.project.context || '');
+        // Replace project-specific variables using {{VAR}} syntax
+        result = result.replace(/\{\{TITLE\}\}/g, this.project.title || '');
+        result = result.replace(/\{\{DESCRIPTION\}\}/g, this.project.description || '');
+        result = result.replace(/\{\{CONTEXT\}\}/g, this.project.context || '');
 
         // Replace phase outputs
         for (let i = 1; i < this.currentPhase; i++) {

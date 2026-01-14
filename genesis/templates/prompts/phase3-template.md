@@ -8,8 +8,12 @@ CUSTOMIZATION INSTRUCTIONS:
 4. Update the citation at the end to reference your project
 5. Customize the synthesis guidelines for your document type
 
+TEMPLATE VARIABLE SYNTAX:
+- Use {{VAR_NAME}} (double braces, SCREAMING_SNAKE_CASE)
+- This template uses: {{PHASE1_OUTPUT}}, {{PHASE2_OUTPUT}}
+
 REFERENCE IMPLEMENTATION:
-https://github.com/bordenet/product-requirements-assistant/blob/main/prompts/phase3-claude-synthesis.md
+https://github.com/bordenet/product-requirements-assistant/blob/main/prompts/phase3.md
 
 This is a CONCRETE EXAMPLE from product-requirements-assistant.
 Study it, then customize for your document type.
@@ -122,7 +126,7 @@ Provide the final synthesized {{DOCUMENT_TYPE}} in this format:
 
 ---
 
-{phase1_output}
+{{PHASE1_OUTPUT}}
 
 ---
 
@@ -130,5 +134,5 @@ Provide the final synthesized {{DOCUMENT_TYPE}} in this format:
 
 ---
 
-{phase2_output}
+{{PHASE2_OUTPUT}}
 

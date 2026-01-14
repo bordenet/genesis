@@ -5,11 +5,15 @@ CUSTOMIZATION INSTRUCTIONS:
 1. Replace {{DOCUMENT_TYPE}} with your document type (e.g., "PRD", "One-Pager", "Design Doc")
 2. Replace {{PHASE_1_AI}} with the AI you're using (e.g., "Claude Sonnet 4.5", "GPT-4")
 3. Update the role description to match your document type
-4. Update the template variables {title}, {problems}, {context} to match your form fields
+4. Update the template variables {{TITLE}}, {{PROBLEMS}}, {{CONTEXT}} to match your form fields
 5. Update the document structure to match your needs
 
+TEMPLATE VARIABLE SYNTAX:
+- Use {{VAR_NAME}} (double braces, SCREAMING_SNAKE_CASE)
+- Common variables: {{TITLE}}, {{CONTEXT}}, {{PHASE1_OUTPUT}}, {{PHASE2_OUTPUT}}
+
 REFERENCE IMPLEMENTATION:
-https://github.com/bordenet/product-requirements-assistant/blob/main/prompts/phase1-claude-initial.md
+https://github.com/bordenet/product-requirements-assistant/blob/main/prompts/phase1.md
 
 This is a CONCRETE EXAMPLE from product-requirements-assistant.
 Study it, then customize for your document type.
@@ -21,11 +25,11 @@ You are a principal Product Manager for a technology company. You will help crea
 
 The user has provided the following information:
 
-**Document Title:** {title}
+**Document Title:** {{TITLE}}
 
-**Problems to Address:** {problems}
+**Problems to Address:** {{PROBLEMS}}
 
-**Additional Context:** {context}
+**Additional Context:** {{CONTEXT}}
 
 ## Your Task
 
