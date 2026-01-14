@@ -15,6 +15,19 @@ import { jest } from '@jest/globals';
 // Expose jest globally for test files (required for Jest 29.x ESM)
 global.jest = jest;
 
+// Suppress jsdom navigation errors (jsdom doesn't support full navigation)
+// These are expected warnings when testing code that performs URL navigation
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  const message = args[0]?.toString?.() || '';
+  // Suppress known jsdom limitations
+  if (message.includes('Not implemented: navigation') ||
+      message.includes('Error: Not implemented')) {
+    return; // Silently ignore these expected jsdom warnings
+  }
+  originalConsoleError.apply(console, args);
+};
+
 // Polyfill crypto.randomUUID for Node.js
 Object.defineProperty(globalThis, 'crypto', {
   value: webcrypto,
@@ -29,17 +42,6 @@ if (typeof global.structuredClone === 'undefined') {
 
 // Global test utilities
 global.sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Mock console methods in tests (optional)
-global.console = {
-  ...console,
-  // Uncomment to suppress console.log in tests
-  // log: jest.fn(),
-  // Uncomment to suppress console.error in tests
-  // error: jest.fn(),
-  // Uncomment to suppress console.warn in tests
-  // warn: jest.fn(),
-};
 
 // Mock localStorage
 const localStorageMock = {

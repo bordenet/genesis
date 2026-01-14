@@ -281,8 +281,9 @@ cp genesis/templates/project-structure/REVERSE-INTEGRATION-NOTES-template.md REV
 cp genesis/templates/testing/package-template.json package.json
 # Replace {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{GITHUB_USER}}, {{GITHUB_REPO}}, {{GITHUB_PAGES_URL}}
 
-# Copy ESLint config (comprehensive rules including Node.js globals restrictions)
-cp genesis/templates/web-app/.eslintrc-template.json .eslintrc.json
+# Copy ESLint flat config (ESLint 9.x format with comprehensive rules)
+cp genesis/templates/web-app/eslint.config-template.js eslint.config.js
+# Replace {{PROJECT_TITLE}} with actual project title
 
 # Copy Codecov config
 cp genesis/templates/project-structure/codecov-template.yml codecov.yml
@@ -580,7 +581,7 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `README.md` (from `project-structure/README-template.md`)
 - [ ] `REVERSE-INTEGRATION-NOTES.md` (from `project-structure/REVERSE-INTEGRATION-NOTES-template.md`)
 - [ ] `package.json` (from `testing/package-template.json`)
-- [ ] `.eslintrc.json` (from `web-app/.eslintrc-template.json`)
+- [ ] `eslint.config.js` (from `web-app/eslint.config-template.js`)
 - [ ] `codecov.yml` (from `project-structure/codecov-template.yml`)
 - [ ] `jest.config.js` (from `testing/jest.config-template.js`)
 - [ ] `jest.setup.js` (from `testing/jest.setup-template.js`)
@@ -653,7 +654,7 @@ find . -type f ! -path './node_modules/*' ! -path './genesis/*' ! -path './.git/
 find genesis/templates -name "*-template*" -type f | wc -l
 
 # Verify you copied the most important files:
-ls -1 index.html CLAUDE.md README.md package.json .eslintrc.json codecov.yml \
+ls -1 index.html CLAUDE.md README.md package.json eslint.config.js codecov.yml \
    js/app.js js/workflow.js css/styles.css \
    tests/ai-mock.test.js tests/storage.test.js tests/workflow.test.js \
    prompts/phase1.md prompts/phase2.md prompts/phase3.md \
@@ -991,7 +992,7 @@ Before declaring "Ready to start coding", verify these files exist:
 | `README.md` (>50 lines) | `templates/project-structure/README-template.md` | **CRITICAL** |
 | `.gitignore` | `templates/project-structure/gitignore-template` | **CRITICAL** |
 | `package.json` | `templates/testing/package-template.json` | **CRITICAL** |
-| `.eslintrc.json` | `templates/web-app/.eslintrc-template.json` | **HIGH** |
+| `eslint.config.js` | `templates/web-app/eslint.config-template.js` | **HIGH** |
 | `scripts/setup-macos.sh` | `templates/scripts/setup-macos-web-template.sh` | **HIGH** |
 | `scripts/deploy-web.sh` | `templates/scripts/deploy-web.sh.template` | **HIGH** |
 | `.github/workflows/ci.yml` | `templates/github/workflows/ci-template.yml` | **HIGH** |
