@@ -10,6 +10,17 @@ This directory contains JavaScript ES6 module templates for web applications.
 2. **`workflow-template.js`** - Multi-phase workflow engine
 3. **`ui-template.js`** - UI components and rendering
 4. **`app-template.js`** - Application initialization and routing
+5. **`lib/`** - Third-party libraries (excluded from linting/coverage)
+
+## Third-Party Libraries (js/lib/)
+
+The `js/lib/` directory contains third-party libraries that should be:
+- **Excluded from ESLint** (minified code doesn't pass linting)
+- **Excluded from Jest coverage** (no need to test third-party code)
+- **Loaded directly** (not bundled/transformed)
+
+Example libraries:
+- `marked.min.js` - Markdown parser for rendering AI responses
 
 ## Module Overview
 

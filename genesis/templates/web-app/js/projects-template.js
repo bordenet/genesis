@@ -39,20 +39,65 @@ export async function createProject(title, problems, context) {
 }
 
 /**
- * Get all projects
+ * Get all projects (with migration for old data formats)
  * @returns {Promise<Array>} Array of all projects
  */
 export async function getAllProjects() {
-    return await storage.getAllProjects();
+    const projects = await storage.getAllProjects();
+    return projects.map(migrateProject);
 }
 
 /**
- * Get a single project
+ * Get a single project (with migration for old data format)
  * @param {string} id - Project ID
  * @returns {Promise<Object|null>} Project object or null if not found
  */
 export async function getProject(id) {
-    return await storage.getProject(id);
+    const project = await storage.getProject(id);
+    if (project) {
+        return migrateProject(project);
+    }
+    return null;
+}
+
+/**
+ * Migrate project from old data formats to current format
+ * Ensures backward compatibility with projects created before schema changes
+ * @param {Object} project - Project object to migrate
+ * @returns {Object} Migrated project object
+ */
+export function migrateProject(project) {
+    if (!project) return project;
+
+    // Ensure phases object exists with all required phases
+    if (!project.phases) {
+        project.phases = {
+            1: { prompt: '', response: '', completed: false },
+            2: { prompt: '', response: '', completed: false },
+            3: { prompt: '', response: '', completed: false }
+        };
+    }
+
+    // Ensure each phase has all required properties
+    for (let i = 1; i <= 3; i++) {
+        if (!project.phases[i]) {
+            project.phases[i] = { prompt: '', response: '', completed: false };
+        } else {
+            // Ensure phase object has all properties
+            project.phases[i] = {
+                prompt: project.phases[i].prompt || '',
+                response: project.phases[i].response || '',
+                completed: project.phases[i].completed || false
+            };
+        }
+    }
+
+    // Ensure phase number is set
+    if (!project.phase) {
+        project.phase = 1;
+    }
+
+    return project;
 }
 
 /**

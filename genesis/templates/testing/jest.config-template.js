@@ -17,6 +17,7 @@ export default {
     '!js/types.js',
     '!js/projects.js',
     '!js/ai-mock-ui.js',
+    '!js/lib/**',           // Exclude third-party libraries (e.g., marked.min.js)
     '!**/node_modules/**'
   ],
   coverageThreshold: {

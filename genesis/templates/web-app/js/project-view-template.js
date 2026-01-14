@@ -72,7 +72,7 @@ export async function renderProjectView(projectId) {
                 ${[1, 2, 3].map(phase => {
                     const meta = getPhaseMetadata(phase);
                     const isActive = project.phase === phase;
-                    const isCompleted = project.phases[phase].completed;
+                    const isCompleted = project.phases?.[phase]?.completed || false;
                     
                     return `
                         <button 
@@ -152,7 +152,7 @@ function updatePhaseTabStyles(activePhase) {
  */
 function renderPhaseContent(project, phase) {
     const meta = getPhaseMetadata(phase);
-    const phaseData = project.phases[phase];
+    const phaseData = project.phases?.[phase] || { prompt: '', response: '', completed: false };
     const phaseCount = WORKFLOW_CONFIG.phaseCount;
     const isFinalPhase = phase === phaseCount;
 
@@ -290,7 +290,7 @@ function attachPhaseEventListeners(project, phase) {
     copyPromptBtn.addEventListener('click', async () => {
         const prompt = await generatePromptForPhase(project, phase);
         await copyToClipboard(prompt);
-        await updatePhase(project.id, phase, prompt, project.phases[phase].response);
+        await updatePhase(project.id, phase, prompt, project.phases?.[phase]?.response || '');
 
         // Mark that prompt has been copied for this phase
         promptCopiedForCurrentPhase = true;
@@ -327,7 +327,7 @@ function attachPhaseEventListeners(project, phase) {
     saveResponseBtn.addEventListener('click', async () => {
         const response = responseTextarea.value.trim();
         if (response) {
-            await updatePhase(project.id, phase, project.phases[phase].prompt, response);
+            await updatePhase(project.id, phase, project.phases?.[phase]?.prompt || '', response);
 
             // Extract title from final phase response if applicable
             if (isFinalPhase) {
@@ -359,7 +359,7 @@ function attachPhaseEventListeners(project, phase) {
     if (viewPromptBtn) {
         viewPromptBtn.addEventListener('click', () => {
             // Use stored prompt from dataset or from project phases
-            const prompt = viewPromptBtn.dataset.prompt || project.phases[phase].prompt;
+            const prompt = viewPromptBtn.dataset.prompt || project.phases?.[phase]?.prompt || '';
             if (prompt) {
                 const phaseName = meta.title || meta.name || `Phase ${phase}`;
                 showPromptModal(prompt, phaseName);
@@ -377,7 +377,7 @@ function attachPhaseEventListeners(project, phase) {
         });
     }
 
-    if (nextPhaseBtn && project.phases[phase].completed) {
+    if (nextPhaseBtn && project.phases?.[phase]?.completed) {
         nextPhaseBtn.addEventListener('click', () => {
             promptCopiedForCurrentPhase = false; // Reset for new phase
             project.phase = phase + 1;
