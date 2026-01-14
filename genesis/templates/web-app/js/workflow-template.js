@@ -196,3 +196,41 @@ export function exportFinalDocument(project) {
     const workflow = new Workflow(project);
     return workflow.exportAsMarkdown();
 }
+
+/**
+ * Get the final markdown content for a completed project
+ * Returns the last phase output or full export if all phases complete
+ * @param {Object} project - Project object
+ * @returns {string|null} Markdown content or null if not available
+ */
+export function getFinalMarkdown(project) {
+    if (!project) return null;
+
+    // Check if phase 3 is complete and has output
+    if (project.phases && project.phases[3] && project.phases[3].completed) {
+        // Return the final phase output (usually the refined document)
+        const finalOutput = project.phases[3].aiResponse || project.phase3_output;
+        if (finalOutput) {
+            return finalOutput;
+        }
+    }
+
+    // Fallback to full export
+    return exportFinalDocument(project);
+}
+
+/**
+ * Generate export filename for a project
+ * @param {Object} project - Project object
+ * @returns {string} Filename with .md extension
+ */
+export function getExportFilename(project) {
+    const title = project.title || project.name || 'document';
+    // Sanitize filename: remove special chars, replace spaces with hyphens
+    const sanitized = title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .substring(0, 50);
+    return `${sanitized}.md`;
+}
