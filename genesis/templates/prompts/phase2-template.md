@@ -8,8 +8,12 @@ CUSTOMIZATION INSTRUCTIONS:
 4. Update the review criteria to match your needs
 5. Customize the critical rules for your document type
 
+TEMPLATE VARIABLE SYNTAX:
+- Use {{VAR_NAME}} (double braces, SCREAMING_SNAKE_CASE)
+- This template uses: {{PHASE1_OUTPUT}}
+
 REFERENCE IMPLEMENTATION:
-https://github.com/bordenet/product-requirements-assistant/blob/main/prompts/phase2-gemini-review.md
+https://github.com/bordenet/product-requirements-assistant/blob/main/prompts/phase2.md
 
 This is a CONCRETE EXAMPLE from product-requirements-assistant.
 Study it, then customize for your document type.
@@ -128,5 +132,5 @@ When ready, provide your improved version in this format:
 
 ---
 
-{phase1_output}
+{{PHASE1_OUTPUT}}
 

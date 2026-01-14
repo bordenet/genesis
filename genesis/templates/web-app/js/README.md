@@ -7,10 +7,11 @@ This directory contains JavaScript ES6 module templates for web applications.
 ## Contents
 
 1. **`storage-template.js`** - IndexedDB wrapper for data persistence
-2. **`workflow-template.js`** - Multi-phase workflow engine
-3. **`ui-template.js`** - UI components and rendering
-4. **`app-template.js`** - Application initialization and routing
-5. **`lib/`** - Third-party libraries (excluded from linting/coverage)
+2. **`prompts-template.js`** - Prompt template loading and variable replacement
+3. **`workflow-template.js`** - Multi-phase workflow engine (uses prompts.js)
+4. **`ui-template.js`** - UI components and rendering
+5. **`app-template.js`** - Application initialization and routing
+6. **`lib/`** - Third-party libraries (excluded from linting/coverage)
 
 ## Third-Party Libraries (js/lib/)
 
@@ -45,23 +46,42 @@ await initDB();
 const projects = await getAllProjects();
 ```
 
-### workflow-template.js
+### prompts-template.js
 
-**Purpose**: Multi-phase workflow state management
+**Purpose**: Prompt template loading and variable replacement
 
 **Exports**:
-- `createWorkflow(phaseCount)` - Create new workflow
-- `getCurrentPhase(workflow)` - Get current phase
-- `completePhase(workflow, phaseNumber, response)` - Mark phase complete
-- `canProceed(workflow, phaseNumber)` - Check if can proceed
-- `getProgress(workflow)` - Get completion percentage
+- `WORKFLOW_CONFIG` - Phase configuration
+- `generatePhase1Prompt(formData)` - Generate Phase 1 prompt
+- `generatePhase2Prompt(phase1Output)` - Generate Phase 2 prompt
+- `generatePhase3Prompt(phase1Output, phase2Output)` - Generate Phase 3 prompt
+- `getPhaseMetadata(phaseNumber)` - Get phase metadata
+
+**Template Variable Syntax**: `{{VAR_NAME}}` (double braces, SCREAMING_SNAKE_CASE)
 
 **Usage**:
 ```javascript
-import { createWorkflow, completePhase } from './workflow.js';
+import { generatePhase1Prompt, WORKFLOW_CONFIG } from './prompts.js';
 
-const workflow = createWorkflow(3);
-completePhase(workflow, 1, aiResponse);
+const prompt = await generatePhase1Prompt({ title: 'My Doc', context: '...' });
+```
+
+### workflow-template.js
+
+**Purpose**: Multi-phase workflow state management (uses prompts.js)
+
+**Exports**:
+- `WORKFLOW_CONFIG` - Re-exported from prompts.js
+- `Workflow` - Workflow class for managing project phases
+- `getPhaseMetadata(phaseNumber)` - Get phase metadata
+- `generatePromptForPhase(project, phaseNumber)` - Generate prompt for phase
+
+**Usage**:
+```javascript
+import { Workflow, WORKFLOW_CONFIG } from './workflow.js';
+
+const workflow = new Workflow(project);
+const prompt = await workflow.generatePrompt();
 ```
 
 ### ui-template.js
