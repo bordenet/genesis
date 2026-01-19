@@ -286,7 +286,28 @@ cd /workspace
 
 ## Phase 4: Validation System (1-2 hours)
 
-### 4.1 Create Validation Script
+### 4.1 Required Tests (Non-Negotiable)
+
+Every project MUST include these tests in `tests/`:
+
+```
+tests/
+├── link-validation.test.js    # Validates all markdown links exist
+├── template-sync.test.js      # Validates template variables (if applicable)
+└── [module].test.js           # Unit tests for each module
+```
+
+**Link Validation Test**: Copy from `genesis/templates/tests/link-validation.test.js`
+
+This test:
+- Scans all `.md` files in the project
+- Extracts internal markdown links `[text](path)`
+- Verifies each linked file exists
+- Fails CI if any broken links are found
+
+**Why this is mandatory**: Broken documentation links erode trust and waste developer time. This test catches them before deployment.
+
+### 4.2 Create Validation Script
 
 ```bash
 # validate-monorepo.sh
