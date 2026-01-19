@@ -27,6 +27,7 @@ This document describes the core design patterns used consistently across all ge
 **Purpose**: Single-responsibility modules with clear imports/exports.
 
 **Standard Modules**:
+
 | Module | Responsibility |
 |--------|----------------|
 | `app.js` | Entry point, initialization, global event listeners |
@@ -57,6 +58,7 @@ export default storage;         // Same instance everywhere
 ## 3. Hash-based SPA Router
 
 **Routes**:
+
 | Hash | Route | Handler |
 |------|-------|---------|
 | `#` or empty | home | `renderProjectsList()` |

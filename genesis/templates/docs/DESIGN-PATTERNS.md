@@ -39,6 +39,7 @@ export default storage;
 ```
 
 **Standard Modules**:
+
 | Module | Responsibility |
 |--------|----------------|
 | `app.js` | Entry point, initialization, global event listeners |
@@ -77,6 +78,7 @@ await storage.init();
 **Purpose**: Client-side navigation without page reloads.
 
 **Routes**:
+
 | Hash | Route | Handler |
 |------|-------|---------|
 | `#` or empty | home | `renderProjectsList()` |
