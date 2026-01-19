@@ -46,7 +46,7 @@ Genesis is based on **TWO known-good reference implementations**. When implement
    - **Live Demo**: https://bordenet.github.io/one-pager/
    - **What it demonstrates**: 3-phase one-pager generator (same pattern, different document type)
    - **Key patterns**: Related projects dropdown, privacy notice, UI patterns
-   - **Lessons learned**: See `GENESIS-DARK-MODE-IMPLEMENTATION.md`, `GENESIS-PROCESS-IMPROVEMENTS.md`
+   - **Lessons learned**: See [`docs/archive/GENESIS-PROCESS-IMPROVEMENTS.md`](docs/archive/GENESIS-PROCESS-IMPROVEMENTS.md)
 
 ### When to Reference:
 

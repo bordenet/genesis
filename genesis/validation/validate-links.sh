@@ -47,8 +47,13 @@ echo "🔍 Genesis Link Validation"
 echo "=========================="
 echo ""
 
-# Find all markdown files
-MARKDOWN_FILES=$(find genesis -name "*.md" -type f)
+# Determine the genesis root directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GENESIS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Find all markdown files (relative to genesis root)
+cd "$GENESIS_ROOT"
+MARKDOWN_FILES=$(find . -name "*.md" -type f -not -path "./node_modules/*")
 
 echo "📄 Scanning markdown files..."
 echo ""
@@ -120,7 +125,7 @@ echo "📦 Validating file references..."
 echo ""
 
 # Validate script references in shell scripts
-SHELL_SCRIPTS=$(find genesis -name "*.sh" -type f)
+SHELL_SCRIPTS=$(find . -name "*.sh" -type f -not -path "./node_modules/*")
 
 for file in $SHELL_SCRIPTS; do
   if [ "$VERBOSE" = true ]; then
