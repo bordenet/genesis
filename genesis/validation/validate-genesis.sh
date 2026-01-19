@@ -28,12 +28,12 @@ log_info() {
 
 log_success() {
     echo -e "${COLOR_GREEN}[✓]${COLOR_RESET} $*"
-    ((CHECKS_PASSED++))
+    CHECKS_PASSED=$((CHECKS_PASSED + 1))
 }
 
 log_error() {
     echo -e "${COLOR_RED}[✗]${COLOR_RESET} $*"
-    ((CHECKS_FAILED++))
+    CHECKS_FAILED=$((CHECKS_FAILED + 1))
 }
 
 log_header() {
@@ -105,12 +105,9 @@ main() {
     # Check examples
     log_info "Checking examples..."
     check_dir "examples" "Examples directory"
-    check_dir "examples/one-pager" "One-Pager example"
-    check_dir "examples/minimal" "Minimal example"
-    check_file "examples/one-pager/README.md" "One-Pager README"
-    check_file "examples/one-pager/prompts/phase1.txt" "One-Pager phase 1 prompt"
-    check_file "examples/one-pager/prompts/phase2.txt" "One-Pager phase 2 prompt"
-    check_file "examples/minimal/README.md" "Minimal README"
+    check_dir "examples/hello-world" "Hello-World example"
+    check_file "examples/README.md" "Examples README"
+    check_file "examples/hello-world/README.md" "Hello-World README"
     
     # Check validation directory
     log_info "Checking validation tools..."
