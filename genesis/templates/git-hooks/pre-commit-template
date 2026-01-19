@@ -25,12 +25,12 @@ log_check() {
 
 log_pass() {
     echo -e "${COLOR_GREEN}[✓]${COLOR_RESET} $*"
-    ((CHECKS_PASSED++))
+    CHECKS_PASSED=$((CHECKS_PASSED + 1))
 }
 
 log_fail() {
     echo -e "${COLOR_RED}[✗]${COLOR_RESET} $*"
-    ((CHECKS_FAILED++))
+    CHECKS_FAILED=$((CHECKS_FAILED + 1))
 }
 
 echo ""
@@ -38,6 +38,50 @@ echo "========================================="
 echo "  Pre-Commit Quality Checks"
 echo "========================================="
 echo ""
+
+# Get repo root
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+# Check 0: Markdown link validation (staged files only)
+log_check "Validating markdown links in staged files..."
+STAGED_MD=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.md$' || true)
+LINK_ERRORS=0
+
+if [ -n "$STAGED_MD" ]; then
+    for mdfile in $STAGED_MD; do
+        if [ -f "$mdfile" ]; then
+            mddir=$(dirname "$mdfile")
+            # Extract internal links (not http/https/mailto/#)
+            links=$(grep -Eo '\[[^]]+\]\([^)]+\)' "$mdfile" 2>/dev/null | \
+                    sed -E 's/.*\(([^)]+)\).*/\1/' | \
+                    grep -v '^https\?://' | \
+                    grep -v '^mailto:' | \
+                    grep -v '^#' || true)
+
+            for link in $links; do
+                # Remove anchor
+                target="${link%%#*}"
+                # Resolve path
+                if [[ "$target" == /* ]]; then
+                    fullpath="$REPO_ROOT$target"
+                else
+                    fullpath="$mddir/$target"
+                fi
+
+                if [ ! -e "$fullpath" ]; then
+                    log_fail "Broken link in $mdfile: $link"
+                    LINK_ERRORS=$((LINK_ERRORS + 1))
+                fi
+            done
+        fi
+    done
+
+    if [ $LINK_ERRORS -eq 0 ]; then
+        log_pass "All links in staged markdown files are valid"
+    fi
+else
+    log_pass "No markdown files to check"
+fi
 
 # Check 1: ShellCheck on all shell scripts
 log_check "Running ShellCheck on shell scripts..."
@@ -114,7 +158,7 @@ TODO_COUNT=0
 for file in $STAGED_FILES; do
     if [ -f "$file" ] && grep -qE "TODO|FIXME" "$file"; then
         log_fail "TODO/FIXME found in $file"
-        ((TODO_COUNT++))
+        TODO_COUNT=$((TODO_COUNT + 1))
     fi
 done
 
@@ -130,7 +174,7 @@ if [ -n "$JS_FILES" ]; then
     for jsfile in $JS_FILES; do
         if [ -f "$jsfile" ] && grep -q "console\.log" "$jsfile"; then
             log_fail "console.log found in $jsfile"
-            ((CONSOLE_LOG_COUNT++))
+            CONSOLE_LOG_COUNT=$((CONSOLE_LOG_COUNT + 1))
         fi
     done
 fi

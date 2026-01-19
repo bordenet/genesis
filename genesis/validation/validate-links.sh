@@ -52,8 +52,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GENESIS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Find all markdown files (relative to genesis root)
+# Exclude all node_modules directories at any level
 cd "$GENESIS_ROOT"
-MARKDOWN_FILES=$(find . -name "*.md" -type f -not -path "./node_modules/*")
+MARKDOWN_FILES=$(find . -name "*.md" -type f -not -path "*/node_modules/*" -not -path "*/coverage/*" -not -path "*/.git/*")
 
 echo "📄 Scanning markdown files..."
 echo ""
@@ -70,7 +71,8 @@ for file in $MARKDOWN_FILES; do
   fi
   
   # Extract markdown links: [text](path)
-  LINKS=$(grep -oE '\[([^\]]+)\]\(([^)]+)\)' "$file" || true)
+  # Pattern works on both BSD (macOS) and GNU grep
+  LINKS=$(grep -Eo '\[[^]]+\]\([^)]+\)' "$file" || true)
   
   if [ -n "$LINKS" ]; then
     while IFS= read -r link; do
@@ -125,7 +127,7 @@ echo "📦 Validating file references..."
 echo ""
 
 # Validate script references in shell scripts
-SHELL_SCRIPTS=$(find . -name "*.sh" -type f -not -path "./node_modules/*")
+SHELL_SCRIPTS=$(find . -name "*.sh" -type f -not -path "*/node_modules/*" -not -path "*/.git/*")
 
 for file in $SHELL_SCRIPTS; do
   if [ "$VERBOSE" = true ]; then
