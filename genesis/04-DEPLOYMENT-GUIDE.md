@@ -227,6 +227,7 @@ gh run view --log
 - GitHub Pages not enabled → Enable in Settings
 - Wrong folder selected → Should be `/{{DEPLOY_FOLDER}}`
 - 404 errors → Check file paths are relative
+- Missing `.nojekyll` → Jekyll may exclude directories; add empty `.nojekyll` file to root
 
 ### IndexedDB Not Working
 
