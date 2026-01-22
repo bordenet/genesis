@@ -2,9 +2,10 @@
 ################################################################################
 # deploy-web.sh - Deploy {{PROJECT_NAME}} to GitHub Pages
 #
-# REFERENCE IMPLEMENTATION:
-#     https://github.com/bordenet/product-requirements-assistant/blob/main/scripts/deploy-web.sh
-#     Study the reference implementation for proper compact mode handling!
+# REFERENCE IMPLEMENTATIONS (all use root-serving pattern):
+#     https://github.com/bordenet/one-pager/blob/main/scripts/deploy-web.sh
+#     https://github.com/bordenet/pr-faq-assistant/blob/main/scripts/deploy-web.sh
+#     Study the reference implementations for proper compact mode handling!
 #
 # SYNOPSIS
 #     ./scripts/deploy-web.sh [OPTIONS]
