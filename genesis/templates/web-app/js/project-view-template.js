@@ -24,6 +24,7 @@ import { getProject, updatePhase, updateProjectTitle } from './projects.js';
 import { getPhaseMetadata, generatePromptForPhase, exportFinalDocument, WORKFLOW_CONFIG } from './workflow.js';
 import { escapeHtml, showToast, copyToClipboard, showPromptModal } from './ui.js';
 import { navigateTo } from './router.js';
+import { preloadPromptTemplates } from './prompts.js';
 
 // Track whether Copy Prompt has been clicked for current phase
 let promptCopiedForCurrentPhase = false;
@@ -33,6 +34,10 @@ let promptCopiedForCurrentPhase = false;
  * @param {string} projectId - Project ID to render
  */
 export async function renderProjectView(projectId) {
+    // Preload prompt templates to avoid network delay on first clipboard operation
+    // Fire-and-forget: don't await, let it run in parallel with project load
+    preloadPromptTemplates().catch(() => {});
+
     const project = await getProject(projectId);
     
     if (!project) {
