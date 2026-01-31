@@ -22,7 +22,7 @@
 
 import { getProject, updatePhase, updateProjectTitle } from './projects.js';
 import { getPhaseMetadata, generatePromptForPhase, exportFinalDocument, WORKFLOW_CONFIG } from './workflow.js';
-import { escapeHtml, showToast, copyToClipboard, showPromptModal } from './ui.js';
+import { escapeHtml, showToast, copyToClipboardAsync, showPromptModal } from './ui.js';
 import { navigateTo } from './router.js';
 import { preloadPromptTemplates } from './prompts.js';
 
@@ -304,41 +304,57 @@ function attachPhaseEventListeners(project, phase) {
     const isFinalPhase = phase === phaseCount;
     const meta = getPhaseMetadata(phase);
 
-    copyPromptBtn.addEventListener('click', async () => {
-        const prompt = await generatePromptForPhase(project, phase);
-        await copyToClipboard(prompt);
-        await updatePhase(project.id, phase, prompt, project.phases?.[phase]?.response || '');
+    copyPromptBtn.addEventListener('click', () => {
+        // CRITICAL: Safari transient activation fix
+        // We must call copyToClipboardAsync SYNCHRONOUSLY within the click handler
+        // Pass a Promise that resolves to the prompt text - the clipboard write happens
+        // immediately, preserving Safari's transient activation window
+        let generatedPrompt = null;
+        const promptPromise = (async () => {
+            const prompt = await generatePromptForPhase(project, phase);
+            await updatePhase(project.id, phase, prompt, project.phases?.[phase]?.response || '');
+            generatedPrompt = prompt; // Store for use in .then()
+            return prompt;
+        })();
 
-        // Mark that prompt has been copied for this phase
-        promptCopiedForCurrentPhase = true;
+        // Call clipboard API synchronously with Promise - preserves transient activation
+        copyToClipboardAsync(promptPromise)
+            .then(() => {
+                // Mark that prompt has been copied for this phase
+                promptCopiedForCurrentPhase = true;
 
-        // Update button text to indicate prompt can be copied again
-        copyPromptBtn.innerHTML = '📋 Copy Prompt Again';
+                // Update button text to indicate prompt can be copied again
+                copyPromptBtn.innerHTML = '📋 Copy Prompt Again';
 
-        // Show the View Prompt button
-        if (viewPromptBtn) {
-            viewPromptBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
-            viewPromptBtn.disabled = false;
-            // Store prompt for viewing
-            viewPromptBtn.dataset.prompt = prompt;
-        }
+                // Show the View Prompt button
+                if (viewPromptBtn) {
+                    viewPromptBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
+                    viewPromptBtn.disabled = false;
+                    // Store prompt for viewing
+                    viewPromptBtn.dataset.prompt = generatedPrompt;
+                }
 
-        // Enable the response textarea
-        if (responseTextarea) {
-            responseTextarea.disabled = false;
-            responseTextarea.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'cursor-not-allowed');
-            responseTextarea.placeholder = `Paste ${meta.ai || meta.aiModel}'s response here...`;
-            responseTextarea.focus(); // Auto-focus for easy paste
-        }
+                // Enable the response textarea
+                if (responseTextarea) {
+                    responseTextarea.disabled = false;
+                    responseTextarea.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'cursor-not-allowed');
+                    responseTextarea.placeholder = `Paste ${meta.ai || meta.aiModel}'s response here...`;
+                    responseTextarea.focus(); // Auto-focus for easy paste
+                }
 
-        // Enable the Open AI button
-        if (openAiBtn) {
-            openAiBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed', 'pointer-events-none', 'dark:bg-gray-600', 'dark:text-gray-400');
-            openAiBtn.classList.add('bg-purple-600', 'text-white', 'hover:bg-purple-700');
-            openAiBtn.removeAttribute('aria-disabled');
-        }
+                // Enable the Open AI button
+                if (openAiBtn) {
+                    openAiBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed', 'pointer-events-none', 'dark:bg-gray-600', 'dark:text-gray-400');
+                    openAiBtn.classList.add('bg-purple-600', 'text-white', 'hover:bg-purple-700');
+                    openAiBtn.removeAttribute('aria-disabled');
+                }
 
-        showToast('Prompt copied to clipboard!', 'success');
+                showToast('Prompt copied to clipboard!', 'success');
+            })
+            .catch((error) => {
+                console.error('Error generating prompt:', error);
+                showToast('Failed to generate prompt', 'error');
+            });
     });
 
     saveResponseBtn.addEventListener('click', async () => {

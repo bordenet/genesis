@@ -173,54 +173,60 @@ export function escapeHtml(text) {
 }
 
 /**
- * Copy text to clipboard
+ * Copy text to clipboard - wrapper for copyToClipboardAsync
  *
- * IMPORTANT: This function throws on error and does NOT show toast notifications.
- * Callers are responsible for handling errors and showing appropriate feedback.
- * This pattern allows callers to customize messages (e.g., "Prompt copied!" vs "URL copied!").
+ * IMPORTANT: For async operations (like generating prompts), use copyToClipboardAsync()
+ * instead to preserve Safari's transient activation window.
  *
- * Uses a fallback chain for maximum compatibility:
- * 1. Modern Clipboard API (navigator.clipboard.writeText)
- * 2. Legacy execCommand('copy') for older browsers and iPad/mobile
+ * @param {string} text - Text to copy (must be available synchronously)
+ * @returns {Promise<void>} Resolves if successful, throws if failed
+ * @throws {Error} If clipboard access fails
+ */
+export async function copyToClipboard(text) {
+    return copyToClipboardAsync(Promise.resolve(text));
+}
+
+/**
+ * Copy text to clipboard with async text generation - Safari transient activation safe
  *
- * @param {string} text - Text to copy
+ * CRITICAL: This function MUST be called synchronously within a user gesture handler.
+ * Safari's transient activation window (~2-3 seconds) is preserved because we call
+ * navigator.clipboard.write() immediately, passing a Promise-wrapped Blob that
+ * resolves later when the async work completes.
+ *
+ * @param {Promise<string>} textPromise - Promise that resolves to text to copy
  * @returns {Promise<void>} Resolves if successful, throws if failed
  * @throws {Error} If clipboard access fails
  *
  * @example
- * // Caller handles success/error feedback
- * try {
- *   await copyToClipboard(promptText);
- *   showToast('Prompt copied to clipboard!', 'success');
- * } catch {
- *   showToast('Failed to copy prompt', 'error');
- * }
+ * // In click handler - call synchronously with Promise
+ * button.addEventListener('click', () => {
+ *     const textPromise = generatePromptAsync();
+ *     copyToClipboardAsync(textPromise)
+ *         .then(() => showToast('Copied!', 'success'))
+ *         .catch(() => showToast('Failed to copy', 'error'));
+ * });
  */
-export async function copyToClipboard(text) {
-    // Clipboard API fallback chain for cross-browser compatibility
-    // Order: writeText (Safari MacOS) → ClipboardItem (iOS Safari) → execCommand (legacy)
-    if (navigator.clipboard && window.isSecureContext) {
-        // Method 1: writeText - simplest, works on Safari MacOS and most browsers
+export async function copyToClipboardAsync(textPromise) {
+    // Safari transient activation fix: Call clipboard.write() SYNCHRONOUSLY with Promise-wrapped Blob
+    // The transient activation is evaluated when write() is called, not when Promise resolves
+    if (navigator.clipboard && window.isSecureContext && typeof ClipboardItem !== 'undefined') {
         try {
-            await navigator.clipboard.writeText(text);
-            return;
-        } catch (err) {
-            console.warn('writeText failed, trying ClipboardItem:', err?.message);
-        }
-
-        // Method 2: ClipboardItem with direct Blob - for iOS Safari
-        // iOS Safari may reject writeText but accept ClipboardItem
-        try {
-            const blob = new Blob([text], { type: 'text/plain' });
-            const item = new ClipboardItem({ 'text/plain': blob });
+            // Create a Promise that resolves to a Blob - this preserves transient activation
+            const blobPromise = textPromise.then(text => new Blob([text], { type: 'text/plain' }));
+            const item = new ClipboardItem({ 'text/plain': blobPromise });
             await navigator.clipboard.write([item]);
             return;
         } catch (err) {
-            console.warn('ClipboardItem failed, trying execCommand:', err?.message);
+            console.warn('ClipboardItem with Promise failed, trying execCommand:', err?.message);
         }
     }
 
-    // Method 3: Legacy execCommand fallback
+    // Fallback: Wait for text and use execCommand
+    // This may fail on Safari if transient activation expired, but it's our last resort
+    const text = await textPromise;
+
+    // Legacy execCommand fallback
     // CRITICAL: Position IN viewport - iOS Safari rejects off-screen elements
     const textarea = document.createElement('textarea');
     textarea.value = text;
