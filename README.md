@@ -18,6 +18,7 @@ Template system that generates complete web applications for AI-assisted documen
 ## Table of Contents
 
 - [What You Get](#what-you-get)
+- [Projects Built with Genesis](#projects-built-with-genesis)
 - [How It Works](#how-it-works)
 - [Quick Start](#quick-start)
 - [Why This Exists](#why-this-exists)
@@ -177,12 +178,20 @@ npm run lint             # ESLint
 - [`genesis/04-DEPLOYMENT-GUIDE.md`](genesis/04-DEPLOYMENT-GUIDE.md) - Deployment
 - [`genesis/TROUBLESHOOTING.md`](genesis/TROUBLESHOOTING.md) - Common issues
 
-## Reference Implementations
+## Projects Built with Genesis
 
-**product-requirements-assistant**: [GitHub](https://github.com/bordenet/product-requirements-assistant) | [Demo](https://bordenet.github.io/product-requirements-assistant/)
-**one-pager**: [GitHub](https://github.com/bordenet/one-pager) | [Demo](https://bordenet.github.io/one-pager/)
+All projects below were generated from Genesis templates. Each demonstrates the 3-phase workflow pattern with working CI/CD and automatic deployment to GitHub Pages.
 
-Both demonstrate the 3-phase workflow pattern with working CI/CD and deployment.
+| Project | Description | Links |
+|---------|-------------|-------|
+| **one-pager** | Create compelling 1-page product summaries | [GitHub](https://github.com/bordenet/one-pager) • [Demo](https://bordenet.github.io/one-pager/) |
+| **pr-faq-assistant** | Amazon-style PR/FAQ document generator | [GitHub](https://github.com/bordenet/pr-faq-assistant) • [Demo](https://bordenet.github.io/pr-faq-assistant/) |
+| **product-requirements-assistant** | Comprehensive PRD creation workflow | [GitHub](https://github.com/bordenet/product-requirements-assistant) • [Demo](https://bordenet.github.io/product-requirements-assistant/) |
+| **power-statement-assistant** | Executive summary statement generator | [GitHub](https://github.com/bordenet/power-statement-assistant) • [Demo](https://bordenet.github.io/power-statement-assistant/) |
+| **strategic-proposal** | Strategic initiative proposal builder | [GitHub](https://github.com/bordenet/strategic-proposal) • [Demo](https://bordenet.github.io/strategic-proposal/) |
+| **architecture-decision-record** | ADR (Architecture Decision Record) creator | [GitHub](https://github.com/bordenet/architecture-decision-record) • [Demo](https://bordenet.github.io/architecture-decision-record/) |
+
+**Total**: 6 production apps, each with 90%+ test coverage and CI/CD.
 
 ---
 
