@@ -1,0 +1,1093 @@
+{
+  "timestamp": "2026-02-01T19:40:31.458Z",
+  "compositeEntropy": 0.1,
+  "thresholds": {
+    "byRepo": {
+      "architecture-decision-record": {
+        "statements": 50,
+        "branches": 40,
+        "functions": 50,
+        "lines": 50
+      },
+      "one-pager": {
+        "statements": 50,
+        "branches": 40,
+        "functions": 50,
+        "lines": 50
+      },
+      "power-statement-assistant": {
+        "statements": 50,
+        "branches": 40,
+        "functions": 50,
+        "lines": 50
+      },
+      "pr-faq-assistant": {
+        "statements": 50,
+        "branches": 40,
+        "functions": 50,
+        "lines": 50
+      },
+      "product-requirements-assistant": {
+        "statements": 50,
+        "branches": 40,
+        "functions": 50,
+        "lines": 50
+      },
+      "strategic-proposal": {
+        "statements": 50,
+        "branches": 40,
+        "functions": 50,
+        "lines": 50
+      }
+    },
+    "variance": {
+      "statements": {
+        "values": [
+          50
+        ],
+        "count": 1,
+        "entropy": 0,
+        "isUniform": true
+      },
+      "branches": {
+        "values": [
+          40
+        ],
+        "count": 1,
+        "entropy": 0,
+        "isUniform": true
+      },
+      "functions": {
+        "values": [
+          50
+        ],
+        "count": 1,
+        "entropy": 0,
+        "isUniform": true
+      },
+      "lines": {
+        "values": [
+          50
+        ],
+        "count": 1,
+        "entropy": 0,
+        "isUniform": true
+      }
+    }
+  },
+  "scripts": {
+    "byRepo": {
+      "architecture-decision-record": {
+        "build:css": "tailwindcss -i css/tailwind-input.css -o css/tailwind.css",
+        "build": "npm run build:css && esbuild js/app.js --bundle --outfile=app-bundle.js --platform=browser",
+        "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+        "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=\\.test\\.js$",
+        "test:e2e": "playwright test",
+        "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+        "lint": "eslint js/**/*.js",
+        "lint:fix": "eslint js/**/*.js --fix",
+        "format": "eslint js/**/*.js --fix",
+        "quality": "npm run lint && npm run test:coverage",
+        "validate": "./scripts/validate.sh",
+        "validate:docs": "bash ./scripts/lib/validate-docs.sh",
+        "serve": "npm run build && python3 -m http.server 8000 --directory .",
+        "deploy": "./scripts/deploy-web.sh",
+        "prepare": "command -v pre-commit >/dev/null 2>&1 && pre-commit install || echo 'pre-commit not installed, skipping hook setup'"
+      },
+      "one-pager": {
+        "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+        "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=\\.test\\.js$",
+        "test:e2e": "playwright test",
+        "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+        "lint": "eslint js/**/*.js",
+        "lint:fix": "eslint js/**/*.js --fix",
+        "format": "eslint js/**/*.js --fix",
+        "quality": "npm run lint && npm run test:coverage",
+        "serve": "python3 -m http.server 8000",
+        "deploy": "./scripts/deploy-web.sh",
+        "prepare": "command -v pre-commit >/dev/null 2>&1 && pre-commit install || echo 'pre-commit not installed, skipping hook setup'"
+      },
+      "power-statement-assistant": {
+        "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+        "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=\\.test\\.js$",
+        "test:e2e": "playwright test",
+        "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+        "lint": "eslint js/**/*.js",
+        "lint:fix": "eslint js/**/*.js --fix",
+        "format": "eslint js/**/*.js --fix",
+        "quality": "npm run lint && npm run test:coverage",
+        "serve": "python3 -m http.server 8000",
+        "deploy": "./scripts/deploy-web.sh",
+        "prepare": "command -v pre-commit >/dev/null 2>&1 && pre-commit install || echo 'pre-commit not installed, skipping hook setup'"
+      },
+      "pr-faq-assistant": {
+        "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+        "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=\\.test\\.js$",
+        "test:e2e": "playwright test",
+        "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+        "lint": "eslint js/**/*.js",
+        "lint:fix": "eslint js/**/*.js --fix",
+        "format": "eslint js/**/*.js --fix",
+        "quality": "npm run lint && npm run test:coverage",
+        "serve": "python3 -m http.server 8080",
+        "deploy": "./scripts/deploy-web.sh",
+        "prepare": "command -v pre-commit >/dev/null 2>&1 && pre-commit install || echo 'pre-commit not installed, skipping hook setup'"
+      },
+      "product-requirements-assistant": {
+        "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+        "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=\\.test\\.js$",
+        "test:e2e": "playwright test",
+        "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+        "lint": "eslint js/**/*.js",
+        "lint:fix": "eslint js/**/*.js --fix",
+        "format": "eslint js/**/*.js --fix",
+        "quality": "npm run lint && npm run test:coverage",
+        "serve": "python3 -m http.server 8000",
+        "deploy": "./scripts/deploy-web.sh",
+        "prepare": "command -v pre-commit >/dev/null 2>&1 && pre-commit install || echo 'pre-commit not installed, skipping hook setup'"
+      },
+      "strategic-proposal": {
+        "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+        "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=\\.test\\.js$",
+        "test:e2e": "playwright test",
+        "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+        "lint": "eslint js/**/*.js",
+        "lint:fix": "eslint js/**/*.js --fix",
+        "format": "eslint js/**/*.js --fix",
+        "quality": "npm run lint && npm run test:coverage",
+        "serve": "python3 -m http.server 8080",
+        "deploy": "./scripts/deploy-web.sh",
+        "prepare": "command -v pre-commit >/dev/null 2>&1 && pre-commit install || echo 'pre-commit not installed, skipping hook setup'"
+      }
+    },
+    "variance": {
+      "test": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "entropy": 0,
+        "isUniform": true
+      },
+      "test:coverage": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "entropy": 0,
+        "isUniform": true
+      },
+      "test:e2e": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "entropy": 0,
+        "isUniform": true
+      },
+      "lint": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "entropy": 0,
+        "isUniform": true
+      },
+      "lint:fix": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "entropy": 0,
+        "isUniform": true
+      }
+    }
+  },
+  "coreFiles": {
+    "byRepo": {
+      "architecture-decision-record": {
+        "index.html": true,
+        "js/app.js": true,
+        "js/storage.js": true,
+        "js/ui.js": true,
+        "js/workflow.js": true,
+        "js/router.js": true,
+        "js/views.js": true,
+        "js/projects.js": true,
+        "js/project-view.js": true,
+        "js/types.js": true,
+        "js/error-handler.js": true,
+        "js/ai-mock.js": true,
+        "js/same-llm-adversarial.js": true,
+        "css/styles.css": true,
+        "tests/storage.test.js": true,
+        "tests/workflow.test.js": true,
+        "tests/ui.test.js": true,
+        "tests/router.test.js": true,
+        "README.md": true,
+        "LICENSE": true,
+        "docs/CLAUDE.md": false
+      },
+      "one-pager": {
+        "index.html": true,
+        "js/app.js": true,
+        "js/storage.js": true,
+        "js/ui.js": true,
+        "js/workflow.js": true,
+        "js/router.js": true,
+        "js/views.js": true,
+        "js/projects.js": true,
+        "js/project-view.js": true,
+        "js/types.js": true,
+        "js/error-handler.js": true,
+        "js/ai-mock.js": true,
+        "js/same-llm-adversarial.js": true,
+        "css/styles.css": true,
+        "tests/storage.test.js": true,
+        "tests/workflow.test.js": true,
+        "tests/ui.test.js": true,
+        "tests/router.test.js": true,
+        "README.md": true,
+        "LICENSE": true,
+        "docs/CLAUDE.md": false
+      },
+      "power-statement-assistant": {
+        "index.html": true,
+        "js/app.js": true,
+        "js/storage.js": true,
+        "js/ui.js": true,
+        "js/workflow.js": true,
+        "js/router.js": true,
+        "js/views.js": true,
+        "js/projects.js": true,
+        "js/project-view.js": true,
+        "js/types.js": true,
+        "js/error-handler.js": true,
+        "js/ai-mock.js": true,
+        "js/same-llm-adversarial.js": true,
+        "css/styles.css": true,
+        "tests/storage.test.js": true,
+        "tests/workflow.test.js": true,
+        "tests/ui.test.js": true,
+        "tests/router.test.js": true,
+        "README.md": true,
+        "LICENSE": true,
+        "docs/CLAUDE.md": false
+      },
+      "pr-faq-assistant": {
+        "index.html": true,
+        "js/app.js": true,
+        "js/storage.js": true,
+        "js/ui.js": true,
+        "js/workflow.js": true,
+        "js/router.js": true,
+        "js/views.js": true,
+        "js/projects.js": true,
+        "js/project-view.js": true,
+        "js/types.js": true,
+        "js/error-handler.js": true,
+        "js/ai-mock.js": true,
+        "js/same-llm-adversarial.js": true,
+        "css/styles.css": true,
+        "tests/storage.test.js": true,
+        "tests/workflow.test.js": true,
+        "tests/ui.test.js": true,
+        "tests/router.test.js": true,
+        "README.md": true,
+        "LICENSE": true,
+        "docs/CLAUDE.md": false
+      },
+      "product-requirements-assistant": {
+        "index.html": true,
+        "js/app.js": true,
+        "js/storage.js": true,
+        "js/ui.js": true,
+        "js/workflow.js": true,
+        "js/router.js": true,
+        "js/views.js": true,
+        "js/projects.js": true,
+        "js/project-view.js": true,
+        "js/types.js": true,
+        "js/error-handler.js": true,
+        "js/ai-mock.js": true,
+        "js/same-llm-adversarial.js": true,
+        "css/styles.css": true,
+        "tests/storage.test.js": true,
+        "tests/workflow.test.js": true,
+        "tests/ui.test.js": true,
+        "tests/router.test.js": true,
+        "README.md": true,
+        "LICENSE": true,
+        "docs/CLAUDE.md": false
+      },
+      "strategic-proposal": {
+        "index.html": true,
+        "js/app.js": true,
+        "js/storage.js": true,
+        "js/ui.js": true,
+        "js/workflow.js": true,
+        "js/router.js": true,
+        "js/views.js": true,
+        "js/projects.js": true,
+        "js/project-view.js": true,
+        "js/types.js": true,
+        "js/error-handler.js": true,
+        "js/ai-mock.js": true,
+        "js/same-llm-adversarial.js": true,
+        "css/styles.css": true,
+        "tests/storage.test.js": true,
+        "tests/workflow.test.js": true,
+        "tests/ui.test.js": true,
+        "tests/router.test.js": true,
+        "README.md": true,
+        "LICENSE": true,
+        "docs/CLAUDE.md": false
+      }
+    },
+    "variance": {
+      "index.html": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/app.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/storage.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/ui.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/workflow.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/router.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/views.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/projects.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/project-view.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/types.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/error-handler.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/ai-mock.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "js/same-llm-adversarial.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "css/styles.css": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "tests/storage.test.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "tests/workflow.test.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "tests/ui.test.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "tests/router.test.js": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "README.md": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "LICENSE": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "isUniform": true
+      },
+      "docs/CLAUDE.md": {
+        "presentIn": [],
+        "missingFrom": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "isUniform": false
+      }
+    }
+  },
+  "dependencies": {
+    "byRepo": {
+      "architecture-decision-record": {
+        "@eslint/js": "^9.39.2",
+        "@jest/globals": "^29.7.0",
+        "@playwright/test": "^1.57.0",
+        "autoprefixer": "^10.4.23",
+        "esbuild": "^0.27.2",
+        "eslint": "^9.39.2",
+        "fake-indexeddb": "^6.2.5",
+        "globals": "^17.0.0",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0",
+        "postcss": "^8.4.32",
+        "tailwindcss": "^3.4.19"
+      },
+      "one-pager": {
+        "@eslint/js": "^9.39.2",
+        "@jest/globals": "^29.7.0",
+        "@playwright/test": "^1.57.0",
+        "eslint": "^9.39.2",
+        "fake-indexeddb": "^6.2.5",
+        "globals": "^17.0.0",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0"
+      },
+      "power-statement-assistant": {
+        "@eslint/js": "^9.39.2",
+        "@jest/globals": "^29.7.0",
+        "@playwright/test": "^1.57.0",
+        "eslint": "^9.39.2",
+        "fake-indexeddb": "^6.2.5",
+        "globals": "^17.0.0",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0"
+      },
+      "pr-faq-assistant": {
+        "@eslint/js": "^9.39.2",
+        "@jest/globals": "^29.7.0",
+        "@playwright/test": "^1.57.0",
+        "eslint": "^9.39.2",
+        "fake-indexeddb": "^6.2.5",
+        "globals": "^17.0.0",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0"
+      },
+      "product-requirements-assistant": {
+        "@eslint/js": "^9.39.2",
+        "@jest/globals": "^29.7.0",
+        "@playwright/test": "^1.57.0",
+        "eslint": "^9.39.2",
+        "fake-indexeddb": "^6.2.5",
+        "globals": "^17.0.0",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0"
+      },
+      "strategic-proposal": {
+        "@jest/globals": "^29.7.0",
+        "eslint": "^9.39.2",
+        "fake-indexeddb": "^6.2.5",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0"
+      }
+    },
+    "variance": {
+      "jest": {
+        "versions": [
+          "29"
+        ],
+        "byVersion": {
+          "29": [
+            "architecture-decision-record",
+            "one-pager",
+            "power-statement-assistant",
+            "pr-faq-assistant",
+            "product-requirements-assistant",
+            "strategic-proposal"
+          ]
+        },
+        "count": 1,
+        "entropy": 0,
+        "isUniform": true,
+        "presentIn": 6,
+        "totalRepos": 6
+      },
+      "eslint": {
+        "versions": [
+          "9"
+        ],
+        "byVersion": {
+          "9": [
+            "architecture-decision-record",
+            "one-pager",
+            "power-statement-assistant",
+            "pr-faq-assistant",
+            "product-requirements-assistant",
+            "strategic-proposal"
+          ]
+        },
+        "count": 1,
+        "entropy": 0,
+        "isUniform": true,
+        "presentIn": 6,
+        "totalRepos": 6
+      },
+      "@jest/globals": {
+        "versions": [
+          "29"
+        ],
+        "byVersion": {
+          "29": [
+            "architecture-decision-record",
+            "one-pager",
+            "power-statement-assistant",
+            "pr-faq-assistant",
+            "product-requirements-assistant",
+            "strategic-proposal"
+          ]
+        },
+        "count": 1,
+        "entropy": 0,
+        "isUniform": true,
+        "presentIn": 6,
+        "totalRepos": 6
+      },
+      "jest-environment-jsdom": {
+        "versions": [
+          "29"
+        ],
+        "byVersion": {
+          "29": [
+            "architecture-decision-record",
+            "one-pager",
+            "power-statement-assistant",
+            "pr-faq-assistant",
+            "product-requirements-assistant",
+            "strategic-proposal"
+          ]
+        },
+        "count": 1,
+        "entropy": 0,
+        "isUniform": true,
+        "presentIn": 6,
+        "totalRepos": 6
+      },
+      "tailwindcss": {
+        "versions": [
+          "3"
+        ],
+        "byVersion": {
+          "3": [
+            "architecture-decision-record"
+          ]
+        },
+        "count": 1,
+        "entropy": 0,
+        "isUniform": true,
+        "presentIn": 1,
+        "totalRepos": 6
+      }
+    }
+  },
+  "aiInstructions": {
+    "byRepo": {
+      "architecture-decision-record": {
+        "CLAUDE.md": {
+          "exists": true,
+          "lineCount": 4,
+          "hasSuperpowers": false,
+          "hasMandatorySection": false,
+          "hasDeploymentRules": false
+        },
+        "Agents.md": {
+          "exists": true,
+          "lineCount": 424,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        },
+        "AGENTS.md": {
+          "exists": true,
+          "lineCount": 424,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        }
+      },
+      "one-pager": {
+        "CLAUDE.md": {
+          "exists": true,
+          "lineCount": 4,
+          "hasSuperpowers": false,
+          "hasMandatorySection": false,
+          "hasDeploymentRules": false
+        },
+        "Agents.md": {
+          "exists": true,
+          "lineCount": 161,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        },
+        "AGENTS.md": {
+          "exists": true,
+          "lineCount": 161,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        }
+      },
+      "power-statement-assistant": {
+        "CLAUDE.md": {
+          "exists": true,
+          "lineCount": 4,
+          "hasSuperpowers": false,
+          "hasMandatorySection": false,
+          "hasDeploymentRules": false
+        },
+        "Agents.md": {
+          "exists": true,
+          "lineCount": 235,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        },
+        "AGENTS.md": {
+          "exists": true,
+          "lineCount": 235,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        }
+      },
+      "pr-faq-assistant": {
+        "CLAUDE.md": {
+          "exists": true,
+          "lineCount": 4,
+          "hasSuperpowers": false,
+          "hasMandatorySection": false,
+          "hasDeploymentRules": false
+        },
+        "Agents.md": {
+          "exists": true,
+          "lineCount": 483,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        },
+        "AGENTS.md": {
+          "exists": true,
+          "lineCount": 483,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        }
+      },
+      "product-requirements-assistant": {
+        "CLAUDE.md": {
+          "exists": true,
+          "lineCount": 4,
+          "hasSuperpowers": false,
+          "hasMandatorySection": false,
+          "hasDeploymentRules": false
+        },
+        "Agents.md": {
+          "exists": true,
+          "lineCount": 251,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        },
+        "AGENTS.md": {
+          "exists": true,
+          "lineCount": 251,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        }
+      },
+      "strategic-proposal": {
+        "CLAUDE.md": {
+          "exists": true,
+          "lineCount": 4,
+          "hasSuperpowers": false,
+          "hasMandatorySection": false,
+          "hasDeploymentRules": false
+        },
+        "Agents.md": {
+          "exists": true,
+          "lineCount": 196,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        },
+        "AGENTS.md": {
+          "exists": true,
+          "lineCount": 196,
+          "hasSuperpowers": true,
+          "hasMandatorySection": true,
+          "hasDeploymentRules": true
+        }
+      }
+    },
+    "variance": {
+      "CLAUDE.md": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "avgLineCount": 4,
+        "lineCountRange": 4,
+        "isUniform": true
+      },
+      "Agents.md": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "avgLineCount": 292,
+        "lineCountRange": 483,
+        "isUniform": false
+      },
+      "AGENTS.md": {
+        "presentIn": [
+          "architecture-decision-record",
+          "one-pager",
+          "power-statement-assistant",
+          "pr-faq-assistant",
+          "product-requirements-assistant",
+          "strategic-proposal"
+        ],
+        "missingFrom": [],
+        "avgLineCount": 292,
+        "lineCountRange": 483,
+        "isUniform": false
+      }
+    }
+  },
+  "naming": {
+    "byRepo": {
+      "architecture-decision-record": {
+        "camelCasePercent": 99,
+        "namedExportPercent": 100,
+        "functions": {
+          "camelCase": 66,
+          "other": 1
+        },
+        "exports": {
+          "named": 10,
+          "default": 0
+        }
+      },
+      "one-pager": {
+        "camelCasePercent": 99,
+        "namedExportPercent": 97,
+        "functions": {
+          "camelCase": 82,
+          "other": 1
+        },
+        "exports": {
+          "named": 32,
+          "default": 1
+        }
+      },
+      "power-statement-assistant": {
+        "camelCasePercent": 99,
+        "namedExportPercent": 96,
+        "functions": {
+          "camelCase": 75,
+          "other": 1
+        },
+        "exports": {
+          "named": 25,
+          "default": 1
+        }
+      },
+      "pr-faq-assistant": {
+        "camelCasePercent": 99,
+        "namedExportPercent": 96,
+        "functions": {
+          "camelCase": 71,
+          "other": 1
+        },
+        "exports": {
+          "named": 26,
+          "default": 1
+        }
+      },
+      "product-requirements-assistant": {
+        "camelCasePercent": 99,
+        "namedExportPercent": 96,
+        "functions": {
+          "camelCase": 74,
+          "other": 1
+        },
+        "exports": {
+          "named": 22,
+          "default": 1
+        }
+      },
+      "strategic-proposal": {
+        "camelCasePercent": 99,
+        "namedExportPercent": 97,
+        "functions": {
+          "camelCase": 80,
+          "other": 1
+        },
+        "exports": {
+          "named": 33,
+          "default": 1
+        }
+      }
+    },
+    "variance": {
+      "camelCase": {
+        "min": 99,
+        "max": 99,
+        "avg": 99,
+        "isUniform": true
+      },
+      "namedExports": {
+        "min": 96,
+        "max": 100,
+        "avg": 97,
+        "isUniform": true
+      }
+    }
+  },
+  "findings": {
+    "critical": [],
+    "warning": [
+      {
+        "dimension": "coreFiles",
+        "field": "docs/CLAUDE.md",
+        "message": "Missing from: architecture-decision-record, one-pager, power-statement-assistant, pr-faq-assistant, product-requirements-assistant, strategic-proposal"
+      }
+    ],
+    "info": [
+      {
+        "dimension": "aiInstructions",
+        "field": "Agents.md length variance",
+        "message": "Line count varies by 483 lines (avg: 292)"
+      },
+      {
+        "dimension": "aiInstructions",
+        "field": "AGENTS.md length variance",
+        "message": "Line count varies by 483 lines (avg: 292)"
+      }
+    ]
+  }
+}

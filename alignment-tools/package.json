@@ -1,0 +1,18 @@
+{
+  "name": "genesis-alignment-tools",
+  "version": "1.0.0",
+  "description": "Entropy and variance scanner for Genesis-derived repositories",
+  "type": "module",
+  "main": "scan-entropy.js",
+  "scripts": {
+    "scan": "node scan-entropy.js",
+    "scan:report": "node scan-entropy.js --report",
+    "scan:ci": "node scan-entropy.js --ci --threshold 20"
+  },
+  "author": "Matt J Bordenet",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
