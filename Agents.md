@@ -13,6 +13,7 @@ node ~/.codex/superpowers-augment/superpowers-augment.js bootstrap
 ```
 
 **Key skills to invoke:**
+
 | Skill | When to Use |
 |-------|-------------|
 | `superpowers:brainstorming` | Before creative/feature work |
