@@ -62,6 +62,23 @@ hello-world/
 
 ---
 
+## Usage
+
+1. **Open the application** - Open `index.html` in your browser
+2. **Create a new project** - Click "New Project" and enter a title
+3. **Phase 1: Input** - Enter your input text, copy the generated prompt to your AI (Claude/Gemini), paste the response
+4. **Phase 2: Output** - Copy the Phase 2 prompt to your AI, paste the response
+5. **Export** - Download your completed project as JSON
+
+### AI Mock Mode
+
+For testing without an AI:
+1. Enable "AI Mock Mode" toggle (bottom-right, localhost only)
+2. Mock responses are generated automatically
+3. No need to copy/paste to real AI
+
+---
+
 ## How It Works
 
 ### Phase 1: Input

@@ -1,34 +1,19 @@
+import globals from 'globals';
 import js from '@eslint/js';
 
 export default [
+  // Recommended rules
   js.configs.recommended,
+
+  // Global settings for all files
   {
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
-        // Browser globals
-        window: 'readonly',
-        document: 'readonly',
-        navigator: 'readonly',
-        localStorage: 'readonly',
-        indexedDB: 'readonly',
-        console: 'readonly',
-        alert: 'readonly',
-        confirm: 'readonly',
-        prompt: 'readonly',
-        setTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearTimeout: 'readonly',
-        clearInterval: 'readonly',
-        Blob: 'readonly',
-        URL: 'readonly',
-        FileReader: 'readonly',
-        // Node.js globals (for tests)
+        ...globals.browser,
+        ...globals.es2021,
         process: 'readonly',
-        Buffer: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
       },
     },
     rules: {
@@ -36,17 +21,30 @@ export default [
       'linebreak-style': ['error', 'unix'],
       'quotes': ['error', 'single'],
       'semi': ['error', 'always'],
-      'no-unused-vars': ['warn'],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'no-console': 'off',
     },
   },
+
+  // Test files configuration
   {
-    // Ignore patterns
+    files: ['tests/**/*.js', '**/*.test.js'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+  },
+
+  // Ignore patterns
+  {
     ignores: [
       'node_modules/**',
       'coverage/**',
+      'docs/**',
       'dist/**',
-      '*.config.js',
+      '*.min.js',
+      '**/*.min.js',
     ],
   },
 ];
