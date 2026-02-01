@@ -150,6 +150,30 @@ jobs:
             echo "✓ No markdown files to validate"
           fi
 
+  # Alignment scanner tests - validates the alignment-tools work correctly
+  alignment-tools:
+    name: Alignment Tools Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: alignment-tools
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'alignment-tools/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
   # Consistency checker (validates repo structure consistency)
   # Note: This job only runs on the genesis repo when all tool repos are present
   # It's informational - fails if average similarity drops below 90%
