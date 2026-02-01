@@ -4,54 +4,57 @@
     "lastUpdated": "2026-02-01",
     "maintainer": "bordenet"
   },
-  "jest.config.js": {
-    "coverageThreshold.global.statements": 50,
-    "coverageThreshold.global.branches": 40,
-    "coverageThreshold.global.functions": 50,
-    "coverageThreshold.global.lines": 50,
+  "jestConfig": {
+    "coverageThreshold": {
+      "statements": 50,
+      "branches": 40,
+      "functions": 50,
+      "lines": 50
+    },
     "testEnvironment": "jsdom"
   },
-  "package.json": {
-    "scripts.test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "scripts.test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
-    "scripts.lint": "eslint js/**/*.js",
-    "type": "module"
+  "packageJson": {
+    "type": "module",
+    "scripts": {
+      "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+      "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+      "lint": "eslint js/**/*.js",
+      "lint:fix": "eslint js/**/*.js --fix"
+    }
   },
-  "eslint.config.js": {
+  "eslintConfig": {
     "quotes": "single",
     "semi": true
   },
-  ".github/workflows/ci.yml": {
+  "ciWorkflow": {
     "nodeVersions": ["18", "20", "22"],
-    "coverageUpload": true,
-    "lintStep": true,
-    "testStep": true
+    "hasLint": true,
+    "hasTest": true,
+    "hasCoverage": true
   },
-  "coreFiles": {
-    "required": [
-      "index.html",
-      "js/app.js",
-      "js/storage.js",
-      "js/ui.js",
-      "js/workflow.js",
-      "js/router.js",
-      "js/views.js",
-      "js/projects.js",
-      "js/project-view.js",
-      "js/types.js",
-      "js/error-handler.js",
-      "js/ai-mock.js",
-      "js/same-llm-adversarial.js",
-      "css/styles.css",
-      "tests/storage.test.js",
-      "tests/workflow.test.js",
-      "tests/ui.test.js",
-      "tests/router.test.js",
-      "README.md",
-      "LICENSE",
-      "docs/CLAUDE.md"
-    ]
-  },
+  "requiredFiles": [
+    "index.html",
+    "js/app.js",
+    "js/storage.js",
+    "js/ui.js",
+    "js/workflow.js",
+    "js/router.js",
+    "js/views.js",
+    "js/projects.js",
+    "js/project-view.js",
+    "js/types.js",
+    "js/error-handler.js",
+    "js/ai-mock.js",
+    "js/same-llm-adversarial.js",
+    "css/styles.css",
+    "tests/storage.test.js",
+    "tests/workflow.test.js",
+    "tests/ui.test.js",
+    "tests/router.test.js",
+    "README.md",
+    "LICENSE",
+    "docs/CLAUDE.md"
+  ],
   "uxPatterns": {
     "tailwindVersion": "3.x",
     "darkModeSupport": true,

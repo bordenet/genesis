@@ -1,18 +1,31 @@
 {
   "name": "genesis-alignment-tools",
-  "version": "1.0.0",
-  "description": "Entropy and variance scanner for Genesis-derived repositories",
+  "version": "2.0.0",
+  "description": "Comprehensive entropy and variance scanner for Genesis-derived repositories",
   "type": "module",
-  "main": "scan-entropy.js",
+  "main": "cli.js",
+  "bin": {
+    "genesis-align": "./cli.js"
+  },
   "scripts": {
-    "scan": "node scan-entropy.js",
-    "scan:report": "node scan-entropy.js --report",
-    "scan:ci": "node scan-entropy.js --ci --threshold 20"
+    "scan": "node cli.js scan",
+    "scan:report": "node cli.js scan --format json --output report.json",
+    "scan:ci": "node cli.js scan --ci --threshold 15",
+    "baseline:save": "node cli.js baseline save",
+    "baseline:compare": "node cli.js scan --baseline",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
   },
   "author": "Matt J Bordenet",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
 

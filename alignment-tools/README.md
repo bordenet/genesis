@@ -1,105 +1,108 @@
-# Genesis Alignment Tools
+# Genesis Alignment Tools v2
 
-> **Guidelines:** See [../Agents.md](../Agents.md) for writing standards.
-> **Last Updated:** 2026-02-01
+Comprehensive entropy and variance scanner for Genesis-derived repositories. This toolset addresses the critical gap in the original consistency checker by measuring **semantic variance** (actual config values, coverage thresholds, UX patterns) rather than just **structural similarity** (file presence, hashes).
 
-## Purpose
+## Why v2?
 
-Measure and report on entropy/variance across Genesis-derived repositories. These tools detect configuration drift, test coverage variance, UX inconsistencies, and other divergence patterns that the original `consistency-checker` missed.
+The original tools missed critical variance because:
+1. **Semantic blindness**: Used file hashes instead of parsed values
+2. **Presence ≠ Quality**: Checked if test files exist, not coverage thresholds
+3. **Incomplete implementation**: The entropy scanner was started but never finished
+4. **Low penalty weights**: Config drift barely affected scores
+5. **No CI enforcement**: Tools ran manually and drift accumulated
 
-## Why This Exists
-
-The original `consistency-checker/fingerprint.js` computed similarity scores based on **file presence and hashes**. It missed semantic differences like:
-
-- Test coverage thresholds varying from 40% to 50% across repos
-- Different CI pipeline configurations
-- UX variance in HTML structure, fonts, and verbiage
-- Dependency version drift
-
-This toolset **parses configuration files** and compares **specific values** against an expected baseline.
-
-## Quick Start
+## Installation
 
 ```bash
-# From genesis-tools root
-node genesis/alignment-tools/scan-entropy.js
-
-# Generate detailed report
-node genesis/alignment-tools/scan-entropy.js --report
-
-# CI mode (exit 1 if entropy exceeds threshold)
-node genesis/alignment-tools/scan-entropy.js --ci --threshold 15
+cd genesis/alignment-tools-v2
+npm install
 ```
 
-## What It Measures
+## Usage
 
-| Dimension | Weight | What It Checks |
-|-----------|--------|----------------|
-| Test Coverage Thresholds | 25% | jest.config.js threshold values must match |
-| Config Semantic Parity | 15% | package.json scripts, eslint rules must be identical |
-| UX Consistency | 15% | HTML layout patterns, CSS class usage, font sizes |
-| Naming Conventions | 10% | Variable/function naming patterns across repos |
-| Dependency Versions | 10% | Major version alignment for shared dependencies |
-| CI Pipeline | 10% | Workflow stages, Node versions, coverage gates |
-| Documentation | 5% | README structure, CLAUDE.md presence |
-| Actual Test Coverage | 10% | Optional: runs tests and compares coverage % |
+```bash
+# Full scan with console output
+node cli.js scan
 
-## Output
+# Scan specific dimensions
+node cli.js scan --only test-coverage,config-parity
 
-### Console Summary
+# Generate JSON report
+node cli.js scan --format json --output report.json
 
-```
-=== GENESIS ALIGNMENT SCAN ===
+# Generate Markdown report
+node cli.js scan --format markdown --output report.md
 
-Repos Analyzed: 6
-Composite Entropy Score: 23.5 / 100 (NEEDS ATTENTION)
+# CI mode (exit 1 if entropy > threshold)
+node cli.js scan --ci --threshold 15
 
-CRITICAL VARIANCE:
-  - jest.config.js coverageThreshold.statements: 2 distinct values (40, 50)
-  - jest.config.js coverageThreshold.branches: 2 distinct values (35, 40)
+# Compare to baseline
+node cli.js scan --baseline
 
-WARNING VARIANCE:
-  - package.json test:e2e script: 1 repo missing (strategic-proposal)
+# Save current state as baseline
+node cli.js baseline save
+
+# Scan specific repos
+node cli.js scan --repos one-pager,strategic-proposal
 ```
 
-### JSON Report
+## Dimensions Scanned
 
-Use `--report` to generate `alignment-report.json` with full details.
+| Dimension | What It Measures |
+|-----------|------------------|
+| **Test Coverage** | Jest config thresholds, actual coverage values |
+| **Config Parity** | package.json scripts, ESLint rules, module type |
+| **UX Consistency** | Dark mode, Tailwind classes, container patterns |
+| **Naming Conventions** | camelCase, ESM exports, test file naming |
+| **Dependency Versions** | Major version alignment of critical deps |
+| **CI Pipeline** | Node versions, lint/test/coverage steps |
+| **Documentation** | README structure, required files |
+| **Code Patterns** | Storage, workflow, router, error handling |
 
 ## Entropy Scoring
 
-Shannon entropy: `H = -Σ p_i × log₂(p_i)`
+Uses Shannon entropy to quantify variance (0-100%):
+- **0%**: All repos identical (perfect alignment)
+- **<10%**: Acceptable variance ✅
+- **10-30%**: Needs attention ⚠️
+- **>30%**: Critical variance ❌
 
-- **0-10**: Tight alignment (minor cosmetic differences)
-- **10-20**: Acceptable variance (intentional differences)
-- **20-40**: Needs attention (unintentional drift)
-- **40+**: Critical (repos have diverged significantly)
+## CI Integration
 
-## Baseline Expectations
-
-Edit `baseline/expected-values.json` to define canonical expected values:
-
-```json
-{
-  "jest.config.js": {
-    "coverageThreshold.global.statements": 50,
-    "coverageThreshold.global.branches": 40
-  }
-}
-```
-
-The scanner compares each repo against these expected values and flags deviations.
-
-## Integration
-
-Add to CI pipeline:
+Add to your GitHub Actions workflow:
 
 ```yaml
-- name: Check alignment
-  run: node genesis/alignment-tools/scan-entropy.js --ci --threshold 20
+- name: Check Genesis Alignment
+  run: |
+    cd genesis/alignment-tools-v2
+    npm install
+    node cli.js scan --ci --threshold 10
 ```
 
-## Relationship to consistency-checker
+## Baseline Management
 
-This tool **supersedes** the original `consistency-checker` for entropy measurement. The original tool remains for backward compatibility but should not be relied upon for catching semantic variance.
+The `baseline/expected-values.json` file contains canonical values that all repos should match. Update this file when intentionally changing standards.
+
+## Architecture
+
+```
+alignment-tools-v2/
+├── cli.js                    # Main CLI entry point
+├── lib/
+│   ├── entropy.js            # Shannon entropy calculation
+│   ├── config-parser.js      # Semantic config parsers
+│   ├── report-generator.js   # Report formatting
+│   └── baseline-manager.js   # Expected values management
+├── scanners/
+│   ├── test-coverage.js      # Jest config + coverage
+│   ├── config-parity.js      # package.json, ESLint
+│   ├── ux-consistency.js     # HTML/CSS patterns
+│   ├── naming-conventions.js # Naming patterns
+│   ├── dependency-versions.js# Dependency alignment
+│   ├── ci-pipeline.js        # GitHub Actions
+│   ├── documentation.js      # Required docs
+│   └── code-patterns.js      # Architecture conformity
+└── baseline/
+    └── expected-values.json  # Canonical expected values
+```
 
