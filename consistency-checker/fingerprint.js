@@ -115,6 +115,26 @@ const CONFIG = {
     ],
   },
 
+  // CRITICAL: Architectural patterns that MUST match the genesis template
+  // These detect CLASS-based vs FUNCTION-based architecture divergence
+  // Note: The genesis template has BOTH the Workflow class AND helper functions.
+  // The issue is repos that have helper functions WITHOUT the class.
+  architecturalPatterns: {
+    "js/workflow.js": {
+      name: "Workflow Class Architecture",
+      required: [
+        { pattern: /export\s+class\s+Workflow/, description: "Must export Workflow class" },
+        { pattern: /advancePhase\s*\(/, description: "Must have advancePhase() method" },
+        { pattern: /isComplete\s*\(/, description: "Must have isComplete() method" },
+        { pattern: /getCurrentPhase\s*\(/, description: "Must have getCurrentPhase() method" },
+        { pattern: /previousPhase\s*\(/, description: "Must have previousPhase() method" },
+        { pattern: /constructor\s*\(\s*project/, description: "Must have constructor(project)" },
+      ],
+      // No forbidden patterns - helper functions are allowed alongside the class
+      forbidden: [],
+    },
+  },
+
   // Baseline file location
   baselineFile: "consistency-checker/baseline.json",
 };
@@ -150,6 +170,54 @@ const checkPatterns = (filePath, patterns) => {
   }
 };
 
+// Check architectural patterns - returns detailed conformity report
+const checkArchitecturalPatterns = (filePath, archConfig) => {
+  const result = {
+    conformant: true,
+    score: 0,
+    requiredMatches: [],
+    requiredMissing: [],
+    forbiddenViolations: [],
+  };
+
+  try {
+    const content = fs.readFileSync(filePath, "utf8");
+
+    // Check required patterns
+    for (const req of archConfig.required || []) {
+      if (req.pattern.test(content)) {
+        result.requiredMatches.push(req.description);
+      } else {
+        result.requiredMissing.push(req.description);
+        result.conformant = false;
+      }
+    }
+
+    // Check forbidden patterns
+    for (const forbid of archConfig.forbidden || []) {
+      if (forbid.pattern.test(content)) {
+        result.forbiddenViolations.push(forbid.description);
+        result.conformant = false;
+      }
+    }
+
+    // Calculate score: % of required patterns matched, minus forbidden violations
+    const requiredTotal = (archConfig.required || []).length;
+    const requiredMatched = result.requiredMatches.length;
+    const forbiddenCount = result.forbiddenViolations.length;
+
+    if (requiredTotal > 0) {
+      result.score = Math.max(0, (requiredMatched / requiredTotal) * 100 - forbiddenCount * 20);
+    }
+  } catch {
+    result.conformant = false;
+    result.score = 0;
+    result.requiredMissing.push("File not readable");
+  }
+
+  return result;
+};
+
 const getAllFiles = (dir, baseDir = dir) => {
   const files = [];
   try {
@@ -181,6 +249,7 @@ function generateFingerprint(repoPath) {
     optionalFiles: {},
     patterns: {},
     hashes: {},
+    architecture: {}, // NEW: Track architectural conformity
   };
 
   const allFiles = getAllFiles(repoPath);
@@ -215,6 +284,13 @@ function generateFingerprint(repoPath) {
     fingerprint.patterns[file] = checkPatterns(path.join(repoPath, file), patterns);
   }
 
+  // NEW: Check architectural patterns (CLASS-based vs FUNCTION-based)
+  for (const [file, archConfig] of Object.entries(CONFIG.architecturalPatterns)) {
+    const fullPath = path.join(repoPath, file);
+    fingerprint.architecture[file] = checkArchitecturalPatterns(fullPath, archConfig);
+    fingerprint.architecture[file].name = archConfig.name;
+  }
+
   return fingerprint;
 }
 
@@ -222,7 +298,7 @@ function generateFingerprint(repoPath) {
 function calculateSimilarity(fp1, fp2) {
   let score = 100;
 
-  // 1. Core file PRESENCE (40% weight)
+  // 1. Core file PRESENCE (30% weight - reduced from 40%)
   let corePresencePenalty = 0;
   let filesInBoth = 0;
 
@@ -232,11 +308,11 @@ function calculateSimilarity(fp1, fp2) {
     if (in1 && in2) {
       filesInBoth++;
     } else if (in1 !== in2) {
-      corePresencePenalty += meta.weight * 0.4;
+      corePresencePenalty += meta.weight * 0.3;
     }
   }
 
-  // 2. Pattern conformity (35% weight)
+  // 2. Pattern conformity (25% weight - reduced from 35%)
   let patternScore = 0;
   let patternChecks = 0;
   for (const file of Object.keys(CONFIG.codePatterns)) {
@@ -249,31 +325,48 @@ function calculateSimilarity(fp1, fp2) {
     }
     patternChecks++;
   }
-  const patternPenalty = patternChecks > 0 ? (1 - patternScore / patternChecks) * 15 : 0;
+  const patternPenalty = patternChecks > 0 ? (1 - patternScore / patternChecks) * 12 : 0;
 
-  // 3. Config file drift (15% weight)
+  // 3. ARCHITECTURAL CONFORMITY (25% weight - NEW AND CRITICAL)
+  // This catches CLASS-based vs FUNCTION-based divergence
+  let architecturePenalty = 0;
+  for (const file of Object.keys(CONFIG.architecturalPatterns)) {
+    const arch1 = fp1.architecture?.[file];
+    const arch2 = fp2.architecture?.[file];
+    if (arch1 && arch2) {
+      // Both must be conformant, or both non-conformant
+      if (arch1.conformant !== arch2.conformant) {
+        architecturePenalty += 15; // MAJOR penalty for architectural mismatch
+      } else if (!arch1.conformant && !arch2.conformant) {
+        // Both non-conformant - still bad but at least consistent
+        architecturePenalty += 5;
+      }
+    }
+  }
+
+  // 4. Config file drift (10% weight - reduced from 15%)
   let configMismatchPenalty = 0;
   const configFiles = ["package.json", "jest.config.js", "eslint.config.js", ".github/workflows/ci.yml"];
   for (const file of configFiles) {
     const h1 = fp1.hashes[file];
     const h2 = fp2.hashes[file];
     if (h1 && h2 && h1 !== h2) {
-      configMismatchPenalty += 1.5;
+      configMismatchPenalty += 1.0;
     }
   }
 
-  // 4. Test coverage structure (10% weight)
+  // 5. Test coverage structure (5% weight - reduced from 10%)
   let testPenalty = 0;
   const testFiles = Object.keys(CONFIG.coreFiles).filter((f) => f.includes("test"));
   for (const file of testFiles) {
     const in1 = fp1.coreFiles[file]?.exists || false;
     const in2 = fp2.coreFiles[file]?.exists || false;
     if (in1 !== in2) {
-      testPenalty += 2;
+      testPenalty += 1;
     }
   }
 
-  // 5. Optional file alignment (5% weight)
+  // 6. Optional file alignment (5% weight)
   let optionalDiff = 0;
   for (const file of CONFIG.optionalFiles) {
     if (fp1.optionalFiles[file] !== fp2.optionalFiles[file]) {
@@ -281,13 +374,14 @@ function calculateSimilarity(fp1, fp2) {
     }
   }
 
-  score -= corePresencePenalty + patternPenalty + configMismatchPenalty + testPenalty + optionalDiff;
+  score -= corePresencePenalty + patternPenalty + architecturePenalty + configMismatchPenalty + testPenalty + optionalDiff;
 
   return {
     score: Math.max(0, Math.min(100, Math.round(score * 10) / 10)),
     penalties: {
       corePresence: Math.round(corePresencePenalty * 10) / 10,
       patterns: Math.round(patternPenalty * 10) / 10,
+      architecture: Math.round(architecturePenalty * 10) / 10, // NEW
       configDrift: Math.round(configMismatchPenalty * 10) / 10,
       testCoverage: Math.round(testPenalty * 10) / 10,
       optional: Math.round(optionalDiff * 10) / 10,
@@ -437,6 +531,30 @@ function main() {
   console.log(`  Most similar:  ${maxPair.join(" ↔ ")} (${maxScore}%)`);
   console.log(`  Least similar: ${minPair.join(" ↔ ")} (${minScore}%)`);
 
+  // ARCHITECTURAL ISSUES - Show these FIRST and PROMINENTLY
+  console.log("\n" + "=".repeat(65));
+  console.log(colors.bold("\n🏗️  ARCHITECTURAL CONFORMITY\n"));
+
+  let hasArchIssues = false;
+  for (const repo of repos) {
+    const fp = fingerprints[repo];
+    for (const [file, arch] of Object.entries(fp.architecture || {})) {
+      if (!arch.conformant) {
+        hasArchIssues = true;
+        console.log(`  ${colors.red("❌")} ${colors.bold(repo)} - ${arch.name}`);
+        if (arch.requiredMissing.length > 0) {
+          console.log(`    ${colors.red("Missing:")} ${arch.requiredMissing.join("; ")}`);
+        }
+        if (arch.forbiddenViolations.length > 0) {
+          console.log(`    ${colors.red("Violations:")} ${arch.forbiddenViolations.join("; ")}`);
+        }
+      }
+    }
+  }
+  if (!hasArchIssues) {
+    console.log(`  ${colors.green("✓")} All repos conform to genesis architecture`);
+  }
+
   // Per-repo analysis
   console.log("\n" + "=".repeat(65));
   console.log(colors.bold("\n📋 PER-REPO ISSUES\n"));
@@ -447,6 +565,14 @@ function main() {
       .filter(([_, v]) => !v.exists)
       .map(([k]) => k);
 
+    // Check architectural conformity
+    const archIssues = [];
+    for (const [file, arch] of Object.entries(fp.architecture || {})) {
+      if (!arch.conformant) {
+        archIssues.push(`${file}: ${arch.name} FAILED`);
+      }
+    }
+
     const repoIdx = repos.indexOf(repo);
     let avgToOthers = 0;
     for (let i = 0; i < repos.length; i++) {
@@ -455,9 +581,17 @@ function main() {
     avgToOthers /= repos.length - 1;
 
     console.log(`  ${colors.bold(repo)} (${colorScore(avgToOthers)}% avg)`);
+
+    // Show architectural issues FIRST - these are critical
+    if (archIssues.length > 0) {
+      console.log(`    ${colors.red("🚨 ARCHITECTURE:")} ${archIssues.join(", ")}`);
+    }
+
     if (missingCore.length > 0) {
       console.log(`    ${colors.yellow("⚠️  Missing:")} ${missingCore.join(", ")}`);
-    } else {
+    }
+
+    if (archIssues.length === 0 && missingCore.length === 0) {
       console.log(`    ${colors.green("✓")} Full conformity`);
     }
   }

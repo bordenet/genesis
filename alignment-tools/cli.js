@@ -36,6 +36,7 @@ const scanners = {
 
 // Default repo paths (relative to genesis-tools parent)
 const DEFAULT_REPOS = [
+  'architecture-decision-record',
   'one-pager',
   'pr-faq-assistant',
   'product-requirements-assistant',
