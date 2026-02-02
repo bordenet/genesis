@@ -707,6 +707,11 @@ cp genesis/templates/testing/project-view.test-template.js tests/project-view.te
 cp genesis/templates/testing/ai-mock-ui.test-template.js tests/ai-mock-ui.test.js
 cp genesis/templates/testing/visual-regression.test-template.js tests/visual-regression.test.js
 
+# CANONICAL Workflow class contract tests (RECOMMENDED - ensures Workflow class conformity):
+# This replaces workflow.test.js with the canonical version that tests the Workflow class contract.
+# All genesis-derived tools should use this to ensure identical Workflow class behavior.
+cp genesis/templates/testing/workflow-canonical.test-template.js tests/workflow.test.js
+
 # Critical bug-prevention tests (RECOMMENDED):
 cp genesis/templates/testing/event-handlers.test-template.js tests/event-handlers.test.js  # Prevents "stillborn apps" with unwired buttons
 cp genesis/templates/testing/template-sync.test-template.js tests/template-sync.test.js    # Prevents silent data loss from missing template placeholders
