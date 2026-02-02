@@ -34,14 +34,13 @@ Template system that generates complete web applications for AI-assisted documen
 
 ## What You Get
 
-- 44 template files (HTML, JS, CSS, configs, scripts)
-- 3-phase workflow pattern for document generation
-- GitHub Actions CI/CD (lint, test, deploy)
-- IndexedDB storage with export/import
-- Dark mode (Tailwind CSS)
-- Test suite (Jest, 95%+ coverage)
-- Deployment scripts
-- Documentation
+- Working web app in ~1 hour (not days)
+- Battle-tested patterns from 6 production apps
+- 95%+ test coverage out of the box
+- CI/CD pipeline: push to main, deploy to GitHub Pages
+- Client-side storage (IndexedDB) with export/import
+- Dark mode that actually works
+- No backend, no login, no infrastructure
 
 ## How It Works
 
