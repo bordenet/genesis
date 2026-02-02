@@ -31,6 +31,79 @@ const CORE_PATTERNS = {
   },
 };
 
+// CRITICAL: Architectural patterns that MUST match the genesis template
+// These detect CLASS-based vs FUNCTION-based architecture divergence
+// Note: The genesis template has BOTH the Workflow class AND helper functions.
+// The issue is repos that have helper functions WITHOUT the class.
+const ARCHITECTURAL_PATTERNS = {
+  workflowClass: {
+    file: 'js/workflow.js',
+    name: 'Workflow Class Architecture',
+    required: [
+      { pattern: /export\s+class\s+Workflow/, description: 'Must export Workflow class' },
+      { pattern: /advancePhase\s*\(/, description: 'Must have advancePhase() method' },
+      { pattern: /isComplete\s*\(/, description: 'Must have isComplete() method' },
+      { pattern: /getCurrentPhase\s*\(/, description: 'Must have getCurrentPhase() method' },
+      { pattern: /previousPhase\s*\(/, description: 'Must have previousPhase() method' },
+      { pattern: /constructor\s*\(\s*project/, description: 'Must have constructor(project)' },
+    ],
+    // No forbidden patterns - helper functions are allowed alongside the class
+    forbidden: [],
+  },
+};
+
+/**
+ * Check architectural conformity for a file.
+ *
+ * @param {string} content - File content
+ * @param {object} archConfig - Architectural pattern config
+ * @returns {object} Conformity result
+ */
+function checkArchitecturalConformity(content, archConfig) {
+  const result = {
+    conformant: true,
+    score: 0,
+    requiredMatches: [],
+    requiredMissing: [],
+    forbiddenViolations: [],
+  };
+
+  if (!content) {
+    result.conformant = false;
+    result.requiredMissing.push('File not readable');
+    return result;
+  }
+
+  // Check required patterns
+  for (const req of archConfig.required || []) {
+    if (req.pattern.test(content)) {
+      result.requiredMatches.push(req.description);
+    } else {
+      result.requiredMissing.push(req.description);
+      result.conformant = false;
+    }
+  }
+
+  // Check forbidden patterns
+  for (const forbid of archConfig.forbidden || []) {
+    if (forbid.pattern.test(content)) {
+      result.forbiddenViolations.push(forbid.description);
+      result.conformant = false;
+    }
+  }
+
+  // Calculate score
+  const requiredTotal = (archConfig.required || []).length;
+  const requiredMatched = result.requiredMatches.length;
+  const forbiddenCount = result.forbiddenViolations.length;
+
+  if (requiredTotal > 0) {
+    result.score = Math.max(0, (requiredMatched / requiredTotal) * 100 - forbiddenCount * 20);
+  }
+
+  return result;
+}
+
 /**
  * Analyze code patterns in a file.
  *
@@ -73,6 +146,17 @@ export async function scan(repoPaths) {
       };
     }
 
+    // Check ARCHITECTURAL patterns (CLASS-based vs FUNCTION-based)
+    const architectureResults = {};
+    for (const [archName, archConfig] of Object.entries(ARCHITECTURAL_PATTERNS)) {
+      const filePath = path.join(repoPath, archConfig.file);
+      const content = readTextFile(filePath);
+      architectureResults[archName] = {
+        name: archConfig.name,
+        ...checkArchitecturalConformity(content, archConfig),
+      };
+    }
+
     // Check for ESM exports
     const jsDir = path.join(repoPath, 'js');
     let esmExportCount = 0;
@@ -90,13 +174,18 @@ export async function scan(repoPaths) {
       }
     }
 
+    // Check if workflow uses the correct CLASS architecture
+    const hasWorkflowClass = architectureResults.workflowClass?.conformant === true;
+
     repoData.push({
       repo: repoName,
       path: repoPath,
       patterns: patternResults,
+      architecture: architectureResults,
       esmExportRatio: totalJsFiles > 0 ? esmExportCount / totalJsFiles : 0,
       hasStorage: patternResults.storage?.fileExists && patternResults.storage.ratio > 0.5,
       hasWorkflow: patternResults.workflow?.fileExists && patternResults.workflow.ratio > 0.5,
+      hasWorkflowClass, // NEW: Does it use the Workflow CLASS pattern?
       hasRouter: patternResults.router?.fileExists && patternResults.router.ratio > 0.5,
       hasErrorHandler: patternResults.errorHandler?.fileExists,
     });
@@ -112,6 +201,11 @@ export async function scan(repoPaths) {
       values: repoData.map((r) => r.hasWorkflow),
       entropy: calculateEntropy(repoData.map((r) => r.hasWorkflow)),
     },
+    // NEW: Track Workflow CLASS architecture conformity
+    workflowClassArchitecture: {
+      values: repoData.map((r) => r.hasWorkflowClass),
+      entropy: calculateEntropy(repoData.map((r) => r.hasWorkflowClass)),
+    },
     routerPattern: {
       values: repoData.map((r) => r.hasRouter),
       entropy: calculateEntropy(repoData.map((r) => r.hasRouter)),
@@ -124,6 +218,20 @@ export async function scan(repoPaths) {
 
   // Generate findings
   for (const data of repoData) {
+    // CRITICAL: Check for Workflow CLASS architecture FIRST
+    if (!data.hasWorkflowClass) {
+      const archResult = data.architecture?.workflowClass;
+      const missingDetails = archResult?.requiredMissing?.join('; ') || 'Unknown';
+      const violations = archResult?.forbiddenViolations?.join('; ') || '';
+
+      findings.push({
+        repo: data.repo,
+        severity: 'critical', // HIGHEST severity - architectural divergence
+        summary: '🚨 ARCHITECTURAL DIVERGENCE: Missing Workflow class pattern',
+        details: `js/workflow.js must use genesis Workflow class architecture. Missing: ${missingDetails}${violations ? `. Violations: ${violations}` : ''}`,
+      });
+    }
+
     if (!data.hasStorage) {
       findings.push({
         repo: data.repo,
