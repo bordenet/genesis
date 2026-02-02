@@ -2,6 +2,8 @@
 
 Project template system for AI-assisted workflow applications.
 
+[![Star this repo](https://img.shields.io/github/stars/bordenet/genesis?style=social)](https://github.com/bordenet/genesis)
+
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/bordenet/genesis/actions/workflows/ci.yml/badge.svg)](https://github.com/bordenet/genesis/actions/workflows/ci.yml)
 [![JS Coverage](https://img.shields.io/badge/JS%20coverage-95.7%25-brightgreen.svg)](genesis/examples/hello-world)
