@@ -6,7 +6,7 @@
  */
 
 import path from 'path';
-import { fileExists, readTextFile, getAllFiles } from '../lib/config-parser.js';
+import { fileExists, readTextFile, getAllFiles, detectProjectStructure } from '../lib/config-parser.js';
 import { calculateEntropy } from '../lib/entropy.js';
 
 const DIMENSION_NAME = 'Code Patterns';
@@ -157,19 +157,21 @@ export async function scan(repoPaths) {
       };
     }
 
-    // Check for ESM exports
-    const jsDir = path.join(repoPath, 'js');
+    // Check for ESM exports - handle both simple and paired project structures
+    const structure = detectProjectStructure(repoPath);
     let esmExportCount = 0;
     let totalJsFiles = 0;
 
-    if (fileExists(jsDir)) {
-      const jsFiles = getAllFiles(jsDir).filter((f) => f.endsWith('.js'));
-      totalJsFiles = jsFiles.length;
+    for (const jsDir of structure.jsDirs) {
+      if (fileExists(jsDir)) {
+        const jsFiles = getAllFiles(jsDir).filter((f) => f.endsWith('.js'));
+        totalJsFiles += jsFiles.length;
 
-      for (const file of jsFiles) {
-        const content = readTextFile(file);
-        if (content && /^export\s+(const|function|class|default)/m.test(content)) {
-          esmExportCount++;
+        for (const file of jsFiles) {
+          const content = readTextFile(file);
+          if (content && /^export\s+(const|function|class|default)/m.test(content)) {
+            esmExportCount++;
+          }
         }
       }
     }

@@ -158,3 +158,110 @@ export function getAllFiles(dir, exclude = ['node_modules', '.git', 'coverage', 
   return files;
 }
 
+/**
+ * Detect project structure type (paired vs simple).
+ * Paired projects have assistant/ and/or validator/ subdirectories with js/ or tests/ inside.
+ * Simple projects have js/ and tests/ at root (like hello-world template).
+ *
+ * @param {string} repoPath - Path to the repository
+ * @returns {object} Structure info with paths
+ */
+export function detectProjectStructure(repoPath) {
+  const hasAssistant = fs.existsSync(path.join(repoPath, 'assistant'));
+  const hasValidator = fs.existsSync(path.join(repoPath, 'validator'));
+  const hasRootJs = fs.existsSync(path.join(repoPath, 'js'));
+  const hasRootTests = fs.existsSync(path.join(repoPath, 'tests'));
+
+  // Check if assistant/ or validator/ contains actual project structure (js/ or tests/)
+  const hasAssistantContent = hasAssistant && (
+    fs.existsSync(path.join(repoPath, 'assistant', 'js')) ||
+    fs.existsSync(path.join(repoPath, 'assistant', 'tests'))
+  );
+  const hasValidatorContent = hasValidator && (
+    fs.existsSync(path.join(repoPath, 'validator', 'js')) ||
+    fs.existsSync(path.join(repoPath, 'validator', 'tests'))
+  );
+
+  // If assistant/ or validator/ contains actual project structure, treat as paired
+  // This takes priority over root js/ (which may be a build artifact or duplicate)
+  if (hasAssistantContent || hasValidatorContent) {
+    return {
+      type: 'paired',
+      jsDirs: [
+        hasAssistantContent ? path.join(repoPath, 'assistant', 'js') : null,
+        hasValidatorContent ? path.join(repoPath, 'validator', 'js') : null,
+      ].filter(Boolean),
+      testDirs: [
+        hasAssistantContent ? path.join(repoPath, 'assistant', 'tests') : null,
+        hasValidatorContent ? path.join(repoPath, 'validator', 'tests') : null,
+      ].filter(Boolean),
+      indexHtmlPaths: [
+        hasAssistantContent ? path.join(repoPath, 'assistant', 'index.html') : null,
+        hasValidatorContent ? path.join(repoPath, 'validator', 'index.html') : null,
+      ].filter(Boolean),
+      coverageDirs: [
+        path.join(repoPath, 'coverage'),
+        hasAssistantContent ? path.join(repoPath, 'assistant', 'coverage') : null,
+        hasValidatorContent ? path.join(repoPath, 'validator', 'coverage') : null,
+      ].filter(Boolean),
+    };
+  }
+
+  // Simple structure: root js/ and tests/
+  return {
+    type: 'simple',
+    jsDirs: hasRootJs ? [path.join(repoPath, 'js')] : [],
+    testDirs: hasRootTests ? [path.join(repoPath, 'tests')] : [],
+    indexHtmlPaths: [path.join(repoPath, 'index.html')],
+    coverageDirs: [path.join(repoPath, 'coverage')],
+  };
+}
+
+/**
+ * Parse LCOV coverage file and extract actual coverage percentages.
+ *
+ * @param {string} filePath - Path to lcov.info file
+ * @returns {object|null} Coverage percentages or null if not found
+ */
+export function parseLcovCoverage(filePath) {
+  const content = readTextFile(filePath);
+  if (!content) return null;
+
+  let linesFound = 0;
+  let linesHit = 0;
+  let functionsFound = 0;
+  let functionsHit = 0;
+  let branchesFound = 0;
+  let branchesHit = 0;
+
+  const lines = content.split('\n');
+  for (const line of lines) {
+    if (line.startsWith('LF:')) linesFound += parseInt(line.slice(3), 10) || 0;
+    if (line.startsWith('LH:')) linesHit += parseInt(line.slice(3), 10) || 0;
+    if (line.startsWith('FNF:')) functionsFound += parseInt(line.slice(4), 10) || 0;
+    if (line.startsWith('FNH:')) functionsHit += parseInt(line.slice(4), 10) || 0;
+    if (line.startsWith('BRF:')) branchesFound += parseInt(line.slice(4), 10) || 0;
+    if (line.startsWith('BRH:')) branchesHit += parseInt(line.slice(4), 10) || 0;
+  }
+
+  return {
+    lines: linesFound > 0 ? Math.round((linesHit / linesFound) * 100) : null,
+    functions: functionsFound > 0 ? Math.round((functionsHit / functionsFound) * 100) : null,
+    branches: branchesFound > 0 ? Math.round((branchesHit / branchesFound) * 100) : null,
+    statements: linesFound > 0 ? Math.round((linesHit / linesFound) * 100) : null, // Approximate
+  };
+}
+
+/**
+ * Count test cases in a test file.
+ *
+ * @param {string} content - Test file content
+ * @returns {number} Number of test cases
+ */
+export function countTestCases(content) {
+  if (!content) return 0;
+  // Match it(), test(), it.each(), test.each()
+  const matches = content.match(/\b(it|test)\s*(\.\s*(each|skip|only))?\s*\(/g) || [];
+  return matches.length;
+}
+

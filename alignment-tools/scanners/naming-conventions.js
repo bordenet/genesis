@@ -6,8 +6,7 @@
  */
 
 import path from 'path';
-import fs from 'fs';
-import { getAllFiles, readTextFile } from '../lib/config-parser.js';
+import { getAllFiles, readTextFile, detectProjectStructure, fileExists } from '../lib/config-parser.js';
 import { calculateEntropy } from '../lib/entropy.js';
 
 const DIMENSION_NAME = 'Naming Conventions';
@@ -55,35 +54,39 @@ export async function scan(repoPaths) {
 
   for (const repoPath of repoPaths) {
     const repoName = path.basename(repoPath);
-    const jsDir = path.join(repoPath, 'js');
-    const testsDir = path.join(repoPath, 'tests');
+    const structure = detectProjectStructure(repoPath);
 
-    // Analyze JS files
+    // Analyze JS files across all JS directories (handles paired projects)
     let totalNamedExports = 0;
     let totalDefaultExports = 0;
     let totalCamelCaseRatio = 0;
     let jsFileCount = 0;
 
-    if (fs.existsSync(jsDir)) {
-      const jsFiles = getAllFiles(jsDir).filter((f) => f.endsWith('.js'));
-      for (const file of jsFiles) {
-        const content = readTextFile(file);
-        if (content) {
-          const patterns = analyzeNamingPatterns(content);
-          if (patterns.usesNamedExports) totalNamedExports++;
-          if (patterns.usesDefaultExport) totalDefaultExports++;
-          totalCamelCaseRatio += patterns.camelCaseRatio;
-          jsFileCount++;
+    for (const jsDir of structure.jsDirs) {
+      if (fileExists(jsDir)) {
+        const jsFiles = getAllFiles(jsDir).filter((f) => f.endsWith('.js'));
+        for (const file of jsFiles) {
+          const content = readTextFile(file);
+          if (content) {
+            const patterns = analyzeNamingPatterns(content);
+            if (patterns.usesNamedExports) totalNamedExports++;
+            if (patterns.usesDefaultExport) totalDefaultExports++;
+            totalCamelCaseRatio += patterns.camelCaseRatio;
+            jsFileCount++;
+          }
         }
       }
     }
 
-    // Check test file naming
+    // Check test file naming across all test directories
     const testFilePattern = /\.test\.js$/;
     let testFilesFollowPattern = true;
-    if (fs.existsSync(testsDir)) {
-      const testFiles = getAllFiles(testsDir).filter((f) => f.endsWith('.js'));
-      testFilesFollowPattern = testFiles.every((f) => testFilePattern.test(f));
+    for (const testsDir of structure.testDirs) {
+      if (fileExists(testsDir)) {
+        const testFiles = getAllFiles(testsDir).filter((f) => f.endsWith('.js'));
+        const allFollow = testFiles.every((f) => testFilePattern.test(f));
+        if (!allFollow) testFilesFollowPattern = false;
+      }
     }
 
     repoData.push({
