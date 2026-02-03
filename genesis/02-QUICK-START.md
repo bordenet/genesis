@@ -6,144 +6,193 @@
 
 ## What is Genesis?
 
-Genesis is a **project template system** that lets you create new AI-assisted workflow applications (like the Product Requirements Assistant) in under 2 hours.
+Genesis is a **project template system** for creating **paired assistant+validator** applications. Each project contains:
+- **Assistant** (`/`) - AI workflow for document creation (3-phase pattern)
+- **Validator** (`/validator/`) - Quality scoring for completed documents
 
 **Use Cases**:
-- One-Pager document generator
-- ADR (Architecture Decision Record) generator
-- PRD (Product Requirements Document) generator
-- Any multi-phase AI workflow
+- One-Pager document generator + validator
+- ADR (Architecture Decision Record) generator + validator
+- PRD (Product Requirements Document) generator + validator
+- Strategic Proposal generator + validator
+- Any document workflow needing creation AND validation
 
 ---
 
-## Quick Start
+## Quick Start (Recommended)
 
-### With AI Assistant (Recommended)
+### Create a New Paired Project
 
-1. **Copy Genesis to new repo**:
-   ```bash
-   git clone https://github.com/yourusername/your-new-repo.git
-   cd your-new-repo
-   cp -r /path/to/genesis/genesis .
-   ```
+```bash
+# From the genesis repo
+cd genesis/scripts
+./create-project.sh --name my-assistant
 
-2. **Open with AI assistant** (Claude, Cursor, Augment, etc.):
-   ```
-   "I want to create a new project from the Genesis template system.
-   Please read genesis/START-HERE.md and help me set it up."
-   ```
+# This creates:
+#   genesis-tools/my-assistant/
+#   ├── assistant/          # Document creation workflow
+#   │   ├── index.html
+#   │   ├── js/
+#   │   │   ├── core -> ../../../assistant-core/src  (symlink)
+#   │   │   └── *.js
+#   │   └── tests/
+#   ├── validator/          # Document validation/scoring
+#   │   ├── index.html
+#   │   ├── js/
+#   │   │   ├── core -> ../../../validator-core/src  (symlink)
+#   │   │   └── *.js
+#   │   └── testdata/
+#   └── package.json
+```
 
-3. **Answer AI's questions** about your project
+### Install and Test
 
-4. **Wait for AI to complete setup** (~30-60 minutes)
+```bash
+cd genesis-tools/my-assistant
+npm install
+npm test
+```
 
-5. **Visit your GitHub Pages URL** to see your app!
+### Serve Locally
+
+```bash
+npm run serve
+# Visit http://localhost:8000/assistant/
+# Visit http://localhost:8000/validator/
+```
 
 ---
 
-### Manual Setup
+## Paired Architecture
 
-For manual setup, follow the step-by-step instructions in [`START-HERE.md`](START-HERE.md).
+### Why Paired?
+
+Every document type benefits from both creation AND validation:
+
+| Component | Purpose | User Experience |
+|-----------|---------|-----------------|
+| **Assistant** | Guide users through structured document creation | Form-based, 3-phase AI workflow |
+| **Validator** | Score documents against quality criteria | Paste document, get scores + feedback |
+
+### Shared Libraries
+
+Both components use shared core libraries via symlinks:
+
+- **`assistant-core`** - Storage, workflow, UI utilities for assistants
+- **`validator-core`** - Scoring, prompts, validation utilities for validators
+
+```
+my-project/
+├── assistant/js/core -> ../../../assistant-core/src
+└── validator/js/core -> ../../../validator-core/src
+```
+
+### CI/CD Pattern
+
+GitHub Actions clones core repos and replaces symlinks before running tests:
+
+```yaml
+- run: |
+    git clone https://github.com/bordenet/assistant-core.git ../assistant-core
+    git clone https://github.com/bordenet/validator-core.git ../validator-core
+    rm -rf assistant/js/core validator/js/core
+    cp -r ../assistant-core/src assistant/js/core
+    cp -r ../validator-core/src validator/js/core
+```
 
 ---
 
 ## What You Get
 
-### ✅ Complete Web Application
-- 100% client-side (no server needed)
-- IndexedDB storage (50MB-10GB capacity)
-- Dark mode support
-- Responsive design
-- Export/import functionality
+### ✅ Paired Web Applications
+- **Assistant**: 3-phase AI document workflow
+- **Validator**: Quality scoring with weighted dimensions
+- Both 100% client-side, no backend needed
+- IndexedDB storage, dark mode, responsive design
 
 ### ✅ GitHub Pages Deployment
+- Assistant at `https://user.github.io/project/`
+- Validator at `https://user.github.io/project/validator/`
 - Automatic deployment on push
-- Custom domain support
-- HTTPS enabled
-- CDN-backed (fast worldwide)
 
 ### ✅ CI/CD Pipeline
-- Automated testing
+- Clones core repos, replaces symlinks
+- Runs tests for both assistant and validator
 - Code coverage tracking
-- Pre-commit hooks
-- Release automation
 
-### ✅ Professional Documentation
-- README with badges
-- Architecture docs
-- Deployment guides
-- Contributing guidelines
-
-### ✅ Development Tools
-- Setup scripts (macOS, Linux, Windows)
-- Validation scripts
-- Pre-commit hooks
-- Common shell library
+### ✅ Shared Libraries
+- `assistant-core` - Common assistant utilities
+- `validator-core` - Common validator utilities
+- Symlinks for local dev, copied files in CI
 
 ---
 
 ## Examples
 
-### Hello World
-See [`examples/hello-world/`](examples/hello-world/) for a minimal working example.
+### Hello World (Template)
+See [`examples/hello-world/`](examples/hello-world/) - the template used by `create-project.sh`.
 
-**Features**:
-- 3-phase workflow
-- Basic web UI
-- No backend
-- Full test coverage
+**Structure**:
+```
+hello-world/
+├── assistant/     # Working assistant example
+├── validator/     # Working validator example
+└── package.json   # Unified test/lint scripts
+```
 
-**Time to deploy**: <30 minutes
+### Live Paired Projects
 
----
-
-### Live Reference Implementations
-
-Study these production projects built with Genesis:
-
-1. **[product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant)** - PRD generator
-2. **[one-pager](https://github.com/bordenet/one-pager)** - One-pager generator
-3. **[architecture-decision-record](https://github.com/bordenet/architecture-decision-record)** - ADR generator
+| Project | Assistant | Validator |
+|---------|-----------|-----------|
+| One-Pager | [Demo](https://bordenet.github.io/one-pager/) | [Demo](https://bordenet.github.io/one-pager/validator/) |
+| PRD | [Demo](https://bordenet.github.io/product-requirements-assistant/) | [Demo](https://bordenet.github.io/product-requirements-assistant/validator/) |
+| ADR | [Demo](https://bordenet.github.io/architecture-decision-record/) | [Demo](https://bordenet.github.io/architecture-decision-record/validator/) |
+| Strategic Proposal | [Demo](https://bordenet.github.io/strategic-proposal/) | [Demo](https://bordenet.github.io/strategic-proposal/validator/) |
 
 ---
 
 ## Troubleshooting
 
-### GitHub Pages shows 404
-- Check Settings → Pages is enabled
+### Symlinks not working locally
+```bash
+# Verify symlinks point to correct locations
+ls -la assistant/js/core
+ls -la validator/js/core
+# Should show: core -> ../../../assistant-core/src (or validator-core)
+```
+
+### GitHub Pages shows 404 for /validator/
+- Ensure `validator/index.html` exists
+- Check GitHub Actions deployed successfully
 - Verify source is set to "GitHub Actions"
-- Wait 1-2 minutes for deployment
 
-### Web app is blank
-- Open browser console (F12)
-- Check for JavaScript errors
-- Verify all files deployed correctly
-
-### CI pipeline fails
-- Check GitHub Actions tab
-- Review error logs
-- Verify all tests pass locally first
+### Tests fail in CI but pass locally
+- CI replaces symlinks with copied files
+- Check that core repos are being cloned correctly
+- Verify the `cp -r` commands in workflow
 
 ---
 
 ## Next Steps
 
-1. **Customize prompts**: Edit files in `prompts/`
-2. **Update branding**: Edit `index.html` and `css/styles.css`
-3. **Add features**: See [`03-CUSTOMIZATION-GUIDE.md`](03-CUSTOMIZATION-GUIDE.md)
-4. **Deploy**: Use `./scripts/deploy-web.sh`
+1. **Customize assistant**: Edit `assistant/js/workflow.js` and `assistant/prompts/`
+2. **Customize validator**: Edit `validator/js/validator.js` and scoring weights
+3. **Add branding**: Update `index.html` files and CSS
+4. **Deploy**: Push to main, GitHub Actions handles the rest
 
 ---
 
-## Support
+## Documentation
 
-- **Start Here**: [`START-HERE.md`](START-HERE.md)
-- **Troubleshooting**: [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)
-- **Reference**: [`REFERENCE-IMPLEMENTATIONS.md`](REFERENCE-IMPLEMENTATIONS.md)
+- **Architecture**: [`../ARCHITECTURE.md`](../ARCHITECTURE.md) - Detailed paired model docs
+- **Start Here**: [`START-HERE.md`](START-HERE.md) - AI assistant entry point
+- **Alignment Tools**: [`../alignment-tools/`](../alignment-tools/) - Scan paired projects
 
 ---
 
-**Ready to create your first project?** 🚀
+**Ready to create your first paired project?** 🚀
 
-Open START-HERE.md with an AI assistant for the easiest experience!
+```bash
+./scripts/create-project.sh --name my-awesome-tool
+```
 

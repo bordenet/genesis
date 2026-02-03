@@ -1,8 +1,8 @@
 # Genesis Project Template - AI Instructions
 
-**Version**: 1.0
-**Last Updated**: 2025-11-20
-**Purpose**: Step-by-step instructions for AI assistants to create new projects from Genesis templates
+**Version**: 2.0
+**Last Updated**: 2026-02-03
+**Purpose**: Instructions for AI assistants creating **paired assistant+validator** projects
 
 **⚠️ CRITICAL - READ FIRST**: Before starting ANY work on a Genesis-created project:
 1. Read `CLAUDE.md` in the target repository
@@ -12,11 +12,70 @@
 
 ---
 
+## 🏗️ Paired Architecture (NEW)
+
+**All Genesis projects now use the paired model:**
+
+```
+my-project/
+├── assistant/              # Document creation workflow
+│   ├── index.html
+│   ├── js/
+│   │   ├── core -> ../../../assistant-core/src  (symlink)
+│   │   ├── app.js
+│   │   └── workflow.js
+│   └── tests/
+├── validator/              # Document validation/scoring
+│   ├── index.html
+│   ├── js/
+│   │   ├── core -> ../../../validator-core/src  (symlink)
+│   │   ├── app.js
+│   │   └── validator.js
+│   └── testdata/
+├── package.json            # Unified scripts
+└── .github/workflows/ci.yml
+```
+
+### Quick Start for New Projects
+
+```bash
+# Use the create-project script (RECOMMENDED)
+cd genesis/scripts
+./create-project.sh --name my-new-tool
+
+# This creates a paired project from hello-world template
+```
+
+### Shared Libraries
+
+Both assistant and validator use core libraries via symlinks:
+- **`assistant-core`** - Storage, workflow, UI utilities
+- **`validator-core`** - Scoring, prompts, validation utilities
+
+### CI/CD Pattern
+
+GitHub Actions must clone core repos and replace symlinks:
+
+```yaml
+- run: |
+    git clone https://github.com/bordenet/assistant-core.git ../assistant-core
+    git clone https://github.com/bordenet/validator-core.git ../validator-core
+    rm -rf assistant/js/core validator/js/core
+    cp -r ../assistant-core/src assistant/js/core
+    cp -r ../validator-core/src validator/js/core
+```
+
+**See `ARCHITECTURE.md` for complete documentation.**
+
+---
+
 ## 🎯 Your Mission
 
-You are an AI assistant (Claude, Gemini, GPT-4, etc.) helping a human create a new project from the Genesis template system. This system abstracts the Product Requirements Assistant into reusable templates for creating derivative projects.
+You are an AI assistant helping create **paired assistant+validator** projects from Genesis templates. Each project includes:
+- **Assistant** - 3-phase AI workflow for document creation
+- **Validator** - Quality scoring for completed documents
 
-**Success Criteria**: Create a fully working project with GitHub Pages deployment in <2 hours.
+**Success Criteria**: Create a fully working paired project with GitHub Pages deployment in <2 hours.
 
 ---
 
@@ -189,21 +248,29 @@ grep -r "{{[A-Z_]*}}" .
 - [ ] All UI buttons/controls are responsive
 - [ ] Footer GitHub link is properly linked (not just gray text)
 
-### Reference Implementations
+### Reference Implementations (Paired Projects)
 
 **⭐ PRIMARY REFERENCE** (study this first):
-- [one-pager](https://github.com/bordenet/one-pager) - **Working example of a Genesis-generated project**
+- [one-pager](https://github.com/bordenet/one-pager) - **Complete paired assistant+validator project**
+  - Assistant: https://bordenet.github.io/one-pager/
+  - Validator: https://bordenet.github.io/one-pager/validator/
 
-**✅ Correct Patterns**:
-- [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) - ES6 modules, no bundler
-- [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant) - PR-FAQ workflow with all UX patterns
-- [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) - Fixed to use ES6 modules
+**✅ All Paired Projects**:
+| Project | Assistant | Validator |
+|---------|-----------|-----------|
+| [one-pager](https://github.com/bordenet/one-pager) | [Demo](https://bordenet.github.io/one-pager/) | [Demo](https://bordenet.github.io/one-pager/validator/) |
+| [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) | [Demo](https://bordenet.github.io/product-requirements-assistant/) | [Demo](https://bordenet.github.io/product-requirements-assistant/validator/) |
+| [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) | [Demo](https://bordenet.github.io/architecture-decision-record/) | [Demo](https://bordenet.github.io/architecture-decision-record/validator/) |
+| [strategic-proposal](https://github.com/bordenet/strategic-proposal) | [Demo](https://bordenet.github.io/strategic-proposal/) | [Demo](https://bordenet.github.io/strategic-proposal/validator/) |
+| [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant) | [Demo](https://bordenet.github.io/pr-faq-assistant/) | [Demo](https://bordenet.github.io/pr-faq-assistant/validator/) |
+| [power-statement-assistant](https://github.com/bordenet/power-statement-assistant) | [Demo](https://bordenet.github.io/power-statement-assistant/) | [Demo](https://bordenet.github.io/power-statement-assistant/validator/) |
 
 **❌ What NOT to Do**:
 - Using `require()` in browser code
 - Using `module.exports` in browser code
 - Defining event handlers without attaching them
 - Leaving `{{TEMPLATE_VAR}}` unreplaced
+- Creating standalone assistant-only or validator-only projects (use paired model)
 
 ### Common Failures and Fixes
 

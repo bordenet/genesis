@@ -1,6 +1,6 @@
-# Genesis
+# Genesis Tools
 
-Project template system for AI-assisted workflow applications.
+Ecosystem of AI-powered document assistants and validators using a paired architecture.
 
 [![Star this repo](https://img.shields.io/github/stars/bordenet/genesis?style=social)](https://github.com/bordenet/genesis)
 
@@ -8,129 +8,75 @@ Project template system for AI-assisted workflow applications.
 [![CI](https://github.com/bordenet/genesis/actions/workflows/ci.yml/badge.svg)](https://github.com/bordenet/genesis/actions/workflows/ci.yml)
 [![JS Coverage](https://img.shields.io/badge/JS%20coverage-95.7%25-brightgreen.svg)](genesis/examples/hello-world)
 [![Go Coverage](https://img.shields.io/badge/Go%20coverage-93.3%25-brightgreen.svg)](genesis-validator)
-[![Tests](https://img.shields.io/badge/tests-91%20passing-brightgreen.svg)](genesis/examples/hello-world)
 [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-blue.svg)](https://github.com/bordenet/genesis/security/dependabot)
 
-## What This Is
+---
 
-Template system that generates complete web applications for AI-assisted document workflows. Copy templates, run AI assistant, get working app with tests and CI/CD.
+## Architecture
+
+Every genesis-tools project contains **BOTH**:
+
+| Component | Purpose | Location |
+|-----------|---------|----------|
+| **Assistant** | 3-phase AI workflow for creating documents | `assistant/` |
+| **Validator** | Score documents against quality dimensions | `validator/` |
+
+**Shared Libraries** (used via symlinks during development):
+- [`assistant-core`](https://github.com/bordenet/assistant-core) - UI, storage, workflow utilities
+- [`validator-core`](https://github.com/bordenet/validator-core) - UI, storage, scoring utilities
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for full details on the paired model.
 
 ---
 
-## Table of Contents
+## Projects
 
-- [What You Get](#what-you-get)
-- [Projects Built with Genesis](#projects-built-with-genesis)
-- [How It Works](#how-it-works)
-- [Quick Start](#quick-start)
-- [Why This Exists](#why-this-exists)
-- [Technology Stack](#technology-stack)
-- [3-Phase Workflow Pattern](#3-phase-workflow-pattern)
-- [Project Structure](#project-structure)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Consistency Checker](#consistency-checker)
-- [License](#license)
+| Project | Description | Assistant | Validator |
+|---------|-------------|-----------|-----------|
+| [**one-pager**](https://github.com/bordenet/one-pager) | 1-page product summaries | [Demo](https://bordenet.github.io/one-pager/) | [Demo](https://bordenet.github.io/one-pager/validator/) |
+| [**pr-faq-assistant**](https://github.com/bordenet/pr-faq-assistant) | Amazon-style PR/FAQ | [Demo](https://bordenet.github.io/pr-faq-assistant/) | [Demo](https://bordenet.github.io/pr-faq-assistant/validator/) |
+| [**product-requirements-assistant**](https://github.com/bordenet/product-requirements-assistant) | PRD creation | [Demo](https://bordenet.github.io/product-requirements-assistant/) | [Demo](https://bordenet.github.io/product-requirements-assistant/validator/) |
+| [**power-statement-assistant**](https://github.com/bordenet/power-statement-assistant) | Executive summaries | [Demo](https://bordenet.github.io/power-statement-assistant/) | [Demo](https://bordenet.github.io/power-statement-assistant/validator/) |
+| [**strategic-proposal**](https://github.com/bordenet/strategic-proposal) | Strategic initiatives | [Demo](https://bordenet.github.io/strategic-proposal/) | [Demo](https://bordenet.github.io/strategic-proposal/validator/) |
+| [**architecture-decision-record**](https://github.com/bordenet/architecture-decision-record) | ADR creator | [Demo](https://bordenet.github.io/architecture-decision-record/) | [Demo](https://bordenet.github.io/architecture-decision-record/validator/) |
 
----
-
-## What You Get
-
-- Working web app in ~1 hour (not days)
-- Battle-tested patterns from 6 production apps
-- 95%+ test coverage out of the box
-- CI/CD pipeline: push to main, deploy to GitHub Pages
-- Client-side storage (IndexedDB) with export/import
-- Dark mode that actually works
-- No backend, no login, no infrastructure
-
-## How It Works
-
-1. Copy `genesis/` directory to new repository
-2. AI assistant reads `START-HERE.md`
-3. AI copies templates, replaces variables
-4. Push to GitHub
-5. Working app deployed to GitHub Pages
-
-**Time**: ~1 hour with AI assistant
+**Total**: 6 paired projects, each with 90%+ test coverage and CI/CD.
 
 ---
 
 ## Quick Start
 
-**For AI Assistants**: Read [`genesis/START-HERE.md`](genesis/START-HERE.md)
-
-**For Humans**:
+### Create a New Paired Project
 
 ```bash
-# 1. Copy templates
-mkdir my-project
-cp -r genesis/ my-project/
-cd my-project
-
-# 2. Tell AI assistant
-# "Read START-HERE.md and create a project called my-project"
-
-# 3. Push to GitHub
-git add .
-git commit -m "Initial commit"
-gh repo create my-project --public --source=. --push
-
-# 4. Enable GitHub Pages
-# Settings → Pages → Source: GitHub Actions
-
-# 5. Visit app
-# https://USERNAME.github.io/my-project/
+cd genesis-tools/genesis
+./genesis/scripts/create-project.sh --name my-document
 ```
 
----
+This creates a new project with:
+- `assistant/` - 3-phase workflow app
+- `validator/` - Document scorer
+- Symlinks to `assistant-core` and `validator-core`
+- Pre-configured Jest, ESLint, GitHub Actions
 
-## Why This Exists
+### Manual Setup
 
-Setting up a new web app with tests, CI/CD, and deployment takes 8-16 hours. Genesis reduces this to ~1 hour by providing pre-configured templates.
+If you prefer manual setup, use the `hello-world` template:
 
-**What's included**:
-- Project structure (44 files)
-- Test suite (Jest, 95%+ coverage)
-- CI/CD (GitHub Actions)
-- Deployment (GitHub Pages)
-- Dark mode (working Tailwind config)
-- Storage (IndexedDB with export/import)
+```bash
+# Copy the paired template
+cp -r genesis/examples/hello-world ../my-document
+cd ../my-document
 
-**What's validated**:
-- 4 review passes
-- 27 gaps fixed
-- 2 reference implementations
-- 128 tests passing
+# Install dependencies
+npm install
 
----
+# Run tests
+npm test
 
-## Technology Stack
-
-**Frontend**: HTML5, Tailwind CSS (CDN), Vanilla JavaScript, IndexedDB
-**Testing**: Jest, @testing-library/dom, fake-indexeddb
-**CI/CD**: GitHub Actions, ESLint, GitHub Pages
-**Tools**: npm, Bash scripts
-
----
-
-## 3-Phase Workflow Pattern
-
-Generated apps use a 3-phase pattern for document creation:
-
-1. **Initial Draft** - User fills form, mock AI generates draft (client-side, instant)
-2. **Review** - User copies to external AI for critique, pastes back (2-5 min)
-3. **Final** - Mock AI synthesizes both versions (client-side, instant)
-
-**Why 3 phases**: Different AI models provide different perspectives. Phase 2 catches issues Phase 1 missed.
-
-**Customizable**: Change to 2-phase, 5-phase, all-manual, or all-mock modes.
-
-**Mock vs Manual Modes**:
-- **Mock**: Runs in browser, instant, template-based (for testing)
-- **Manual**: User copies/pastes to external AI (for real quality)
-
-See [`genesis/03-CUSTOMIZATION-GUIDE.md`](genesis/03-CUSTOMIZATION-GUIDE.md) for configuration details.
+# Start development
+# Open assistant/index.html or validator/index.html in browser
+```
 
 ---
 
@@ -138,101 +84,132 @@ See [`genesis/03-CUSTOMIZATION-GUIDE.md`](genesis/03-CUSTOMIZATION-GUIDE.md) for
 
 ```
 my-project/
-├── index.html              # Main app
-├── css/styles.css          # Custom styles
-├── js/
-│   ├── app.js             # Application logic
-│   ├── workflow.js        # 3-phase workflow
-│   ├── storage.js         # IndexedDB
-│   └── ai-mock.js         # Mock AI
-├── prompts/               # Phase prompts
-├── templates/             # Document templates
-├── tests/                 # Jest tests
-├── scripts/               # Setup/deploy scripts
-├── .github/workflows/     # CI/CD
-└── package.json           # Dependencies
+├── assistant/                   # Document creation workflow
+│   ├── index.html              # Main assistant app
+│   ├── css/styles.css          # Custom styles
+│   ├── js/
+│   │   ├── app.js              # Application logic
+│   │   ├── workflow.js         # 3-phase workflow
+│   │   ├── prompts.js          # AI prompts
+│   │   └── core -> symlink     # → assistant-core/src
+│   └── tests/                  # Jest tests
+├── validator/                   # Document scoring
+│   ├── index.html              # Validator app
+│   ├── js/
+│   │   ├── app.js              # Application logic
+│   │   ├── validator.js        # Scoring functions
+│   │   └── core -> symlink     # → validator-core/src
+│   └── tests/                  # Jest tests
+├── package.json                # Dependencies
+├── jest.config.js              # Test configuration
+├── eslint.config.js            # Linting configuration
+├── scripts/                    # Setup/deploy scripts
+└── .github/workflows/          # CI/CD
 ```
+
+---
+
+## Shared Libraries
+
+### assistant-core
+
+Common utilities for all assistants:
+
+```javascript
+import { storage, workflow, ui } from './core/index.js';
+
+// Save workflow state
+await storage.saveProject({ id: 'project-1', name: 'My Document' });
+
+// Get workflow phase
+const phase = workflow.getCurrentPhase();
+
+// Show toast notification
+ui.showToast('Saved!', 'success');
+```
+
+### validator-core
+
+Common utilities for all validators:
+
+```javascript
+import { storage, ui, copyToClipboard } from './core/index.js';
+
+// Save validation history
+await storage.saveValidation({ score: 85, timestamp: Date.now() });
+
+// Copy to clipboard
+await copyToClipboard(documentText);
+```
+
+---
+
+## CI/CD Pattern
+
+GitHub Actions workflow handles symlinks by cloning core repos:
+
+```yaml
+steps:
+  - uses: actions/checkout@v4
+
+  # Clone core libraries
+  - name: Clone assistant-core
+    run: git clone https://github.com/bordenet/assistant-core.git ../assistant-core
+
+  - name: Clone validator-core
+    run: git clone https://github.com/bordenet/validator-core.git ../validator-core
+
+  # Replace symlinks with actual files
+  - name: Replace symlinks
+    run: |
+      rm -rf assistant/js/core
+      cp -r ../assistant-core/src assistant/js/core
+      rm -rf validator/js/core
+      cp -r ../validator-core/src validator/js/core
+
+  # Run tests
+  - run: npm test
+```
+
+---
 
 ## Testing
 
-**JavaScript**: 62 tests, 95.4% coverage
-**Go Validator**: 42 tests, 93.3% coverage
-**CI/CD**: Lint, test, deploy on every push
-
 ```bash
-npm test                 # Run tests
-npm run test:coverage    # Coverage report
-npm run lint             # ESLint
+npm test                    # Run all tests
+npm run test:assistant      # Assistant tests only
+npm run test:validator      # Validator tests only
+npm run test:coverage       # Coverage report
+npm run lint                # ESLint
 ```
 
+**Coverage targets**: 85%+ statements, 80%+ branches
 
+---
+
+## Alignment Tools
+
+Scan all paired projects for structural variance:
+
+```bash
+cd alignment-tools
+npm install
+node cli.js scan
+node cli.js scan --only test-coverage,config-parity
+node cli.js scan --ci --threshold 10  # CI mode
+```
+
+---
 
 ## Documentation
 
-**For AI Assistants**:
-- [`genesis/START-HERE.md`](genesis/START-HERE.md) - Primary entry point
-- [`genesis/CHECKLIST.md`](genesis/CHECKLIST.md) - Detailed checklist
-
-**For Humans**:
-- [`genesis/02-QUICK-START.md`](genesis/02-QUICK-START.md) - Quick start
-- [`genesis/03-CUSTOMIZATION-GUIDE.md`](genesis/03-CUSTOMIZATION-GUIDE.md) - Customization
-- [`genesis/04-DEPLOYMENT-GUIDE.md`](genesis/04-DEPLOYMENT-GUIDE.md) - Deployment
-- [`genesis/TROUBLESHOOTING.md`](genesis/TROUBLESHOOTING.md) - Common issues
-
-## Projects Built with Genesis
-
-All projects below were generated from Genesis templates. Each demonstrates the 3-phase workflow pattern with working CI/CD and automatic deployment to GitHub Pages.
-
-| Project | Description | Links |
-|---------|-------------|-------|
-| **one-pager** | Create compelling 1-page product summaries | [GitHub](https://github.com/bordenet/one-pager) • [Demo](https://bordenet.github.io/one-pager/) |
-| **pr-faq-assistant** | Amazon-style PR/FAQ document generator | [GitHub](https://github.com/bordenet/pr-faq-assistant) • [Demo](https://bordenet.github.io/pr-faq-assistant/) |
-| **product-requirements-assistant** | Comprehensive PRD creation workflow | [GitHub](https://github.com/bordenet/product-requirements-assistant) • [Demo](https://bordenet.github.io/product-requirements-assistant/) |
-| **power-statement-assistant** | Executive summary statement generator | [GitHub](https://github.com/bordenet/power-statement-assistant) • [Demo](https://bordenet.github.io/power-statement-assistant/) |
-| **strategic-proposal** | Strategic initiative proposal builder | [GitHub](https://github.com/bordenet/strategic-proposal) • [Demo](https://bordenet.github.io/strategic-proposal/) |
-| **architecture-decision-record** | ADR (Architecture Decision Record) creator | [GitHub](https://github.com/bordenet/architecture-decision-record) • [Demo](https://bordenet.github.io/architecture-decision-record/) |
-
-**Total**: 6 production apps, each with 90%+ test coverage and CI/CD.
-
----
-
-## Consistency Checker
-
-Genesis includes an automated tool for detecting structural drift across derived repositories.
-
-```bash
-# Run consistency check
-node consistency-checker/fingerprint.js
-
-# Save baseline for tracking
-node consistency-checker/fingerprint.js --save-baseline
-
-# Compare to baseline
-node consistency-checker/fingerprint.js --baseline
-```
-
-**Current Status** (2024-01-11):
-- Average similarity: **95.3%** across 6 repos
-- Most similar: one-pager ↔ product-requirements (98.5%)
-- Least similar: pr-faq ↔ strategic-proposal (91%)
-
-See [`consistency-checker/README.md`](consistency-checker/README.md) for full documentation.
-
----
-
-## Code Coverage
-
-Genesis maintains **high test coverage** across both JavaScript (95.7%) and Go (93.3%) components. The coverage visualization below shows detailed coverage by module:
-
-[![Coverage Grid](https://codecov.io/gh/bordenet/genesis/graphs/tree.svg)](https://codecov.io/gh/bordenet/genesis)
-
-**What this means:**
-- **Green**: Well-tested code (>80% coverage)
-- **Yellow**: Moderate coverage (60-80%)
-- **Red**: Needs more tests (<60%)
-- **Size**: Larger boxes = more lines of code
-
-Click the image to explore detailed coverage reports on Codecov, including line-by-line coverage, branch coverage, and historical trends.
+| Document | Description |
+|----------|-------------|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Paired model, symlinks, CI/CD patterns |
+| [genesis/START-HERE.md](genesis/START-HERE.md) | AI assistant entry point |
+| [genesis/02-QUICK-START.md](genesis/02-QUICK-START.md) | Quick start guide |
+| [genesis/03-CUSTOMIZATION-GUIDE.md](genesis/03-CUSTOMIZATION-GUIDE.md) | Customization options |
+| [genesis/04-DEPLOYMENT-GUIDE.md](genesis/04-DEPLOYMENT-GUIDE.md) | GitHub Pages deployment |
 
 ---
 

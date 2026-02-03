@@ -1,80 +1,111 @@
 # Genesis Examples & Reference Implementations
 
-## 🔗 Live Reference Implementations (PREFERRED)
+## 🏗️ Paired Architecture
 
-These are **actively maintained** Genesis-derived projects. **Use these as your primary reference!**
+All Genesis projects now use the **paired model**: each project contains both an **Assistant** (document creation) and a **Validator** (document scoring).
 
-| Project | Description | Phases | Live Demo |
-|---------|-------------|--------|-----------|
-| [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) | **The original** - PRD generation | 3 | [Demo](https://bordenet.github.io/product-requirements-assistant/) |
-| [one-pager](https://github.com/bordenet/one-pager) | Concise one-page documents | 2 | [Demo](https://bordenet.github.io/one-pager/) |
-| [power-statement-assistant](https://github.com/bordenet/power-statement-assistant) | Power statements via adversarial challenge | 3 | [Demo](https://bordenet.github.io/power-statement-assistant/) |
-| [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) | ADR document generation | 3 | [Demo](https://bordenet.github.io/architecture-decision-record/) |
-| [bloginator](https://github.com/bordenet/bloginator) | Blog generation from prior art | 3 | [Demo](https://bordenet.github.io/bloginator/) |
-| [strategic-proposal](https://github.com/bordenet/strategic-proposal) | Strategic proposals with pain points | 3 | [Demo](https://bordenet.github.io/strategic-proposal/) |
+---
+
+## 🔗 Live Paired Projects (PREFERRED)
+
+These are **actively maintained** paired projects. **Use these as your primary reference!**
+
+| Project | Assistant | Validator | Phases |
+|---------|-----------|-----------|--------|
+| [one-pager](https://github.com/bordenet/one-pager) | [Demo](https://bordenet.github.io/one-pager/) | [Demo](https://bordenet.github.io/one-pager/validator/) | 2 |
+| [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) | [Demo](https://bordenet.github.io/product-requirements-assistant/) | [Demo](https://bordenet.github.io/product-requirements-assistant/validator/) | 3 |
+| [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) | [Demo](https://bordenet.github.io/architecture-decision-record/) | [Demo](https://bordenet.github.io/architecture-decision-record/validator/) | 3 |
+| [strategic-proposal](https://github.com/bordenet/strategic-proposal) | [Demo](https://bordenet.github.io/strategic-proposal/) | [Demo](https://bordenet.github.io/strategic-proposal/validator/) | 3 |
+| [power-statement-assistant](https://github.com/bordenet/power-statement-assistant) | [Demo](https://bordenet.github.io/power-statement-assistant/) | [Demo](https://bordenet.github.io/power-statement-assistant/validator/) | 3 |
+| [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant) | [Demo](https://bordenet.github.io/pr-faq-assistant/) | [Demo](https://bordenet.github.io/pr-faq-assistant/validator/) | 3 |
 
 ### Why Use Live References?
 
 ✅ **Always up-to-date** - Bug fixes applied continuously
 ✅ **Battle-tested** - Real users, real feedback
-✅ **Best practices** - Latest patterns and conventions
-❌ **Stale copies** - In-repo examples get outdated fast
+✅ **Paired structure** - Both assistant and validator working together
+✅ **Latest patterns** - Symlinks, CI/CD, GitHub Pages
 
 ---
 
-## 📁 Local Examples
+## 📁 Local Template: hello-world/
 
-### hello-world/
+The `hello-world/` directory is the **template for new projects**. It has the full paired structure:
 
-A **minimal working example** included in this repo for quick testing.
+```
+hello-world/
+├── assistant/              # Document creation workflow
+│   ├── index.html
+│   ├── js/
+│   │   ├── core -> ../../../assistant-core/src
+│   │   └── *.js
+│   └── tests/
+├── validator/              # Document scoring
+│   ├── index.html
+│   ├── js/
+│   │   ├── core -> ../../../validator-core/src
+│   │   └── *.js
+│   └── testdata/
+└── package.json            # Unified scripts
+```
 
-**Purpose**: Verify Genesis templates work without network access.
+### Creating New Projects
 
-**Use for**:
-- Testing Genesis template changes locally
-- Quick sanity checks
-- Offline development
+Use the `create-project.sh` script (RECOMMENDED):
 
-**NOT for**:
-- Learning best practices (use live references above)
-- Starting new projects (use templates instead)
-
----
-
-## 🎯 How to Study References
-
-### 1. Clone and Explore
 ```bash
-git clone https://github.com/bordenet/product-requirements-assistant.git
-cd product-requirements-assistant
+cd genesis/scripts
+./create-project.sh --name my-new-tool
+
+# Creates genesis-tools/my-new-tool/ with paired structure
+cd ../../my-new-tool
 npm install && npm test
 ```
 
-### 2. Key Files to Study
-- `js/workflow.js` - Phase architecture
-- `prompts/*.md` - Prompt templates
-- `index.html` - Tailwind dark mode setup
-- `tests/*.test.js` - Test patterns
+---
 
-### 3. Compare Multiple Projects
-See how different document types adapt the same patterns:
-- PRD (3 phases, structured form)
-- One-Pager (2 phases, minimal form)
-- Power Statement (3 phases, adversarial focus)
+## 🎯 How to Study Paired Projects
+
+### 1. Clone and Explore
+```bash
+git clone https://github.com/bordenet/one-pager.git
+cd one-pager
+npm install && npm test
+```
+
+### 2. Key Files in Assistant
+- `assistant/js/workflow.js` - Phase architecture
+- `assistant/prompts/*.md` - Prompt templates
+- `assistant/index.html` - Tailwind dark mode setup
+- `assistant/tests/*.test.js` - Test patterns
+
+### 3. Key Files in Validator
+- `validator/js/validator.js` - Scoring logic
+- `validator/js/prompts.js` - AI critique prompts
+- `validator/testdata/scoring-fixtures.json` - Test fixtures
+
+### 4. Shared Libraries
+Both use core libraries via symlinks:
+- `assistant/js/core -> ../../../assistant-core/src`
+- `validator/js/core -> ../../../validator-core/src`
 
 ---
 
 ## ⚠️ IMPORTANT
 
-**DO NOT copy files from `examples/`** - use `genesis/templates/` instead!
+**Use `create-project.sh`** to create new projects from the hello-world template!
 
-Examples may be outdated. Templates are the source of truth.
+```bash
+./scripts/create-project.sh --name my-tool
+```
+
+This ensures proper symlinks and paired structure.
 
 ---
 
 ## 📚 Related Documentation
 
-- [REFERENCE-IMPLEMENTATIONS.md](../REFERENCE-IMPLEMENTATIONS.md) - Detailed reference guide
-- [CHECKLIST.md](../CHECKLIST.md) - Project creation checklist
-- [templates/README.md](../templates/README.md) - Template documentation
+- [ARCHITECTURE.md](../../ARCHITECTURE.md) - Paired architecture details
+- [README.md](../../README.md) - Genesis overview
+- [alignment-tools/](../../alignment-tools/) - Scan paired projects
 

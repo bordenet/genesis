@@ -731,6 +731,14 @@ mkdir -p .claude
 cp genesis/templates/project-structure/.claude/settings.local.json-template .claude/settings.local.json
 ```
 
+#### AI Agent Guidance (Agents.md)
+```bash
+# For AI agent guidance (works with Claude, Cursor, Copilot, etc.):
+cp genesis/templates/Agents.md.template Agents.md
+# Replace {{PROJECT_TITLE}} with your project title
+# Replace {{PROJECT_DESCRIPTION}} with a brief description
+```
+
 #### License File
 ```bash
 # Add MIT license:

@@ -1,6 +1,20 @@
 # Genesis Alignment Tools v2
 
-Comprehensive entropy and variance scanner for Genesis-derived repositories. This toolset addresses the critical gap in the original consistency checker by measuring **semantic variance** (actual config values, coverage thresholds, UX patterns) rather than just **structural similarity** (file presence, hashes).
+Comprehensive entropy and variance scanner for **paired Genesis projects** (assistant + validator). This toolset measures **semantic variance** (actual config values, coverage thresholds, UX patterns) rather than just structural similarity.
+
+## Paired Projects Scanned
+
+All Genesis projects now use the paired model. By default, alignment-tools scans:
+
+| Project | Structure |
+|---------|-----------|
+| one-pager | `assistant/` + `validator/` |
+| product-requirements-assistant | `assistant/` + `validator/` |
+| architecture-decision-record | `assistant/` + `validator/` |
+| strategic-proposal | `assistant/` + `validator/` |
+| pr-faq-assistant | `assistant/` + `validator/` |
+| power-statement-assistant | `assistant/` + `validator/` |
+| hello-world (template) | `assistant/` + `validator/` |
 
 ## Why v2?
 

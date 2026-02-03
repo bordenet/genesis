@@ -43,8 +43,14 @@ set -euo pipefail
 
 # Source common library
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+export PROJECT_ROOT
+
 # shellcheck source=lib/common.sh
 source "${SCRIPT_DIR}/lib/common.sh"
+
+# shellcheck source=lib/symlinks.sh
+source "${SCRIPT_DIR}/lib/symlinks.sh"
 
 ################################################################################
 # Configuration
@@ -210,8 +216,17 @@ main() {
     run_tests || exit 1
     check_coverage || exit 1
 
-    # Deploy
+    # Replace symlinks with real files for GitHub Pages
+    replace_symlinks_with_real_files || exit 1
+
+    # Deploy (with trap to restore symlinks on failure)
+    trap 'restore_symlinks' EXIT
     deploy_to_github || exit 1
+
+    # Restore symlinks for local development
+    restore_symlinks
+    trap - EXIT
+
     verify_deployment
 
     # Success

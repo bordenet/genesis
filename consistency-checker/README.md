@@ -1,4 +1,15 @@
-# Genesis Consistency Checker
+# Genesis Consistency Checker (DEPRECATED)
+
+> ⚠️ **DEPRECATED**: This tool has been superseded by **[alignment-tools](../alignment-tools/)**.
+> The new alignment-tools v2 provides more comprehensive entropy/variance scanning with:
+> - Semantic analysis (not just file hashes)
+> - 8 scanning dimensions
+> - Shannon entropy scoring
+> - CI integration with thresholds
+>
+> Use `alignment-tools` for all new consistency checks.
+
+---
 
 Automated tool for detecting structural drift/entropy across Genesis-derived repositories.
 

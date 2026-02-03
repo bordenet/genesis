@@ -102,6 +102,60 @@ open -a "Firefox" http://localhost:8000
 
 ---
 
+## Symlink Handling for Paired Architecture
+
+### The Problem
+
+Paired architecture projects use symlinks to shared libraries (`assistant-core` and `validator-core`) during development:
+
+```
+my-project/
+├── assistant/
+│   └── js/
+│       └── core -> ../../../assistant-core/src  # symlink
+└── validator/
+    └── js/
+        └── core -> ../../../validator-core/src  # symlink
+```
+
+**GitHub Pages cannot follow symlinks.** Deploying with symlinks will result in broken applications.
+
+### The Solution: symlinks.sh Library
+
+Every paired project includes `scripts/lib/symlinks.sh` which handles this automatically:
+
+```bash
+# In your deploy-web.sh script:
+source "$(dirname "${BASH_SOURCE[0]}")/lib/symlinks.sh"
+
+# Before deploying: replace symlinks with real files
+replace_symlinks_with_real_files
+
+# Set trap to restore on failure
+trap 'restore_symlinks' EXIT
+
+# Deploy to GitHub Pages
+deploy_to_github
+
+# After deploying: restore symlinks for local dev
+restore_symlinks
+trap - EXIT
+```
+
+### How It Works
+
+1. **`replace_symlinks_with_real_files()`** - Copies actual files from cores to replace symlinks
+2. **`restore_symlinks()`** - Restores symlinks after deployment for local development
+3. **Trap for safety** - If deploy fails, symlinks are automatically restored
+
+### CI Workflow
+
+The CI workflow (`.github/workflows/ci.yml`) handles symlinks differently:
+- Clones `assistant-core` and `validator-core` repos
+- Copies files directly (no symlinks in CI environment)
+
+---
+
 ## CI/CD Setup
 
 ### GitHub Actions (Automatic Deployment)
