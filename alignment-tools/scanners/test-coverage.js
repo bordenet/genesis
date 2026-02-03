@@ -20,6 +20,28 @@ import { loadExpectedValues } from '../lib/baseline-manager.js';
 
 const DIMENSION_NAME = 'Test Coverage';
 
+// Files that don't need dedicated test files:
+// - *.min.js: Third-party minified libraries
+// - index.js: Barrel files (just re-exports)
+// - app.js: Entry points (tested via integration)
+// - types.js: Type definitions (no logic)
+const FILES_EXCLUDED_FROM_TEST_PARITY = new Set([
+  'marked.min',
+  'index',
+  'app',
+  'types',
+]);
+
+/**
+ * Check if a source file should be excluded from test parity checks.
+ *
+ * @param {string} basename - File basename without extension
+ * @returns {boolean} True if file should be excluded
+ */
+function shouldExcludeFromTestParity(basename) {
+  return FILES_EXCLUDED_FROM_TEST_PARITY.has(basename) || basename.endsWith('.min');
+}
+
 /**
  * Get source files and their expected test file counterparts.
  *
@@ -34,7 +56,11 @@ function analyzeTestParity(jsDirs, testDirs) {
   for (const jsDir of jsDirs) {
     if (!fileExists(jsDir)) continue;
     const files = getAllFiles(jsDir).filter((f) => f.endsWith('.js'));
-    sourceFiles.push(...files.map((f) => path.basename(f, '.js')));
+    // Filter out files that don't need dedicated tests
+    const basenames = files
+      .map((f) => path.basename(f, '.js'))
+      .filter((b) => !shouldExcludeFromTestParity(b));
+    sourceFiles.push(...basenames);
   }
 
   for (const testDir of testDirs) {

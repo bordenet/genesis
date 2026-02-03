@@ -162,14 +162,34 @@ export async function scan(repoPaths) {
     let esmExportCount = 0;
     let totalJsFiles = 0;
 
+    // Files to exclude from ESM export check:
+    // - *.min.js: Third-party minified libraries
+    // - app.js: Entry points that import/run but don't export
+    // - index.js in lib/: Library barrel files
+    const shouldExcludeFromEsmCheck = (filePath) => {
+      const basename = path.basename(filePath);
+      const dirname = path.dirname(filePath);
+      return (
+        basename.endsWith('.min.js') ||
+        (basename === 'app.js') ||
+        (basename === 'index.js' && dirname.endsWith('/lib'))
+      );
+    };
+
     for (const jsDir of structure.jsDirs) {
       if (fileExists(jsDir)) {
-        const jsFiles = getAllFiles(jsDir).filter((f) => f.endsWith('.js'));
+        const jsFiles = getAllFiles(jsDir)
+          .filter((f) => f.endsWith('.js'))
+          .filter((f) => !shouldExcludeFromEsmCheck(f));
         totalJsFiles += jsFiles.length;
 
         for (const file of jsFiles) {
           const content = readTextFile(file);
-          if (content && /^export\s+(const|function|class|default)/m.test(content)) {
+          // Match ALL ESM export patterns:
+          // - export const/function/class/default
+          // - export { ... }
+          // - export * from ...
+          if (content && /^export\s+(const|function|class|default|\{|\*)/m.test(content)) {
             esmExportCount++;
           }
         }

@@ -11,8 +11,10 @@ import { calculateEntropy } from '../lib/entropy.js';
 
 const DIMENSION_NAME = 'Dependency Versions';
 
-// Critical dependencies that should be aligned
-const CRITICAL_DEPS = ['jest', 'eslint', 'tailwindcss', '@testing-library/dom'];
+// Critical dependencies that should be aligned across all repos
+// Only include deps that ARE in the hello-world baseline
+// Do NOT include optional deps like tailwindcss or @testing-library/dom
+const CRITICAL_DEPS = ['jest', 'eslint'];
 
 /**
  * Extract major version from a semver string.
