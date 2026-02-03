@@ -22,8 +22,8 @@ import { saveScanToHistory, saveExpectedValues, loadExpectedValues } from './lib
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Import all scanners
-const scanners = {
+// Import all scanners - organized by type
+const coreScanners = {
   'test-coverage': () => import('./scanners/test-coverage.js'),
   'config-parity': () => import('./scanners/config-parity.js'),
   'ux-consistency': () => import('./scanners/ux-consistency.js'),
@@ -33,6 +33,18 @@ const scanners = {
   'documentation': () => import('./scanners/documentation.js'),
   'code-patterns': () => import('./scanners/code-patterns.js'),
 };
+
+const insideOutScanners = {
+  'function-coverage': () => import('./scanners/inside-out/function-coverage.js'),
+};
+
+const outsideInScanners = {
+  'ui-inventory': () => import('./scanners/outside-in/ui-inventory.js'),
+  'workflow-consistency': () => import('./scanners/outside-in/workflow-consistency.js'),
+};
+
+// Legacy alias for backward compatibility
+const scanners = coreScanners;
 
 // Default repo paths (relative to genesis-tools parent)
 const DEFAULT_REPOS = [
@@ -58,6 +70,9 @@ function parseArgs(args) {
     threshold: 10,
     baseline: false,
     repos: null,
+    insideOut: false,
+    outsideIn: false,
+    project: null,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -82,6 +97,12 @@ function parseArgs(args) {
       options.baseline = true;
     } else if (arg === '--repos' && args[i + 1]) {
       options.repos = args[++i].split(',');
+    } else if (arg === '--inside-out') {
+      options.insideOut = true;
+    } else if (arg === '--outside-in') {
+      options.outsideIn = true;
+    } else if (arg === '--project' && args[i + 1]) {
+      options.project = args[++i];
     }
   }
 
@@ -100,7 +121,13 @@ function resolveRepoPaths(repos) {
  * Run the scan.
  */
 async function runScan(options) {
-  const repoNames = options.repos || DEFAULT_REPOS;
+  // Handle --project flag to scan single project
+  let repoNames;
+  if (options.project) {
+    repoNames = [options.project];
+  } else {
+    repoNames = options.repos || DEFAULT_REPOS;
+  }
   const repoPaths = resolveRepoPaths(repoNames).filter((p) => fs.existsSync(p));
 
   if (repoPaths.length === 0) {
@@ -108,15 +135,29 @@ async function runScan(options) {
     process.exit(1);
   }
 
-  const scannerNames = options.only || Object.keys(scanners);
+  // Determine which scanners to run
+  let scannersToRun = {};
+
+  if (options.insideOut) {
+    // Run only inside-out scanners
+    scannersToRun = { ...insideOutScanners };
+  } else if (options.outsideIn) {
+    // Run only outside-in scanners
+    scannersToRun = { ...outsideInScanners };
+  } else {
+    // Run core scanners (default)
+    scannersToRun = { ...coreScanners };
+  }
+
+  const scannerNames = options.only || Object.keys(scannersToRun);
   const dimensions = [];
 
   for (const name of scannerNames) {
-    if (!scanners[name]) {
+    if (!scannersToRun[name]) {
       console.error(`Unknown scanner: ${name}`);
       continue;
     }
-    const scanner = await scanners[name]();
+    const scanner = await scannersToRun[name]();
     const result = await scanner.scan(repoPaths);
     dimensions.push(result);
   }

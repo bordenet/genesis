@@ -256,6 +256,7 @@ grep -r "{{[A-Z_]*}}" .
   - Validator: https://bordenet.github.io/one-pager/validator/
 
 **✅ All Paired Projects**:
+
 | Project | Assistant | Validator |
 |---------|-----------|-----------|
 | [one-pager](https://github.com/bordenet/one-pager) | [Demo](https://bordenet.github.io/one-pager/) | [Demo](https://bordenet.github.io/one-pager/validator/) |

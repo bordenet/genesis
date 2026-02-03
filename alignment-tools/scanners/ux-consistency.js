@@ -6,7 +6,7 @@
  */
 
 import path from 'path';
-import { readTextFile, fileExists } from '../lib/config-parser.js';
+import { readTextFile, fileExists, detectProjectStructure } from '../lib/config-parser.js';
 import { calculateEntropy } from '../lib/entropy.js';
 import { loadExpectedValues } from '../lib/baseline-manager.js';
 
@@ -59,21 +59,44 @@ export async function scan(repoPaths) {
 
   for (const repoPath of repoPaths) {
     const repoName = path.basename(repoPath);
-    const indexPath = path.join(repoPath, 'index.html');
+    const structure = detectProjectStructure(repoPath);
 
-    const htmlContent = readTextFile(indexPath);
-    const patterns = htmlContent ? extractTailwindPatterns(htmlContent) : null;
+    // For paired projects, analyze all index.html files; for simple, just one
+    let combinedPatterns = null;
+    let hasAnyIndexHtml = false;
+
+    for (const indexPath of structure.indexHtmlPaths) {
+      if (fileExists(indexPath)) {
+        hasAnyIndexHtml = true;
+        const htmlContent = readTextFile(indexPath);
+        const patterns = htmlContent ? extractTailwindPatterns(htmlContent) : null;
+
+        if (patterns) {
+          if (!combinedPatterns) {
+            combinedPatterns = { ...patterns };
+          } else {
+            // Merge patterns from multiple index.html files
+            combinedPatterns.hasDarkMode = combinedPatterns.hasDarkMode || patterns.hasDarkMode;
+            combinedPatterns.textSizes = [...new Set([...combinedPatterns.textSizes, ...patterns.textSizes])];
+            combinedPatterns.colors = [...new Set([...combinedPatterns.colors, ...patterns.colors])];
+            combinedPatterns.hasMaxWContainer = combinedPatterns.hasMaxWContainer || patterns.hasMaxWContainer;
+            combinedPatterns.hasMxAuto = combinedPatterns.hasMxAuto || patterns.hasMxAuto;
+          }
+        }
+      }
+    }
 
     repoData.push({
       repo: repoName,
       path: repoPath,
-      hasIndexHtml: fileExists(indexPath),
-      hasDarkMode: patterns?.hasDarkMode ?? false,
-      textSizes: patterns?.textSizes ?? [],
-      primaryTextSize: patterns?.textSizes?.[0] ?? null,
-      colors: patterns?.colors ?? [],
-      hasMaxWContainer: patterns?.hasMaxWContainer ?? false,
-      hasMxAuto: patterns?.hasMxAuto ?? false,
+      structureType: structure.type,
+      hasIndexHtml: hasAnyIndexHtml,
+      hasDarkMode: combinedPatterns?.hasDarkMode ?? false,
+      textSizes: combinedPatterns?.textSizes ?? [],
+      primaryTextSize: combinedPatterns?.textSizes?.[0] ?? null,
+      colors: combinedPatterns?.colors ?? [],
+      hasMaxWContainer: combinedPatterns?.hasMaxWContainer ?? false,
+      hasMxAuto: combinedPatterns?.hasMxAuto ?? false,
     });
   }
 

@@ -6,7 +6,7 @@
  */
 
 import path from 'path';
-import { fileExists, readTextFile, getAllFiles } from '../lib/config-parser.js';
+import { fileExists, readTextFile, getAllFiles, detectProjectStructure } from '../lib/config-parser.js';
 import { calculateEntropy } from '../lib/entropy.js';
 
 const DIMENSION_NAME = 'Code Patterns';
@@ -157,19 +157,41 @@ export async function scan(repoPaths) {
       };
     }
 
-    // Check for ESM exports
-    const jsDir = path.join(repoPath, 'js');
+    // Check for ESM exports - handle both simple and paired project structures
+    const structure = detectProjectStructure(repoPath);
     let esmExportCount = 0;
     let totalJsFiles = 0;
 
-    if (fileExists(jsDir)) {
-      const jsFiles = getAllFiles(jsDir).filter((f) => f.endsWith('.js'));
-      totalJsFiles = jsFiles.length;
+    // Files to exclude from ESM export check:
+    // - *.min.js: Third-party minified libraries
+    // - app.js: Entry points that import/run but don't export
+    // - index.js in lib/: Library barrel files
+    const shouldExcludeFromEsmCheck = (filePath) => {
+      const basename = path.basename(filePath);
+      const dirname = path.dirname(filePath);
+      return (
+        basename.endsWith('.min.js') ||
+        (basename === 'app.js') ||
+        (basename === 'index.js' && dirname.endsWith('/lib'))
+      );
+    };
 
-      for (const file of jsFiles) {
-        const content = readTextFile(file);
-        if (content && /^export\s+(const|function|class|default)/m.test(content)) {
-          esmExportCount++;
+    for (const jsDir of structure.jsDirs) {
+      if (fileExists(jsDir)) {
+        const jsFiles = getAllFiles(jsDir)
+          .filter((f) => f.endsWith('.js'))
+          .filter((f) => !shouldExcludeFromEsmCheck(f));
+        totalJsFiles += jsFiles.length;
+
+        for (const file of jsFiles) {
+          const content = readTextFile(file);
+          // Match ALL ESM export patterns:
+          // - export const/function/class/default
+          // - export { ... }
+          // - export * from ...
+          if (content && /^export\s+(const|function|class|default|\{|\*)/m.test(content)) {
+            esmExportCount++;
+          }
         }
       }
     }
