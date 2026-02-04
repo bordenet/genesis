@@ -14,15 +14,19 @@ my-project/
 │   ├── index.html
 │   ├── js/
 │   │   ├── app.js
+│   │   ├── workflow.js
+│   │   ├── storage.js
 │   │   ├── prompts.js
-│   │   └── core -> symlink
+│   │   └── ...
 │   └── tests/
 ├── validator/       # Scores documents against quality dimensions
 │   ├── index.html
 │   ├── js/
+│   │   ├── app.js
 │   │   ├── validator.js
-│   │   └── core -> symlink
+│   │   └── ...
 │   └── tests/
+├── js/              # Mirror of assistant/js/ (for root deployment)
 └── package.json
 ```
 
@@ -35,72 +39,30 @@ my-project/
 
 ---
 
-## Shared Libraries
+## Self-Contained Projects
 
-Common code lives in separate repositories, linked via symlinks:
+Each project is **self-contained with real directories** (no symlinks):
+
+- All code lives directly in the project repo
+- No external repositories required for development or CI/CD
+- Clone and run - simple setup
+
+### Reference Libraries
+
+The patterns used in each project were derived from these reference repos:
 
 | Library | Purpose | Repository |
 |---------|---------|------------|
-| `assistant-core` | Storage, workflow, UI utilities | [bordenet/assistant-core](https://github.com/bordenet/assistant-core) |
-| `validator-core` | Storage, UI, clipboard utilities | [bordenet/validator-core](https://github.com/bordenet/validator-core) |
+| `assistant-core` | Reference storage, workflow, UI patterns | [bordenet/assistant-core](https://github.com/bordenet/assistant-core) |
+| `validator-core` | Reference storage, UI, clipboard patterns | [bordenet/validator-core](https://github.com/bordenet/validator-core) |
 
-### What's in assistant-core
-
-```javascript
-// src/index.js exports:
-export { storage } from './storage.js';    // IndexedDB operations
-export { workflow } from './workflow.js';   // Phase management
-export { ui } from './ui.js';              // Toast, modal, dark mode
-```
-
-### What's in validator-core
-
-```javascript
-// src/index.js exports:
-export { storage } from './storage.js';           // IndexedDB operations
-export { ui } from './ui.js';                     // Toast, modal, dark mode
-export { copyToClipboard } from './clipboard.js'; // Clipboard utility
-```
-
----
-
-## Symlink Development Pattern
-
-During development, projects use symlinks to core libraries:
-
-```bash
-# In my-project/assistant/js/
-core -> ../../../assistant-core/src
-
-# In my-project/validator/js/
-core -> ../../../validator-core/src
-```
-
-### Setting Up Symlinks
-
-```bash
-cd my-project/assistant/js
-ln -s ../../../assistant-core/src core
-
-cd ../../validator/js
-ln -s ../../../validator-core/src core
-```
-
-### Benefits
-
-- Edit core once, all projects update immediately
-- No npm publish/install cycle during development
-- Changes are visible instantly
+> **Note**: These are reference repos for pattern development. Child projects have real copies of the code, not symlinks.
 
 ---
 
 ## CI/CD Pattern
 
-GitHub Actions cannot follow symlinks across repositories. The CI workflow:
-
-1. **Clones** core repositories
-2. **Replaces** symlinks with actual files
-3. **Runs** tests against real code
+Since projects are self-contained, CI/CD is straightforward:
 
 ```yaml
 # .github/workflows/ci.yml
@@ -108,38 +70,23 @@ jobs:
   test:
     steps:
       - uses: actions/checkout@v4
-      
-      # Clone core libraries
-      - name: Clone assistant-core
-        run: git clone https://github.com/bordenet/assistant-core.git ../assistant-core
-        
-      - name: Clone validator-core
-        run: git clone https://github.com/bordenet/validator-core.git ../validator-core
-        
-      # Replace symlinks with actual files
-      - name: Replace symlinks
-        run: |
-          rm -rf assistant/js/core
-          cp -r ../assistant-core/src assistant/js/core
-          rm -rf validator/js/core
-          cp -r ../validator-core/src validator/js/core
-          
       - run: npm install
       - run: npm test
       - run: npm run lint
 ```
 
+No symlink handling, no external clones needed.
+
 ---
 
 ## GitHub Pages Deployment
 
-The deploy script handles symlinks similarly:
+Deploy directly to GitHub Pages:
 
 ```bash
 # scripts/deploy-web.sh
-# 1. Clone core repos
-# 2. Replace symlinks with real files
-# 3. Deploy to gh-pages branch
+# 1. Build assets
+# 2. Deploy to gh-pages branch
 ```
 
 Both assistant and validator deploy to the same GitHub Pages site:
@@ -150,27 +97,40 @@ Both assistant and validator deploy to the same GitHub Pages site:
 
 ## Creating New Projects
 
-### Using create-project.sh
+### From hello-world Template
 
 ```bash
-cd genesis-tools/genesis
-./genesis/scripts/create-project.sh --name document-type
+# Copy the canonical template
+cp -r genesis/examples/hello-world my-new-tool
+
+cd my-new-tool
+npm install
+npm test
 ```
 
-This creates:
-- Complete project structure
-- Symlinks to core libraries
-- Pre-configured package.json, jest.config.js, eslint.config.js
-- GitHub Actions workflow
-
-### Manual Steps
+### Customization Steps
 
 1. Copy `genesis/examples/hello-world` as template
-2. Create symlinks to assistant-core and validator-core
-3. Customize `assistant/js/prompts.js` for your document type
-4. Customize `validator/js/validator.js` for your scoring dimensions
-5. Update package.json name and description
-6. Run tests: `npm test`
+2. Customize `assistant/js/prompts.js` for your document type
+3. Customize `validator/js/validator.js` for your scoring dimensions
+4. Update package.json name and description
+5. Run tests: `npm test`
+6. **Run project-diff tools** to verify alignment
+
+### Maintaining Consistency
+
+**Use the project-diff tools REPEATEDLY during development:**
+
+```bash
+# From genesis/project-diff directory
+node diff-projects.js --ci    # Check MUST_MATCH files are identical
+node find-orphans.js          # Find JS files that are never imported
+```
+
+Run these at least:
+1. After initial scaffolding
+2. Before every commit
+3. Before creating a PR
 
 ---
 

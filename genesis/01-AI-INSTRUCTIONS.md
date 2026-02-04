@@ -14,26 +14,27 @@
 
 ---
 
-## 🏗️ Paired Architecture (NEW)
+## 🏗️ Paired Architecture
 
-**All Genesis projects now use the paired model:**
+**All Genesis projects use the paired model with real directories:**
 
 ```
 my-project/
 ├── assistant/              # Document creation workflow
 │   ├── index.html
 │   ├── js/
-│   │   ├── core -> ../../../assistant-core/src  (symlink)
 │   │   ├── app.js
-│   │   └── workflow.js
+│   │   ├── workflow.js
+│   │   ├── storage.js
+│   │   └── ...
 │   └── tests/
 ├── validator/              # Document validation/scoring
 │   ├── index.html
 │   ├── js/
-│   │   ├── core -> ../../../validator-core/src  (symlink)
 │   │   ├── app.js
 │   │   └── validator.js
 │   └── testdata/
+├── js/                     # Mirror of assistant/js/ (for root deployment)
 ├── package.json            # Unified scripts
 └── .github/workflows/ci.yml
 ```
@@ -41,33 +42,37 @@ my-project/
 ### Quick Start for New Projects
 
 ```bash
-# Use the create-project script (RECOMMENDED)
-cd genesis/scripts
-./create-project.sh --name my-new-tool
+# Copy from hello-world template
+cp -r genesis/examples/hello-world my-new-tool
 
-# This creates a paired project from hello-world template
+# Customize for your document type
+cd my-new-tool
+# Edit prompts/, js/workflow.js, validator/js/validator.js
 ```
 
-### Shared Libraries
+### Self-Contained Projects
 
-Both assistant and validator use core libraries via symlinks:
-- **`assistant-core`** - Storage, workflow, UI utilities
-- **`validator-core`** - Scoring, prompts, validation utilities
+Each project is self-contained with real directories (no symlinks). Benefits:
+- **Simple setup**: Clone and run, no external dependencies
+- **Clear git history**: All changes tracked in one repo
+- **Easy CI/CD**: No special symlink handling needed
 
-### CI/CD Pattern
+### Maintaining Consistency
 
-GitHub Actions must clone core repos and replace symlinks:
+Use the `project-diff` tools to keep projects aligned:
 
-```yaml
-- run: |
-    git clone https://github.com/bordenet/assistant-core.git ../assistant-core
-    git clone https://github.com/bordenet/validator-core.git ../validator-core
-    rm -rf assistant/js/core validator/js/core
-    cp -r ../assistant-core/src assistant/js/core
-    cp -r ../validator-core/src validator/js/core
+```bash
+# From genesis/project-diff directory
+node diff-projects.js --ci    # Check for divergent MUST_MATCH files
+node find-orphans.js          # Find unused JS files
 ```
 
-**See `ARCHITECTURE.md` for complete documentation.**
+**Run these tools REPEATEDLY during development** - at least:
+1. After initial scaffolding
+2. Before every commit
+3. Before creating a PR
+
+**See `CODE-CONSISTENCY-MANDATE.md` for complete consistency rules.**
 
 ---
 
