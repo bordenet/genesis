@@ -83,11 +83,52 @@ Desktop.ini
 .Trashes
 
 # =============================================================================
-# Temporary files
+# Playwright Test Artifacts
+# =============================================================================
+test-results/
+playwright-report/
+playwright/.cache/
+
+# =============================================================================
+# Environment Variables (CRITICAL - never commit secrets)
+# =============================================================================
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# =============================================================================
+# Temporary files and directories
 # =============================================================================
 *.tmp
 *.temp
 *.log
 *.bak
+temp/
+tmp/
+DO_NOT_COMMIT/
+docs-temp/
+temp-docs-*/
+*_results*/
+.setup-cache/
+
+# =============================================================================
+# Cruft Prevention
+# =============================================================================
+archive/
 ADOPT-PROMPT.md
 Agents.md.original
+app-bundle.js
+backend.log
+frontend.log
+setup-test.log
+git_reset.log
+
+# =============================================================================
+# IDE-specific (extended)
+# =============================================================================
+.claude/
+.project
+.settings/
+*.sublime-project
+*.sublime-workspace
