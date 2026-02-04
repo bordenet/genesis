@@ -14,6 +14,7 @@ export default [
         ...globals.browser,
         ...globals.es2021,
         process: 'readonly',
+        marked: 'readonly', // Loaded via CDN for markdown rendering
       },
     },
     rules: {
@@ -43,9 +44,9 @@ export default [
       'coverage/**',
       'docs/**',
       'dist/**',
+      'js/lib/**',
       '*.min.js',
       '**/*.min.js',
     ],
   },
 ];
-
