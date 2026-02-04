@@ -4,22 +4,41 @@
  *
  * Manages workflow configuration and prompt generation.
  * Prompts are stored in prompts/ directory as markdown files.
- *
- * Template Variable Syntax: {{VAR_NAME}} (double braces, SCREAMING_SNAKE_CASE)
  */
 
+// ============================================================================
+// WORKFLOW_CONFIG - Configure your workflow phases here
+// ============================================================================
+// Standard 3-phase adversarial workflow:
+// - Phase 1: Initial draft generation (Claude)
+// - Phase 2: Adversarial critique/review (Gemini)
+// - Phase 3: Final synthesis incorporating feedback (Claude)
+// ============================================================================
+
 export const WORKFLOW_CONFIG = {
-  phaseCount: {{PHASE_COUNT}},
+  phaseCount: 3,
   phases: [
-    {{#each PHASES}}
     {
-      number: {{number}},
-      name: '{{name}}',
-      icon: '{{icon}}',
-      aiModel: '{{ai_model}}',
-      description: '{{description}}'
-    }{{#unless @last}},{{/unless}}
-    {{/each}}
+      number: 1,
+      name: 'Draft',
+      icon: '📝',
+      aiModel: 'Claude Sonnet 4',
+      description: 'Generate initial {{DOCUMENT_TYPE}} draft'
+    },
+    {
+      number: 2,
+      name: 'Review',
+      icon: '🔍',
+      aiModel: 'Gemini 2.5 Pro',
+      description: 'Adversarial review and critique'
+    },
+    {
+      number: 3,
+      name: 'Finalize',
+      icon: '✨',
+      aiModel: 'Claude Sonnet 4',
+      description: 'Synthesize feedback into final {{DOCUMENT_TYPE}}'
+    }
   ]
 };
 
@@ -33,20 +52,20 @@ const promptCache = {};
  */
 async function loadPromptTemplate(phaseNumber) {
   if (promptCache[phaseNumber]) {
-    return promptCache[phaseNumber];
+  return promptCache[phaseNumber];
   }
 
   try {
-    const response = await fetch(`prompts/phase${phaseNumber}.md`);
-    if (!response.ok) {
-      throw new Error(`Failed to load prompt template for phase ${phaseNumber}`);
-    }
-    const template = await response.text();
-    promptCache[phaseNumber] = template;
-    return template;
+  const response = await fetch(`prompts/phase${phaseNumber}.md`);
+  if (!response.ok) {
+    throw new Error(`Failed to load prompt template for phase ${phaseNumber}`);
+  }
+  const template = await response.text();
+  promptCache[phaseNumber] = template;
+  return template;
   } catch (error) {
-    console.error(`Error loading prompt template for phase ${phaseNumber}:`, error);
-    throw error;
+  console.error(`Error loading prompt template for phase ${phaseNumber}:`, error);
+  throw error;
   }
 }
 
@@ -71,8 +90,8 @@ export async function preloadPromptTemplates() {
 function replaceTemplateVars(template, vars) {
   let result = template;
   for (const [key, value] of Object.entries(vars)) {
-    const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-    result = result.replace(regex, value || '');
+  const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+  result = result.replace(regex, value || '');
   }
   return result;
 }
@@ -85,10 +104,10 @@ function replaceTemplateVars(template, vars) {
 export async function generatePhase1Prompt(formData) {
   const template = await loadPromptTemplate(1);
   return replaceTemplateVars(template, {
-    // Add your Phase 1 variables here
-    // Example:
-    // TITLE: formData.title || '',
-    // CONTEXT: formData.context || ''
+  // Add your Phase 1 variables here
+  // Example:
+  // TITLE: formData.title || '',
+  // CONTEXT: formData.context || ''
   });
 }
 
@@ -100,7 +119,7 @@ export async function generatePhase1Prompt(formData) {
 export async function generatePhase2Prompt(phase1Output) {
   const template = await loadPromptTemplate(2);
   return replaceTemplateVars(template, {
-    PHASE1_OUTPUT: phase1Output
+  PHASE1_OUTPUT: phase1Output
   });
 }
 
@@ -113,8 +132,8 @@ export async function generatePhase2Prompt(phase1Output) {
 export async function generatePhase3Prompt(phase1Output, phase2Output) {
   const template = await loadPromptTemplate(3);
   return replaceTemplateVars(template, {
-    PHASE1_OUTPUT: phase1Output,
-    PHASE2_OUTPUT: phase2Output
+  PHASE1_OUTPUT: phase1Output,
+  PHASE2_OUTPUT: phase2Output
   });
 }
 

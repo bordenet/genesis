@@ -22,73 +22,73 @@ export default defineConfig({
 
   // Reporter configuration
   reporter: [
-    ['html'],
-    ['list'],
-    ['json', { outputFile: 'test-results/results.json' }]
+  ['html'],
+  ['list'],
+  ['json', { outputFile: 'test-results/results.json' }]
   ],
 
   // Shared settings for all projects
   use: {
-    // Base URL for tests
-    baseURL: 'http://localhost:8000',
+  // Base URL for tests
+  baseURL: 'http://localhost:8000',
 
-    // Collect trace on failure
-    trace: 'on-first-retry',
+  // Collect trace on failure
+  trace: 'on-first-retry',
 
-    // Screenshot on failure
-    screenshot: 'only-on-failure',
+  // Screenshot on failure
+  screenshot: 'only-on-failure',
 
-    // Video on failure
-    video: 'retain-on-failure',
+  // Video on failure
+  video: 'retain-on-failure',
 
-    // Viewport size
-    viewport: { width: 1280, height: 720 },
+  // Viewport size
+  viewport: { width: 1280, height: 720 },
 
-    // Ignore HTTPS errors
-    ignoreHTTPSErrors: true,
+  // Ignore HTTPS errors
+  ignoreHTTPSErrors: true,
 
-    // Timeout for actions
-    actionTimeout: 10 * 1000,
+  // Timeout for actions
+  actionTimeout: 10 * 1000,
 
-    // Timeout for navigation
-    navigationTimeout: 30 * 1000,
+  // Timeout for navigation
+  navigationTimeout: 30 * 1000,
   },
 
   // Configure projects for major browsers
   projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
+  {
+    name: 'chromium',
+    use: { ...devices['Desktop Chrome'] },
+  },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
+  {
+    name: 'firefox',
+    use: { ...devices['Desktop Firefox'] },
+  },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+  {
+    name: 'webkit',
+    use: { ...devices['Desktop Safari'] },
+  },
 
-    // Mobile browsers
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
+  // Mobile browsers
+  {
+    name: 'Mobile Chrome',
+    use: { ...devices['Pixel 5'] },
+  },
 
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    },
+  {
+    name: 'Mobile Safari',
+    use: { ...devices['iPhone 12'] },
+  },
   ],
 
   // Web server configuration
   webServer: {
-    command: 'python3 -m http.server 8000 --directory {{DEPLOY_FOLDER}}',
-    port: 8000,
-    timeout: 120 * 1000,
-    reuseExistingServer: !process.env.CI,
+  command: 'python3 -m http.server 8000 --directory {{DEPLOY_FOLDER}}',
+  port: 8000,
+  timeout: 120 * 1000,
+  reuseExistingServer: !process.env.CI,
   },
 });
 

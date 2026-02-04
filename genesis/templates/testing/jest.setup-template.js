@@ -22,8 +22,8 @@ console.error = (...args) => {
   const message = args[0]?.toString?.() || '';
   // Suppress known jsdom limitations
   if (message.includes('Not implemented: navigation') ||
-      message.includes('Error: Not implemented')) {
-    return; // Silently ignore these expected jsdom warnings
+    message.includes('Error: Not implemented')) {
+  return; // Silently ignore these expected jsdom warnings
   }
   originalConsoleError.apply(console, args);
 };
@@ -64,17 +64,17 @@ global.sessionStorage = sessionStorageMock;
 // Mock File API
 class MockBlob {
   constructor(parts, options = {}) {
-    this.parts = parts;
-    this.type = options.type || '';
-    this.size = parts.reduce((acc, part) => acc + (part.length || 0), 0);
+  this.parts = parts;
+  this.type = options.type || '';
+  this.size = parts.reduce((acc, part) => acc + (part.length || 0), 0);
   }
 }
 
 class MockFile extends MockBlob {
   constructor(parts, name, options = {}) {
-    super(parts, options);
-    this.name = name;
-    this.lastModified = options.lastModified || Date.now();
+  super(parts, options);
+  this.name = name;
+  this.lastModified = options.lastModified || Date.now();
   }
 }
 
@@ -84,17 +84,17 @@ global.File = MockFile;
 // Mock FileReader
 global.FileReader = class FileReader {
   readAsText(blob) {
-    this.result = blob.parts.join('');
-    if (this.onload) {
-      this.onload({ target: this });
-    }
+  this.result = blob.parts.join('');
+  if (this.onload) {
+    this.onload({ target: this });
+  }
   }
 
   readAsDataURL(blob) {
-    this.result = `data:${blob.type};base64,${Buffer.from(blob.parts.join('')).toString('base64')}`;
-    if (this.onload) {
-      this.onload({ target: this });
-    }
+  this.result = `data:${blob.type};base64,${Buffer.from(blob.parts.join('')).toString('base64')}`;
+  if (this.onload) {
+    this.onload({ target: this });
+  }
   }
 };
 
@@ -105,8 +105,8 @@ global.URL.revokeObjectURL = jest.fn();
 // Mock clipboard API
 Object.assign(navigator, {
   clipboard: {
-    writeText: jest.fn(() => Promise.resolve()),
-    readText: jest.fn(() => Promise.resolve('')),
+  writeText: jest.fn(() => Promise.resolve()),
+  readText: jest.fn(() => Promise.resolve('')),
   },
 });
 

@@ -22,33 +22,33 @@ function extractTitleFromMarkdown(markdown) {
   // First try: H1 header (# Title)
   const h1Match = markdown.match(/^#\s+(.+)$/m);
   if (h1Match) {
-    const title = h1Match[1].trim();
-    // Skip generic headers like "PRESS RELEASE" or "Press Release"
-    if (!/^press\s+release$/i.test(title)) {
-      return title;
-    }
+  const title = h1Match[1].trim();
+  // Skip generic headers like "PRESS RELEASE" or "Press Release"
+  if (!/^press\s+release$/i.test(title)) {
+    return title;
+  }
   }
 
   // Second try: Bold headline after "# PRESS RELEASE" or "## Press Release"
   // Pattern: **Headline Text**
   const prMatch = markdown.match(/^#\s*PRESS\s*RELEASE\s*$/im);
   if (prMatch) {
-    const startIdx = markdown.indexOf(prMatch[0]) + prMatch[0].length;
-    const afterPR = markdown.slice(startIdx).trim();
-    const boldMatch = afterPR.match(/^\*\*(.+?)\*\*/);
-    if (boldMatch) {
-      return boldMatch[1].trim();
-    }
+  const startIdx = markdown.indexOf(prMatch[0]) + prMatch[0].length;
+  const afterPR = markdown.slice(startIdx).trim();
+  const boldMatch = afterPR.match(/^\*\*(.+?)\*\*/);
+  if (boldMatch) {
+    return boldMatch[1].trim();
+  }
   }
 
   // Third try: First bold line in the document
   const firstBoldMatch = markdown.match(/\*\*(.+?)\*\*/);
   if (firstBoldMatch) {
-    const title = firstBoldMatch[1].trim();
-    // Only use if it looks like a headline (not too long, not a sentence)
-    if (title.length > 10 && title.length < 150 && !title.endsWith('.')) {
-      return title;
-    }
+  const title = firstBoldMatch[1].trim();
+  // Only use if it looks like a headline (not too long, not a sentence)
+  if (title.length > 10 && title.length < 150 && !title.endsWith('.')) {
+    return title;
+  }
   }
 
   return '';
@@ -62,23 +62,23 @@ function extractTitleFromMarkdown(markdown) {
  * @returns {Promise<Object>} Created project object
  */
 export async function createProject(title, problems, context) {
-    const project = {
-        id: crypto.randomUUID(),
-        title: title.trim(),
-        problems: problems.trim(),
-        context: context.trim(),
-        phase: 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        phases: {
-            1: { prompt: '', response: '', completed: false },
-            2: { prompt: '', response: '', completed: false },
-            3: { prompt: '', response: '', completed: false }
-        }
-    };
+  const project = {
+    id: crypto.randomUUID(),
+    title: title.trim(),
+    problems: problems.trim(),
+    context: context.trim(),
+    phase: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    phases: {
+      1: { prompt: '', response: '', completed: false },
+      2: { prompt: '', response: '', completed: false },
+      3: { prompt: '', response: '', completed: false }
+    }
+  };
 
-    await storage.saveProject(project);
-    return project;
+  await storage.saveProject(project);
+  return project;
 }
 
 /**
@@ -86,8 +86,8 @@ export async function createProject(title, problems, context) {
  * @returns {Promise<Array>} Array of all projects
  */
 export async function getAllProjects() {
-    const projects = await storage.getAllProjects();
-    return projects.map(migrateProject);
+  const projects = await storage.getAllProjects();
+  return projects.map(migrateProject);
 }
 
 /**
@@ -96,11 +96,11 @@ export async function getAllProjects() {
  * @returns {Promise<Object|null>} Project object or null if not found
  */
 export async function getProject(id) {
-    const project = await storage.getProject(id);
-    if (project) {
-        return migrateProject(project);
-    }
-    return null;
+  const project = await storage.getProject(id);
+  if (project) {
+    return migrateProject(project);
+  }
+  return null;
 }
 
 /**
@@ -110,37 +110,37 @@ export async function getProject(id) {
  * @returns {Object} Migrated project object
  */
 export function migrateProject(project) {
-    if (!project) return project;
+  if (!project) return project;
 
-    // Ensure phases object exists with all required phases
-    if (!project.phases) {
-        project.phases = {
-            1: { prompt: '', response: '', completed: false },
-            2: { prompt: '', response: '', completed: false },
-            3: { prompt: '', response: '', completed: false }
-        };
+  // Ensure phases object exists with all required phases
+  if (!project.phases) {
+    project.phases = {
+      1: { prompt: '', response: '', completed: false },
+      2: { prompt: '', response: '', completed: false },
+      3: { prompt: '', response: '', completed: false }
+    };
+  }
+
+  // Ensure each phase has all required properties
+  for (let i = 1; i <= 3; i++) {
+    if (!project.phases[i]) {
+      project.phases[i] = { prompt: '', response: '', completed: false };
+    } else {
+      // Ensure phase object has all properties
+      project.phases[i] = {
+        prompt: project.phases[i].prompt || '',
+        response: project.phases[i].response || '',
+        completed: project.phases[i].completed || false
+      };
     }
+  }
 
-    // Ensure each phase has all required properties
-    for (let i = 1; i <= 3; i++) {
-        if (!project.phases[i]) {
-            project.phases[i] = { prompt: '', response: '', completed: false };
-        } else {
-            // Ensure phase object has all properties
-            project.phases[i] = {
-                prompt: project.phases[i].prompt || '',
-                response: project.phases[i].response || '',
-                completed: project.phases[i].completed || false
-            };
-        }
-    }
+  // Ensure phase number is set
+  if (!project.phase) {
+    project.phase = 1;
+  }
 
-    // Ensure phase number is set
-    if (!project.phase) {
-        project.phase = 1;
-    }
-
-    return project;
+  return project;
 }
 
 /**
@@ -152,31 +152,31 @@ export function migrateProject(project) {
  * @returns {Promise<Object>} Updated project object
  */
 export async function updatePhase(projectId, phase, prompt, response) {
-    const project = await storage.getProject(projectId);
-    if (!project) throw new Error('Project not found');
+  const project = await storage.getProject(projectId);
+  if (!project) throw new Error('Project not found');
 
-    project.phases[phase] = {
-        prompt: prompt || '',
-        response: response || '',
-        completed: !!response
-    };
+  project.phases[phase] = {
+    prompt: prompt || '',
+    response: response || '',
+    completed: !!response
+  };
 
-    // Auto-advance to next phase if current phase is completed
-    if (response && phase < 3) {
-        project.phase = phase + 1;
+  // Auto-advance to next phase if current phase is completed
+  if (response && phase < 3) {
+    project.phase = phase + 1;
+  }
+
+  // Phase 3: Extract title from final document and update project title
+  if (phase === 3 && response) {
+    const extractedTitle = extractTitleFromMarkdown(response);
+    if (extractedTitle) {
+      project.title = extractedTitle;
     }
+  }
 
-    // Phase 3: Extract title from final document and update project title
-    if (phase === 3 && response) {
-        const extractedTitle = extractTitleFromMarkdown(response);
-        if (extractedTitle) {
-            project.title = extractedTitle;
-        }
-    }
-
-    project.updatedAt = new Date().toISOString();
-    await storage.saveProject(project);
-    return project;
+  project.updatedAt = new Date().toISOString();
+  await storage.saveProject(project);
+  return project;
 }
 
 /**
@@ -186,13 +186,13 @@ export async function updatePhase(projectId, phase, prompt, response) {
  * @returns {Promise<Object>} Updated project object
  */
 export async function updateProject(projectId, updates) {
-    const project = await storage.getProject(projectId);
-    if (!project) throw new Error('Project not found');
+  const project = await storage.getProject(projectId);
+  if (!project) throw new Error('Project not found');
 
-    Object.assign(project, updates);
-    project.updatedAt = new Date().toISOString();
-    await storage.saveProject(project);
-    return project;
+  Object.assign(project, updates);
+  project.updatedAt = new Date().toISOString();
+  await storage.saveProject(project);
+  return project;
 }
 
 /**
@@ -203,7 +203,7 @@ export async function updateProject(projectId, updates) {
  * @returns {Promise<Object>} Updated project object
  */
 export async function updateProjectTitle(projectId, newTitle) {
-    return updateProject(projectId, { title: newTitle.trim() });
+  return updateProject(projectId, { title: newTitle.trim() });
 }
 
 /**
@@ -212,7 +212,7 @@ export async function updateProjectTitle(projectId, newTitle) {
  * @returns {Promise<void>}
  */
 export async function deleteProject(id) {
-    await storage.deleteProject(id);
+  await storage.deleteProject(id);
 }
 
 /**
@@ -221,16 +221,16 @@ export async function deleteProject(id) {
  * @returns {Promise<void>}
  */
 export async function exportProject(projectId) {
-    const project = await storage.getProject(projectId);
-    if (!project) throw new Error('Project not found');
+  const project = await storage.getProject(projectId);
+  if (!project) throw new Error('Project not found');
 
-    const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${sanitizeFilename(project.title)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${sanitizeFilename(project.title)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 /**
@@ -238,22 +238,22 @@ export async function exportProject(projectId) {
  * @returns {Promise<void>}
  */
 export async function exportAllProjects() {
-    const projects = await storage.getAllProjects();
-    
-    const backup = {
-        version: '1.0',
-        exportedAt: new Date().toISOString(),
-        projectCount: projects.length,
-        projects: projects
-    };
+  const projects = await storage.getAllProjects();
+  
+  const backup = {
+    version: '1.0',
+    exportedAt: new Date().toISOString(),
+    projectCount: projects.length,
+    projects: projects
+  };
 
-    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `{{PROJECT_NAME}}-backup-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `{{PROJECT_NAME}}-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 /**
@@ -262,37 +262,37 @@ export async function exportAllProjects() {
  * @returns {Promise<number>} Number of projects imported
  */
 export async function importProjects(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
 
-        reader.onload = async (e) => {
-            try {
-                const content = JSON.parse(e.target.result);
-                let imported = 0;
+    reader.onload = async (e) => {
+      try {
+        const content = JSON.parse(e.target.result);
+        let imported = 0;
 
-                if (content.version && content.projects) {
-                    // Backup file format
-                    for (const project of content.projects) {
-                        await storage.saveProject(project);
-                        imported++;
-                    }
-                } else if (content.id && content.title) {
-                    // Single project format
-                    await storage.saveProject(content);
-                    imported = 1;
-                } else {
-                    throw new Error('Invalid file format');
-                }
+        if (content.version && content.projects) {
+          // Backup file format
+          for (const project of content.projects) {
+            await storage.saveProject(project);
+            imported++;
+          }
+        } else if (content.id && content.title) {
+          // Single project format
+          await storage.saveProject(content);
+          imported = 1;
+        } else {
+          throw new Error('Invalid file format');
+        }
 
-                resolve(imported);
-            } catch (error) {
-                reject(error);
-            }
-        };
+        resolve(imported);
+      } catch (error) {
+        reject(error);
+      }
+    };
 
-        reader.onerror = () => reject(reader.error);
-        reader.readAsText(file);
-    });
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
 }
 
 /**
@@ -301,11 +301,11 @@ export async function importProjects(file) {
  * @returns {string} Sanitized filename
  */
 function sanitizeFilename(filename) {
-    return filename
-        .replace(/[^a-z0-9]/gi, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '')
-        .toLowerCase()
-        .substring(0, 50);
+  return filename
+    .replace(/[^a-z0-9]/gi, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase()
+    .substring(0, 50);
 }
 

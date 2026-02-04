@@ -17,8 +17,8 @@ export function initMockModeUI() {
   
   // Only show UI in development (not on GitHub Pages)
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    console.log('[AI Mock UI] Production environment detected, hiding mock mode toggle');
-    return;
+  console.log('[AI Mock UI] Production environment detected, hiding mock mode toggle');
+  return;
   }
   
   // Create mock mode toggle
@@ -34,7 +34,7 @@ export function initMockModeUI() {
 function createMockModeToggle() {
   // Check if already exists
   if (document.getElementById('mock-mode-toggle')) {
-    return;
+  return;
   }
   
   // Create container
@@ -88,10 +88,10 @@ function handleMockModeToggle(event) {
   
   // Show notification
   showNotification(
-    enabled 
-      ? '⚠️ Mock mode enabled - Using simulated AI responses' 
-      : '✅ Mock mode disabled - Ready for real AI calls',
-    enabled ? 'warning' : 'success'
+  enabled 
+    ? '⚠️ Mock mode enabled - Using simulated AI responses' 
+    : '✅ Mock mode disabled - Ready for real AI calls',
+  enabled ? 'warning' : 'success'
   );
 }
 
@@ -101,7 +101,7 @@ function handleMockModeToggle(event) {
 function updateMockModeUI() {
   const checkbox = document.getElementById('mock-mode-checkbox');
   if (checkbox) {
-    checkbox.checked = isMockMode();
+  checkbox.checked = isMockMode();
   }
   
   // Update page indicator
@@ -114,11 +114,11 @@ function updateMockModeUI() {
 function updatePageIndicator() {
   const existingIndicator = document.getElementById('mock-mode-indicator');
   if (existingIndicator) {
-    existingIndicator.remove();
+  existingIndicator.remove();
   }
   
   if (!isMockMode()) {
-    return;
+  return;
   }
   
   // Create indicator banner
@@ -135,32 +135,32 @@ function updatePageIndicator() {
  */
 function showMockModeInfo() {
   const message = `
-    <div class="text-left">
-      <h3 class="text-lg font-bold mb-2">AI Mock Mode</h3>
-      
-      <p class="mb-3"><strong>⚠️ FOR TESTING ONLY ⚠️</strong></p>
-      
-      <p class="mb-3">Mock mode provides simulated AI responses for testing without making real API calls.</p>
-      
-      <h4 class="font-bold mb-1">When to use:</h4>
-      <ul class="list-disc ml-5 mb-3">
-        <li>Testing the application workflow</li>
-        <li>Developing new features</li>
-        <li>Running automated tests</li>
-        <li>Working offline</li>
-      </ul>
-      
-      <h4 class="font-bold mb-1">When NOT to use:</h4>
-      <ul class="list-disc ml-5 mb-3">
-        <li>Creating real documents</li>
-        <li>Production use</li>
-        <li>Evaluating AI quality</li>
-      </ul>
-      
-      <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
-        Mock mode is automatically disabled in production environments.
-      </p>
-    </div>
+  <div class="text-left">
+    <h3 class="text-lg font-bold mb-2">AI Mock Mode</h3>
+    
+    <p class="mb-3"><strong>⚠️ FOR TESTING ONLY ⚠️</strong></p>
+    
+    <p class="mb-3">Mock mode provides simulated AI responses for testing without making real API calls.</p>
+    
+    <h4 class="font-bold mb-1">When to use:</h4>
+    <ul class="list-disc ml-5 mb-3">
+    <li>Testing the application workflow</li>
+    <li>Developing new features</li>
+    <li>Running automated tests</li>
+    <li>Working offline</li>
+    </ul>
+    
+    <h4 class="font-bold mb-1">When NOT to use:</h4>
+    <ul class="list-disc ml-5 mb-3">
+    <li>Creating real documents</li>
+    <li>Production use</li>
+    <li>Evaluating AI quality</li>
+    </ul>
+    
+    <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
+    Mock mode is automatically disabled in production environments.
+    </p>
+  </div>
   `;
   
   showModal('AI Mock Mode Information', message);
