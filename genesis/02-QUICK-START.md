@@ -24,31 +24,29 @@ Genesis is a **project template system** for creating **paired assistant+validat
 ### Create a New Paired Project
 
 ```bash
-# From the genesis repo
-cd genesis/scripts
-./create-project.sh --name my-assistant
+# Copy from hello-world template
+cp -r genesis/examples/hello-world my-assistant
 
 # This creates:
-#   genesis-tools/my-assistant/
+#   my-assistant/
 #   ├── assistant/          # Document creation workflow
 #   │   ├── index.html
-#   │   ├── js/
-#   │   │   ├── core -> ../../../assistant-core/src  (symlink)
-#   │   │   └── *.js
+#   │   ├── js/             # Real directory (no symlinks)
+#   │   │   ├── app.js, workflow.js, storage.js, ...
 #   │   └── tests/
 #   ├── validator/          # Document validation/scoring
 #   │   ├── index.html
-#   │   ├── js/
-#   │   │   ├── core -> ../../../validator-core/src  (symlink)
-#   │   │   └── *.js
+#   │   ├── js/             # Real directory (no symlinks)
+#   │   │   ├── app.js, validator.js
 #   │   └── testdata/
+#   ├── js/                 # Mirror of assistant/js/ (root deployment)
 #   └── package.json
 ```
 
 ### Install and Test
 
 ```bash
-cd genesis-tools/my-assistant
+cd my-assistant
 npm install
 npm test
 ```
@@ -74,31 +72,28 @@ Every document type benefits from both creation AND validation:
 | **Assistant** | Guide users through structured document creation | Form-based, 3-phase AI workflow |
 | **Validator** | Score documents against quality criteria | Paste document, get scores + feedback |
 
-### Shared Libraries
+### Self-Contained Projects
 
-Both components use shared core libraries via symlinks:
+Each project is **self-contained with real directories** (no symlinks):
 
-- **`assistant-core`** - Storage, workflow, UI utilities for assistants
-- **`validator-core`** - Scoring, prompts, validation utilities for validators
+- All code lives directly in the project repo
+- No external repos required for local development
+- Simple CI/CD - just clone and run
 
+### Keeping Projects Aligned
+
+Use the **project-diff tools** to maintain consistency across all 7 projects:
+
+```bash
+# From genesis/project-diff directory
+node diff-projects.js --ci    # Check MUST_MATCH files are identical
+node find-orphans.js          # Find JS files that are never imported
 ```
-my-project/
-├── assistant/js/core -> ../../../assistant-core/src
-└── validator/js/core -> ../../../validator-core/src
-```
 
-### CI/CD Pattern
-
-GitHub Actions clones core repos and replaces symlinks before running tests:
-
-```yaml
-- run: |
-    git clone https://github.com/bordenet/assistant-core.git ../assistant-core
-    git clone https://github.com/bordenet/validator-core.git ../validator-core
-    rm -rf assistant/js/core validator/js/core
-    cp -r ../assistant-core/src assistant/js/core
-    cp -r ../validator-core/src validator/js/core
-```
+Run these tools **at least 3 times** during development:
+1. After initial scaffolding
+2. Before every commit
+3. Before creating a PR
 
 ---
 

@@ -704,7 +704,7 @@ cd /tmp/test-onepager
 **Structure Validation**:
 - [ ] All required directories exist
 - [ ] All template files present
-- [ ] No broken symlinks
+- [ ] No orphaned JS files (use `find-orphans.js`)
 - [ ] Correct file permissions
 
 **Template Validation**:
