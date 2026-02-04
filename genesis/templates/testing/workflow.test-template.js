@@ -1,161 +1,154 @@
+/**
+ * Workflow Module Tests
+ * Tests for the 3-phase workflow management
+ */
+
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import { getPrompt, savePrompt, resetPrompt, generatePhase1Prompt, generatePhase2Prompt, generatePhase3Prompt } from '../js/workflow.js';
-import { createProject } from '../js/projects.js';
-import storage from '../js/storage.js';
+import { Workflow, WORKFLOW_CONFIG, getPhaseMetadata, exportFinalDocument, getExportFilename } from '../js/workflow.js';
 
 describe('Workflow Module', () => {
-  beforeEach(async () => {
-  // Initialize database before each test
-  await storage.init();
+  describe('WORKFLOW_CONFIG', () => {
+    test('should have required structure', () => {
+      expect(WORKFLOW_CONFIG).toBeDefined();
+      expect(WORKFLOW_CONFIG.phaseCount).toBe(3);
+      expect(WORKFLOW_CONFIG.phases).toBeInstanceOf(Array);
+      expect(WORKFLOW_CONFIG.phases.length).toBe(3);
+    });
 
-  // Clear prompts to avoid test interference
-  // We'll let each test set up its own prompts
+    test('should have required phase properties', () => {
+      WORKFLOW_CONFIG.phases.forEach((phase, index) => {
+        expect(phase.number).toBe(index + 1);
+        expect(typeof phase.name).toBe('string');
+        expect(typeof phase.description).toBe('string');
+        expect(typeof phase.aiModel).toBe('string');
+        expect(typeof phase.icon).toBe('string');
+      });
+    });
   });
 
-  describe('getPrompt and savePrompt', () => {
-  test('should save and retrieve a custom prompt', async () => {
-    const phase = 1;
-    const content = 'Custom prompt for phase 1';
+  describe('Workflow class', () => {
+    let project;
+    let workflow;
 
-    await savePrompt(phase, content);
-    const retrieved = await getPrompt(phase);
+    beforeEach(() => {
+      project = {
+        id: 'test-123',
+        title: 'Test Project',
+        description: 'Test description',
+        context: 'Test context',
+        phase: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      workflow = new Workflow(project);
+    });
 
-    expect(retrieved).toBe(content);
+    test('should initialize with project', () => {
+      expect(workflow.project).toBe(project);
+      expect(workflow.currentPhase).toBe(1);
+    });
+
+    test('should get current phase', () => {
+      const phase = workflow.getCurrentPhase();
+      expect(phase).toBeDefined();
+      expect(phase.number).toBe(1);
+      expect(phase.name).toBe('Draft');
+    });
+
+    test('should get next phase', () => {
+      const nextPhase = workflow.getNextPhase();
+      expect(nextPhase).toBeDefined();
+      expect(nextPhase.number).toBe(2);
+    });
+
+    test('should return null for next phase when at last phase', () => {
+      workflow.currentPhase = 3;
+      const nextPhase = workflow.getNextPhase();
+      expect(nextPhase).toBeNull();
+    });
+
+    test('should advance phase', () => {
+      const result = workflow.advancePhase();
+      expect(result).toBe(true);
+      expect(workflow.currentPhase).toBe(2);
+    });
+
+    test('should not advance past completion', () => {
+      workflow.currentPhase = 4;
+      const result = workflow.advancePhase();
+      expect(result).toBe(false);
+    });
+
+    test('should go to previous phase', () => {
+      workflow.currentPhase = 2;
+      const result = workflow.previousPhase();
+      expect(result).toBe(true);
+      expect(workflow.currentPhase).toBe(1);
+    });
+
+    test('should not go before phase 1', () => {
+      const result = workflow.previousPhase();
+      expect(result).toBe(false);
+      expect(workflow.currentPhase).toBe(1);
+    });
+
+    test('should check if workflow is complete', () => {
+      expect(workflow.isComplete()).toBe(false);
+      workflow.currentPhase = 4;
+      expect(workflow.isComplete()).toBe(true);
+    });
+
+    test('should save and get phase output', () => {
+      workflow.savePhaseOutput('Test output');
+      expect(project.phase1_output).toBe('Test output');
+      expect(workflow.getPhaseOutput(1)).toBe('Test output');
+    });
   });
 
-  test('should return empty string for non-existent prompt', async () => {
-    const retrieved = await getPrompt(999);
-    expect(typeof retrieved).toBe('string');
-  });
-  });
+  describe('getPhaseMetadata', () => {
+    test('should return metadata for valid phase', () => {
+      const metadata = getPhaseMetadata(1);
+      expect(metadata).toBeDefined();
+      expect(metadata.number).toBe(1);
+      expect(metadata.name).toBe('Draft');
+    });
 
-  describe('resetPrompt', () => {
-  test('should reset prompt to default when default exists', async () => {
-    const phase = 1;
-    const customContent = 'Custom prompt';
-
-    // Save custom prompt
-    await savePrompt(phase, customContent);
-
-    // Reset to default (will return undefined if no default is loaded)
-    const defaultPrompt = await resetPrompt(phase);
-
-    // If there's no default loaded, resetPrompt returns undefined
-    // and the prompt should be cleared
-    const retrieved = await getPrompt(phase);
-
-    // Either it's the default (if one was loaded) or empty string (if no default)
-    if (defaultPrompt) {
-    expect(retrieved).toBe(defaultPrompt);
-    } else {
-    expect(retrieved).toBe('');
-    }
+    test('should return undefined for invalid phase', () => {
+      const metadata = getPhaseMetadata(99);
+      expect(metadata).toBeUndefined();
+    });
   });
 
-  test('should handle resetting non-existent prompt', async () => {
-    await expect(resetPrompt(999)).resolves.not.toThrow();
-  });
-  });
+  describe('exportFinalDocument', () => {
+    test('should export project as markdown', () => {
+      const project = {
+        id: 'test-123',
+        title: 'Test Project',
+        description: 'Test description',
+        phase1_output: 'Draft content',
+        phase2_output: 'Review feedback',
+        phase3_output: 'Final content',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
-  describe('generatePhase1Prompt', () => {
-  test('should generate phase 1 prompt with project data', async () => {
-    const project = await createProject('Test {{DOCUMENT_TYPE}}', 'Test problems', 'Test context');
-
-    const prompt = await generatePhase1Prompt(project);
-
-    expect(prompt).toBeTruthy();
-    expect(typeof prompt).toBe('string');
-    expect(prompt).toContain('Test {{DOCUMENT_TYPE}}');
-    expect(prompt).toContain('Test problems');
-    expect(prompt).toContain('Test context');
-  });
-
-  test('should use custom prompt if available', async () => {
-    const project = await createProject('Test', 'Problems', 'Context');
-    const customPrompt = 'Custom phase 1 prompt with {{title}}';
-
-    await savePrompt(1, customPrompt);
-    const prompt = await generatePhase1Prompt(project);
-
-    expect(prompt).toContain('Test');
-  });
+      const markdown = exportFinalDocument(project);
+      expect(markdown).toContain('# Test Project');
+      expect(markdown).toContain('Final content');
+    });
   });
 
-  describe('generatePhase2Prompt', () => {
-  test('should generate phase 2 prompt with project data', async () => {
-    const project = await createProject('Test {{DOCUMENT_TYPE}}', 'Test problems', 'Test context');
-    project.phases[1].response = 'Phase 1 response';
+  describe('getExportFilename', () => {
+    test('should generate filename from project title', () => {
+      const project = { title: 'My Test Project' };
+      const filename = getExportFilename(project);
+      expect(filename).toBe('my-test-project.md');
+    });
 
-    const prompt = await generatePhase2Prompt(project);
-
-    expect(prompt).toBeTruthy();
-    expect(typeof prompt).toBe('string');
-  });
-
-  test('should include phase 1 response', async () => {
-    const project = await createProject('Test', 'Problems', 'Context');
-    project.phases[1].response = 'Important phase 1 output';
-
-    const prompt = await generatePhase2Prompt(project);
-
-    expect(prompt).toContain('Important phase 1 output');
-  });
-  });
-
-  describe('generatePhase3Prompt', () => {
-  test('should generate phase 3 prompt with project data', async () => {
-    const project = await createProject('Test {{DOCUMENT_TYPE}}', 'Test problems', 'Test context');
-    project.phases[1].response = 'Phase 1 response';
-    project.phases[2].response = 'Phase 2 response';
-
-    const prompt = await generatePhase3Prompt(project);
-
-    expect(prompt).toBeTruthy();
-    expect(typeof prompt).toBe('string');
-  });
-
-  test('should include previous phase responses', async () => {
-    const project = await createProject('Test', 'Problems', 'Context');
-    project.phases[1].response = 'Phase 1 output';
-    project.phases[2].response = 'Phase 2 output';
-
-    const prompt = await generatePhase3Prompt(project);
-
-    expect(prompt).toContain('Phase 1 output');
-    expect(prompt).toContain('Phase 2 output');
-  });
-  });
-
-  describe('Prompt template variables', () => {
-  test('should replace {{title}} variable', async () => {
-    const project = await createProject('My Project Title', 'Problems', 'Context');
-    const customPrompt = 'Generate {{DOCUMENT_TYPE}} for: {{title}}';
-
-    await savePrompt(1, customPrompt);
-    const prompt = await generatePhase1Prompt(project);
-
-    expect(prompt).toContain('My Project Title');
-  });
-
-  test('should replace {{problems}} variable', async () => {
-    const project = await createProject('Title', 'Critical user issues', 'Context');
-    const customPrompt = 'Address these problems: {{problems}}';
-
-    await savePrompt(1, customPrompt);
-    const prompt = await generatePhase1Prompt(project);
-
-    expect(prompt).toContain('Critical user issues');
-  });
-
-  test('should replace {{context}} variable', async () => {
-    const project = await createProject('Title', 'Problems', 'Enterprise SaaS platform');
-    const customPrompt = 'Context: {{context}}';
-
-    await savePrompt(1, customPrompt);
-    const prompt = await generatePhase1Prompt(project);
-
-    expect(prompt).toContain('Enterprise SaaS platform');
-  });
+    test('should handle special characters in title', () => {
+      const project = { title: 'Project: Test & Demo!' };
+      const filename = getExportFilename(project);
+      expect(filename).toMatch(/\.md$/);
+    });
   });
 });
-
