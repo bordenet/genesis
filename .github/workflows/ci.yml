@@ -174,6 +174,59 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:coverage
 
+  # Parity check - validates all 6 genesis assistants are in sync
+  # This catches issues like:
+  # - Root vs assistant file divergence
+  # - Missing diff-view.js files
+  # - meta.title vs meta.name bugs
+  # - Missing prompt files
+  parity-check:
+    name: Genesis Parity Check
+    runs-on: ubuntu-latest
+    # Only meaningful when all 6 repos are present as siblings
+    # In CI, we validate the script syntax and document what it checks
+    if: github.repository == 'bordenet/genesis'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate parity check script
+        run: |
+          echo "🔍 Validating genesis-parity-check.sh..."
+          # Check script exists and is executable
+          if [ -f genesis-parity-check.sh ]; then
+            chmod +x genesis-parity-check.sh
+            bash -n genesis-parity-check.sh && echo "✅ Script syntax valid"
+          else
+            echo "⚠️  genesis-parity-check.sh not found"
+            exit 1
+          fi
+
+      - name: Document parity checks
+        run: |
+          echo ""
+          echo "📋 Parity Check Documentation"
+          echo "=============================="
+          echo ""
+          echo "This script validates consistency across all 6 genesis assistants:"
+          echo "  - architecture-decision-record"
+          echo "  - one-pager"
+          echo "  - power-statement-assistant"
+          echo "  - pr-faq-assistant"
+          echo "  - product-requirements-assistant"
+          echo "  - strategic-proposal"
+          echo ""
+          echo "Checks performed:"
+          echo "  1. Root vs Assistant JS file sync"
+          echo "  2. Required JS files exist"
+          echo "  3. WORKFLOW_CONFIG structure (meta.name not meta.title)"
+          echo "  4. Diff feature wiring"
+          echo "  5. Prompt files exist"
+          echo ""
+          echo "To run locally:"
+          echo "  cd genesis-tools"
+          echo "  ./genesis/genesis-parity-check.sh"
+
   # Consistency checker (validates repo structure consistency)
   # Note: This job only runs on the genesis repo when all tool repos are present
   # It's informational - fails if average similarity drops below 90%
