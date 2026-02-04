@@ -26,7 +26,7 @@
 |------|-------------|-------|--------|-----|
 | 1 | AI instruction files | 6 | ✅ | #48 |
 | 2 | DevOps config files | 5 | ✅ | #49 |
-| 3 | Core module structure | 2 | ⬜ | - |
+| 3 | Core module structure | 2 | ✅ | #50 |
 | 4 | CI workflow alignment | 1 | ⬜ | - |
 | 5 | Template additions | 8 | ⬜ | - |
 | 6 | Children unification | 2 | ⬜ | - |
