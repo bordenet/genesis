@@ -427,44 +427,25 @@ describe('Legacy Functions', () => {
 });
 
 describe('detectPromptPaste', () => {
-  describe('should detect prompt patterns', () => {
-    it('should detect "# Phase N:" header at start of text', () => {
+  describe('should detect Phase N header', () => {
+    it('should detect "# Phase 1:" at start of text', () => {
       const result = detectPromptPaste('# Phase 1: Initial Draft\n\nYou are an expert...');
       expect(result.isPrompt).toBe(true);
       expect(result.reason).toContain('prompt');
     });
 
     it('should detect "# Phase 2:" header', () => {
-      const result = detectPromptPaste('# Phase 2: Review\n\nForget all previous sessions...');
+      const result = detectPromptPaste('# Phase 2: Review\n\nContent...');
       expect(result.isPrompt).toBe(true);
     });
 
-    it('should detect multiple template variables {{VAR}}', () => {
-      const result = detectPromptPaste('Project: {{PROJECT_NAME}}\nProblem: {{PROBLEM_STATEMENT}}');
-      expect(result.isPrompt).toBe(true);
-      expect(result.reason).toContain('template');
-    });
-
-    it('should detect instruction phrases in first 500 chars', () => {
-      const text = 'You are an expert analyst. Your task is to review the document.';
-      const result = detectPromptPaste(text);
-      expect(result.isPrompt).toBe(true);
-      expect(result.reason).toContain('instructions');
-    });
-
-    it('should detect "## Your Task" and "## Output Format" phrases', () => {
-      const text = 'Some context here.\n\n## Your Task\n\nAnalyze this.\n\n## Output Format\n\nProvide markdown.';
-      const result = detectPromptPaste(text);
+    it('should detect phase header with extra spaces', () => {
+      const result = detectPromptPaste('#  Phase  3: Synthesis\n\nContent...');
       expect(result.isPrompt).toBe(true);
     });
 
-    it('should detect "# Prompt" header', () => {
-      const result = detectPromptPaste('# Prompt\n\nYou are a helpful assistant.');
-      expect(result.isPrompt).toBe(true);
-    });
-
-    it('should detect "**INSTRUCTIONS" header', () => {
-      const result = detectPromptPaste('**INSTRUCTIONS FOR GEMINI:**\n\nForget previous context.');
+    it('should detect phase header case-insensitively', () => {
+      const result = detectPromptPaste('# PHASE 1: Something\n\nContent...');
       expect(result.isPrompt).toBe(true);
     });
   });
@@ -476,7 +457,7 @@ describe('detectPromptPaste', () => {
       expect(result.reason).toBe('');
     });
 
-    it('should allow markdown responses', () => {
+    it('should allow markdown responses with non-Phase headers', () => {
       const result = detectPromptPaste('# Project Analysis\n\n## Summary\n\nThis project aims to...');
       expect(result.isPrompt).toBe(false);
     });
@@ -487,13 +468,13 @@ describe('detectPromptPaste', () => {
       expect(result.isPrompt).toBe(false);
     });
 
-    it('should allow single template variable (might be in response)', () => {
-      const result = detectPromptPaste('The value of {{PROJECT_NAME}} should be set correctly.');
+    it('should allow template variables (no longer flagged)', () => {
+      const result = detectPromptPaste('Project: {{PROJECT_NAME}}\nProblem: {{PROBLEM_STATEMENT}}');
       expect(result.isPrompt).toBe(false);
     });
 
-    it('should allow single instruction-like phrase (might be quoting)', () => {
-      const result = detectPromptPaste('You mentioned that "you are an expert" in the field.');
+    it('should allow instruction phrases (no longer flagged)', () => {
+      const result = detectPromptPaste('You are an expert analyst. Your task is to review the document.');
       expect(result.isPrompt).toBe(false);
     });
   });
