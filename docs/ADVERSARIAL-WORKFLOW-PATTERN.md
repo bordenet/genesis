@@ -474,7 +474,7 @@ In `product-requirements-assistant`, study:
 - `prompts/phase1.md`: Template variable pattern
 - `prompts/phase2.md`: Adversarial prompt structure
 - `prompts/phase3.md`: Synthesis prompt structure
-- `tests/workflow.test.js`: Testing async workflows
+- `assistant/tests/workflow.test.js`: Testing async workflows
 
 ### Code Patterns
 

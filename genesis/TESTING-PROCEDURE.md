@@ -132,9 +132,9 @@ find . -type f -not -path "*/node_modules/*" -not -path "*/genesis/*" -not -path
 - `scripts/lib/compact.sh`
 - `scripts/setup-macos.sh`
 - `templates/document-template.md`
-- `tests/ai-mock.test.js`
-- `tests/storage.test.js`
-- `tests/workflow.test.js`
+- `assistant/tests/ai-mock.test.js`
+- `assistant/tests/storage.test.js`
+- `assistant/tests/workflow.test.js`
 
 ### 8. Test in Browser
 

@@ -27,7 +27,7 @@ See `CODE-CONSISTENCY-MANDATE.md` for details.
 ```
 hello-world/
 ├── index.html              # Main app
-├── js/
+├── js/                     # Source files (source of truth)
 │   ├── app.js              # Entry point
 │   ├── workflow.js         # Phase logic
 │   ├── storage.js          # IndexedDB
@@ -35,8 +35,11 @@ hello-world/
 │   ├── error-handler.js    # Error display (MUST_MATCH)
 │   ├── same-llm-adversarial.js  # LLM adversarial (MUST_MATCH)
 │   └── ai-mock.js          # Mock responses
-├── tests/                  # Jest unit tests
-│   └── e2e/                # Playwright E2E tests
+├── assistant/
+│   ├── js/ -> ../js/       # Symlinks to js/ for test imports
+│   ├── css/ -> ../css/     # Symlinks to css/
+│   └── tests/              # Jest unit tests
+├── e2e/                    # Playwright E2E tests
 ├── css/styles.css
 ├── scripts/lib/            # Shell utilities
 ├── package.json
@@ -45,7 +48,7 @@ hello-world/
 └── eslint.config.js
 ```
 
-**Note**: hello-world uses `js/` and `tests/`. Derived projects use `assistant/js/` and `assistant/tests/`.
+**Note**: All projects use unified structure with `assistant/tests/` and `e2e/`. hello-world uses symlinks in `assistant/js/` → `js/`.
 
 ---
 
