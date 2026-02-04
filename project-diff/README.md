@@ -60,9 +60,9 @@ node diff-projects.js --ci
 
 ```
 Projects: 7
-MUST_MATCH files (identical): 5
-Intentional differences: 21
-Project-specific files: 200
+MUST_MATCH files (identical): 20
+Intentional differences: 39
+Project-specific files: 163
 
 ✓ ALL MUST-MATCH FILES ARE IDENTICAL
 ```
@@ -92,7 +92,11 @@ Files matching these patterns are expected to differ. The authoritative list is 
 
 **Project Identity:**
 - `README.md`, `package.json`, `index.html`
-- AI guidance files (`Agents.md`, `CLAUDE.md`, etc.)
+- `Agents.md`, `CLAUDE.md` (contain project-specific content)
+
+**MUST_MATCH AI Instruction Files:**
+> Note: These are NOT in INTENTIONAL_DIFF - they must be identical across all projects:
+- `AGENT.md`, `CODEX.md`, `COPILOT.md`, `GEMINI.md`, `ADOPT-PROMPT.md`
 
 **Hello-World Specific (different directory structure):**
 - `jest.config.js`, `playwright.config.js` (path differences)

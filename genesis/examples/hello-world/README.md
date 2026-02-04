@@ -77,6 +77,11 @@ These files must be identical across all 7 projects:
 | `js/same-llm-adversarial.js` | Same-LLM adversarial mode |
 | `scripts/lib/compact.sh` | Shell output utilities |
 | `scripts/lib/symlinks.sh` | Symlink handling |
+| `AGENT.md` | AI agent instructions |
+| `CODEX.md` | OpenAI Codex instructions |
+| `COPILOT.md` | GitHub Copilot instructions |
+| `GEMINI.md` | Google Gemini instructions |
+| `ADOPT-PROMPT.md` | AI adoption prompt |
 
 Run `project-diff --ci` to verify consistency.
 
