@@ -1,6 +1,6 @@
 /**
  * Hello World Validator - Custom Styles
- * 
+ *
  * Minimal custom styles for the validator.
  * Most styling is done via Tailwind CSS classes.
  */
@@ -37,4 +37,3 @@ textarea:focus {
 #results.hidden {
   opacity: 0;
 }
-
