@@ -101,7 +101,20 @@ Files matching these patterns are expected to differ. The authoritative list is 
 **Hello-World Specific (different directory structure):**
 - `jest.config.js`, `playwright.config.js` (path differences)
 - `tests/*.test.js` (hello-world uses `tests/`, derived use `assistant/tests/`)
-- `.github/workflows/ci.yml` (derived projects clone core repos)
+- `.github/workflows/ci.yml` (path differences)
+
+---
+
+## When to Run These Tools
+
+**Run diff-projects.js and find-orphans.js REPEATEDLY during development:**
+
+1. **After initial scaffolding** - Verify new project matches template
+2. **Before every commit** - Catch accidental deviations
+3. **Before creating a PR** - Final consistency check
+4. **After changes to shared infrastructure** - Propagate to all projects
+
+> ⚠️ **Don't skip the diff check!** Inconsistency between projects leads to maintenance nightmares.
 
 ---
 
