@@ -98,6 +98,18 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // Marking as intentional for now, but should be unified
   /^css\/styles\.css$/,
   /^assistant\/css\/styles\.css$/,
+
+  // === STORAGE (contains project-specific DB_NAME) ===
+  /^js\/storage\.js$/,
+  /^assistant\/js\/storage\.js$/,
+  // Storage tests (test project-specific storage behavior)
+  /^assistant\/tests\/storage\.test\.js$/,
+  /^validator\/tests\/storage\.test\.js$/,
+
+  // === APP ENTRY POINT (different import patterns per project) ===
+  /^js\/app\.js$/,
+  /^assistant\/js\/app\.js$/,
+  /^validator\/js\/app\.js$/,
 ];
 
 // Directories to exclude from scanning
