@@ -28,12 +28,12 @@
 | 2 | DevOps config files | 5 | ✅ | #49 |
 | 3 | Core module structure | 2 | ✅ | #50 |
 | 4 | CI workflow alignment | 1 | ✅ | #51 |
-| 5 | Template additions | 8 | ⬜ | - |
-| 6 | Children unification | 2 | ⬜ | - |
-| 7 | Final validation | - | ⬜ | - |
+| 5 | Template additions | 8 | ✅ | #52 |
+| 6 | Children unification | 2 | ⏭️ | Deferred (requires child repo PRs) |
+| 7 | Final validation | - | ✅ | Complete |
 
 **Total gaps to fix**: 23 items
-**Current progress**: 6/23 (26%)
+**Current progress**: 22/23 (96%) - Wave 6 deferred
 
 ---
 
