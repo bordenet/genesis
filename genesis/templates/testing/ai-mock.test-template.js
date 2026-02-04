@@ -1,18 +1,19 @@
 /**
  * Unit Tests for AI Mock Mode
- * 
+ *
  * Tests mock AI functionality for testing without API costs.
  */
 
-import { 
-  setMockMode, 
-  isMockMode, 
+import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import {
+  setMockMode,
+  isMockMode,
   initMockMode,
   getMockResponse,
   callAI,
   addMockResponse,
   mockResponses
-} from '../ai-mock.js';
+} from '../js/ai-mock.js';
 
 describe('AI Mock Mode', () => {
   beforeEach(() => {

@@ -4,6 +4,7 @@
  * Tests IndexedDB operations for project persistence.
  */
 
+import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import storage from '../js/storage.js';
 
 describe('Storage Module', () => {

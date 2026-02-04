@@ -3,19 +3,19 @@
  * Tests mock mode toggle UI and state management
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { initMockModeUI, toggleMockMode, updateMockModeUI } from '../js/ai-mock-ui-template.js';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { initMockModeUI, toggleMockMode, updateMockModeUI } from '../js/ai-mock-ui.js';
 
 describe('AI Mock UI Module', () => {
   beforeEach(() => {
-  // Reset DOM
-  document.body.innerHTML = '<div id="app-container"></div>';
-  
-  // Clear localStorage
-  localStorage.clear();
-  
-  // Reset mocks
-  vi.clearAllMocks();
+    // Reset DOM
+    document.body.innerHTML = '<div id="app-container"></div>';
+
+    // Clear localStorage
+    localStorage.clear();
+
+    // Reset mocks
+    jest.clearAllMocks();
   });
 
   describe('initMockModeUI', () => {
