@@ -110,6 +110,27 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^js\/app\.js$/,
   /^assistant\/js\/app\.js$/,
   /^validator\/js\/app\.js$/,
+
+  // === DOCUMENT-TYPE SPECIFIC UI LOGIC ===
+  // These files contain project-specific UI rendering, workflow steps, and form fields
+  // that differ based on the document type (ADR, PRD, One-Pager, etc.)
+  /^js\/project-view\.js$/,
+  /^assistant\/js\/project-view\.js$/,
+  /^js\/views\.js$/,
+  /^assistant\/js\/views\.js$/,
+  /^js\/workflow\.js$/,
+  /^assistant\/js\/workflow\.js$/,
+  /^js\/projects\.js$/,
+  /^assistant\/js\/projects\.js$/,
+  /^js\/router\.js$/,
+  /^assistant\/js\/router\.js$/,
+  // Tests for document-type specific UI
+  /^assistant\/tests\/project-view\.test\.js$/,
+  /^assistant\/tests\/views\.test\.js$/,
+  /^assistant\/tests\/workflow\.test\.js$/,
+  /^assistant\/tests\/projects\.test\.js$/,
+  /^assistant\/tests\/router\.test\.js$/,
+  /^assistant\/tests\/ui\.test\.js$/,
 ];
 
 // Directories to exclude from scanning
