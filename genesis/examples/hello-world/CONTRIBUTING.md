@@ -37,7 +37,7 @@ pre-commit run --all-files
 
 ### Writing Tests
 
-- Place tests in `tests/` directory
+- Place tests in `assistant/tests/` directory
 - Name test files `*.test.js`
 - Use Jest and ES6 modules
 - Mock browser APIs (IndexedDB, etc.) using fake-indexeddb
@@ -56,7 +56,7 @@ npm run test:coverage
 npm run test:watch
 
 # Run specific test file
-npm test -- tests/specific.test.js
+npm test -- assistant/tests/specific.test.js
 ```
 
 ## Pull Request Process
@@ -100,7 +100,8 @@ npm test -- tests/specific.test.js
   - `router.js` - Client-side routing
   - `error-handler.js` - Error handling utilities
 - `css/` - Styles (Tailwind + custom)
-- `tests/` - Jest unit tests
+- `assistant/tests/` - Jest unit tests
+- `e2e/` - Playwright E2E tests
 
 ## Deployment
 

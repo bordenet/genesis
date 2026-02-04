@@ -107,6 +107,7 @@ Files that contain document-type-specific logic are exempt from byte-for-byte ma
 The authoritative list is in `project-diff/diff-projects.js` → `INTENTIONAL_DIFF_PATTERNS`.
 
 **Document-Type Specific Code:**
+
 | File | Why It Differs |
 |------|---------------|
 | `storage.js` | Contains project-specific `DB_NAME` |
@@ -124,6 +125,7 @@ The authoritative list is in `project-diff/diff-projects.js` → `INTENTIONAL_DI
 | `validator/js/validator.js` | Validation rules specific to document type |
 
 **Project Identity (contain project name/title):**
+
 | File | Why It Differs |
 |------|---------------|
 | `README.md`, `package.json` | Project name, description |
@@ -132,6 +134,7 @@ The authoritative list is in `project-diff/diff-projects.js` → `INTENTIONAL_DI
 | AI guidance files (`Agents.md`, `CLAUDE.md`, etc.) | Project-specific instructions |
 
 **Test Data and Tests:**
+
 | File | Why It Differs |
 |------|---------------|
 | `validator/testdata/` | Sample documents for testing |
