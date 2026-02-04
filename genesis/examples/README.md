@@ -1,111 +1,105 @@
 # Genesis Examples & Reference Implementations
 
-## 🏗️ Paired Architecture
+## 🏗️ Architecture Overview
 
-All Genesis projects now use the **paired model**: each project contains both an **Assistant** (document creation) and a **Validator** (document scoring).
+Genesis has two types of projects:
 
----
-
-## 🔗 Live Paired Projects (PREFERRED)
-
-These are **actively maintained** paired projects. **Use these as your primary reference!**
-
-| Project | Assistant | Validator | Phases |
-|---------|-----------|-----------|--------|
-| [one-pager](https://github.com/bordenet/one-pager) | [Demo](https://bordenet.github.io/one-pager/) | [Demo](https://bordenet.github.io/one-pager/validator/) | 2 |
-| [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) | [Demo](https://bordenet.github.io/product-requirements-assistant/) | [Demo](https://bordenet.github.io/product-requirements-assistant/validator/) | 3 |
-| [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) | [Demo](https://bordenet.github.io/architecture-decision-record/) | [Demo](https://bordenet.github.io/architecture-decision-record/validator/) | 3 |
-| [strategic-proposal](https://github.com/bordenet/strategic-proposal) | [Demo](https://bordenet.github.io/strategic-proposal/) | [Demo](https://bordenet.github.io/strategic-proposal/validator/) | 3 |
-| [power-statement-assistant](https://github.com/bordenet/power-statement-assistant) | [Demo](https://bordenet.github.io/power-statement-assistant/) | [Demo](https://bordenet.github.io/power-statement-assistant/validator/) | 3 |
-| [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant) | [Demo](https://bordenet.github.io/pr-faq-assistant/) | [Demo](https://bordenet.github.io/pr-faq-assistant/validator/) | 3 |
-
-### Why Use Live References?
-
-✅ **Always up-to-date** - Bug fixes applied continuously
-✅ **Battle-tested** - Real users, real feedback
-✅ **Paired structure** - Both assistant and validator working together
-✅ **Latest patterns** - Symlinks, CI/CD, GitHub Pages
+1. **hello-world** (baseline template): Flat structure (`js/`, `tests/`) for simplicity
+2. **Derived projects**: Paired structure (`assistant/`, `validator/`) with symlinks to core libraries
 
 ---
 
-## 📁 Local Template: hello-world/
+## 📁 hello-world/ (Baseline Template)
 
-The `hello-world/` directory is the **template for new projects**. It has the full paired structure:
+The `hello-world/` directory is the **canonical reference for shared code**. It has a flat structure:
 
 ```
 hello-world/
+├── index.html              # Main app
+├── js/
+│   ├── app.js              # Entry point
+│   ├── workflow.js         # Phase logic
+│   ├── storage.js          # IndexedDB
+│   ├── router.js           # Client-side routing
+│   ├── error-handler.js    # Error display (MUST_MATCH)
+│   └── same-llm-adversarial.js  # LLM adversarial mode (MUST_MATCH)
+├── tests/                  # Unit tests
+├── tests/e2e/              # E2E tests
+├── css/styles.css
+├── package.json
+├── jest.config.js
+└── playwright.config.js
+```
+
+**Key principle**: Shared infrastructure files (error-handler.js, same-llm-adversarial.js, etc.) must be byte-for-byte identical across all projects. See `CODE-CONSISTENCY-MANDATE.md`.
+
+---
+
+## 🔗 Derived Projects (Paired Structure)
+
+All 6 derived projects use the **paired model**:
+
+| Project | Assistant | Validator |
+|---------|-----------|-----------|
+| [one-pager](https://github.com/bordenet/one-pager) | [Demo](https://bordenet.github.io/one-pager/) | [Demo](https://bordenet.github.io/one-pager/validator/) |
+| [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) | [Demo](https://bordenet.github.io/product-requirements-assistant/) | [Demo](https://bordenet.github.io/product-requirements-assistant/validator/) |
+| [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) | [Demo](https://bordenet.github.io/architecture-decision-record/) | [Demo](https://bordenet.github.io/architecture-decision-record/validator/) |
+| [strategic-proposal](https://github.com/bordenet/strategic-proposal) | [Demo](https://bordenet.github.io/strategic-proposal/) | [Demo](https://bordenet.github.io/strategic-proposal/validator/) |
+| [power-statement-assistant](https://github.com/bordenet/power-statement-assistant) | [Demo](https://bordenet.github.io/power-statement-assistant/) | [Demo](https://bordenet.github.io/power-statement-assistant/validator/) |
+| [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant) | [Demo](https://bordenet.github.io/pr-faq-assistant/) | [Demo](https://bordenet.github.io/pr-faq-assistant/validator/) |
+
+Derived project structure:
+
+```
+my-project/
 ├── assistant/              # Document creation workflow
 │   ├── index.html
 │   ├── js/
-│   │   ├── core -> ../../../assistant-core/src
+│   │   ├── core -> ../../../assistant-core/src  (symlink)
 │   │   └── *.js
 │   └── tests/
-├── validator/              # Document scoring
+├── validator/              # Document validation/scoring
 │   ├── index.html
 │   ├── js/
-│   │   ├── core -> ../../../validator-core/src
+│   │   ├── core -> ../../../validator-core/src  (symlink)
 │   │   └── *.js
 │   └── testdata/
-└── package.json            # Unified scripts
-```
-
-### Creating New Projects
-
-Use the `create-project.sh` script (RECOMMENDED):
-
-```bash
-cd genesis/scripts
-./create-project.sh --name my-new-tool
-
-# Creates genesis-tools/my-new-tool/ with paired structure
-cd ../../my-new-tool
-npm install && npm test
+├── js/                     # Root js/ mirrors assistant/js/
+├── e2e/                    # E2E tests
+└── package.json
 ```
 
 ---
 
-## 🎯 How to Study Paired Projects
+## 🛠️ Consistency Tools
 
-### 1. Clone and Explore
+### project-diff Tool
+
+Run this to verify all projects are in sync:
+
 ```bash
-git clone https://github.com/bordenet/one-pager.git
-cd one-pager
-npm install && npm test
+cd genesis/project-diff
+node diff-projects.js --ci
 ```
 
-### 2. Key Files in Assistant
-- `assistant/js/workflow.js` - Phase architecture
-- `assistant/prompts/*.md` - Prompt templates
-- `assistant/index.html` - Tailwind dark mode setup
-- `assistant/tests/*.test.js` - Test patterns
-
-### 3. Key Files in Validator
-- `validator/js/validator.js` - Scoring logic
-- `validator/js/prompts.js` - AI critique prompts
-- `validator/testdata/scoring-fixtures.json` - Test fixtures
-
-### 4. Shared Libraries
-Both use core libraries via symlinks:
-- `assistant/js/core -> ../../../assistant-core/src`
-- `validator/js/core -> ../../../validator-core/src`
+Compares all 7 projects (6 derived + hello-world) and fails if MUST_MATCH files diverge.
 
 ---
 
-## ⚠️ IMPORTANT
+## 🎯 Directory Structure Differences
 
-**Use `create-project.sh`** to create new projects from the hello-world template!
-
-```bash
-./scripts/create-project.sh --name my-tool
-```
-
-This ensures proper symlinks and paired structure.
+| Aspect | hello-world | Derived Projects |
+|--------|-------------|------------------|
+| JS files | `js/` | `assistant/js/` and `js/` (mirrored) |
+| Unit tests | `tests/` | `assistant/tests/` |
+| E2E tests | `tests/e2e/` | `e2e/` |
+| Symlinks | None | `assistant/js/core`, `validator/js/core` |
+| CI workflow | Simple (no cloning) | Clones core repos, replaces symlinks |
 
 ---
 
 ## 📚 Related Documentation
 
-- [ARCHITECTURE.md](../../ARCHITECTURE.md) - Paired architecture details
-- [README.md](../../README.md) - Genesis overview
-- [alignment-tools/](../../alignment-tools/) - Scan paired projects
+- [CODE-CONSISTENCY-MANDATE.md](../CODE-CONSISTENCY-MANDATE.md) - Consistency rules
+- [README.md](../README.md) - Genesis overview
 

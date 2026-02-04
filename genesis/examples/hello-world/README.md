@@ -1,112 +1,88 @@
-# Hello World - Genesis Example
+# Hello World - Genesis Baseline
 
-A minimal 2-phase AI workflow app. Open `index.html` and it works.
-
----
-
-## What This Is
-
-User provides input → AI generates output. Two phases, no build step.
-
-- Stores data in IndexedDB (browser-local)
-- Dark mode toggle
-- Export/import projects as JSON
-- Mock mode for testing without AI
-- 50%+ test coverage
+Canonical reference for shared infrastructure code. 2-phase AI workflow app.
 
 ---
 
 ## Quick Start
 
 ```bash
+npm install
+npm test        # 170 tests
 open index.html
 ```
 
-Or deploy to GitHub Pages:
-1. Copy this directory to a new repo
-2. Push to GitHub
-3. Settings → Pages → Source: main → / (root)
-4. Visit `https://YOUR_USERNAME.github.io/YOUR_REPO/`
+---
+
+## What This Is
+
+**This is the baseline template.** All 6 derived projects (one-pager, product-requirements-assistant, etc.) must keep their shared infrastructure files byte-for-byte identical to this project.
+
+See `CODE-CONSISTENCY-MANDATE.md` for details.
 
 ---
 
-## Files
+## Directory Structure
 
 ```
 hello-world/
-├── index.html          # The app
-├── css/styles.css      # Styles
+├── index.html              # Main app
 ├── js/
-│   ├── app.js          # Entry point
-│   ├── workflow.js     # Phase logic
-│   ├── storage.js      # IndexedDB
-│   └── ai-mock.js      # Mock responses
-├── tests/              # Jest + Playwright
+│   ├── app.js              # Entry point
+│   ├── workflow.js         # Phase logic
+│   ├── storage.js          # IndexedDB
+│   ├── router.js           # Client-side routing
+│   ├── error-handler.js    # Error display (MUST_MATCH)
+│   ├── same-llm-adversarial.js  # LLM adversarial (MUST_MATCH)
+│   └── ai-mock.js          # Mock responses
+├── tests/                  # Jest unit tests
+│   └── e2e/                # Playwright E2E tests
+├── css/styles.css
+├── scripts/lib/            # Shell utilities
 ├── package.json
-└── jest.config.js
+├── jest.config.js
+├── playwright.config.js
+└── eslint.config.js
 ```
 
----
-
-## Usage
-
-1. Open `index.html`
-2. Click "New Project", enter a title
-3. Phase 1: Enter input, copy prompt to Claude/Gemini, paste response
-4. Phase 2: Copy prompt, paste response
-5. Export as JSON
-
-**Mock mode**: Toggle "AI Mock Mode" (bottom-right, localhost only) to auto-generate responses.
+**Note**: hello-world uses `js/` and `tests/`. Derived projects use `assistant/js/` and `assistant/tests/`.
 
 ---
 
-## How It Works
+## MUST_MATCH Files
 
-**Phase 1**: You enter input. App generates a prompt. You copy it to an AI, paste the response back.
+These files must be identical across all 7 projects:
 
-**Phase 2**: App generates another prompt based on Phase 1. You copy, paste, done.
+| File | Purpose |
+|------|---------|
+| `js/error-handler.js` | Error display |
+| `js/same-llm-adversarial.js` | Same-LLM adversarial mode |
+| `scripts/lib/compact.sh` | Shell output utilities |
+| `scripts/lib/symlinks.sh` | Symlink handling |
 
-**Storage**: IndexedDB. Nothing leaves your browser.
+Run `project-diff --ci` to verify consistency.
 
 ---
 
 ## Testing
 
-### Install Dependencies
 ```bash
-npm install
-```
-
-### Run Tests
-```bash
-# All tests
-npm test
-
-# Unit tests only
-npm run test:unit
-
-# E2E tests only
-npm run test:e2e
-
-# With coverage
-npm run test:coverage
+npm test              # All 170 tests
+npm run test:unit     # Unit tests only
+npm run test:e2e      # E2E tests only
+npm run test:coverage # With coverage
 ```
 
 ---
 
-## Customizing
+## Related Projects
 
-**Add phases**: Edit `PHASES` array in `js/workflow.js`
+All derived from this template:
 
-**Change prompts**: Edit `generatePrompt()` in `js/workflow.js`
-
-**Styling**: Edit `css/styles.css` or Tailwind classes in `index.html`
-
----
-
-## Related
-
-- [One-Pager](https://github.com/bordenet/one-pager) — 3-phase document workflow
-- [PR/FAQ Assistant](https://github.com/bordenet/pr-faq-assistant) — Amazon-style press releases
-- [Product Requirements Assistant](https://github.com/bordenet/product-requirements-assistant) — PRDs
+- [one-pager](https://github.com/bordenet/one-pager)
+- [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant)
+- [architecture-decision-record](https://github.com/bordenet/architecture-decision-record)
+- [strategic-proposal](https://github.com/bordenet/strategic-proposal)
+- [power-statement-assistant](https://github.com/bordenet/power-statement-assistant)
+- [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant)
 

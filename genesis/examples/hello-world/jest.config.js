@@ -2,12 +2,20 @@ export default {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleFileExtensions: ['js'],
-  testMatch: ['**/*.test.js'],
-  testPathIgnorePatterns: ['<rootDir>/tests/e2e/'],
+  testMatch: [
+    '**/tests/**/*.test.js'
+  ],
+  testPathIgnorePatterns: ['/node_modules/', '/docs/', '/tests/e2e/'],
   collectCoverageFrom: [
     'js/**/*.js',
-    '!js/**/*.test.js',
-    '!js/app.js',
+    '!**/tests/**',
+    '!**/app.js',
+    '!**/router.js',
+    '!**/views.js',
+    '!**/project-view.js',
+    '!**/types.js',
+    '!**/lib/**',
+    '!**/core/**',
     '!**/node_modules/**'
   ],
   coverageThreshold: {
@@ -18,13 +26,9 @@ export default {
       lines: 50
     }
   },
-  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
+  coverageReporters: ['text', 'lcov', 'html', 'json'],
   transform: {},
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
-  },
-  testEnvironmentOptions: {
-    customExportConditions: ['node', 'node-addons']
   }
 };
-

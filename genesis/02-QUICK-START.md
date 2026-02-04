@@ -186,7 +186,7 @@ ls -la validator/js/core
 
 - **Architecture**: [`../ARCHITECTURE.md`](../ARCHITECTURE.md) - Detailed paired model docs
 - **Start Here**: [`START-HERE.md`](START-HERE.md) - AI assistant entry point
-- **Alignment Tools**: [`../alignment-tools/`](../alignment-tools/) - Scan paired projects
+- **Code Consistency**: [`../project-diff/`](../project-diff/) - Check consistency across all 7 projects
 
 ---
 

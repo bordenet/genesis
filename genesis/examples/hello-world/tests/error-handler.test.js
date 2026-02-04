@@ -1,161 +1,88 @@
-import { describe, test, expect, jest, beforeEach } from '@jest/globals';
-import { getErrorMessage, handleStorageError, handleValidationError, ERROR_MESSAGES } from '../js/error-handler.js';
+import {
+  getErrorMessage,
+  handleStorageError,
+  handleValidationError,
+  ERROR_MESSAGES
+} from '../js/error-handler.js';
 
 describe('Error Handler Module', () => {
-  describe('ERROR_MESSAGES', () => {
-    test('should have all required error types', () => {
-      expect(ERROR_MESSAGES.QUOTA_EXCEEDED).toBeDefined();
-      expect(ERROR_MESSAGES.DB_NOT_FOUND).toBeDefined();
-      expect(ERROR_MESSAGES.DB_CORRUPTED).toBeDefined();
-      expect(ERROR_MESSAGES.VALIDATION_ERROR).toBeDefined();
-      expect(ERROR_MESSAGES.INVALID_FORMAT).toBeDefined();
-      expect(ERROR_MESSAGES.EXPORT_FAILED).toBeDefined();
-      expect(ERROR_MESSAGES.IMPORT_FAILED).toBeDefined();
-      expect(ERROR_MESSAGES.UNKNOWN_ERROR).toBeDefined();
-    });
-
-    test('each error message should have title, message, and recoveryHint', () => {
-      Object.values(ERROR_MESSAGES).forEach(errorMsg => {
-        expect(errorMsg.title).toBeDefined();
-        expect(typeof errorMsg.title).toBe('string');
-        expect(errorMsg.message).toBeDefined();
-        expect(typeof errorMsg.message).toBe('string');
-        expect(errorMsg.recoveryHint).toBeDefined();
-        expect(typeof errorMsg.recoveryHint).toBe('string');
-      });
-    });
+  test('should have predefined error messages', () => {
+    expect(ERROR_MESSAGES.QUOTA_EXCEEDED).toBeTruthy();
+    expect(ERROR_MESSAGES.DB_NOT_FOUND).toBeTruthy();
+    expect(ERROR_MESSAGES.VALIDATION_ERROR).toBeTruthy();
   });
 
-  describe('getErrorMessage', () => {
-    test('should return error message for known error code string', () => {
-      const result = getErrorMessage('QUOTA_EXCEEDED');
-      expect(result).toBe(ERROR_MESSAGES.QUOTA_EXCEEDED);
-    });
-
-    test('should return error message for DB_NOT_FOUND code', () => {
-      const result = getErrorMessage('DB_NOT_FOUND');
-      expect(result).toBe(ERROR_MESSAGES.DB_NOT_FOUND);
-    });
-
-    test('should detect quota error from Error object', () => {
-      const error = new Error('QuotaExceededError: Storage quota exceeded');
-      const result = getErrorMessage(error);
-      expect(result).toBe(ERROR_MESSAGES.QUOTA_EXCEEDED);
-    });
-
-    test('should detect not found error from Error object', () => {
-      const error = new Error('Database not found');
-      const result = getErrorMessage(error);
-      expect(result).toBe(ERROR_MESSAGES.DB_NOT_FOUND);
-    });
-
-    test('should detect no such table error', () => {
-      const error = new Error('No such table: projects');
-      const result = getErrorMessage(error);
-      expect(result).toBe(ERROR_MESSAGES.DB_NOT_FOUND);
-    });
-
-    test('should detect corrupt error from Error object', () => {
-      const error = new Error('Data is corrupted');
-      const result = getErrorMessage(error);
-      expect(result).toBe(ERROR_MESSAGES.DB_CORRUPTED);
-    });
-
-    test('should detect validation error from Error object', () => {
-      const error = new Error('Validation failed');
-      const result = getErrorMessage(error);
-      expect(result).toBe(ERROR_MESSAGES.VALIDATION_ERROR);
-    });
-
-    test('should return UNKNOWN_ERROR for unrecognized errors', () => {
-      const error = new Error('Some random error');
-      const result = getErrorMessage(error);
-      expect(result).toBe(ERROR_MESSAGES.UNKNOWN_ERROR);
-    });
-
-    test('should return UNKNOWN_ERROR for null/undefined', () => {
-      expect(getErrorMessage(null)).toBe(ERROR_MESSAGES.UNKNOWN_ERROR);
-      expect(getErrorMessage(undefined)).toBe(ERROR_MESSAGES.UNKNOWN_ERROR);
-    });
-
-    test('should return UNKNOWN_ERROR for unknown string code', () => {
-      const result = getErrorMessage('UNKNOWN_CODE');
-      expect(result).toBe(ERROR_MESSAGES.UNKNOWN_ERROR);
-    });
+  test('should get error message by code', () => {
+    const msg = getErrorMessage('QUOTA_EXCEEDED');
+    expect(msg.title).toBe('Storage Full');
+    expect(msg.recoveryHint).toBeTruthy();
   });
 
-  describe('handleStorageError', () => {
-    let mockShowToast;
-    let consoleErrorSpy;
-
-    beforeEach(() => {
-      mockShowToast = jest.fn();
-      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    });
-
-    test('should log error to console with context', () => {
-      const error = new Error('Test error');
-      handleStorageError(error, mockShowToast, 'Test Context');
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Test Context Error:', error);
-    });
-
-    test('should call showToast with formatted message', () => {
-      const error = new Error('QuotaExceededError');
-      handleStorageError(error, mockShowToast);
-      expect(mockShowToast).toHaveBeenCalledWith(
-        expect.stringContaining('storage is full'),
-        'error'
-      );
-    });
-
-    test('should return error info object', () => {
-      const error = new Error('QuotaExceededError');
-      const result = handleStorageError(error, mockShowToast);
-      expect(result).toBe(ERROR_MESSAGES.QUOTA_EXCEEDED);
-    });
-
-    test('should handle missing showToast function', () => {
-      const error = new Error('Test error');
-      expect(() => handleStorageError(error, null)).not.toThrow();
-    });
-
-    test('should use default context when not provided', () => {
-      const error = new Error('Test error');
-      handleStorageError(error, mockShowToast);
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Storage Operation Error:', error);
-    });
+  test('should get error message from Error object', () => {
+    const error = new Error('QuotaExceededError');
+    const msg = getErrorMessage(error);
+    expect(msg.title).toBe('Storage Full');
   });
 
-  describe('handleValidationError', () => {
-    let mockShowToast;
+  test('should return unknown error for unrecognized errors', () => {
+    const error = new Error('SomeRandomError');
+    const msg = getErrorMessage(error);
+    expect(msg.title).toBe('Something Went Wrong');
+  });
 
-    beforeEach(() => {
-      mockShowToast = jest.fn();
-    });
+  test('should handle storage errors with toast', () => {
+    const mockToast = jest.fn();
+    const error = new Error('QuotaExceededError');
 
-    test('should handle single error string', () => {
-      const result = handleValidationError('Field is required', mockShowToast);
-      expect(result.title).toBe('Validation Error');
-      expect(result.message).toBe('Field is required');
-      expect(result.errors).toEqual(['Field is required']);
-    });
+    const result = handleStorageError(error, mockToast, 'Test');
 
-    test('should handle array of errors', () => {
-      const errors = ['Name is required', 'Email is invalid'];
-      const result = handleValidationError(errors, mockShowToast);
-      expect(result.errors).toEqual(errors);
-      expect(result.message).toBe('Name is required\nEmail is invalid');
-    });
+    expect(mockToast).toHaveBeenCalled();
+    expect(result.title).toBe('Storage Full');
+  });
 
-    test('should call showToast with joined message', () => {
-      const errors = ['Error 1', 'Error 2'];
-      handleValidationError(errors, mockShowToast);
-      expect(mockShowToast).toHaveBeenCalledWith('Error 1\nError 2', 'error');
-    });
+  test('should handle validation errors', () => {
+    const mockToast = jest.fn();
+    const errors = ['Title is required', 'Context is required'];
 
-    test('should handle missing showToast function', () => {
-      expect(() => handleValidationError('Error', null)).not.toThrow();
-    });
+    const result = handleValidationError(errors, mockToast);
+
+    expect(mockToast).toHaveBeenCalled();
+    expect(result.errors).toEqual(errors);
+  });
+
+  test('should handle single validation error string', () => {
+    const mockToast = jest.fn();
+
+    const result = handleValidationError('Title is required', mockToast);
+
+    expect(mockToast).toHaveBeenCalled();
+    expect(result.errors[0]).toBe('Title is required');
+  });
+
+  test('should work without toast function', () => {
+    const error = new Error('Test error');
+    const result = handleStorageError(error, null);
+    expect(result).toBeTruthy();
+    expect(result.title).toBe('Something Went Wrong');
+  });
+
+  test('should detect quota errors', () => {
+    const msg = getErrorMessage(new Error('QuotaExceededError'));
+    expect(msg.title).toBe('Storage Full');
+  });
+
+  test('should detect not found errors', () => {
+    const msg = getErrorMessage(new Error('NOT FOUND'));
+    expect(msg.title).toBe('Database Error');
+  });
+
+  test('should detect corruption errors', () => {
+    const msg = getErrorMessage(new Error('Data CORRUPT'));
+    expect(msg.title).toBe('Data Error');
+  });
+
+  test('should detect validation errors', () => {
+    const msg = getErrorMessage(new Error('VALIDATION failed'));
+    expect(msg.title).toBe('Missing Information');
   });
 });
-

@@ -1,44 +1,120 @@
 /**
  * Same-LLM Adversarial Configuration System
- * Maintains adversarial tension when Phase 1 and Phase 2 use the same LLM model
- * 
- * CRITICAL: This solves the corporate deployment problem where LibreChat or single
- * LLM endpoints lose adversarial tension in multi-phase workflows.
+ * @module same-llm-adversarial
+ * Automatically detects when Phase 1 and Phase 2 use the same LLM model
+ * @module same-llm-adversarial
+ * and applies Gemini personality simulation to maintain adversarial tension
+ * @module same-llm-adversarial
+ *
+ * ⚠️ CRITICAL: This file MUST use ES6 modules
+ * The browser loads this with <script type="module">
+ * @module same-llm-adversarial
+ * DO NOT use CommonJS (require/module.exports)
+ * @module same-llm-adversarial
  */
 
-/**
- * Configuration Manager
- * Detects same-LLM configurations via provider/model match, URL match, or endpoint match
- */
-export class ConfigurationManager {
-  getPhaseConfig(phase) {
+class SameLLMAdversarialSystem {
+  constructor() {
+    this.configManager = new ConfigurationManager();
+    this.promptAugmenter = new AdversarialPromptAugmenter();
+    this.qualityValidator = new AdversarialQualityValidator();
+  }
+
+  /**
+     * Main execution method that automatically detects and handles same-LLM configurations
+     */
+  async executeWorkflow(userInput) {
+    const config = this.configManager.detectConfiguration();
+
+    // Phase 1: Always use standard prompt
+    const phase1Output = await this.executePhase1(userInput);
+
+    // Phase 2: Apply adversarial augmentation if same LLM detected
+    const phase2Output = await this.executePhase2(phase1Output, userInput, config);
+
+    // Phase 3: Synthesis (standard approach)
+    const phase3Output = await this.executePhase3(phase1Output, phase2Output, userInput);
+
+    // Validate adversarial effectiveness
+    const qualityMetrics = this.qualityValidator.validateAdversarialTension(
+      phase1Output,
+      phase2Output
+    );
+
     return {
-      provider: process.env[`${phase.toUpperCase()}_PROVIDER`] || 'anthropic',
-      model: process.env[`${phase.toUpperCase()}_MODEL`] || 'claude-3-sonnet',
-      endpoint: process.env[`${phase.toUpperCase()}_ENDPOINT`],
-      url: process.env[`${phase.toUpperCase()}_URL`] || process.env[`${phase.toUpperCase()}_ENDPOINT`]
+      phase1Output,
+      phase2Output,
+      phase3Output,
+      configuration: config,
+      qualityMetrics,
+      adversarialEffectiveness: qualityMetrics.isEffectivelyAdversarial
     };
   }
 
-  isSameModel(config1, config2) {
-    // Method 1: Same provider and model
-    if (config1.provider === config2.provider && config1.model === config2.model) {
-      return true;
-    }
+  async executePhase2(phase1Output, userInput, config) {
+    if (config.isSameLLM) {
+      // Same LLM detected - apply Gemini personality simulation
+      console.log(`Same LLM detected via ${config.detectionMethod} (${config.deploymentType})`);
+      console.log('Applying Gemini adversarial personality simulation to Phase 2');
 
-    // Method 2: Same URL (LibreChat, corporate deployments)
-    if (config1.url && config2.url && config1.url === config2.url) {
-      return true;
-    }
+      const augmentedPrompt = this.promptAugmenter.generateGeminiStylePrompt(
+        this.getOriginalPhase2Prompt()
+      );
 
-    // Method 3: Same endpoint
-    if (config1.endpoint && config2.endpoint && config1.endpoint === config2.endpoint) {
-      return true;
+      return await this.callLLM(augmentedPrompt, {
+        phase1Output,
+        userInput,
+        context: 'adversarial_gemini_simulation',
+        detectionMethod: config.detectionMethod,
+        deploymentType: config.deploymentType
+      });
+    } else {
+      // Different LLMs - use standard Phase 2 prompt
+      console.log('Different LLMs detected - using standard adversarial approach');
+      return await this.callLLM(this.getOriginalPhase2Prompt(), {
+        phase1Output,
+        userInput,
+        context: 'standard_adversarial'
+      });
     }
-
-    return false;
   }
 
+  getOriginalPhase2Prompt() {
+    // This would be loaded from the actual Phase 2 prompt file
+    // For demonstration purposes, returning a placeholder
+    return `You are tasked with providing an alternative perspective on the Phase 1 output.
+
+Analyze the provided document and offer a different approach or identify areas for improvement.
+Focus on being constructively critical and offering genuine alternatives.
+
+Phase 1 Output: {phase1Output}
+User Input: {userInput}
+
+Provide your alternative analysis:`;
+  }
+
+  async callLLM(prompt, context) {
+    // This would integrate with actual LLM API calls
+    // For demonstration purposes, returning a mock response
+    return {
+      prompt: prompt,
+      context: context,
+      response: 'Mock LLM response - in production this would call the actual LLM API'
+    };
+  }
+
+  async executePhase1(_userInput) {
+    // Mock Phase 1 execution
+    return 'Mock Phase 1 output - comprehensive initial analysis';
+  }
+
+  async executePhase3(_phase1Output, _phase2Output, _userInput) {
+    // Mock Phase 3 execution
+    return 'Mock Phase 3 output - synthesis of both perspectives';
+  }
+}
+
+class ConfigurationManager {
   detectConfiguration() {
     const phase1Config = this.getPhaseConfig('phase1');
     const phase2Config = this.getPhaseConfig('phase2');
@@ -92,35 +168,86 @@ export class ConfigurationManager {
 
     return 'multi_provider';
   }
-}
 
-/**
- * Adversarial Prompt Augmenter
- * Applies Gemini personality simulation to maintain adversarial tension
- */
-export class AdversarialPromptAugmenter {
-  /**
-     * Detects if prompt contains "forget" clauses that would nullify prepending
-     */
-  containsForgetClause(prompt) {
-    const forgetPatterns = [
-      /forget\s+all\s+previous/i,
-      /ignore\s+previous/i,
-      /start\s+fresh/i,
-      /new\s+session/i,
-      /clear\s+context/i
+  // Helper method to detect common corporate deployment patterns
+  detectCorporateDeployment() {
+    const commonPatterns = [
+      'librechat',
+      'chatgpt-enterprise',
+      'azure-openai',
+      'aws-bedrock',
+      'google-vertex',
+      'internal-llm',
+      'corporate-ai'
     ];
 
-    return forgetPatterns.some(pattern => pattern.test(prompt));
+    const phase1Config = this.getPhaseConfig('phase1');
+    const phase2Config = this.getPhaseConfig('phase2');
+
+    for (const pattern of commonPatterns) {
+      if ((phase1Config.url && phase1Config.url.includes(pattern)) ||
+                (phase1Config.endpoint && phase1Config.endpoint.includes(pattern))) {
+        return {
+          isCorporate: true,
+          pattern: pattern,
+          requiresAugmentation: phase1Config.url === phase2Config.url ||
+                                        phase1Config.endpoint === phase2Config.endpoint
+        };
+      }
+    }
+
+    return { isCorporate: false, pattern: null, requiresAugmentation: false };
   }
 
-  /**
-     * Generates Gemini-style adversarial prompt
-     * Uses replacement strategy if forget clause detected, prepending otherwise
-     */
+  getPhaseConfig(phase) {
+    // Browser-safe environment variable access
+    // In browsers, use window.AI_CONFIG or fallback to defaults
+    const getEnvVar = (key, defaultValue = null) => {
+      // Check if running in Node.js environment
+      if (typeof process !== 'undefined' && process.env && process.env[key]) {
+        return process.env[key];
+      }
+      // Check if running in browser with window.AI_CONFIG
+      if (typeof window !== 'undefined' && window.AI_CONFIG && window.AI_CONFIG[key]) {
+        return window.AI_CONFIG[key];
+      }
+      return defaultValue;
+    };
+
+    const phaseUpper = phase.toUpperCase();
+    return {
+      provider: getEnvVar(`${phaseUpper}_PROVIDER`, 'anthropic'),
+      model: getEnvVar(`${phaseUpper}_MODEL`, 'claude-3-sonnet'),
+      endpoint: getEnvVar(`${phaseUpper}_ENDPOINT`),
+      url: getEnvVar(`${phaseUpper}_URL`) || getEnvVar(`${phaseUpper}_ENDPOINT`)
+    };
+  }
+
+  isSameModel(config1, config2) {
+    // Check if same provider and model
+    if (config1.provider === config2.provider && config1.model === config2.model) {
+      return true;
+    }
+
+    // Check if same URL/endpoint (for LibreChat and similar deployments)
+    if (config1.url && config2.url && config1.url === config2.url) {
+      return true;
+    }
+
+    // Check if same endpoint
+    if (config1.endpoint && config2.endpoint && config1.endpoint === config2.endpoint) {
+      return true;
+    }
+
+    return false;
+  }
+}
+
+class AdversarialPromptAugmenter {
   generateGeminiStylePrompt(originalPrompt) {
+    // Check if original prompt contains "forget" clause that would nullify prepending
     if (this.containsForgetClause(originalPrompt)) {
-      // Replace entire prompt to bypass forget clause
+      // Replace entire prompt with Gemini-enhanced version
       return this.createReplacementGeminiPrompt();
     } else {
       // Safe to prepend Gemini personality
@@ -139,10 +266,18 @@ and identify every possible improvement opportunity.`;
     }
   }
 
-  /**
-     * Creates complete replacement prompt with Gemini personality
-     * Used when original prompt contains forget clauses
-     */
+  containsForgetClause(prompt) {
+    const forgetPatterns = [
+      /forget\s+all\s+previous/i,
+      /ignore\s+previous/i,
+      /start\s+fresh/i,
+      /new\s+session/i,
+      /clear\s+context/i
+    ];
+
+    return forgetPatterns.some(pattern => pattern.test(prompt));
+  }
+
   createReplacementGeminiPrompt() {
     return `# Phase 2: Gemini Review Prompt
 
@@ -152,18 +287,30 @@ ${this.getGeminiPersonalityTemplate()}
 
 ## Your Task
 
-Scrutinize the document below against best practices. Work with the user to generate
-a superior rendition from your perspective.
+Scrutinize the {{DOCUMENT_TYPE}} document below against the template structure and best practices. Work with the user question-by-question to generate a superior rendition from your perspective.
+
+## Template Reference
+
+A high-quality {{DOCUMENT_TYPE}} should include:
+
+1. **Project/Feature Name**: Clear, descriptive title
+2. **Problem Statement**: Specific customer or business problem, quantified if possible
+3. **Proposed Solution**: High-level description, avoiding technical jargon
+4. **Key Goals/Benefits**: Measurable outcomes (e.g., "Reduce onboarding time by 50%")
+5. **Scope (In/Out)**: What's explicitly included and excluded to prevent scope creep
+6. **Success Metrics**: 2-3 key performance indicators (KPIs)
+7. **Key Stakeholders**: Owners, approvers, key contributors
+8. **Timeline Estimate**: High-level milestones
 
 ## Review Criteria
 
 Evaluate the document on:
 
-1. **Clarity**: Is the content crystal clear?
-2. **Completeness**: Are all necessary elements present?
-3. **Logic**: Are arguments well-reasoned and evidence-based?
-4. **Impact**: Are benefits compelling and measurable?
-5. **Feasibility**: Are next steps realistic?
+1. **Clarity (1-10)**: Is the problem and solution crystal clear?
+2. **Conciseness (1-10)**: Is it truly one page? No fluff?
+3. **Impact (1-10)**: Are benefits compelling and measurable?
+4. **Feasibility (1-10)**: Are next steps and timeline realistic?
+5. **Completeness (1-10)**: Does it answer all key questions?
 
 ## Your Process
 
@@ -172,24 +319,52 @@ Evaluate the document on:
 3. **Ask Clarifying Questions**: Work with the user to fill gaps and strengthen weak areas
 4. **Suggest Improvements**: Recommend specific changes to structure, wording, or content
 5. **Iterate**: Continue refining until you have a superior version
-6. **Final Output**: Provide the improved document
+6. **Final Output**: Provide the improved {{DOCUMENT_TYPE}} as markdown
+
+## Output Format
+
+When ready, provide your improved version in this format:
+
+\`\`\`markdown
+# {Project/Feature Name}
+
+## Problem Statement
+{Your improved version}
+
+## Proposed Solution
+{Your improved version}
+
+## Key Goals/Benefits
+{Your improved version}
+
+## Scope
+### In Scope
+{Your improved version}
+
+### Out of Scope
+{Your improved version}
+
+## Success Metrics
+{Your improved version}
+
+## Key Stakeholders
+{Your improved version}
+
+## Timeline Estimate
+{Your improved version}
+\`\`\`
 
 ---
 
-## Original Document
+## Original {{DOCUMENT_TYPE}} Document
 
-{phase1_output}
+{phase1Output}
 
 ---
 
-**REMEMBER**: You are Google Gemini. Be analytically rigorous, constructively adversarial,
-and systematically thorough in your critique. Challenge assumptions, demand evidence,
-and identify every possible improvement opportunity.`;
+**REMEMBER**: You are Google Gemini. Be analytically rigorous, constructively adversarial, and systematically thorough in your critique. Challenge assumptions, demand evidence, and identify every possible improvement opportunity.`;
   }
 
-  /**
-     * Returns Gemini personality template for adversarial simulation
-     */
   getGeminiPersonalityTemplate() {
     return `## ADVERSARIAL REVIEWER ROLE (GEMINI-STYLE SIMULATION)
 
@@ -234,11 +409,7 @@ productive tension with the original approach.`;
   }
 }
 
-/**
- * Adversarial Quality Validator
- * Validates that Phase 2 output maintains adversarial tension
- */
-export class AdversarialQualityValidator {
+class AdversarialQualityValidator {
   validateAdversarialTension(phase1Output, phase2Output) {
     const differenceScore = this.calculateSemanticDifference(phase1Output, phase2Output);
     const adversarialLanguage = this.detectAdversarialLanguage(phase2Output);
@@ -254,6 +425,7 @@ export class AdversarialQualityValidator {
 
   calculateSemanticDifference(output1, output2) {
     // Simplified semantic difference calculation
+    // In production, use proper semantic similarity models
     const words1 = new Set(output1.toLowerCase().split(/\s+/));
     const words2 = new Set(output2.toLowerCase().split(/\s+/));
 
@@ -299,3 +471,44 @@ export class AdversarialQualityValidator {
   }
 }
 
+// Backward-compatible helper functions for legacy API
+function detectSameLLM(phase1Model, phase2Model) {
+  const model1 = phase1Model.toLowerCase().split(/\s+/)[0];
+  const model2 = phase2Model.toLowerCase().split(/\s+/)[0];
+  return model1 === model2;
+}
+
+function getAdversarialStrategy(currentModel) {
+  const strategies = {
+    'claude': 'Gemini personality simulation - Focus on counterarguments and alternative perspectives',
+    'gemini': 'Claude personality simulation - Focus on comprehensive analysis and edge cases',
+    'chatgpt': 'Alternative model perspective - Focus on unconventional approaches'
+  };
+  const key = Object.keys(strategies).find(k => currentModel.toLowerCase().includes(k));
+  return strategies[key] || 'Generate critical feedback from a different perspective';
+}
+
+function applyAdversarialPrompt(basePrompt, model) {
+  const strategy = getAdversarialStrategy(model);
+  return `${basePrompt}\n\n[ADVERSARIAL MODE: ${strategy}]`;
+}
+
+const SAME_LLM_CONFIG = {
+  detectSameLLM,
+  getAdversarialStrategy,
+  applyAdversarialPrompt,
+  enabled: true
+};
+
+// ✅ ES6 exports for browser compatibility
+export {
+  SameLLMAdversarialSystem,
+  ConfigurationManager,
+  AdversarialPromptAugmenter,
+  AdversarialQualityValidator,
+  // Backward-compatible exports
+  detectSameLLM,
+  getAdversarialStrategy,
+  applyAdversarialPrompt,
+  SAME_LLM_CONFIG
+};

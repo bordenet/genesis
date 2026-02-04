@@ -23,7 +23,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// All 6 assistant projects
+// All 7 projects (6 derived + hello-world baseline)
 const PROJECTS = [
   'architecture-decision-record',
   'one-pager',
@@ -31,6 +31,7 @@ const PROJECTS = [
   'pr-faq-assistant',
   'product-requirements-assistant',
   'strategic-proposal',
+  'genesis/genesis/examples/hello-world',
 ];
 
 // Files/patterns that are EXPECTED to differ between projects
@@ -131,6 +132,34 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^assistant\/tests\/projects\.test\.js$/,
   /^assistant\/tests\/router\.test\.js$/,
   /^assistant\/tests\/ui\.test\.js$/,
+
+  // === PROJECT SETUP/CONFIG (contain project-specific names and tooling) ===
+  // These files have project-specific configuration (project names, dependencies, etc.)
+  /^\.github\/dependabot\.yml$/,
+  /^\.pre-commit-config\.yaml$/,
+  /^scripts\/install-hooks\.sh$/,
+  /^scripts\/lib\/common\.sh$/,
+  /^scripts\/setup-linux\.sh$/,
+  /^scripts\/setup-macos\.sh$/,
+  /^scripts\/setup-windows-wsl\.sh$/,
+
+  // === HELLO-WORLD SPECIFIC (different directory structure) ===
+  // Hello-world uses tests/ instead of assistant/tests/, tests/e2e/ instead of e2e/
+  // These config files differ in paths between hello-world and derived projects
+  /^jest\.config\.js$/,
+  /^playwright\.config\.js$/,
+  /^jest\.setup\.js$/,
+  // Test files in hello-world's tests/ directory (not assistant/tests/)
+  /^tests\/.*\.test\.js$/,
+  /^tests\/e2e\//,
+
+  // === CI WORKFLOW (differs due to symlink handling) ===
+  // Derived projects have symlinks to assistant-core/validator-core that need to be
+  // resolved in CI. Hello-world doesn't have symlinks, so it has a simpler workflow.
+  /^\.github\/workflows\/ci\.yml$/,
+
+  // === ESLINT CONFIG (may differ in globals and ignore patterns) ===
+  /^eslint\.config\.js$/,
 ];
 
 // Directories to exclude from scanning

@@ -187,17 +187,17 @@ npm run lint                # ESLint
 
 ---
 
-## Alignment Tools
+## Code Consistency Tools
 
-Scan all paired projects for structural variance:
+Check consistency across all 7 genesis projects:
 
 ```bash
-cd alignment-tools
-npm install
-node cli.js scan
-node cli.js scan --only test-coverage,config-parity
-node cli.js scan --ci --threshold 10  # CI mode
+cd genesis/project-diff
+node diff-projects.js --ci          # Check all MUST_MATCH files
+node find-orphans.js --ci           # Find orphaned JS files
 ```
+
+See [`project-diff/README.md`](project-diff/README.md) for full documentation.
 
 ---
 

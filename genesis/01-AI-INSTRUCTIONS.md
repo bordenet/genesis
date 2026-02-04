@@ -10,7 +10,7 @@
 3. Follow the mandatory workflow: **lint → test → proactively communicate what's left**
 4. NEVER include `node_modules/` or build artifacts
 5. ALWAYS create `.gitignore` files
-6. **Run `project-diff` REPEATEDLY** during development to verify consistency
+6. **Run `project-diff --ci` REPEATEDLY** during development (compares all 7 projects)
 
 ---
 
