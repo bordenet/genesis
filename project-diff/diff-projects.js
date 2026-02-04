@@ -92,6 +92,10 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^tools\//,
   /^evolutionary-optimization\//,
 
+  // === INFRASTRUCTURE (may differ based on project language mix) ===
+  // one-pager has Python files, so needs Python hooks in pre-commit
+  /^\.pre-commit-config\.yaml$/,
+
   // === CSS (may have project-specific branding colors) ===
   // TODO: These SHOULD be identical but currently have minor diffs
   // Marking as intentional for now, but should be unified
