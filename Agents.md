@@ -23,6 +23,24 @@ Before ANY commit:
 
 ---
 
+## 🚨 Code Consistency Mandate (CRITICAL)
+
+**Read `genesis/CODE-CONSISTENCY-MANDATE.md` before touching any code.**
+
+**The Rule**: Every file MUST match hello-world exactly, except document-type-specific files.
+
+**Run `project-diff` REPEATEDLY during development:**
+
+```bash
+cd genesis/project-diff
+node diff-projects.js --ci
+# Expected: ✓ ALL MUST-MATCH FILES ARE IDENTICAL
+```
+
+**Why**: We fixed 52 divergent files in February 2026 because AI assistants made "helpful improvements" that broke consistency. Never again.
+
+---
+
 ## Communication Rules
 
 - **No flattery** - Skip "Great question!" or "Excellent point!"
