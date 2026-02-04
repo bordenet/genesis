@@ -31,16 +31,16 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for full details on the paired model.
 
 ## Projects
 
-| Project | Description | Assistant | Validator |
-|---------|-------------|-----------|-----------|
-| [**one-pager**](https://github.com/bordenet/one-pager) | 1-page product summaries | [Demo](https://bordenet.github.io/one-pager/) | [Demo](https://bordenet.github.io/one-pager/validator/) |
-| [**pr-faq-assistant**](https://github.com/bordenet/pr-faq-assistant) | Amazon-style PR/FAQ | [Demo](https://bordenet.github.io/pr-faq-assistant/) | [Demo](https://bordenet.github.io/pr-faq-assistant/validator/) |
-| [**product-requirements-assistant**](https://github.com/bordenet/product-requirements-assistant) | PRD creation | [Demo](https://bordenet.github.io/product-requirements-assistant/) | [Demo](https://bordenet.github.io/product-requirements-assistant/validator/) |
-| [**power-statement-assistant**](https://github.com/bordenet/power-statement-assistant) | Executive summaries | [Demo](https://bordenet.github.io/power-statement-assistant/) | [Demo](https://bordenet.github.io/power-statement-assistant/validator/) |
-| [**strategic-proposal**](https://github.com/bordenet/strategic-proposal) | Strategic initiatives | [Demo](https://bordenet.github.io/strategic-proposal/) | [Demo](https://bordenet.github.io/strategic-proposal/validator/) |
-| [**architecture-decision-record**](https://github.com/bordenet/architecture-decision-record) | ADR creator | [Demo](https://bordenet.github.io/architecture-decision-record/) | [Demo](https://bordenet.github.io/architecture-decision-record/validator/) |
+| Project | Document Type | Assistant | Validator |
+|---------|---------------|:---------:|:---------:|
+| [one-pager](https://github.com/bordenet/one-pager) | [One-Pager](https://github.com/bordenet/Engineering_Culture/blob/main/SDLC/The_One-Pager.md) | [▶️](https://bordenet.github.io/one-pager/) | [▶️](https://bordenet.github.io/one-pager/validator/) |
+| [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant) | [PR-FAQ](https://github.com/bordenet/Engineering_Culture/blob/main/SDLC/The_PR-FAQ.md) | [▶️](https://bordenet.github.io/pr-faq-assistant/) | [▶️](https://bordenet.github.io/pr-faq-assistant/validator/) |
+| [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) | [PRD](https://en.wikipedia.org/wiki/Product_requirements_document) | [▶️](https://bordenet.github.io/product-requirements-assistant/) | [▶️](https://bordenet.github.io/product-requirements-assistant/validator/) |
+| [power-statement-assistant](https://github.com/bordenet/power-statement-assistant) | Power Statement | [▶️](https://bordenet.github.io/power-statement-assistant/) | [▶️](https://bordenet.github.io/power-statement-assistant/validator/) |
+| [strategic-proposal](https://github.com/bordenet/strategic-proposal) | Strategic Proposal | [▶️](https://bordenet.github.io/strategic-proposal/) | [▶️](https://bordenet.github.io/strategic-proposal/validator/) |
+| [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) | [ADR](https://adr.github.io/) | [▶️](https://bordenet.github.io/architecture-decision-record/) | [▶️](https://bordenet.github.io/architecture-decision-record/validator/) |
 
-**Total**: 6 paired projects, each with 90%+ test coverage and CI/CD.
+6 paired projects, each with 90%+ test coverage and CI/CD.
 
 ---
 
