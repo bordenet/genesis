@@ -37,7 +37,8 @@ pre-commit run --all-files
 
 ### Writing Tests
 
-- Place tests in `assistant/tests/` directory
+- Place assistant tests in `assistant/tests/` directory
+- Place validator tests in `validator/tests/` directory
 - Name test files `*.test.js`
 - Use Jest and ES6 modules
 - Mock browser APIs (IndexedDB, etc.) using fake-indexeddb
@@ -91,16 +92,22 @@ npm test -- assistant/tests/specific.test.js
 
 ## Project Structure
 
-- `index.html` - Main application entry point
-- `js/` - JavaScript modules (ES6)
-  - `app.js` - Main application logic
-  - `workflow.js` - 2-phase workflow management
-  - `storage.js` - IndexedDB storage layer
-  - `ai-mock.js` - Mock AI for testing
-  - `router.js` - Client-side routing
-  - `error-handler.js` - Error handling utilities
-- `css/` - Styles (Tailwind + custom)
-- `assistant/tests/` - Jest unit tests
+This project uses a **paired architecture** with both assistant and validator tools:
+
+- `index.html` - Root entry (mirrors assistant/index.html)
+- `js/` - Root JS (mirrors assistant/js/)
+- `css/` - Root styles (mirrors assistant/css/)
+- `assistant/` - Document creation tool
+  - `index.html` - Assistant UI
+  - `js/` - Application logic (app.js, workflow.js, storage.js, etc.)
+  - `css/` - Styles
+  - `tests/` - Jest unit tests
+- `validator/` - Document validation tool
+  - `index.html` - Validator UI
+  - `js/` - Validation logic (app.js, validator.js)
+  - `css/` - Styles
+  - `tests/` - Jest unit tests
+  - `testdata/` - Test fixtures
 - `e2e/` - Playwright E2E tests
 
 ## Deployment
