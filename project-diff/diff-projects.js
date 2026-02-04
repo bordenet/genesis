@@ -47,17 +47,15 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^README\.md$/,
   /^CHANGELOG\.md$/,
   /^CONTRIBUTING\.md$/,
-  /^Agents\.md$/,
-  /^AGENT\.md$/,
-  /^CLAUDE\.md$/,
-  /^CODEX\.md$/,
-  /^COPILOT\.md$/,
-  /^GEMINI\.md$/,
-  /^ADOPT-PROMPT\.md$/,
+  /^Agents\.md$/,           // Contains project-specific AI guidance
+  /^CLAUDE\.md$/,           // Contains project-specific instructions
   /^LICENSE$/,
   /^\.env\.example$/,
   /^package\.json$/,
   /^package-lock\.json$/,
+  // NOTE: AGENT.md, CODEX.md, COPILOT.md, GEMINI.md, ADOPT-PROMPT.md are
+  // intentionally NOT listed here - they are identical across all projects
+  // and should be in MUST_MATCH category
 
   // === HTML FILES (contain project title in <title> tag) ===
   /^index\.html$/,
