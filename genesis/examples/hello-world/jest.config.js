@@ -8,7 +8,8 @@ export default {
   ],
   testPathIgnorePatterns: ['/node_modules/', '/docs/'],
   collectCoverageFrom: [
-    'js/**/*.js',
+    'assistant/js/**/*.js',
+    'validator/js/**/*.js',
     '!**/tests/**',
     '!**/app.js',
     '!**/router.js',
