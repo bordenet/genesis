@@ -149,6 +149,116 @@ fi
 echo ""
 
 # -----------------------------------------------------------------------------
+# CHECK 6: Import resolution - verify all imports point to existing files
+# -----------------------------------------------------------------------------
+echo "=== CHECK 6: Import Resolution ==="
+CHECK6_ERRORS=0
+
+for proj in $PROJECTS; do
+  # Extract all local imports from project-view.js and verify they exist
+  for jsfile in project-view.js app.js; do
+    if [[ -f "$proj/js/$jsfile" ]]; then
+      # Extract imports like: from './foo.js' or from "./bar.js"
+      imports=$(grep -oE "from ['\"]\\./[^'\"]+['\"]" "$proj/js/$jsfile" 2>/dev/null | sed "s/from ['\"]\\.\\/\\([^'\"]*\\)['\"].*/\\1/" || true)
+
+      for import in $imports; do
+        if [[ ! -f "$proj/js/$import" ]]; then
+          red "  ❌ $proj: $jsfile imports '$import' but file does NOT exist"
+          ERRORS=$((ERRORS + 1))
+          CHECK6_ERRORS=$((CHECK6_ERRORS + 1))
+        fi
+      done
+    fi
+  done
+done
+
+if [[ $CHECK6_ERRORS -eq 0 ]]; then
+  green "  ✅ All imports resolve to existing files"
+fi
+echo ""
+
+# -----------------------------------------------------------------------------
+# CHECK 7: PRD-only files not imported elsewhere
+# -----------------------------------------------------------------------------
+echo "=== CHECK 7: PRD-Only Imports ==="
+CHECK7_ERRORS=0
+
+# Files that ONLY exist in product-requirements-assistant
+PRD_ONLY_FILES="validator-inline.js"
+
+for proj in $PROJECTS; do
+  if [[ "$proj" == "product-requirements-assistant" ]]; then
+    continue  # Skip PRD itself
+  fi
+
+  for prd_file in $PRD_ONLY_FILES; do
+    # Check if any JS file imports this PRD-only file
+    if grep -rq "from.*['\"].*${prd_file}['\"]" "$proj/js/" 2>/dev/null; then
+      red "  ❌ $proj: imports PRD-only file '$prd_file' - THIS WILL BREAK THE APP!"
+      ERRORS=$((ERRORS + 1))
+      CHECK7_ERRORS=$((CHECK7_ERRORS + 1))
+    fi
+  done
+done
+
+if [[ $CHECK7_ERRORS -eq 0 ]]; then
+  green "  ✅ No PRD-only imports in other projects"
+fi
+echo ""
+
+# -----------------------------------------------------------------------------
+# CHECK 8: JavaScript syntax validation
+# -----------------------------------------------------------------------------
+echo "=== CHECK 8: JavaScript Syntax Validation ==="
+CHECK8_ERRORS=0
+
+# Check if node is available
+if command -v node &> /dev/null; then
+  for proj in $PROJECTS; do
+    for jsfile in project-view.js workflow.js projects.js; do
+      filepath="$proj/js/$jsfile"
+      if [[ -f "$filepath" ]]; then
+        # Use node to check syntax (--check flag)
+        if ! node --check "$filepath" 2>/dev/null; then
+          red "  ❌ $proj: $jsfile has SYNTAX ERRORS"
+          ERRORS=$((ERRORS + 1))
+          CHECK8_ERRORS=$((CHECK8_ERRORS + 1))
+        fi
+      fi
+    done
+  done
+
+  if [[ $CHECK8_ERRORS -eq 0 ]]; then
+    green "  ✅ All JS files pass syntax check"
+  fi
+else
+  yellow "  ⚠️  Node.js not found - skipping syntax validation"
+fi
+echo ""
+
+# -----------------------------------------------------------------------------
+# CHECK 9: getPhaseMetadata import consistency
+# -----------------------------------------------------------------------------
+echo "=== CHECK 9: getPhaseMetadata Import ==="
+CHECK9_ERRORS=0
+
+for proj in $PROJECTS; do
+  # If showDiffModal uses getPhaseMetadata, it must be imported
+  if grep -q "getPhaseMetadata" "$proj/js/project-view.js" 2>/dev/null; then
+    if ! grep -q "getPhaseMetadata.*from.*workflow" "$proj/js/project-view.js" 2>/dev/null; then
+      red "  ❌ $proj: uses getPhaseMetadata but doesn't import it from workflow.js"
+      ERRORS=$((ERRORS + 1))
+      CHECK9_ERRORS=$((CHECK9_ERRORS + 1))
+    fi
+  fi
+done
+
+if [[ $CHECK9_ERRORS -eq 0 ]]; then
+  green "  ✅ getPhaseMetadata properly imported where used"
+fi
+echo ""
+
+# -----------------------------------------------------------------------------
 # SUMMARY
 # -----------------------------------------------------------------------------
 echo "=============================================="
