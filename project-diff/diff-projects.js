@@ -131,6 +131,16 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^assistant\/tests\/projects\.test\.js$/,
   /^assistant\/tests\/router\.test\.js$/,
   /^assistant\/tests\/ui\.test\.js$/,
+
+  // === PROJECT SETUP/CONFIG (contain project-specific names and tooling) ===
+  // These files have project-specific configuration (project names, dependencies, etc.)
+  /^\.github\/dependabot\.yml$/,
+  /^\.pre-commit-config\.yaml$/,
+  /^scripts\/install-hooks\.sh$/,
+  /^scripts\/lib\/common\.sh$/,
+  /^scripts\/setup-linux\.sh$/,
+  /^scripts\/setup-macos\.sh$/,
+  /^scripts\/setup-windows-wsl\.sh$/,
 ];
 
 // Directories to exclude from scanning

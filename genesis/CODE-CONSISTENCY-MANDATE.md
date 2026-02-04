@@ -130,6 +130,15 @@ The authoritative list is in `project-diff/diff-projects.js` → `INTENTIONAL_DI
 | `validator/testdata/` | Sample documents for testing |
 | Tests for document-specific code | Must test document-specific logic |
 
+**Project Setup/Config (contain project-specific names and tooling):**
+| File | Why It Differs |
+|------|---------------|
+| `.github/dependabot.yml` | Project name in comments |
+| `.pre-commit-config.yaml` | Project-specific hooks (Python, etc.) |
+| `scripts/install-hooks.sh` | Project-specific hook installation |
+| `scripts/lib/common.sh` | Project-specific shell utilities |
+| `scripts/setup-*.sh` | Project-specific setup scripts |
+
 Everything else **MUST** match hello-world exactly.
 
 ### Rule 3: Use project-diff Repeatedly
