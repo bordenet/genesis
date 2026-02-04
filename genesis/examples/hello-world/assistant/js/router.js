@@ -1,104 +1,123 @@
 /**
- * Simple Router Module
- * Handles client-side routing and navigation
+ * Router Module
+ * Handles client-side routing for multi-project navigation
  * @module router
  */
 
-/** @type {string | null} */
-let currentRoute = null;
+import { renderProjectsList, renderNewProjectForm } from './views.js';
+import { renderProjectView } from './project-view.js';
+import storage from './storage.js';
 
 /**
- * Initialize the router
- * @returns {void}
+ * @typedef {'home' | 'new-project' | 'project'} RouteName
  */
-export function initRouter() {
-  // Handle browser back/forward buttons
-  window.addEventListener('popstate', handlePopState);
 
-  // Handle initial route
-  const path = window.location.hash.slice(1) || 'home';
-  navigateTo(path, false);
+/**
+ * @typedef {Object} RouteState
+ * @property {RouteName | null} route - Current route name
+ * @property {string[]} params - Route parameters
+ */
+
+/** @type {Object.<RouteName, (...args: string[]) => Promise<void>>} */
+const routes = {
+  'home': renderProjectsList,
+  'new-project': renderNewProjectForm,
+  'project': renderProjectView
+};
+
+/** @type {RouteName | null} */
+let currentRoute = null;
+
+/** @type {string[]} */
+let currentParams = [];
+
+/**
+ * Update storage info in footer
+ * Ensures footer always reflects current project count
+ * @returns {Promise<void>}
+ */
+export async function updateStorageInfo() {
+  try {
+    const estimate = await storage.getStorageEstimate();
+    const projects = await storage.getAllProjects();
+
+    const storageInfo = document.getElementById('storage-info');
+    if (storageInfo) {
+      if (estimate) {
+        const usedMB = (estimate.usage / (1024 * 1024)).toFixed(1);
+        const quotaMB = (estimate.quota / (1024 * 1024)).toFixed(0);
+        storageInfo.textContent = `${projects.length} proposals • ${usedMB}MB used of ${quotaMB}MB`;
+      } else {
+        storageInfo.textContent = `${projects.length} proposals stored locally`;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to update storage info:', error);
+  }
 }
 
 /**
  * Navigate to a route
- * @param {string} route - Route to navigate to
- * @param {boolean} pushState - Whether to push to browser history
+ * @param {RouteName} route - Route name
+ * @param {...string} params - Route parameters
+ * @returns {Promise<void>}
  */
-export function navigateTo(route, pushState = true) {
-  const [path, param] = route.split('/');
-
-  if (pushState) {
-    window.history.pushState({ route }, '', `#${route}`);
-  }
-
+export async function navigateTo(route, ...params) {
   currentRoute = route;
-  renderRoute(path, param);
+  currentParams = params;
+
+  if (route === 'home') {
+    window.location.hash = '';
+  } else if (route === 'new-project') {
+    window.location.hash = '#new';
+  } else if (route === 'project' && params[0]) {
+    window.location.hash = `#project/${params[0]}`;
+  }
+
+  const handler = routes[route];
+  if (handler) {
+    await handler(...params);
+  } else {
+    await navigateTo('home');
+  }
+
+  // Always update footer after route render
+  await updateStorageInfo();
 }
 
 /**
- * Handle browser back/forward
- * @param {PopStateEvent} event - Browser popstate event
+ * Initialize the router and attach event listeners
+ * @returns {void}
  */
-function handlePopState(event) {
-  const route = event.state?.route || 'home';
-  navigateTo(route, false);
+export function initRouter() {
+  window.addEventListener('hashchange', handleHashChange);
+  handleHashChange();
 }
 
 /**
- * Render the current route
- * @param {string} path - Route path
- * @param {string} param - Route parameter
+ * Handle hash change events
+ * @returns {Promise<void>}
  */
-async function renderRoute(path, param) {
-  try {
-    switch (path) {
-    case 'home':
-    case '':
-      // Show home/list view
-      showPhase(1);
-      break;
+async function handleHashChange() {
+  const hash = window.location.hash.slice(1);
 
-    case 'phase':
-      if (param) {
-        showPhase(parseInt(param, 10));
-      } else {
-        navigateTo('home');
-      }
-      break;
-
-    default:
-      navigateTo('home');
-      break;
-    }
-  } catch (error) {
-    console.error('Route rendering error:', error);
-    navigateTo('home');
+  if (!hash) {
+    await navigateTo('home');
+  } else if (hash === 'new') {
+    await navigateTo('new-project');
+  } else if (hash.startsWith('project/')) {
+    const projectId = hash.split('/')[1];
+    await navigateTo('project', projectId);
+  } else {
+    await navigateTo('home');
   }
 }
 
 /**
- * Show a specific phase
- * @param {number} phaseNumber - Phase number to show
- */
-function showPhase(phaseNumber) {
-  // Hide all phases
-  document.querySelectorAll('[data-phase]').forEach(el => {
-    el.classList.add('hidden');
-  });
-
-  // Show requested phase
-  const phaseEl = document.querySelector(`[data-phase="${phaseNumber}"]`);
-  if (phaseEl) {
-    phaseEl.classList.remove('hidden');
-  }
-}
-
-/**
- * Get current route
- * @returns {string | null} Current route
+ * Get the current route state
+ * @returns {RouteState}
  */
 export function getCurrentRoute() {
-  return currentRoute;
+  return { route: currentRoute, params: currentParams };
 }
 

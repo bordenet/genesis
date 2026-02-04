@@ -1,430 +1,219 @@
-// app.js - Main application logic
+/**
+ * Main Application Entry Point
+ * Strategic Proposal Generator
+ * @module app
+ */
 
-import { initDB, saveProject, getProject, getAllProjects, deleteProject, exportProject } from './storage.js';
-import { createProject, generatePrompt, validatePhase, advancePhase, isProjectComplete, getCurrentPhase, updatePhaseResponse, getProgress, PHASES } from './workflow.js';
-import { initMockMode, setMockMode, isMockMode, getMockResponse } from './ai-mock.js';
-
-let currentProject = null;
+import storage from './storage.js';
+import { initRouter } from './router.js';
+import { loadDefaultPrompts } from './workflow.js';
+import { exportAllProjects, importProjects } from './projects.js';
+import { showToast, showLoading, hideLoading, formatBytes } from './ui.js';
+import { initMockMode } from './ai-mock.js';
 
 /**
- * Initialize application
+ * Initialize the application
+ * @returns {Promise<void>}
  */
-async function initApp() {
+async function init() {
   try {
-    // Initialize database
-    await initDB();
-    
-    // Initialize dark mode
-    initDarkMode();
-    
-    // Initialize AI mock mode
+    showLoading('Initializing...');
+
+    await storage.init();
+    console.log('✓ Storage initialized');
+
+    await loadDefaultPrompts();
+    console.log('✓ Prompts loaded');
+
+    initRouter();
+    console.log('✓ Router initialized');
+
+    setupGlobalEventListeners();
+    console.log('✓ Event listeners attached');
+
     initMockMode();
-    
-    // Setup event listeners
-    setupEventListeners();
-    
-    // Render project list
-    await renderProjectList();
-    
-    console.log('App initialized successfully');
+    console.log('✓ Mock mode initialized');
+
+    await updateStorageInfo();
+
+    hideLoading();
+    console.log('✓ App ready');
   } catch (error) {
     console.error('Failed to initialize app:', error);
-    showNotification('Failed to initialize app', 'error');
+    hideLoading();
+    showToast('Failed to initialize app. Please refresh the page.', 'error', 5000);
   }
 }
 
 /**
- * Setup event listeners
+ * Set up global event listeners for the app
+ * @returns {void}
  */
-function setupEventListeners() {
-  // Dark mode toggle
-  document.getElementById('darkModeToggle')?.addEventListener('click', toggleDarkMode);
-  
-  // New project button
-  document.getElementById('newProjectBtn')?.addEventListener('click', showNewProjectDialog);
-  
-  // Back to list button
-  document.getElementById('backToListBtn')?.addEventListener('click', () => {
-    currentProject = null;
-    showProjectList();
+function setupGlobalEventListeners() {
+  // Theme toggle
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+
+  // Related projects dropdown
+  const relatedBtn = document.getElementById('related-projects-btn');
+  const relatedMenu = document.getElementById('related-projects-menu');
+  relatedBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    relatedMenu?.classList.toggle('hidden');
   });
-  
-  // Export button
-  document.getElementById('exportBtn')?.addEventListener('click', () => {
-    if (currentProject) {
-      exportProject(currentProject);
-      showNotification('Project exported', 'success');
+  document.addEventListener('click', () => {
+    relatedMenu?.classList.add('hidden');
+  });
+
+  // Export all button
+  const exportAllBtn = document.getElementById('export-all-btn');
+  if (exportAllBtn) {
+    exportAllBtn.addEventListener('click', async () => {
+      try {
+        await exportAllProjects();
+        showToast('All proposals exported successfully!', 'success');
+      } catch (error) {
+        console.error('Export failed:', error);
+        showToast('Failed to export proposals', 'error');
+      }
+    });
+  }
+
+  // Import button
+  const importBtn = document.getElementById('import-btn');
+  if (importBtn) {
+    importBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = async (e) => {
+        const target = /** @type {HTMLInputElement} */ (e.target);
+        const file = target.files?.[0];
+        if (file) {
+          try {
+            showLoading('Importing...');
+            const count = await importProjects(file);
+            hideLoading();
+            showToast(`Imported ${count} proposal${count > 1 ? 's' : ''} successfully!`, 'success');
+            window.location.hash = '';
+          } catch (error) {
+            hideLoading();
+            console.error('Import failed:', error);
+            showToast('Failed to import proposals. Please check the file format.', 'error');
+          }
+        }
+      };
+      input.click();
+    });
+  }
+
+  // Close privacy notice
+  const closePrivacyNotice = document.getElementById('close-privacy-notice');
+  if (closePrivacyNotice) {
+    closePrivacyNotice.addEventListener('click', () => {
+      document.getElementById('privacy-notice')?.remove();
+      storage.saveSetting('privacy-notice-dismissed', true);
+    });
+  }
+
+  storage.getSetting('privacy-notice-dismissed').then(dismissed => {
+    if (dismissed) {
+      document.getElementById('privacy-notice')?.remove();
     }
   });
-  
-  // Delete button
-  document.getElementById('deleteBtn')?.addEventListener('click', async () => {
-    if (currentProject && confirm('Delete this project?')) {
-      await deleteProject(currentProject.id);
-      showNotification('Project deleted', 'success');
-      currentProject = null;
-      showProjectList();
-    }
-  });
-  
-  // AI Mock mode toggle
-  document.getElementById('mockModeCheckbox')?.addEventListener('change', (e) => {
-    setMockMode(e.target.checked);
-    showNotification(
-      e.target.checked ? 'AI Mock Mode enabled' : 'AI Mock Mode disabled',
-      'info'
-    );
-  });
+
+  // About link
+  const aboutLink = document.getElementById('about-link');
+  if (aboutLink) {
+    aboutLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      showAboutModal();
+    });
+  }
 }
 
 /**
- * Dark mode
- * CRITICAL: Works with Tailwind's darkMode: 'class' configuration
- * Reference: https://github.com/bordenet/product-requirements-assistant
+ * Load theme from localStorage or system preference
+ * @returns {void}
  */
-function initDarkMode() {
-  // Use localStorage for immediate synchronous access
+function loadTheme() {
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.classList.add('dark');
   }
 }
 
-function toggleDarkMode() {
+/**
+ * Toggle between light and dark themes
+ * @returns {void}
+ */
+function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.classList.contains('dark');
 
   if (isDark) {
     html.classList.remove('dark');
     localStorage.setItem('theme', 'light');
+    storage.saveSetting('theme', 'light');
   } else {
     html.classList.add('dark');
     localStorage.setItem('theme', 'dark');
+    storage.saveSetting('theme', 'dark');
   }
 }
 
 /**
- * Show project list view
+ * Update storage info display in footer
+ * @returns {Promise<void>}
  */
-async function showProjectList() {
-  document.getElementById('projectListView').classList.remove('hidden');
-  document.getElementById('workflowView').classList.add('hidden');
-  await renderProjectList();
-}
+async function updateStorageInfo() {
+  const estimate = await storage.getStorageEstimate();
+  const storageInfo = document.getElementById('storage-info');
 
-/**
- * Render project list
- */
-async function renderProjectList() {
-  const projects = await getAllProjects();
-  const container = document.getElementById('projectList');
-  
-  if (projects.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-        <p class="text-lg">No projects yet</p>
-        <p class="text-sm mt-2">Click "New Project" to get started</p>
-      </div>
-    `;
-    return;
+  if (estimate && storageInfo) {
+    const used = formatBytes(estimate.usage || 0);
+    const quota = formatBytes(estimate.quota || 0);
+    const percent = ((estimate.usage / estimate.quota) * 100).toFixed(1);
+    storageInfo.textContent = `Storage: ${used} / ${quota} (${percent}%)`;
+  } else if (storageInfo) {
+    storageInfo.textContent = 'Storage: Available';
   }
-  
-  container.innerHTML = projects.map(project => `
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow hover:shadow-md transition-shadow cursor-pointer"
-         onclick="window.openProject('${project.id}')">
-      <div class="flex justify-between items-start">
-        <div class="flex-1">
-          <h3 class="font-semibold text-gray-900 dark:text-white">${escapeHtml(project.name)}</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${escapeHtml(project.description)}</p>
-        </div>
-        <div class="ml-4 text-right">
-          <div class="text-sm font-medium text-blue-600 dark:text-blue-400">${getProgress(project)}%</div>
-          <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Phase ${project.currentPhase}/${PHASES.length}
-          </div>
-        </div>
-      </div>
-      <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-        Modified: ${new Date(project.modified).toLocaleDateString()}
-      </div>
-    </div>
-  `).join('');
 }
 
 /**
- * Show new project dialog
+ * Show the About modal
+ * @returns {void}
  */
-function showNewProjectDialog() {
-  const name = prompt('Project name:');
-  if (!name) return;
-  
-  const description = prompt('Project description:');
-  if (!description) return;
-  
-  const project = createProject(name, description);
-  currentProject = project;
-  
-  saveProject(project).then(() => {
-    showNotification('Project created', 'success');
-    showWorkflow();
-  });
-}
-
-/**
- * Open existing project
- */
-window.openProject = async function(id) {
-  currentProject = await getProject(id);
-  showWorkflow();
-};
-
-/**
- * Show workflow view
- */
-function showWorkflow() {
-  document.getElementById('projectListView').classList.add('hidden');
-  document.getElementById('workflowView').classList.remove('hidden');
-  renderWorkflow();
-}
-
-/**
- * Render workflow
- */
-function renderWorkflow() {
-  const container = document.getElementById('workflowContent');
-  const phase = getCurrentPhase(currentProject);
-  const prompt = generatePrompt(currentProject);
-  
-  container.innerHTML = `
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        ${escapeHtml(currentProject.name)}
-      </h2>
-      <p class="text-gray-600 dark:text-gray-400 mb-6">${escapeHtml(currentProject.description)}</p>
-      
-      <!-- Phase Progress -->
-      <div class="flex gap-4 mb-6">
-        ${PHASES.map(p => `
-          <div class="flex-1 text-center">
-            <div class="text-sm font-medium ${p.number === currentProject.currentPhase ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}">
-              ${p.number === currentProject.currentPhase ? '→' : currentProject.phases[p.number - 1].completed ? '✓' : '○'} 
-              Phase ${p.number}
+function showAboutModal() {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+  modal.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-2xl shadow-xl">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">📋 Strategic Proposal Generator</h3>
+            <div class="text-gray-700 dark:text-gray-300 space-y-3 mb-6">
+                <p>Generate compelling strategic proposals using AI-assisted adversarial review.</p>
+                <p><strong>100% Client-Side:</strong> All your data is stored locally in your browser. Nothing is ever sent to any server.</p>
+                <p><strong>Privacy-First:</strong> No tracking, no analytics, no cookies (except preferences).</p>
             </div>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${p.name}</div>
-          </div>
-        `).join('')}
-      </div>
-      
-      <!-- Current Phase -->
-      <div class="space-y-4">
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            Phase ${phase.number}: ${phase.name}
-          </h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">AI Model: ${phase.ai}</p>
+            <div class="flex justify-between items-center">
+                <a href="https://github.com/bordenet/strategic-proposal" target="_blank" rel="noopener" class="text-blue-600 dark:text-blue-400 hover:underline">View on GitHub →</a>
+                <button type="button" id="close-about-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Close</button>
+            </div>
         </div>
-        
-        <!-- Prompt -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Generated Prompt
-          </label>
-          <textarea readonly 
-                    class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-mono text-sm"
-                    rows="10">${prompt}</textarea>
-          <button onclick="window.copyPrompt()" 
-                  class="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-            Copy Prompt
-          </button>
-          ${isMockMode() ? `
-            <button onclick="window.useMockResponse()" 
-                    class="mt-2 ml-2 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700">
-              Use Mock Response
-            </button>
-          ` : ''}
-        </div>
-        
-        <!-- Response -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            AI Response
-          </label>
-          <textarea id="responseInput"
-                    class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                    rows="10"
-                    placeholder="Paste the AI response here...">${phase.response}</textarea>
-        </div>
-        
-        <!-- Actions -->
-        <div class="flex gap-2">
-          <button onclick="window.saveResponse()" 
-                  class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-            Save & Continue
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
+    `;
+
+  document.body.appendChild(modal);
+  modal.querySelector('#close-about-btn')?.addEventListener('click', () => modal.remove());
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
 }
 
-/**
- * Copy text to clipboard with async text generation - Safari transient activation safe
- *
- * CRITICAL: This function MUST be called synchronously within a user gesture handler.
- * Safari's transient activation window (~2-3 seconds) is preserved because we call
- * navigator.clipboard.write() immediately, passing a Promise-wrapped Blob that
- * resolves later when the async work completes.
- *
- * @param {Promise<string>} textPromise - Promise that resolves to text to copy
- * @returns {Promise<void>} Resolves if successful, throws if failed
- * @throws {Error} If copy fails
- */
-async function copyToClipboardAsync(textPromise) {
-  // Safari transient activation fix: Call clipboard.write() SYNCHRONOUSLY with Promise-wrapped Blob
-  // The transient activation is evaluated when write() is called, not when Promise resolves
-  if (navigator.clipboard && window.isSecureContext && typeof ClipboardItem !== 'undefined') {
-    try {
-      // Create a Promise that resolves to a Blob - this preserves transient activation
-      const blobPromise = textPromise.then(text => new Blob([text], { type: 'text/plain' }));
-      const item = new ClipboardItem({ 'text/plain': blobPromise });
-      await navigator.clipboard.write([item]);
-      return;
-    } catch (err) {
-      console.warn('ClipboardItem with Promise failed, trying execCommand:', err?.message);
-    }
-  }
+loadTheme();
 
-  // Fallback: Wait for text and use execCommand
-  // This may fail on Safari if transient activation expired, but it's our last resort
-  const text = await textPromise;
-
-  // Legacy execCommand fallback
-  // CRITICAL: Position IN viewport - iOS Safari rejects off-screen elements
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.setAttribute('readonly', '');
-  textarea.setAttribute('contenteditable', 'true');
-  textarea.style.position = 'fixed';
-  textarea.style.left = '0';
-  textarea.style.top = '0';
-  textarea.style.width = '1px';
-  textarea.style.height = '1px';
-  textarea.style.padding = '0';
-  textarea.style.border = 'none';
-  textarea.style.outline = 'none';
-  textarea.style.boxShadow = 'none';
-  textarea.style.background = 'transparent';
-  textarea.style.opacity = '0.01';
-  textarea.style.fontSize = '16px'; // Prevent iOS zoom
-
-  document.body.appendChild(textarea);
-
-  try {
-    textarea.focus();
-    textarea.setSelectionRange(0, text.length);
-    const successful = document.execCommand('copy');
-    if (!successful) {
-      throw new Error('execCommand copy returned false');
-    }
-  } catch (err) {
-    throw new Error('Failed to copy to clipboard: ' + (err?.message || 'unknown error'));
-  } finally {
-    if (document.body.contains(textarea)) {
-      document.body.removeChild(textarea);
-    }
-  }
-}
-
-/**
- * Copy text to clipboard - wrapper for copyToClipboardAsync
- * @param {string} text - Text to copy (must be available synchronously)
- * @returns {Promise<void>} Resolves if successful, throws if failed
- * @throws {Error} If copy fails
- */
-async function copyToClipboard(text) {
-  return copyToClipboardAsync(Promise.resolve(text));
-}
-
-// Global functions for onclick handlers
-window.copyPrompt = async function() {
-  try {
-    const prompt = generatePrompt(currentProject);
-    await copyToClipboard(prompt);
-    showNotification('Prompt copied to clipboard', 'success');
-  } catch (err) {
-    console.error('Clipboard error:', err);
-    showNotification('Failed to copy to clipboard. Please check browser permissions.', 'error');
-  }
-};
-
-window.useMockResponse = async function() {
-  const phase = getCurrentPhase(currentProject);
-  const mockResponse = await getMockResponse(phase.number);
-  document.getElementById('responseInput').value = mockResponse;
-  showNotification('Mock response loaded', 'info');
-};
-
-window.saveResponse = async function() {
-  const response = document.getElementById('responseInput').value;
-  updatePhaseResponse(currentProject, response);
-  
-  const validation = validatePhase(currentProject);
-  if (!validation.valid) {
-    showNotification(validation.error, 'error');
-    return;
-  }
-  
-  advancePhase(currentProject);
-  await saveProject(currentProject);
-  
-  if (isProjectComplete(currentProject)) {
-    showNotification('Project complete!', 'success');
-  } else {
-    showNotification('Phase completed', 'success');
-  }
-  
-  renderWorkflow();
-};
-
-/**
- * Show notification
- */
-function showNotification(message, type = 'info') {
-  const container = document.getElementById('notifications');
-  const id = Date.now();
-  
-  const colors = {
-    success: 'bg-green-500',
-    error: 'bg-red-500',
-    info: 'bg-blue-500'
-  };
-  
-  const notification = document.createElement('div');
-  notification.id = `notification-${id}`;
-  notification.className = `notification ${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg`;
-  notification.textContent = message;
-  
-  container.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.classList.add('removing');
-    setTimeout(() => notification.remove(), 300);
-  }, 3000);
-}
-
-/**
- * Escape HTML
- */
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-// Initialize app when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
+  document.addEventListener('DOMContentLoaded', init);
 } else {
-  initApp();
+  init();
 }
 
