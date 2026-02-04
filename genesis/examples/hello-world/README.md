@@ -1,6 +1,6 @@
 # Hello World - Genesis Baseline
 
-Canonical reference for shared infrastructure code. 2-phase AI workflow app.
+Canonical reference for shared infrastructure code. Paired assistant/validator architecture.
 
 ---
 
@@ -8,8 +8,9 @@ Canonical reference for shared infrastructure code. 2-phase AI workflow app.
 
 ```bash
 npm install
-npm test        # 170 tests
-open index.html
+npm test        # Unit tests for both assistant and validator
+open index.html # Assistant UI
+open validator/index.html # Validator UI
 ```
 
 ---
@@ -17,6 +18,11 @@ open index.html
 ## What This Is
 
 **This is the baseline template.** All 6 derived projects (one-pager, product-requirements-assistant, etc.) must keep their shared infrastructure files byte-for-byte identical to this project.
+
+Every project has a **paired architecture**:
+
+- **assistant/** - 3-phase AI workflow for creating documents
+- **validator/** - Document scoring and validation tool
 
 See `CODE-CONSISTENCY-MANDATE.md` for details.
 
@@ -26,21 +32,30 @@ See `CODE-CONSISTENCY-MANDATE.md` for details.
 
 ```
 hello-world/
-├── index.html              # Main app
-├── js/                     # Source files (source of truth)
-│   ├── app.js              # Entry point
-│   ├── workflow.js         # Phase logic
-│   ├── storage.js          # IndexedDB
-│   ├── router.js           # Client-side routing
-│   ├── error-handler.js    # Error display (MUST_MATCH)
-│   ├── same-llm-adversarial.js  # LLM adversarial (MUST_MATCH)
-│   └── ai-mock.js          # Mock responses
-├── assistant/
-│   ├── js/ -> ../js/       # Symlinks to js/ for test imports
-│   ├── css/ -> ../css/     # Symlinks to css/
+├── index.html              # Root (mirrors assistant/index.html)
+├── js/                     # Root JS (mirrors assistant/js/)
+├── css/                    # Root CSS (mirrors assistant/css/)
+├── assistant/              # Document creation tool
+│   ├── index.html          # Main assistant UI
+│   ├── js/                 # Source files
+│   │   ├── app.js          # Entry point
+│   │   ├── workflow.js     # Phase logic
+│   │   ├── storage.js      # IndexedDB
+│   │   ├── router.js       # Client-side routing
+│   │   ├── error-handler.js    # Error display (MUST_MATCH)
+│   │   ├── same-llm-adversarial.js  # LLM adversarial (MUST_MATCH)
+│   │   └── ai-mock.js      # Mock responses
+│   ├── css/styles.css      # Styles
 │   └── tests/              # Jest unit tests
+├── validator/              # Document validation tool
+│   ├── index.html          # Validator UI
+│   ├── js/                 # Validator source
+│   │   ├── app.js          # Entry point
+│   │   └── validator.js    # Validation logic
+│   ├── css/styles.css      # Styles
+│   ├── tests/              # Jest unit tests
+│   └── testdata/           # Test fixtures
 ├── e2e/                    # Playwright E2E tests
-├── css/styles.css
 ├── scripts/lib/            # Shell utilities
 ├── package.json
 ├── jest.config.js
@@ -48,7 +63,7 @@ hello-world/
 └── eslint.config.js
 ```
 
-**Note**: All projects use unified structure with `assistant/tests/` and `e2e/`. hello-world uses symlinks in `assistant/js/` → `js/`.
+**Note**: Root `index.html`, `js/`, and `css/` mirror `assistant/` for backward compatibility.
 
 ---
 
