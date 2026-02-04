@@ -150,13 +150,14 @@ jobs:
             echo "✓ No markdown files to validate"
           fi
 
-  # Alignment scanner tests - validates the alignment-tools work correctly
-  alignment-tools:
-    name: Alignment Tools Tests
+  # Project diff tool - validates all 6 genesis assistants have identical shared files
+  # This does byte-for-byte comparison of files that MUST be identical across projects
+  # Note: Requires all 6 repos to be siblings of genesis/ - informational in CI
+  project-diff:
+    name: Project Diff Check
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: alignment-tools
+    if: github.repository == 'bordenet/genesis'
+    continue-on-error: true  # Informational - full check requires local workspace
 
     steps:
       - uses: actions/checkout@v6
@@ -165,50 +166,24 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'alignment-tools/package-lock.json'
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests with coverage
-        run: npm run test:coverage
-
-  # Parity check - validates all 6 genesis assistants are in sync
-  # This catches issues like:
-  # - Root vs assistant file divergence
-  # - Missing diff-view.js files
-  # - meta.title vs meta.name bugs
-  # - Missing prompt files
-  parity-check:
-    name: Genesis Parity Check
-    runs-on: ubuntu-latest
-    # Only meaningful when all 6 repos are present as siblings
-    # In CI, we validate the script syntax and document what it checks
-    if: github.repository == 'bordenet/genesis'
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Validate parity check script
+      - name: Validate project-diff tool
         run: |
-          echo "🔍 Validating genesis-parity-check.sh..."
-          # Check script exists and is executable
-          if [ -f genesis-parity-check.sh ]; then
-            chmod +x genesis-parity-check.sh
-            bash -n genesis-parity-check.sh && echo "✅ Script syntax valid"
+          echo "🔍 Validating project-diff tool..."
+          if [ -f project-diff/diff-projects.js ]; then
+            node --check project-diff/diff-projects.js && echo "✅ Tool syntax valid"
           else
-            echo "⚠️  genesis-parity-check.sh not found"
+            echo "⚠️  project-diff/diff-projects.js not found"
             exit 1
           fi
 
-      - name: Document parity checks
+      - name: Document project diff
         run: |
           echo ""
-          echo "📋 Parity Check Documentation"
-          echo "=============================="
+          echo "📋 Project Diff Tool"
+          echo "===================="
           echo ""
-          echo "This script validates consistency across all 6 genesis assistants:"
+          echo "Compares EVERY file across all 6 genesis assistants:"
           echo "  - architecture-decision-record"
           echo "  - one-pager"
           echo "  - power-statement-assistant"
@@ -216,51 +191,15 @@ jobs:
           echo "  - product-requirements-assistant"
           echo "  - strategic-proposal"
           echo ""
-          echo "Checks performed:"
-          echo "  1. Root vs Assistant JS file sync"
-          echo "  2. Required JS files exist"
-          echo "  3. WORKFLOW_CONFIG structure (meta.name not meta.title)"
-          echo "  4. Diff feature wiring"
-          echo "  5. Prompt files exist"
+          echo "Uses MD5 hashes for byte-for-byte comparison."
+          echo "Categorizes files as:"
+          echo "  - MUST_MATCH: Files that must be identical"
+          echo "  - INTENTIONAL_DIFF: Files expected to differ (prompts, templates)"
+          echo "  - PROJECT_SPECIFIC: Files unique to certain projects"
           echo ""
           echo "To run locally:"
-          echo "  cd genesis-tools"
-          echo "  ./genesis/genesis-parity-check.sh"
-
-  # Consistency checker (validates repo structure consistency)
-  # Note: This job only runs on the genesis repo when all tool repos are present
-  # It's informational - fails if average similarity drops below 90%
-  consistency:
-    name: Repo Consistency Check
-    runs-on: ubuntu-latest
-    # Only run on genesis repo when triggered manually or on main branch
-    if: github.repository == 'bordenet/genesis'
-    continue-on-error: true  # Don't block CI - informational only
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '20'
-
-      - name: Check consistency score
-        run: |
-          echo "🔍 Running consistency checker..."
-          # Note: This requires all tool repos to be siblings of genesis/
-          # In GitHub Actions, we only have the genesis repo checked out
-          # This job documents what the checker does; full check requires local run
-          echo "ℹ️  Full consistency check requires local workspace with all repos"
-          echo "   Run: ./genesis/scripts/check-consistency.sh"
+          echo "  cd genesis-tools/genesis/project-diff"
+          echo "  node diff-projects.js"
           echo ""
-          # Show current baseline info
-          if [ -f genesis/consistency-checker/baseline.json ]; then
-            echo "📊 Current baseline:"
-            node -e "
-              const baseline = require('./genesis/consistency-checker/baseline.json');
-              console.log('   Average: ' + baseline.summary.averageSimilarity + '%');
-              console.log('   Repos: ' + baseline.summary.comparisons + ' comparisons');
-              console.log('   Date: ' + baseline.timestamp);
-            "
-          fi
+          echo "For CI mode (exits non-zero if divergent files exist):"
+          echo "  node diff-projects.js --ci"
