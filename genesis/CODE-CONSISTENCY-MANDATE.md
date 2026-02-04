@@ -9,6 +9,13 @@
 
 Every file in your new assistant project **MUST match the hello-world reference implementation byte-for-byte**, except for files explicitly designated as document-type-specific. Use the `project-diff` tool **repeatedly** during development to catch drift before it accumulates.
 
+```bash
+# From genesis/project-diff directory
+node diff-projects.js --ci   # Exit 1 if MUST_MATCH files diverge
+```
+
+The tool compares **all 7 projects** (6 derived + hello-world baseline).
+
 ---
 
 ## The Problem We Solved (And Never Want Again)
@@ -131,6 +138,7 @@ The authoritative list is in `project-diff/diff-projects.js` → `INTENTIONAL_DI
 | Tests for document-specific code | Must test document-specific logic |
 
 **Project Setup/Config (contain project-specific names and tooling):**
+
 | File | Why It Differs |
 |------|---------------|
 | `.github/dependabot.yml` | Project name in comments |
@@ -138,6 +146,17 @@ The authoritative list is in `project-diff/diff-projects.js` → `INTENTIONAL_DI
 | `scripts/install-hooks.sh` | Project-specific hook installation |
 | `scripts/lib/common.sh` | Project-specific shell utilities |
 | `scripts/setup-*.sh` | Project-specific setup scripts |
+
+**Hello-World Specific (different directory structure):**
+
+| File | Why It Differs |
+|------|---------------|
+| `jest.config.js` | Paths differ: `tests/` vs `assistant/tests/` |
+| `playwright.config.js` | Paths differ: `tests/e2e/` vs `e2e/` |
+| `jest.setup.js` | Test setup differs slightly |
+| `eslint.config.js` | Globals and ignore patterns differ |
+| `.github/workflows/ci.yml` | Derived projects clone core repos; hello-world doesn't |
+| `tests/*.test.js` | Hello-world uses `tests/`; derived use `assistant/tests/` |
 
 Everything else **MUST** match hello-world exactly.
 
