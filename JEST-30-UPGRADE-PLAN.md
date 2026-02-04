@@ -31,6 +31,7 @@
 ## Repos STILL Needing Jest 30 (for future consideration)
 
 ### Genesis Ecosystem (DO NOT TOUCH YET - requires coordinated upgrade)
+
 | Repo | Current Jest | Notes |
 |------|--------------|-------|
 | genesis/examples/hello-world | 29.7.0 | Baseline template - upgrade FIRST in coordinated effort |
