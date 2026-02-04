@@ -183,28 +183,48 @@ function getFileHash(filePath) {
 }
 
 /**
+ * Check if a path is a symlink
+ */
+function isSymlink(filePath) {
+  try {
+    return fs.lstatSync(filePath).isSymbolicLink();
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Recursively get all files in a directory
+ * Returns objects with { path, isSymlink } to track symlinks
  */
 function getAllFiles(dir, baseDir = dir) {
   const files = [];
-  
+
   if (!fs.existsSync(dir)) return files;
-  
+
   const entries = fs.readdirSync(dir, { withFileTypes: true });
-  
+
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     const relativePath = path.relative(baseDir, fullPath);
-    
+
+    // Check if this entry is a symlink BEFORE following it
+    const entryIsSymlink = entry.isSymbolicLink();
+
     // Skip excluded directories
     if (entry.isDirectory()) {
       if (EXCLUDE_DIRS.includes(entry.name)) continue;
-      files.push(...getAllFiles(fullPath, baseDir));
+      // If it's a symlink to a directory, record it as a symlink marker
+      if (entryIsSymlink) {
+        files.push({ path: relativePath, isSymlink: true, isDir: true });
+      } else {
+        files.push(...getAllFiles(fullPath, baseDir));
+      }
     } else {
-      files.push(relativePath);
+      files.push({ path: relativePath, isSymlink: entryIsSymlink, isDir: false });
     }
   }
-  
+
   return files;
 }
 
@@ -219,42 +239,71 @@ function isIntentionalDiff(relativePath) {
  * Main diff function
  */
 function diffProjects(genesisToolsDir) {
-  const projectPaths = PROJECTS.map(p => path.join(genesisToolsDir, p));
-  
   // Collect all unique file paths across all projects
+  // Now stores { path, isSymlink, isDir } objects per project
   const allFilePaths = new Set();
-  const projectFiles = {};
-  
+  const projectFileMap = {};  // project -> Map<path, {isSymlink, isDir}>
+
   for (const project of PROJECTS) {
     const projectPath = path.join(genesisToolsDir, project);
-    const files = getAllFiles(projectPath);
-    projectFiles[project] = new Set(files);
-    files.forEach(f => allFilePaths.add(f));
+    const fileObjs = getAllFiles(projectPath);
+    projectFileMap[project] = new Map();
+    for (const fileObj of fileObjs) {
+      projectFileMap[project].set(fileObj.path, { isSymlink: fileObj.isSymlink, isDir: fileObj.isDir });
+      allFilePaths.add(fileObj.path);
+    }
   }
-  
+
   // Analyze each file
   const results = {
     mustMatch: { identical: [], divergent: [] },
     intentionalDiff: [],
     projectSpecific: [],
-    summary: { total: 0, identical: 0, divergent: 0, intentional: 0, projectSpecific: 0 }
+    symlinkIssues: [],  // NEW: Track symlink vs regular file discrepancies
+    summary: { total: 0, identical: 0, divergent: 0, intentional: 0, projectSpecific: 0, symlinkIssues: 0 }
   };
-  
+
   for (const filePath of [...allFilePaths].sort()) {
     results.summary.total++;
-    
-    // Get hash for each project that has this file
+
+    // Get hash and symlink status for each project that has this file
     const hashes = {};
+    const symlinkStatus = {};
     const projectsWithFile = [];
-    
+
     for (const project of PROJECTS) {
-      if (projectFiles[project].has(filePath)) {
+      if (projectFileMap[project].has(filePath)) {
+        const fileInfo = projectFileMap[project].get(filePath);
         const fullPath = path.join(genesisToolsDir, project, filePath);
-        hashes[project] = getFileHash(fullPath);
+
+        // For symlinks to directories, we can't hash - mark specially
+        if (fileInfo.isSymlink && fileInfo.isDir) {
+          hashes[project] = 'SYMLINK_DIR';
+        } else {
+          hashes[project] = getFileHash(fullPath);
+        }
+        symlinkStatus[project] = fileInfo.isSymlink;
         projectsWithFile.push(project);
       }
     }
-    
+
+    // Check for symlink vs regular file discrepancy
+    const symlinkValues = Object.values(symlinkStatus);
+    const hasSymlinkMix = symlinkValues.includes(true) && symlinkValues.includes(false);
+
+    if (hasSymlinkMix) {
+      // STRUCTURAL DIVERGENCE: some projects use symlinks, others don't
+      const symlinkedProjects = Object.entries(symlinkStatus).filter(([_, v]) => v).map(([k]) => k);
+      const regularProjects = Object.entries(symlinkStatus).filter(([_, v]) => !v).map(([k]) => k);
+      results.symlinkIssues.push({
+        path: filePath,
+        symlinkedIn: symlinkedProjects,
+        regularIn: regularProjects
+      });
+      results.summary.symlinkIssues++;
+      continue;  // Don't double-count as divergent
+    }
+
     // Categorize the file
     if (projectsWithFile.length < PROJECTS.length) {
       // File doesn't exist in all projects
@@ -285,7 +334,7 @@ function diffProjects(genesisToolsDir) {
       }
     }
   }
-  
+
   return results;
 }
 
@@ -307,10 +356,14 @@ function formatConsoleReport(results) {
   lines.push('');
 
   // Summary
+  const magenta = (s) => `\x1b[35m${s}\x1b[0m`;
   lines.push(bold('SUMMARY'));
   lines.push(`  Total files scanned: ${results.summary.total}`);
   lines.push(`  ${green('✓')} Identical (MUST_MATCH): ${results.summary.identical}`);
   lines.push(`  ${red('✗')} Divergent (MUST_MATCH): ${results.summary.divergent}`);
+  if (results.summary.symlinkIssues > 0) {
+    lines.push(`  ${magenta('⚡')} Symlink structural issues: ${results.summary.symlinkIssues}`);
+  }
   lines.push(`  ${yellow('~')} Intentional differences: ${results.summary.intentional}`);
   lines.push(`  ${cyan('?')} Project-specific: ${results.summary.projectSpecific}`);
   lines.push('');
@@ -336,6 +389,24 @@ function formatConsoleReport(results) {
         lines.push(`    Version ${groupNum} (${hash.slice(0, 8)}...): ${projects.join(', ')}`);
         groupNum++;
       }
+    }
+    lines.push('');
+  }
+
+  // SYMLINK ISSUES: Some projects use symlinks, others use regular files
+  if (results.symlinkIssues && results.symlinkIssues.length > 0) {
+    const magenta = (s) => `\x1b[35m${s}\x1b[0m`;
+    lines.push(magenta(bold('⚡ STRUCTURAL: SYMLINK VS REGULAR FILE MISMATCH')));
+    lines.push(magenta('─'.repeat(60)));
+    lines.push('');
+    lines.push('  These paths are symlinks in some projects but regular files in others.');
+    lines.push('  This is a structural divergence that should be unified.');
+    lines.push('');
+
+    for (const issue of results.symlinkIssues) {
+      lines.push(magenta(`  ${issue.path}`));
+      lines.push(`    Symlink in: ${issue.symlinkedIn.join(', ')}`);
+      lines.push(`    Regular in: ${issue.regularIn.join(', ')}`);
     }
     lines.push('');
   }
@@ -368,10 +439,17 @@ function formatConsoleReport(results) {
 
   // Final verdict
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
-  if (results.summary.divergent === 0) {
+  const symlinkCount = results.summary.symlinkIssues || 0;
+  if (results.summary.divergent === 0 && symlinkCount === 0) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
   } else {
-    lines.push(red(bold(`  ✗ ${results.summary.divergent} FILES HAVE DIVERGED - FIX REQUIRED`)));
+    if (results.summary.divergent > 0) {
+      lines.push(red(bold(`  ✗ ${results.summary.divergent} FILES HAVE DIVERGED - FIX REQUIRED`)));
+    }
+    if (symlinkCount > 0) {
+      const magenta = (s) => `\x1b[35m${s}\x1b[0m`;
+      lines.push(magenta(bold(`  ⚡ ${symlinkCount} SYMLINK STRUCTURAL ISSUES - UNIFY REQUIRED`)));
+    }
   }
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
   lines.push('');
@@ -398,8 +476,8 @@ function main() {
     console.log(formatConsoleReport(results));
   }
 
-  // CI mode: exit 1 if divergent files exist
-  if (ciMode && results.summary.divergent > 0) {
+  // CI mode: exit 1 if divergent files or symlink issues exist
+  if (ciMode && (results.summary.divergent > 0 || results.summary.symlinkIssues > 0)) {
     process.exit(1);
   }
 }
