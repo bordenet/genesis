@@ -1,110 +1,129 @@
-// ai-mock.js - Mock AI responses for testing
+/**
+ * AI Mock Module
+ * Provides mock AI responses for development and testing
+ * @module ai-mock
+ */
 
-// Mock responses for each phase
-const mockResponses = {
-  1: `# Phase 1 Analysis
-
-Thank you for providing the input. Here's my detailed analysis:
-
-## Key Points
-1. The input demonstrates clear understanding of the requirements
-2. The approach is well-structured and logical
-3. There are opportunities for enhancement
-
-## Recommendations
-- Consider adding more specific examples
-- Expand on the implementation details
-- Include edge cases and error handling
-
-## Next Steps
-Proceed to Phase 2 for the final output.`,
-
-  2: `# Phase 2 Final Output
-
-Based on the Phase 1 analysis, here is the final output:
-
-## Summary
-The project successfully addresses the core requirements with a clear, actionable approach.
-
-## Deliverables
-1. **Primary Output**: A well-structured solution that meets all specified criteria
-2. **Documentation**: Clear explanation of the approach and rationale
-3. **Next Steps**: Recommendations for implementation and future enhancements
-
-## Conclusion
-This solution provides a solid foundation for moving forward with confidence.`
-};
-
+/** @type {boolean} */
 let mockModeEnabled = false;
 
 /**
- * Initialize mock mode from localStorage
+ * Check if running on localhost
+ * @returns {boolean}
+ */
+export function isLocalhost() {
+  return window.location.hostname === 'localhost' ||
+           window.location.hostname === '127.0.0.1' ||
+           window.location.hostname.startsWith('192.168.');
+}
+
+/**
+ * Initialize mock mode toggle (localhost only)
+ * @returns {void}
  */
 export function initMockMode() {
-  const saved = localStorage.getItem('aiMockMode');
-  mockModeEnabled = saved === 'true';
-  
-  // Show toggle only on localhost
-  if (isLocalhost()) {
-    const toggle = document.getElementById('aiMockToggle');
-    if (toggle) {
-      toggle.classList.remove('hidden');
-      const checkbox = document.getElementById('mockModeCheckbox');
-      if (checkbox) {
-        checkbox.checked = mockModeEnabled;
-      }
-    }
-  }
-  
-  return mockModeEnabled;
-}
+  if (!isLocalhost()) return;
 
-/**
- * Check if running on localhost
- */
-function isLocalhost() {
-  return window.location.hostname === 'localhost' || 
-         window.location.hostname === '127.0.0.1' ||
-         window.location.hostname === '';
-}
+  const toggle = document.getElementById('aiMockToggle');
+  const checkbox = /** @type {HTMLInputElement | null} */ (document.getElementById('mockModeCheckbox'));
 
-/**
- * Set mock mode
- */
-export function setMockMode(enabled) {
-  mockModeEnabled = enabled;
-  localStorage.setItem('aiMockMode', enabled.toString());
-  
-  // Update checkbox
-  const checkbox = document.getElementById('mockModeCheckbox');
-  if (checkbox) {
-    checkbox.checked = enabled;
+  if (toggle && checkbox) {
+    toggle.classList.remove('hidden');
+
+    // Restore previous state
+    mockModeEnabled = localStorage.getItem('ai-mock-mode') === 'true';
+    checkbox.checked = mockModeEnabled;
+
+    checkbox.addEventListener('change', (e) => {
+      const target = /** @type {HTMLInputElement} */ (e.target);
+      mockModeEnabled = target.checked;
+      localStorage.setItem('ai-mock-mode', mockModeEnabled.toString());
+      console.log(`[AI Mock] Mode ${mockModeEnabled ? 'enabled' : 'disabled'}`);
+    });
   }
-  
-  return mockModeEnabled;
 }
 
 /**
  * Check if mock mode is enabled
+ * @returns {boolean}
  */
-export function isMockMode() {
-  return mockModeEnabled;
+export function isMockEnabled() {
+  return isLocalhost() && mockModeEnabled;
 }
 
 /**
- * Get mock response for phase
+ * Generate mock response for a phase
+ * @param {import('./types.js').PhaseNumber} phase - Phase number
+ * @param {import('./types.js').Project} project - Project data
+ * @returns {string} Mock response
  */
-export async function getMockResponse(phaseNumber) {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  return mockResponses[phaseNumber] || 'Mock response not available for this phase.';
-}
+export function getMockResponse(phase, project) {
+  const dealership = project.dealershipName || 'Test Dealership';
 
-/**
- * Add custom mock response
- */
-export function addMockResponse(phaseNumber, response) {
-  mockResponses[phaseNumber] = response;
+  const mockResponses = {
+    1: `# Phase 1 Analysis for ${dealership}
+
+## Market Assessment
+Based on the provided information, here is my analysis of the current situation...
+
+### Key Findings
+1. **Opportunity Area**: The market shows potential for growth
+2. **Challenge**: There are some obstacles to address
+3. **Recommendation**: A strategic approach is needed
+
+### Next Steps
+- Gather additional market data
+- Validate assumptions with stakeholders
+- Prepare detailed proposal outline
+
+*This is a mock AI response for development purposes.*`,
+
+    2: `# Phase 2 Strategic Framework
+
+## Proposed Solution for ${dealership}
+
+### Executive Summary
+Building on the Phase 1 analysis, here is the strategic framework...
+
+### Implementation Approach
+1. **Phase A**: Initial assessment and planning
+2. **Phase B**: Resource allocation
+3. **Phase C**: Execution and monitoring
+
+### Expected Outcomes
+- Improved operational efficiency
+- Enhanced customer satisfaction
+- Measurable ROI within 6 months
+
+*This is a mock AI response for development purposes.*`,
+
+    3: `# Strategic Proposal: ${dealership}
+
+## Executive Summary
+This proposal outlines a comprehensive strategy for ${dealership}...
+
+## Problem Statement
+Current challenges that need to be addressed...
+
+## Proposed Solution
+Our recommended approach includes...
+
+## Implementation Timeline
+| Phase | Timeline | Key Activities |
+|-------|----------|----------------|
+| 1 | Week 1-2 | Planning |
+| 2 | Week 3-6 | Implementation |
+| 3 | Week 7-8 | Review |
+
+## Budget Overview
+Estimated investment: $XX,XXX
+
+## Conclusion
+This strategic proposal provides a clear path forward...
+
+*This is a mock AI response for development purposes.*`
+  };
+
+  return mockResponses[phase] || 'Mock response not available for this phase.';
 }
 

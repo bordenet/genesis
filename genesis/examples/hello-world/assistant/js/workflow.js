@@ -1,204 +1,302 @@
 /**
- * Workflow Module - 2-phase workflow engine
+ * Workflow Module
+ * Manages the 3-phase adversarial workflow for Strategic Proposal Generator
  * @module workflow
- *
- * This is the canonical hello-world template that all new genesis projects
- * are derived from. It demonstrates the standard Workflow class pattern.
  */
 
-import { generateId } from './storage.js';
+import {
+  WORKFLOW_CONFIG,
+  generatePhase1Prompt as genPhase1,
+  generatePhase2Prompt as genPhase2,
+  generatePhase3Prompt as genPhase3
+} from './prompts.js';
+import { detectPromptPaste } from './core/workflow.js';
 
-// ============================================================================
-// WORKFLOW_CONFIG - Canonical configuration structure
-// ============================================================================
+// Re-export WORKFLOW_CONFIG for backward compatibility
+export { WORKFLOW_CONFIG };
 
-export const WORKFLOW_CONFIG = {
-  phaseCount: 2,
-  phases: [
-    {
-      number: 1,
-      name: 'Input',
-      description: 'Provide input for analysis',
-      aiModel: 'Claude Sonnet 4.5',
-      icon: '📝'
-    },
-    {
-      number: 2,
-      name: 'Output',
-      description: 'Generate final output based on analysis',
-      aiModel: 'Gemini 2.5 Pro',
-      icon: '✨'
+// Re-export detectPromptPaste from core for backward compatibility
+export { detectPromptPaste };
+
+/**
+ * Helper to get phase output, handling both flat and nested formats
+ * @param {Object} project - Project object
+ * @param {number} phaseNum - 1-based phase number
+ * @returns {string} Phase output content
+ */
+function getPhaseOutputInternal(project, phaseNum) {
+  // Flat format (canonical) - check first
+  const flatKey = `phase${phaseNum}_output`;
+  if (project[flatKey]) {
+    return project[flatKey];
+  }
+  // Nested format (legacy) - fallback
+  if (project.phases) {
+    if (Array.isArray(project.phases) && project.phases[phaseNum - 1]) {
+      return project.phases[phaseNum - 1].response || '';
     }
-  ]
-};
+    if (project.phases[phaseNum] && typeof project.phases[phaseNum] === 'object') {
+      return project.phases[phaseNum].response || '';
+    }
+  }
+  return '';
+}
 
-// Legacy alias for backward compatibility
-export const PHASES = WORKFLOW_CONFIG.phases;
+/** @type {Object.<number, string>} Prompt templates cache - legacy, kept for backward compatibility */
+let promptTemplates = {};
 
-// ============================================================================
-// WORKFLOW CLASS - Canonical implementation
-// ============================================================================
+/**
+ * Load default prompts from files - legacy function kept for backward compatibility
+ * @returns {Promise<void>}
+ */
+export async function loadDefaultPrompts() {
+  for (const phase of WORKFLOW_CONFIG.phases) {
+    try {
+      const response = await fetch(`prompts/phase${phase.number}.md`);
+      if (response.ok) {
+        promptTemplates[phase.number] = await response.text();
+      }
+    } catch (error) {
+      console.warn(`Failed to load prompt for phase ${phase.number}:`, error);
+    }
+  }
+}
 
 export class Workflow {
+  /** @type {import('./types.js').Project} */
+  project;
+
+  /** @type {number} */
+  currentPhase;
+
+  /**
+     * @param {import('./types.js').Project} project
+     */
   constructor(project) {
     this.project = project;
     // Clamp phase to valid range (1 minimum)
-    const rawPhase = project.phase || project.currentPhase || 1;
+    const rawPhase = project.phase || 1;
     this.currentPhase = Math.max(1, rawPhase);
   }
 
   /**
-   * Get current phase configuration
-   */
+     * Get the current phase configuration
+     * @returns {import('./types.js').PhaseConfig | undefined}
+     */
   getCurrentPhase() {
-    if (this.currentPhase > WORKFLOW_CONFIG.phaseCount) {
-      return WORKFLOW_CONFIG.phases[WORKFLOW_CONFIG.phaseCount - 1];
-    }
     return WORKFLOW_CONFIG.phases.find(p => p.number === this.currentPhase);
   }
 
   /**
-   * Get next phase configuration
-   */
+     * Get the next phase configuration
+     * @returns {import('./types.js').PhaseConfig | null}
+     */
   getNextPhase() {
-    if (this.currentPhase >= WORKFLOW_CONFIG.phaseCount) {
-      return null;
-    }
-    return WORKFLOW_CONFIG.phases.find(p => p.number === this.currentPhase + 1);
+    if (this.currentPhase >= WORKFLOW_CONFIG.phaseCount) return null;
+    return WORKFLOW_CONFIG.phases.find(p => p.number === this.currentPhase + 1) || null;
   }
 
   /**
-   * Check if workflow is complete
-   */
+     * Check if workflow is complete
+     * @returns {boolean}
+     */
   isComplete() {
     return this.currentPhase > WORKFLOW_CONFIG.phaseCount;
   }
 
   /**
-   * Advance to next phase
-   */
+     * Advance to the next phase
+     * @returns {boolean} True if advanced, false if already at final phase
+     */
   advancePhase() {
+    // Allow advancing up to phase 4 (complete state)
     if (this.currentPhase <= WORKFLOW_CONFIG.phaseCount) {
       this.currentPhase++;
       this.project.phase = this.currentPhase;
-      this.project.currentPhase = this.currentPhase;
       return true;
     }
     return false;
   }
 
   /**
-   * Go back to previous phase
-   */
+     * Go back to the previous phase
+     * @returns {boolean} True if went back, false if already at first phase
+     */
   previousPhase() {
     if (this.currentPhase > 1) {
       this.currentPhase--;
       this.project.phase = this.currentPhase;
-      this.project.currentPhase = this.currentPhase;
       return true;
     }
     return false;
   }
 
   /**
-   * Generate prompt for current phase
-   */
+     * Generate the prompt for the current phase
+     * Uses prompts.js module for template loading and variable replacement
+     * @returns {Promise<string>}
+     */
   async generatePrompt() {
+    const p = this.project;
+    const formData = {
+      dealershipName: p.dealershipName,
+      dealershipLocation: p.dealershipLocation,
+      storeCount: p.storeCount,
+      currentVendor: p.currentVendor,
+      decisionMakerName: p.decisionMakerName,
+      decisionMakerRole: p.decisionMakerRole,
+      conversationTranscripts: p.conversationTranscripts,
+      meetingNotes: p.meetingNotes,
+      painPoints: p.painPoints,
+      attachmentText: p.attachmentText,
+      workingDraft: p.workingDraft,
+      additionalContext: p.additionalContext
+    };
+
     switch (this.currentPhase) {
     case 1:
-      return `# Phase 1: Input
-
-Project: ${this.project.name || this.project.title}
-Description: ${this.project.description}
-
-Please analyze the following input and provide your insights:
-
-[User will paste their input here]
-
-Provide a detailed analysis.`;
+      return await genPhase1(formData);
     case 2:
-      return `# Phase 2: Output
-
-Project: ${this.project.name || this.project.title}
-
-Based on the Phase 1 analysis:
-${this.getPhaseOutput(1) || '[No Phase 1 output]'}
-
-Please provide the final output.`;
+      return await genPhase2(formData, p.phase1_output || '[Phase 1 output not yet generated]');
+    case 3:
+      return await genPhase3(
+        formData,
+        p.phase1_output || '[Phase 1 output not yet generated]',
+        p.phase2_output || '[Phase 2 output not yet generated]'
+      );
     default:
       throw new Error(`Invalid phase: ${this.currentPhase}`);
     }
   }
 
   /**
-   * Save phase output
-   */
+     * Replace template variables with project data - legacy method kept for backward compatibility
+     * @param {string} template
+     * @returns {string}
+     */
+  replaceVariables(template) {
+    let result = template;
+    const p = this.project;
+
+    // Helper to provide meaningful placeholder for empty values
+    const val = (v, label) => v?.trim() || `[${label} not provided]`;
+    const optVal = (v) => v?.trim() || '[Not provided]';
+
+    // Dealership information - required fields get specific labels
+    result = result.replace(/\{dealershipName\}/g, val(p.dealershipName, 'Dealership name'));
+    result = result.replace(/\{dealershipLocation\}/g, optVal(p.dealershipLocation));
+    result = result.replace(/\{storeCount\}/g, optVal(p.storeCount));
+    result = result.replace(/\{currentVendor\}/g, optVal(p.currentVendor));
+    result = result.replace(/\{decisionMakerName\}/g, optVal(p.decisionMakerName));
+    result = result.replace(/\{decisionMakerRole\}/g, optVal(p.decisionMakerRole));
+
+    // Conversation and context data
+    result = result.replace(/\{conversationTranscripts\}/g, optVal(p.conversationTranscripts));
+    result = result.replace(/\{meetingNotes\}/g, optVal(p.meetingNotes));
+    result = result.replace(/\{attachmentText\}/g, optVal(p.attachmentText));
+    result = result.replace(/\{painPoints\}/g, optVal(p.painPoints));
+    result = result.replace(/\{additionalContext\}/g, optVal(p.additionalContext));
+
+    // Working draft (for refinement)
+    result = result.replace(/\{workingDraft\}/g, optVal(p.workingDraft));
+
+    // Phase outputs for synthesis
+    result = result.replace(/\{phase1_output\}/g, p.phase1_output || '[Phase 1 output not yet generated]');
+    result = result.replace(/\{phase2_output\}/g, p.phase2_output || '[Phase 2 output not yet generated]');
+
+    return result;
+  }
+
+  /**
+     * Save the output for the current phase
+     * @param {string} output
+     * @returns {void}
+     */
   savePhaseOutput(output) {
-    const phaseKey = `phase${this.currentPhase}_output`;
+    const phaseKey = /** @type {'phase1_output' | 'phase2_output' | 'phase3_output'} */ (`phase${this.currentPhase}_output`);
     this.project[phaseKey] = output;
     this.project.updatedAt = new Date().toISOString();
-    this.project.modified = Date.now();
   }
 
   /**
-   * Get phase output
-   */
+     * Get the output for a specific phase
+     * @param {number} phaseNumber
+     * @returns {string}
+     */
   getPhaseOutput(phaseNumber) {
-    // Flat format (canonical) - check first
-    const flatKey = `phase${phaseNumber}_output`;
-    if (this.project[flatKey]) {
-      return this.project[flatKey];
-    }
-    // Nested format (legacy) - fallback
-    if (this.project.phases) {
-      if (Array.isArray(this.project.phases) && this.project.phases[phaseNumber - 1]) {
-        return this.project.phases[phaseNumber - 1].response || '';
-      }
-    }
-    return '';
+    return getPhaseOutputInternal(this.project, phaseNumber);
   }
 
   /**
-   * Export final output as Markdown
-   */
+     * Export the project as a Markdown document
+     * @returns {string}
+     */
   exportAsMarkdown() {
-    const attribution = '\n\n---\n\n*Generated with Hello World Template*';
-    const finalOutput = this.getPhaseOutput(WORKFLOW_CONFIG.phaseCount);
+    const attribution = '\n\n---\n\n*Generated with [Strategic Proposal Assistant](https://bordenet.github.io/strategic-proposal/)*';
 
+    let md = `# Strategic Proposal: ${this.project.dealershipName}\n\n`;
+    md += `**Created**: ${new Date(this.project.createdAt).toLocaleDateString()}\n`;
+    md += `**Last Updated**: ${new Date(this.project.updatedAt).toLocaleDateString()}\n\n`;
+
+    // Include final output (Phase 3) as the main content
+    const finalOutput = this.getPhaseOutput(3);
     if (finalOutput) {
-      return finalOutput + attribution;
+      md += finalOutput;
     }
 
-    // Fallback: export phase 1 output if final phase not complete
-    const phase1Output = this.getPhaseOutput(1);
-    if (phase1Output) {
-      return phase1Output + attribution;
-    }
-
-    return `# ${this.project.name || this.project.title}\n\nNo content generated yet.`;
+    md += attribution;
+    return md;
   }
 
   /**
-   * Get workflow progress percentage
-   */
+     * Get workflow progress as a percentage
+     * @returns {number}
+     */
   getProgress() {
     return Math.round((this.currentPhase / WORKFLOW_CONFIG.phaseCount) * 100);
   }
+
+  /**
+     * Get the last completed phase with its response
+     * @returns {{phase: number, response: string} | null}
+     */
+  getLastCompletedPhase() {
+    // Check phases in reverse order to find the last one with output
+    for (let i = WORKFLOW_CONFIG.phaseCount; i >= 1; i--) {
+      const output = this.getPhaseOutput(i);
+      if (output) {
+        return { phase: i, response: output };
+      }
+    }
+    return null;
+  }
 }
 
-// ============================================================================
-// HELPER FUNCTIONS - Canonical exports
-// ============================================================================
-
 /**
- * Get phase metadata from WORKFLOW_CONFIG
+ * Get metadata for a specific phase
+ * @param {number} phaseNumber
+ * @returns {import('./types.js').PhaseConfig | undefined}
  */
 export function getPhaseMetadata(phaseNumber) {
   return WORKFLOW_CONFIG.phases.find(p => p.number === phaseNumber);
 }
 
 /**
- * Export final document as markdown (returns the markdown string)
+ * Generate the prompt for a specific phase
+ * @param {import('./types.js').Project} project
+ * @param {number} phaseNumber
+ * @returns {Promise<string>}
+ */
+export async function generatePromptForPhase(project, phaseNumber) {
+  const workflow = new Workflow(project);
+  workflow.currentPhase = phaseNumber;
+  return await workflow.generatePrompt();
+}
+
+/**
+ * Export the final document as Markdown
+ * @param {import('./types.js').Project} project
+ * @returns {string}
  */
 export function exportFinalDocument(project) {
   const workflow = new Workflow(project);
@@ -206,129 +304,24 @@ export function exportFinalDocument(project) {
 }
 
 /**
+ * Get the final markdown content from a project
+ * @param {import('./types.js').Project} project - Project object
+ * @returns {string|null} The markdown content or null if none exists
+ */
+export function getFinalMarkdown(project) {
+  const workflow = new Workflow(project);
+  const lastPhase = workflow.getLastCompletedPhase();
+  if (lastPhase && lastPhase.response) {
+    return workflow.exportAsMarkdown();
+  }
+  return null;
+}
+
+/**
  * Generate export filename for a project
+ * @param {import('./types.js').Project} project - Project object
+ * @returns {string} Filename with .md extension
  */
 export function getExportFilename(project) {
-  const title = project.title || project.name || 'hello-world';
-  const sanitized = title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .substring(0, 50);
-  return `${sanitized}.md`;
+  return `${(project.title || 'strategic-proposal').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-proposal.md`;
 }
-
-// ============================================================================
-// LEGACY FUNCTIONS - For backward compatibility
-// ============================================================================
-
-/**
- * Create new project
- */
-export function createProject(name, description) {
-  return {
-    id: generateId(),
-    name: name,
-    title: name,
-    description: description,
-    created: Date.now(),
-    modified: Date.now(),
-    phase: 1,
-    currentPhase: 1
-  };
-}
-
-/**
- * Generate prompt for current phase (legacy wrapper)
- */
-export async function generatePrompt(project) {
-  const workflow = new Workflow(project);
-  return await workflow.generatePrompt();
-}
-
-/**
- * Detect if text appears to be a prompt rather than an AI response.
- * Simple check: all prompts start with "# Phase N:" header.
- * @param {string} text - The text to check
- * @returns {{ isPrompt: boolean, reason: string }} Detection result
- */
-export function detectPromptPaste(text) {
-  if (!text || typeof text !== 'string') {
-    return { isPrompt: false, reason: '' };
-  }
-
-  const trimmed = text.trim();
-
-  // Check if text starts with "# Phase N:" header (standard prompt format)
-  if (/^#\s*phase\s*\d+/im.test(trimmed)) {
-    return {
-      isPrompt: true,
-      reason: 'This looks like the prompt you copied, not the AI response. Please paste the AI\'s answer instead.'
-    };
-  }
-
-  return { isPrompt: false, reason: '' };
-}
-
-/**
- * Validate phase completion
- */
-export function validatePhase(project) {
-  const workflow = new Workflow(project);
-  const output = workflow.getPhaseOutput(workflow.currentPhase);
-
-  if (!output || output.trim() === '') {
-    return { valid: false, error: 'Please paste the AI response' };
-  }
-
-  // Check if user accidentally pasted the prompt instead of the response
-  const promptCheck = detectPromptPaste(output);
-  if (promptCheck.isPrompt) {
-    return { valid: false, error: promptCheck.reason };
-  }
-
-  return { valid: true };
-}
-
-/**
- * Complete current phase and advance (legacy wrapper)
- */
-export function advancePhase(project) {
-  const workflow = new Workflow(project);
-  workflow.advancePhase();
-  return project;
-}
-
-/**
- * Check if project is complete (legacy wrapper)
- */
-export function isProjectComplete(project) {
-  const workflow = new Workflow(project);
-  return workflow.isComplete();
-}
-
-/**
- * Get current phase (legacy wrapper)
- */
-export function getCurrentPhase(project) {
-  const workflow = new Workflow(project);
-  return workflow.getCurrentPhase();
-}
-
-/**
- * Update phase response (legacy wrapper)
- */
-export function updatePhaseResponse(project, response) {
-  const workflow = new Workflow(project);
-  workflow.savePhaseOutput(response);
-  return project;
-}
-
-/**
- * Get project progress percentage (legacy wrapper)
- */
-export function getProgress(project) {
-  const workflow = new Workflow(project);
-  return workflow.getProgress();
-}
-
