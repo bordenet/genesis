@@ -6,32 +6,28 @@ export default {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleFileExtensions: ['js'],
   testMatch: ['**/*.test.js'],
-  testPathIgnorePatterns: ['/node_modules/', '/docs/'],
+  testPathIgnorePatterns: ['<rootDir>/tests/e2e/'],
   collectCoverageFrom: [
     'js/**/*.js',
     '!js/**/*.test.js',
     '!js/app.js',
-    '!js/router.js',
-    '!js/views.js',
-    '!js/project-view.js',
-    '!js/types.js',
-    '!js/projects.js',
-    '!js/ai-mock-ui.js',
-    '!js/lib/**',           // Exclude third-party libraries (e.g., marked.min.js)
     '!**/node_modules/**'
   ],
   coverageThreshold: {
     global: {
-      statements: 40,
-      branches: 35,
-      functions: 40,
-      lines: 40
+      statements: 50,
+      branches: 40,
+      functions: 50,
+      lines: 50
     }
   },
-  coverageReporters: ['text', 'lcov', 'html'],
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
   transform: {},
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
+  },
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons']
   }
 };
 

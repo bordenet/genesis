@@ -23,113 +23,113 @@ describe('Event Handler Validation - Stillborn App Prevention', () => {
   let htmlContent = '';
 
   beforeEach(() => {
-    // Read all JS files
-    if (fs.existsSync(JS_SOURCE_DIR)) {
-      jsFiles = fs.readdirSync(JS_SOURCE_DIR)
-        .filter(f => f.endsWith('.js'))
-        .map(f => ({
-          name: f,
-          content: fs.readFileSync(path.join(JS_SOURCE_DIR, f), 'utf8')
-        }));
-    }
+  // Read all JS files
+  if (fs.existsSync(JS_SOURCE_DIR)) {
+    jsFiles = fs.readdirSync(JS_SOURCE_DIR)
+    .filter(f => f.endsWith('.js'))
+    .map(f => ({
+      name: f,
+      content: fs.readFileSync(path.join(JS_SOURCE_DIR, f), 'utf8')
+    }));
+  }
 
-    // Read HTML file
-    if (fs.existsSync(HTML_SOURCE_FILE)) {
-      htmlContent = fs.readFileSync(HTML_SOURCE_FILE, 'utf8');
-    }
+  // Read HTML file
+  if (fs.existsSync(HTML_SOURCE_FILE)) {
+    htmlContent = fs.readFileSync(HTML_SOURCE_FILE, 'utf8');
+  }
   });
 
   /**
    * Extract button IDs from HTML and JS template strings
    */
   function extractButtonIds(content) {
-    const patterns = [
-      /id=["']([^"']*-btn)["']/g,        // id="some-btn"
-      /id=["']([^"']*Button)["']/g,      // id="submitButton"
-      /class=["'][^"']*\b([a-z-]+-btn)\b[^"']*["']/g  // class="view-prompt-btn"
-    ];
+  const patterns = [
+    /id=["']([^"']*-btn)["']/g,    // id="some-btn"
+    /id=["']([^"']*Button)["']/g,    // id="submitButton"
+    /class=["'][^"']*\b([a-z-]+-btn)\b[^"']*["']/g  // class="view-prompt-btn"
+  ];
 
-    const ids = new Set();
-    for (const pattern of patterns) {
-      let match;
-      while ((match = pattern.exec(content)) !== null) {
-        ids.add(match[1]);
-      }
+  const ids = new Set();
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(content)) !== null) {
+    ids.add(match[1]);
     }
-    return Array.from(ids);
+  }
+  return Array.from(ids);
   }
 
   /**
    * Check if a button ID has an event handler
    */
   function hasEventHandler(buttonId, allContent) {
-    // Check for addEventListener
-    if (allContent.includes(`'${buttonId}'`) || allContent.includes(`"${buttonId}"`)) {
-      if (allContent.includes('addEventListener') || allContent.includes('onclick')) {
-        return true;
-      }
+  // Check for addEventListener
+  if (allContent.includes(`'${buttonId}'`) || allContent.includes(`"${buttonId}"`)) {
+    if (allContent.includes('addEventListener') || allContent.includes('onclick')) {
+    return true;
     }
+  }
 
-    // Check for class-based selection with querySelector
-    if (allContent.includes(`.${buttonId}`) && allContent.includes('addEventListener')) {
-      return true;
-    }
+  // Check for class-based selection with querySelector
+  if (allContent.includes(`.${buttonId}`) && allContent.includes('addEventListener')) {
+    return true;
+  }
 
-    // Check for getElementById pattern
-    const getByIdPattern = new RegExp(`getElementById\\(['"]${buttonId}['"]\\)[^;]*addEventListener`);
-    if (getByIdPattern.test(allContent)) {
-      return true;
-    }
+  // Check for getElementById pattern
+  const getByIdPattern = new RegExp(`getElementById\\(['"]${buttonId}['"]\\)[^;]*addEventListener`);
+  if (getByIdPattern.test(allContent)) {
+    return true;
+  }
 
-    return false;
+  return false;
   }
 
   test('CRITICAL: All buttons in HTML have event handlers', () => {
-    if (!htmlContent) {
-      console.warn('No HTML file found - skipping HTML button check');
-      return;
-    }
+  if (!htmlContent) {
+    console.warn('No HTML file found - skipping HTML button check');
+    return;
+  }
 
-    const buttonIds = extractButtonIds(htmlContent);
-    const allJsContent = jsFiles.map(f => f.content).join('\n');
-    const allContent = htmlContent + '\n' + allJsContent;
+  const buttonIds = extractButtonIds(htmlContent);
+  const allJsContent = jsFiles.map(f => f.content).join('\n');
+  const allContent = htmlContent + '\n' + allJsContent;
 
-    const missingHandlers = [];
-    for (const buttonId of buttonIds) {
-      if (!hasEventHandler(buttonId, allContent)) {
-        missingHandlers.push(buttonId);
-      }
+  const missingHandlers = [];
+  for (const buttonId of buttonIds) {
+    if (!hasEventHandler(buttonId, allContent)) {
+    missingHandlers.push(buttonId);
     }
+  }
 
-    if (missingHandlers.length > 0) {
-      throw new Error(
-        `STILLBORN APP DETECTED!\n` +
-        `These buttons have NO event handlers:\n` +
-        missingHandlers.map(id => `  - ${id}`).join('\n') + '\n\n' +
-        `Fix: Add addEventListener() for each button.`
-      );
-    }
+  if (missingHandlers.length > 0) {
+    throw new Error(
+    `STILLBORN APP DETECTED!\n` +
+    `These buttons have NO event handlers:\n` +
+    missingHandlers.map(id => `  - ${id}`).join('\n') + '\n\n' +
+    `Fix: Add addEventListener() for each button.`
+    );
+  }
   });
 
   test('CRITICAL: All buttons in JS template strings have event handlers', () => {
-    const allJsContent = jsFiles.map(f => f.content).join('\n');
-    const buttonIds = extractButtonIds(allJsContent);
+  const allJsContent = jsFiles.map(f => f.content).join('\n');
+  const buttonIds = extractButtonIds(allJsContent);
 
-    const missingHandlers = [];
-    for (const buttonId of buttonIds) {
-      if (!hasEventHandler(buttonId, allJsContent)) {
-        missingHandlers.push(buttonId);
-      }
+  const missingHandlers = [];
+  for (const buttonId of buttonIds) {
+    if (!hasEventHandler(buttonId, allJsContent)) {
+    missingHandlers.push(buttonId);
     }
+  }
 
-    if (missingHandlers.length > 0) {
-      throw new Error(
-        `STILLBORN APP DETECTED!\n` +
-        `These buttons in JS templates have NO event handlers:\n` +
-        missingHandlers.map(id => `  - ${id}`).join('\n') + '\n\n' +
-        `Fix: Add addEventListener() after rendering the template.`
-      );
-    }
+  if (missingHandlers.length > 0) {
+    throw new Error(
+    `STILLBORN APP DETECTED!\n` +
+    `These buttons in JS templates have NO event handlers:\n` +
+    missingHandlers.map(id => `  - ${id}`).join('\n') + '\n\n' +
+    `Fix: Add addEventListener() after rendering the template.`
+    );
+  }
   });
 
   /**
@@ -137,22 +137,22 @@ describe('Event Handler Validation - Stillborn App Prevention', () => {
    * Customize this list for your app
    */
   test('CRITICAL: Core workflow buttons have handlers', () => {
-    const criticalButtons = [
-      'copy-prompt-btn',
-      'save-response-btn',
-      'view-prompt-btn',
-      'next-phase-btn',
-      'prev-phase-btn'
-    ];
+  const criticalButtons = [
+    'copy-prompt-btn',
+    'save-response-btn',
+    'view-prompt-btn',
+    'next-phase-btn',
+    'prev-phase-btn'
+  ];
 
-    const allContent = jsFiles.map(f => f.content).join('\n') + '\n' + htmlContent;
+  const allContent = jsFiles.map(f => f.content).join('\n') + '\n' + htmlContent;
 
-    for (const buttonId of criticalButtons) {
-      // Skip if button doesn't exist in codebase
-      if (!allContent.includes(buttonId)) continue;
+  for (const buttonId of criticalButtons) {
+    // Skip if button doesn't exist in codebase
+    if (!allContent.includes(buttonId)) continue;
 
-      expect(hasEventHandler(buttonId, allContent)).toBe(true);
-    }
+    expect(hasEventHandler(buttonId, allContent)).toBe(true);
+  }
   });
 });
 

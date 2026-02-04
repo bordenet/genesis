@@ -26,7 +26,7 @@ let mockModeEnabled = false;
 // Mock response templates for each phase
 const mockResponses = {
   phase1: {
-    success: `# {{PHASE_1_NAME}} - Mock Response
+  success: `# {{PHASE_1_NAME}} - Mock Response
 
 This is a mock response for testing purposes.
 
@@ -47,12 +47,12 @@ Proceed to Phase 2 to continue testing the workflow.
 
 ---
 *This is a mock response generated for testing. Enable live mode to use real AI.*`,
-    
-    error: 'Mock error: API rate limit exceeded (simulated for testing)'
+  
+  error: 'Mock error: API rate limit exceeded (simulated for testing)'
   },
   
   phase2: {
-    success: `# {{PHASE_2_NAME}} - Mock Response
+  success: `# {{PHASE_2_NAME}} - Mock Response
 
 Building on the Phase 1 output, here's the mock response for Phase 2.
 
@@ -72,12 +72,12 @@ This mock response demonstrates the multi-phase workflow.
 
 ---
 *This is a mock response generated for testing. Enable live mode to use real AI.*`,
-    
-    error: 'Mock error: Invalid API key (simulated for testing)'
+  
+  error: 'Mock error: Invalid API key (simulated for testing)'
   },
   
   phase3: {
-    success: `# {{PHASE_3_NAME}} - Mock Response
+  success: `# {{PHASE_3_NAME}} - Mock Response
 
 Final phase mock response incorporating all previous phases.
 
@@ -97,8 +97,8 @@ The complete result based on all previous phases.
 
 ---
 *This is a mock response generated for testing. Enable live mode to use real AI.*`,
-    
-    error: 'Mock error: Service temporarily unavailable (simulated for testing)'
+  
+  error: 'Mock error: Service temporarily unavailable (simulated for testing)'
   }
 };
 
@@ -112,7 +112,7 @@ export function setMockMode(enabled) {
   
   // Store preference
   if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('aiMockMode', enabled ? 'true' : 'false');
+  localStorage.setItem('aiMockMode', enabled ? 'true' : 'false');
   }
 }
 
@@ -129,10 +129,10 @@ export function isMockMode() {
  */
 export function initMockMode() {
   if (typeof localStorage !== 'undefined') {
-    const stored = localStorage.getItem('aiMockMode');
-    if (stored === 'true') {
-      setMockMode(true);
-    }
+  const stored = localStorage.getItem('aiMockMode');
+  if (stored === 'true') {
+    setMockMode(true);
+  }
   }
 }
 
@@ -157,12 +157,12 @@ export async function getMockResponse(phaseNumber, options = {}) {
   const phaseResponses = mockResponses[phaseKey];
   
   if (!phaseResponses) {
-    throw new Error(`No mock responses defined for phase ${phaseNumber}`);
+  throw new Error(`No mock responses defined for phase ${phaseNumber}`);
   }
   
   // Return error or success response
   if (simulateError) {
-    throw new Error(phaseResponses.error);
+  throw new Error(phaseResponses.error);
   }
   
   return phaseResponses.success;
@@ -177,8 +177,8 @@ export async function getMockResponse(phaseNumber, options = {}) {
  */
 export async function callAI(prompt, phaseNumber, options = {}) {
   if (mockModeEnabled) {
-    console.log('[AI Mock] Using mock response (mock mode enabled)');
-    return getMockResponse(phaseNumber, options);
+  console.log('[AI Mock] Using mock response (mock mode enabled)');
+  return getMockResponse(phaseNumber, options);
   }
   
   // In real mode, this would call the actual API
@@ -194,7 +194,7 @@ export async function callAI(prompt, phaseNumber, options = {}) {
 export function addMockResponse(phaseNumber, response) {
   const phaseKey = `phase${phaseNumber}`;
   if (!mockResponses[phaseKey]) {
-    mockResponses[phaseKey] = {};
+  mockResponses[phaseKey] = {};
   }
   mockResponses[phaseKey].custom = response;
   console.log(`[AI Mock] Added custom mock response for phase ${phaseNumber}`);

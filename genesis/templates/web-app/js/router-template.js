@@ -13,9 +13,9 @@ import { renderProjectView } from './project-view.js';
 import storage from './storage.js';
 
 const routes = {
-    'home': renderProjectsList,
-    'new-project': renderNewProjectForm,
-    'project': renderProjectView
+  'home': renderProjectsList,
+  'new-project': renderNewProjectForm,
+  'project': renderProjectView
 };
 
 let currentRoute = null;
@@ -27,29 +27,29 @@ let currentParams = null;
  * @param {...any} params - Route parameters (e.g., project ID)
  */
 export async function navigateTo(route, ...params) {
-    currentRoute = route;
-    currentParams = params;
+  currentRoute = route;
+  currentParams = params;
 
-    // Update URL hash
-    if (route === 'home') {
-        window.location.hash = '';
-    } else if (route === 'new-project') {
-        window.location.hash = '#new';
-    } else if (route === 'project' && params[0]) {
-        window.location.hash = `#project/${params[0]}`;
-    }
+  // Update URL hash
+  if (route === 'home') {
+    window.location.hash = '';
+  } else if (route === 'new-project') {
+    window.location.hash = '#new';
+  } else if (route === 'project' && params[0]) {
+    window.location.hash = `#project/${params[0]}`;
+  }
 
-    // Render the route
-    const handler = routes[route];
-    if (handler) {
-        await handler(...params);
-    } else {
-        console.error(`Route not found: ${route}`);
-        navigateTo('home');
-    }
+  // Render the route
+  const handler = routes[route];
+  if (handler) {
+    await handler(...params);
+  } else {
+    console.error(`Route not found: ${route}`);
+    navigateTo('home');
+  }
 
-    // Update storage info after every route render
-    await updateStorageInfo();
+  // Update storage info after every route render
+  await updateStorageInfo();
 }
 
 /**
@@ -57,11 +57,11 @@ export async function navigateTo(route, ...params) {
  * Sets up hash change listener and handles initial route
  */
 export function initRouter() {
-    // Handle hash changes
-    window.addEventListener('hashchange', handleHashChange);
-    
-    // Handle initial load
-    handleHashChange();
+  // Handle hash changes
+  window.addEventListener('hashchange', handleHashChange);
+  
+  // Handle initial load
+  handleHashChange();
 }
 
 /**
@@ -69,18 +69,18 @@ export function initRouter() {
  * Parses URL hash and navigates to appropriate route
  */
 function handleHashChange() {
-    const hash = window.location.hash.slice(1); // Remove #
-    
-    if (!hash) {
-        navigateTo('home');
-    } else if (hash === 'new') {
-        navigateTo('new-project');
-    } else if (hash.startsWith('project/')) {
-        const projectId = hash.split('/')[1];
-        navigateTo('project', projectId);
-    } else {
-        navigateTo('home');
-    }
+  const hash = window.location.hash.slice(1); // Remove #
+  
+  if (!hash) {
+    navigateTo('home');
+  } else if (hash === 'new') {
+    navigateTo('new-project');
+  } else if (hash.startsWith('project/')) {
+    const projectId = hash.split('/')[1];
+    navigateTo('project', projectId);
+  } else {
+    navigateTo('home');
+  }
 }
 
 /**
@@ -88,7 +88,7 @@ function handleHashChange() {
  * @returns {Object} Current route and parameters
  */
 export function getCurrentRoute() {
-    return { route: currentRoute, params: currentParams };
+  return { route: currentRoute, params: currentParams };
 }
 
 /**
@@ -96,10 +96,10 @@ export function getCurrentRoute() {
  * Called after every route render to ensure footer stats are always current
  */
 export async function updateStorageInfo() {
-    const projects = await storage.getAllProjects();
-    const storageInfo = document.getElementById('storage-info');
-    if (storageInfo) {
-        storageInfo.textContent = `${projects.length} project${projects.length !== 1 ? 's' : ''} stored locally`;
-    }
+  const projects = await storage.getAllProjects();
+  const storageInfo = document.getElementById('storage-info');
+  if (storageInfo) {
+    storageInfo.textContent = `${projects.length} project${projects.length !== 1 ? 's' : ''} stored locally`;
+  }
 }
 
