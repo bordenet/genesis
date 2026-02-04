@@ -305,6 +305,18 @@ cp genesis/templates/project-structure/CONTRIBUTING-template.md CONTRIBUTING.md
 cp genesis/templates/project-structure/DESIGN-PATTERNS-template.md DESIGN-PATTERNS.md
 # Replace {{PHASE_COUNT}} with your workflow's phase count (e.g., 3)
 
+# Copy AI instruction files (RECOMMENDED - helps AI assistants understand your project)
+cp genesis/templates/project-structure/ADOPT-PROMPT.md.template ADOPT-PROMPT.md
+cp genesis/templates/project-structure/AGENT.md.template AGENT.md
+cp genesis/templates/project-structure/CODEX.md.template CODEX.md
+cp genesis/templates/project-structure/COPILOT.md.template COPILOT.md
+cp genesis/templates/project-structure/GEMINI.md.template GEMINI.md
+# Note: Agents.md template is separate (has {{PROJECT_NAME}} variable)
+
+# Copy DevOps config (RECOMMENDED)
+cp genesis/templates/project-structure/pre-commit-config.yaml.template .pre-commit-config.yaml
+# Customize repos/hooks as needed for your project
+
 # Copy GitHub Actions workflows (MANDATORY - badges in README.md reference these!)
 mkdir -p .github/workflows
 cp genesis/templates/github/workflows/ci-template.yml .github/workflows/ci.yml
@@ -316,6 +328,11 @@ cp genesis/templates/github/workflows/ci-template.yml .github/workflows/ci.yml
 #
 # CRITICAL: Without this workflow file, the CI/CD badge in README.md will show "unknown"
 # See product-requirements-assistant/.github/workflows/ci.yml for reference
+
+# Copy GitHub config files (RECOMMENDED)
+cp genesis/templates/github/dependabot.yml.template .github/dependabot.yml
+cp genesis/templates/github/copilot-instructions.md.template .github/copilot-instructions.md
+# Replace {{PROJECT_NAME}} in copilot-instructions.md
 ```
 
 **📝 IMPORTANT**: The `REVERSE-INTEGRATION-NOTES.md` file is where you'll document:
@@ -592,8 +609,20 @@ grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis
 - [ ] `CONTRIBUTING.md` (from `project-structure/CONTRIBUTING-template.md`)
 - [ ] `DESIGN-PATTERNS.md` (from `project-structure/DESIGN-PATTERNS-template.md`)
 
+**AI Instruction Files** (RECOMMENDED - helps AI assistants understand your project):
+- [ ] `ADOPT-PROMPT.md` (from `project-structure/ADOPT-PROMPT.md.template`)
+- [ ] `AGENT.md` (from `project-structure/AGENT.md.template`)
+- [ ] `CODEX.md` (from `project-structure/CODEX.md.template`)
+- [ ] `COPILOT.md` (from `project-structure/COPILOT.md.template`)
+- [ ] `GEMINI.md` (from `project-structure/GEMINI.md.template`)
+
+**DevOps Config** (RECOMMENDED):
+- [ ] `.pre-commit-config.yaml` (from `project-structure/pre-commit-config.yaml.template`)
+
 **GitHub Actions** (MANDATORY - badges in README.md reference these!):
 - [ ] `.github/workflows/ci.yml` (from `github/workflows/ci-template.yml`)
+- [ ] `.github/dependabot.yml` (from `github/dependabot.yml.template`)
+- [ ] `.github/copilot-instructions.md` (from `github/copilot-instructions.md.template`)
 
 **Web App Files** (MANDATORY):
 - [ ] `index.html` (from `web-app/index-template.html`)
