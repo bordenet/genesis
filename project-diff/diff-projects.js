@@ -143,15 +143,9 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^scripts\/setup-macos\.sh$/,
   /^scripts\/setup-windows-wsl\.sh$/,
 
-  // === HELLO-WORLD SPECIFIC (different directory structure) ===
-  // Hello-world uses tests/ instead of assistant/tests/, tests/e2e/ instead of e2e/
-  // These config files differ in paths between hello-world and derived projects
+  // === CONFIG FILES (differ due to validator paths in derived projects) ===
+  // hello-world has no validator, so jest.config.js differs slightly
   /^jest\.config\.js$/,
-  /^playwright\.config\.js$/,
-  /^jest\.setup\.js$/,
-  // Test files in hello-world's tests/ directory (not assistant/tests/)
-  /^tests\/.*\.test\.js$/,
-  /^tests\/e2e\//,
 
   // === CI WORKFLOW (differs due to symlink handling) ===
   // Derived projects have symlinks to assistant-core/validator-core that need to be

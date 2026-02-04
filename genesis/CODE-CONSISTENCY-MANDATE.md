@@ -147,16 +147,16 @@ The authoritative list is in `project-diff/diff-projects.js` → `INTENTIONAL_DI
 | `scripts/lib/common.sh` | Project-specific shell utilities |
 | `scripts/setup-*.sh` | Project-specific setup scripts |
 
-**Hello-World Specific (different directory structure):**
+**Config Files (may differ):**
 
 | File | Why It Differs |
 |------|---------------|
-| `jest.config.js` | Paths differ: `tests/` vs `assistant/tests/` |
-| `playwright.config.js` | Paths differ: `tests/e2e/` vs `e2e/` |
-| `jest.setup.js` | Test setup differs slightly |
-| `eslint.config.js` | Globals and ignore patterns differ |
+| `jest.config.js` | Derived projects include validator tests paths |
+| `eslint.config.js` | Globals and ignore patterns may differ |
 | `.github/workflows/ci.yml` | Derived projects clone core repos; hello-world doesn't |
-| `tests/*.test.js` | Hello-world uses `tests/`; derived use `assistant/tests/` |
+
+**Note**: hello-world and derived projects now share the same directory structure
+(`assistant/tests/`, `e2e/`). The only config differences are for validator paths.
 
 Everything else **MUST** match hello-world exactly.
 

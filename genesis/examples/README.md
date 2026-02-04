@@ -2,29 +2,34 @@
 
 ## 🏗️ Architecture Overview
 
-Genesis has two types of projects:
+Genesis has two types of projects with **matching directory structures**:
 
-1. **hello-world** (baseline template): Flat structure (`js/`, `tests/`) for simplicity
-2. **Derived projects**: Paired structure (`assistant/`, `validator/`) with symlinks to core libraries
+1. **hello-world** (baseline template): Simple reference implementation
+2. **Derived projects**: Full-featured with `validator/` and project-specific code
+
+Both use the same core structure to ensure consistency.
 
 ---
 
 ## 📁 hello-world/ (Baseline Template)
 
-The `hello-world/` directory is the **canonical reference for shared code**. It has a flat structure:
+The `hello-world/` directory is the **canonical reference for shared code**:
 
 ```
 hello-world/
 ├── index.html              # Main app
-├── js/
+├── js/                     # Source files (source of truth)
 │   ├── app.js              # Entry point
 │   ├── workflow.js         # Phase logic
 │   ├── storage.js          # IndexedDB
 │   ├── router.js           # Client-side routing
 │   ├── error-handler.js    # Error display (MUST_MATCH)
 │   └── same-llm-adversarial.js  # LLM adversarial mode (MUST_MATCH)
-├── tests/                  # Unit tests
-├── tests/e2e/              # E2E tests
+├── assistant/
+│   ├── js/ -> ../js/       # Symlinks to js/ for test imports
+│   ├── css/ -> ../css/     # Symlinks to css/
+│   └── tests/              # Unit tests
+├── e2e/                    # E2E tests
 ├── css/styles.css
 ├── package.json
 ├── jest.config.js
@@ -86,15 +91,19 @@ Compares all 7 projects (6 derived + hello-world) and fails if MUST_MATCH files 
 
 ---
 
-## 🎯 Directory Structure Differences
+## 🎯 Unified Directory Structure
 
-| Aspect | hello-world | Derived Projects |
-|--------|-------------|------------------|
-| JS files | `js/` | `assistant/js/` and `js/` (mirrored) |
-| Unit tests | `tests/` | `assistant/tests/` |
-| E2E tests | `tests/e2e/` | `e2e/` |
-| Symlinks | None | `assistant/js/core`, `validator/js/core` |
-| CI workflow | Simple (no cloning) | Clones core repos, replaces symlinks |
+All projects (hello-world and derived) share the same structure:
+
+| Aspect | Structure |
+|--------|-----------|
+| Source files | `js/` |
+| Assistant JS | `assistant/js/` (symlinks to `js/` or copies) |
+| Unit tests | `assistant/tests/` |
+| E2E tests | `e2e/` |
+| Validator | `validator/` (derived projects only) |
+
+**Note**: hello-world uses symlinks in `assistant/js/` → `js/`. Derived projects may have copies.
 
 ---
 

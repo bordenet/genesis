@@ -1,5 +1,5 @@
 export default {
-  testDir: "./tests/e2e",
+  testDir: "./e2e",
   timeout: 30000,
   use: {
     baseURL: "http://localhost:8000",
