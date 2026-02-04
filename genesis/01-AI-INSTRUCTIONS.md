@@ -5,10 +5,12 @@
 **Purpose**: Instructions for AI assistants creating **paired assistant+validator** projects
 
 **⚠️ CRITICAL - READ FIRST**: Before starting ANY work on a Genesis-created project:
-1. Read `CLAUDE.md` in the target repository
-2. Follow the mandatory workflow: **lint → test → proactively communicate what's left**
-3. NEVER include `node_modules/` or build artifacts
-4. ALWAYS create `.gitignore` files
+1. **Read `CODE-CONSISTENCY-MANDATE.md`** - Deviation from hello-world is FORBIDDEN
+2. Read `CLAUDE.md` in the target repository
+3. Follow the mandatory workflow: **lint → test → proactively communicate what's left**
+4. NEVER include `node_modules/` or build artifacts
+5. ALWAYS create `.gitignore` files
+6. **Run `project-diff` REPEATEDLY** during development to verify consistency
 
 ---
 
@@ -783,12 +785,13 @@ Project is complete when:
 - **[one-pager](https://github.com/bordenet/one-pager)** - Complete Genesis-generated project with all patterns implemented
 
 Read these before starting:
-1. `00-GENESIS-PLAN.md` - Understand the system architecture
-2. `05-QUALITY-STANDARDS.md` - Professional quality standards (MANDATORY)
-3. `templates/docs/SHELL_SCRIPT_STANDARDS-template.md` - Shell script standards (MANDATORY)
-4. `integration/DEVELOPMENT_PROTOCOLS.md` - AI development protocols
-5. `integration/PROJECT_SETUP_CHECKLIST.md` - Detailed setup steps
-6. `docs/UX-PATTERNS.md` - 12 critical UX patterns for workflow apps
+1. **`CODE-CONSISTENCY-MANDATE.md`** - **MANDATORY** - Deviation from hello-world is FORBIDDEN
+2. `00-GENESIS-PLAN.md` - Understand the system architecture
+3. `05-QUALITY-STANDARDS.md` - Professional quality standards (MANDATORY)
+4. `templates/docs/SHELL_SCRIPT_STANDARDS-template.md` - Shell script standards (MANDATORY)
+5. `integration/DEVELOPMENT_PROTOCOLS.md` - AI development protocols
+6. `integration/PROJECT_SETUP_CHECKLIST.md` - Detailed setup steps
+7. `docs/UX-PATTERNS.md` - 12 critical UX patterns for workflow apps
 
 **Shell Script References**:
 - ⭐ **[product-requirements-assistant/scripts/](https://github.com/bordenet/product-requirements-assistant/tree/main/scripts)** - PRIMARY REFERENCE for all scripts
