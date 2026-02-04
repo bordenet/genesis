@@ -131,7 +131,9 @@ The authoritative list is in `project-diff/diff-projects.js` → `INTENTIONAL_DI
 | `README.md`, `package.json` | Project name, description |
 | `index.html` (all locations) | `<title>` tag contains project title |
 | `scripts/deploy-web.sh` | Contains project-specific paths |
-| AI guidance files (`Agents.md`, `CLAUDE.md`, etc.) | Project-specific instructions |
+| `Agents.md`, `CLAUDE.md` | Project-specific AI instructions |
+
+> **Note**: `AGENT.md`, `CODEX.md`, `COPILOT.md`, `GEMINI.md`, and `ADOPT-PROMPT.md` are **MUST_MATCH** - they are identical across all projects.
 
 **Test Data and Tests:**
 

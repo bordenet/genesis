@@ -2,8 +2,9 @@
 
 > **Goal**: Backport all innovations from the 6 children back to hello-world baseline so new projects are complete from day one.
 >
-> **Current Confidence**: 35-40%
-> **Target Confidence**: 95%+
+> **Starting Confidence**: 35-40%
+> **Final Confidence**: 85-90% ✅
+> **Status**: COMPLETE (22/23 items - Wave 6 deferred)
 
 ---
 
@@ -57,7 +58,10 @@ node project-diff/diff-projects.js 2>&1 | grep -E "ADOPT|AGENT|Agents|CODEX|COPI
 
 ### Expected outcome:
 - These 6 files should no longer appear in "PROJECT-SPECIFIC FILES" section
-- They should either be in MUST_MATCH (if identical) or INTENTIONAL_DIFF (if project-specific)
+- 5 files are MUST_MATCH (identical across all projects): `AGENT.md`, `CODEX.md`, `COPILOT.md`, `GEMINI.md`, `ADOPT-PROMPT.md`
+- 1 file is INTENTIONAL_DIFF (project-specific content): `Agents.md`
+
+> **Note**: PR #54 moved the 5 identical AI instruction files from INTENTIONAL_DIFF to MUST_MATCH.
 
 ---
 
