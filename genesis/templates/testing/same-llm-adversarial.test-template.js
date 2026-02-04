@@ -3,14 +3,12 @@
  * Tests the critical logic for detecting same LLM configurations and applying Gemini simulation
  */
 
-import { jest } from '@jest/globals';
-
-// Import the classes from same-llm-adversarial.js
-const {
+import { describe, test, expect, beforeEach, jest } from '@jest/globals';
+import {
   ConfigurationManager,
   AdversarialPromptAugmenter,
   AdversarialQualityValidator
-} = require('../js/same-llm-adversarial.js');
+} from '../js/same-llm-adversarial.js';
 
 describe('Same-LLM Adversarial Configuration Tests', () => {
   let configManager;
