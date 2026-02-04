@@ -32,6 +32,7 @@ const coreScanners = {
   'ci-pipeline': () => import('./scanners/ci-pipeline.js'),
   'documentation': () => import('./scanners/documentation.js'),
   'code-patterns': () => import('./scanners/code-patterns.js'),
+  'import-health': () => import('./scanners/import-health.js'),
 };
 
 const insideOutScanners = {
