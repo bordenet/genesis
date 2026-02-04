@@ -79,6 +79,8 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^data\//,
 
   // === TESTS FOR DOCUMENT-SPECIFIC CODE ===
+  // Tests for app (contains project-specific terminology like "ADRs" vs "proposals")
+  /^assistant\/tests\/app\.test\.js$/,
   // Tests for ai-mock (tests mock document content)
   /^assistant\/tests\/ai-mock\.test\.js$/,
   /^tests\/ai-mock\.test\.js$/,
