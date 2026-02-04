@@ -96,8 +96,10 @@ hello-world/           →  your-new-project/
 
 ### Rule 2: Only These Files May Differ
 
-Files that contain document-type-specific logic are exempt from byte-for-byte matching:
+Files that contain document-type-specific logic are exempt from byte-for-byte matching.
+The authoritative list is in `project-diff/diff-projects.js` → `INTENTIONAL_DIFF_PATTERNS`.
 
+**Document-Type Specific Code:**
 | File | Why It Differs |
 |------|---------------|
 | `storage.js` | Contains project-specific `DB_NAME` |
@@ -105,9 +107,28 @@ Files that contain document-type-specific logic are exempt from byte-for-byte ma
 | `workflow.js` | Phase logic specific to document type |
 | `project-view.js` | UI rendering specific to document type |
 | `views.js` | Form fields specific to document type |
-| `prompts/*.md` | LLM prompts specific to document type |
-| `templates/*.md` | Output templates specific to document type |
-| `validator/*.js` | Validation rules specific to document type |
+| `router.js` | Routing logic for document type |
+| `projects.js` | Project management for document type |
+| `prompts/` | LLM prompts specific to document type |
+| `templates/` | Output templates specific to document type |
+| `prompts.js` | Prompt configuration for document type |
+| `ai-mock.js` | Mock data generates fake document content |
+| `types.js` | Document schema definitions |
+| `validator/js/validator.js` | Validation rules specific to document type |
+
+**Project Identity (contain project name/title):**
+| File | Why It Differs |
+|------|---------------|
+| `README.md`, `package.json` | Project name, description |
+| `index.html` (all locations) | `<title>` tag contains project title |
+| `scripts/deploy-web.sh` | Contains project-specific paths |
+| AI guidance files (`Agents.md`, `CLAUDE.md`, etc.) | Project-specific instructions |
+
+**Test Data and Tests:**
+| File | Why It Differs |
+|------|---------------|
+| `validator/testdata/` | Sample documents for testing |
+| Tests for document-specific code | Must test document-specific logic |
 
 Everything else **MUST** match hello-world exactly.
 
@@ -140,19 +161,25 @@ Genesis uses a **plugin model** for document types. The core implementation is s
 │                    YOUR NEW ASSISTANT                       │
 ├─────────────────────────────────────────────────────────────┤
 │  PLUGIN LAYER (varies per document type)                    │
+│  ├── storage.js       ← DB_NAME differs per project        │
+│  ├── app.js           ← Different imports per project      │
+│  ├── workflow.js      ← Phase logic per document type      │
+│  ├── project-view.js  ← UI rendering per document type     │
+│  ├── views.js         ← Form fields per document type      │
+│  ├── router.js        ← Routing per document type          │
 │  ├── prompts/         ← Your LLM prompts                   │
 │  ├── templates/       ← Your output templates              │
-│  ├── workflow.js      ← Your phase logic                   │
+│  ├── prompts.js       ← Prompt configuration               │
+│  ├── ai-mock.js       ← Mock document content              │
+│  ├── types.js         ← Document schema                    │
 │  └── validator.js     ← Your validation rules              │
 ├─────────────────────────────────────────────────────────────┤
 │  CORE LAYER (NEVER MODIFY - copy from hello-world)         │
-│  ├── storage.js       ← IndexedDB operations               │
-│  ├── router.js        ← URL routing                        │
 │  ├── error-handler.js ← Error display                      │
 │  ├── ui.js            ← Clipboard, toasts, modals          │
 │  ├── eslint.config.js ← Linting rules                      │
 │  ├── jest.config.js   ← Test configuration                 │
-│  └── all test files   ← Test infrastructure                │
+│  └── shared test infrastructure                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -165,14 +192,17 @@ Genesis uses a **plugin model** for document types. The core implementation is s
 
 ### What "Safe Customization" Means
 
-✅ **Safe**: Adding a new prompt file for your document type
-✅ **Safe**: Modifying `workflow.js` to add a phase for your document type
+✅ **Safe**: Adding/editing files in `prompts/` or `templates/`
+✅ **Safe**: Modifying `prompts.js`, `workflow.js`, `views.js`, `project-view.js`
+✅ **Safe**: Modifying `ai-mock.js` with document-specific mock data
+✅ **Safe**: Modifying `types.js` with document-specific schema
 ✅ **Safe**: Changing `DB_NAME` in `storage.js`
+✅ **Safe**: Modifying `validator.js` with document-specific validation rules
 
 ❌ **Unsafe**: "Improving" `error-handler.js` with better messages
-❌ **Unsafe**: "Cleaning up" import statements in `router.js`
 ❌ **Unsafe**: "Optimizing" the clipboard function in `ui.js`
 ❌ **Unsafe**: "Fixing" ESLint config for your personal preferences
+❌ **Unsafe**: Modifying shared test infrastructure
 
 If you think a core file needs improvement, **improve it in hello-world first**, then copy to all projects.
 
@@ -233,6 +263,30 @@ cat /tmp/diff-report.json | jq '.mustMatch.divergent | length'
    f. Commit all changes together
 
 Never make a "quick fix" in one project. The quick fix becomes tomorrow's divergence nightmare.
+
+---
+
+## Anti-Pattern: The Plugin Architecture Disaster (February 2026)
+
+**What was attempted**: An AI assistant tried to isolate document-type-specific files by creating a `document-type/` folder with `config.js` that would centralize configuration. The idea was to make `storage.js` and `workflow.js` import from this config, eliminating hardcoded values.
+
+**What went wrong**: The changes were made to **hello-world first** without simultaneously updating all 6 derived projects. Since hello-world is the canonical reference, the modified `storage.js` and `workflow.js` immediately became the "expected" versions. Every derived project was now "divergent" because they didn't have the `document-type/config.js` file or the new import statements.
+
+**Result**: All 6 projects became undeployable. The imports pointed to files that didn't exist.
+
+**Lesson 1**: hello-world is the **source of truth**. Changing hello-world changes what "correct" means for every project. Never modify hello-world in isolation.
+
+**Lesson 2**: Large architectural changes require **simultaneous updates** to all projects, not sequential waves starting from hello-world.
+
+**Lesson 3**: Run `project-diff --ci` **after every change**. If you see divergent files, stop and fix them before proceeding.
+
+**The correct approach for architectural changes**:
+1. Design the change on paper first
+2. Create a branch in **every** project simultaneously
+3. Apply changes to **all** projects in lockstep
+4. Run `project-diff` to verify consistency
+5. Test all projects before committing
+6. Merge all projects together
 
 ---
 
