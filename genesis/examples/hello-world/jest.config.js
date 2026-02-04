@@ -3,9 +3,9 @@ export default {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleFileExtensions: ['js'],
   testMatch: [
-    '**/tests/**/*.test.js'
+    '**/assistant/tests/**/*.test.js'
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/docs/', '/tests/e2e/'],
+  testPathIgnorePatterns: ['/node_modules/', '/docs/'],
   collectCoverageFrom: [
     'js/**/*.js',
     '!**/tests/**',

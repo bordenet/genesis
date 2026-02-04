@@ -1,6 +1,6 @@
 # Genesis Integration Tests
 
-This directory contains integration and end-to-end tests for the Genesis template system, complementing the existing unit tests in `genesis/examples/hello-world/tests/`.
+This directory contains integration and end-to-end tests for the Genesis template system, complementing the existing unit tests in `genesis/examples/hello-world/assistant/tests/`.
 
 ## Test Categories
 
