@@ -23,8 +23,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// All 8 projects (7 derived + hello-world baseline)
+// All 9 projects (8 derived + hello-world baseline)
 const PROJECTS = [
+  'acceptance-criteria-assistant',
   'architecture-decision-record',
   'jd-assistant',
   'one-pager',
@@ -217,6 +218,10 @@ const BLEED_OVER_FILES = [
 // Format: project -> { bannedTerms: [terms from OTHER domains that should NOT appear] }
 // Note: hello-world is excluded - it uses generic placeholders intentionally
 const DOMAIN_BLEED_OVER = {
+  'acceptance-criteria-assistant': {
+    ownTerms: ['acceptance criteria', 'Linear', 'issue', 'testable', 'checklist'],
+    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR', 'proposalId']
+  },
   'strategic-proposal': {
     // Strategic proposal owns these terms - they should NOT appear in other projects
     ownTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR'],
@@ -272,9 +277,8 @@ const SIGNATURE_CHECK_FILES = [
   // Workflow functions
   'assistant/js/workflow.js',
   'js/workflow.js',
-  // Router functions
-  'assistant/js/router.js',
-  'js/router.js',
+  // NOTE: router.js is in INTENTIONAL_DIFF - signature differs by project
+  // because it imports from views.js which has different exports per project
   // Error handler functions
   'assistant/js/error-handler.js',
   'js/error-handler.js',
@@ -314,6 +318,9 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // Type definitions (document schema)
   /^js\/types\.js$/,
   /^assistant\/js\/types\.js$/,
+  // Router (imports from views.js which differs per project)
+  /^js\/router\.js$/,
+  /^assistant\/js\/router\.js$/,
   // Validator logic (document-specific validation rules)
   /^validator\/js\/validator\.js$/,
   // Deploy scripts (contain project-specific paths/names)
@@ -940,6 +947,338 @@ function analyzeFunctionSignatures(genesisToolsDir) {
 }
 
 /**
+ * Analyze URL self-reference issues in project-view.js files.
+ * Detects when a project uses absolute URLs that reference a DIFFERENT project.
+ * Relative URLs (../validator/) are acceptable and encouraged.
+ * Returns summary and detailed issues per project.
+ */
+function analyzeURLSelfReference(genesisToolsDir) {
+  const results = {
+    summary: { projectsChecked: 0, projectsWithIssues: 0, totalURLIssues: 0 },
+    projects: {}
+  };
+
+  for (const project of PROJECTS) {
+    const projectPath = path.join(genesisToolsDir, project);
+    const projectViewPath = path.join(projectPath, 'assistant/js/project-view.js');
+
+    if (!fs.existsSync(projectViewPath)) {
+      continue;
+    }
+
+    results.summary.projectsChecked++;
+    const issues = [];
+
+    try {
+      const content = fs.readFileSync(projectViewPath, 'utf-8');
+      const lines = content.split('\n');
+
+      // Get the actual project name (strip path prefix for hello-world)
+      const actualProject = project.includes('hello-world') ? 'hello-world' : project;
+
+      lines.forEach((line, lineNum) => {
+        // Pattern to match bordenet.github.io URLs with project name
+        const linePattern = /bordenet\.github\.io\/([a-zA-Z0-9_-]+)\//g;
+        let match;
+        while ((match = linePattern.exec(line)) !== null) {
+          const urlProject = match[1];
+          if (urlProject !== actualProject) {
+            issues.push({
+              line: lineNum + 1,
+              urlProject,
+              actualProject,
+              context: line.trim().substring(0, 100)
+            });
+            results.summary.totalURLIssues++;
+          }
+        }
+      });
+    } catch {
+      // Skip files that can't be read
+    }
+
+    if (issues.length > 0) {
+      results.projects[project] = issues;
+      results.summary.projectsWithIssues++;
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Analyze template customization issues in all projects.
+ * Detects the 8 documented hello-world template issues:
+ * 1. Hardcoded "Hello World" text not replaced by sed
+ * 2. ROOT index.html footer with placeholder href="#" links
+ * 3. ROOT index.html tagline says "2-phase" instead of privacy tagline
+ * 4. Standalone Compare Phases button (outdated UI pattern)
+ * 5. About modal with hardcoded "Strategic Proposal Generator" text
+ * 6. Attribution URL placeholder ({{GITHUB_USER}}) in workflow.js
+ * 7. Full Validation button has wrong styling (outline vs solid)
+ * 8. ROOT js/project-view.js uses ../validator/ which resolves incorrectly
+ *
+ * Returns summary and detailed issues per project.
+ */
+function analyzeTemplateCustomization(genesisToolsDir) {
+  const results = {
+    summary: { projectsChecked: 0, projectsWithIssues: 0, totalIssues: 0 },
+    projects: {}
+  };
+
+  for (const project of PROJECTS) {
+    // Skip hello-world for some checks - it's the template, not a derived project
+    const isTemplate = project.includes('hello-world');
+    const projectPath = path.join(genesisToolsDir, project);
+    const issues = [];
+    results.summary.projectsChecked++;
+
+    // === ISSUE 1: Hardcoded "Hello World" text ===
+    // Skip this check for hello-world template itself
+    if (!isTemplate) {
+      const filesToCheck = ['index.html', 'assistant/index.html'];
+      for (const file of filesToCheck) {
+        const filePath = path.join(projectPath, file);
+        if (fs.existsSync(filePath)) {
+          try {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            if (/Hello\s+World/i.test(content)) {
+              issues.push({
+                type: 'hardcoded_template_text',
+                file,
+                message: 'Contains hardcoded "Hello World" text - not replaced during project creation'
+              });
+            }
+          } catch {}
+        }
+      }
+    }
+
+    // === ISSUE 2: ROOT index.html footer with placeholder href="#" ===
+    const rootIndexPath = path.join(projectPath, 'index.html');
+    if (fs.existsSync(rootIndexPath)) {
+      try {
+        const content = fs.readFileSync(rootIndexPath, 'utf-8');
+        // Look for href="#" that are NOT id="about-link" (which is valid)
+        // Pattern: href="#" but not followed by about-link context
+        const lines = content.split('\n');
+        lines.forEach((line, lineNum) => {
+          // Skip about-link which legitimately uses href="#"
+          if (line.includes('href="#"') && !line.includes('about-link')) {
+            // Also skip any that look like internal anchors
+            if (!line.includes('href="#about"') && !line.includes('href="#top"')) {
+              issues.push({
+                type: 'placeholder_href',
+                file: 'index.html',
+                line: lineNum + 1,
+                message: 'ROOT index.html has placeholder href="#" - should link to actual project URLs'
+              });
+            }
+          }
+        });
+      } catch {}
+    }
+
+    // === ISSUE 3: ROOT index.html tagline says "2-phase" instead of privacy tagline ===
+    if (fs.existsSync(rootIndexPath)) {
+      try {
+        const content = fs.readFileSync(rootIndexPath, 'utf-8');
+        if (/2-phase/i.test(content) && !content.includes('Privacy-First')) {
+          issues.push({
+            type: 'wrong_tagline',
+            file: 'index.html',
+            message: 'ROOT index.html has old "2-phase" tagline - should use privacy-first tagline'
+          });
+        }
+      } catch {}
+    }
+
+    // === ISSUE 4: Standalone Compare Phases button (outdated UI pattern) ===
+    // NOTE: Compare Phases as a dynamic feature in JavaScript is acceptable.
+    // We only flag it if it appears in HTML templates as a static button.
+    // Check the HTML files for hardcoded Compare Phases buttons
+    const htmlFiles = ['index.html', 'assistant/index.html'];
+    for (const file of htmlFiles) {
+      const filePath = path.join(projectPath, file);
+      if (fs.existsSync(filePath)) {
+        try {
+          const content = fs.readFileSync(filePath, 'utf-8');
+          // Only flag if there's a hardcoded Compare Phases button in HTML
+          if (/compare-phases-btn|>Compare\s+Phases<|"Compare Phases"/i.test(content)) {
+            issues.push({
+              type: 'outdated_compare_phases',
+              file,
+              message: 'Contains hardcoded "Compare Phases" button in HTML - should be dynamically rendered or removed'
+            });
+          }
+        } catch {}
+      }
+    }
+    const projectViewFiles = ['js/project-view.js', 'assistant/js/project-view.js'];
+
+    // === ISSUE 5: About modal with hardcoded "Strategic Proposal Generator" ===
+    // Skip hello-world template - it has placeholder text
+    if (!isTemplate) {
+      for (const file of projectViewFiles) {
+        const filePath = path.join(projectPath, file);
+        if (fs.existsSync(filePath)) {
+          try {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            if (/Strategic\s+Proposal\s+Generator/i.test(content)) {
+              issues.push({
+                type: 'hardcoded_about_modal',
+                file,
+                message: 'Contains hardcoded "Strategic Proposal Generator" in About modal - should use project-specific text'
+              });
+            }
+          } catch {}
+        }
+      }
+    }
+
+    // === ISSUE 6: Attribution URL placeholder ({{GITHUB_USER}}) ===
+    const workflowFiles = ['js/workflow.js', 'assistant/js/workflow.js'];
+    for (const file of workflowFiles) {
+      const filePath = path.join(projectPath, file);
+      if (fs.existsSync(filePath)) {
+        try {
+          const content = fs.readFileSync(filePath, 'utf-8');
+          if (/\{\{GITHUB_USER\}\}|\{\{GITHUB_REPO\}\}|\{\{PROJECT_TITLE\}\}/i.test(content)) {
+            issues.push({
+              type: 'unreplaced_template_var',
+              file,
+              message: 'Contains unreplaced template variables ({{GITHUB_USER}}, etc.) - sed replacement incomplete'
+            });
+          }
+        } catch {}
+      }
+    }
+
+    // === ISSUE 7: Full Validation button has wrong styling (outline vs solid) ===
+    // Correct: bg-blue-600 text-white (solid)
+    // Wrong: border border-blue-600 text-blue-600 (outline)
+    for (const file of projectViewFiles) {
+      const filePath = path.join(projectPath, file);
+      if (fs.existsSync(filePath)) {
+        try {
+          const content = fs.readFileSync(filePath, 'utf-8');
+          // Look for validation button with outline styling
+          if (/Full\s+Validation|validator.*\/?/i.test(content)) {
+            // Check for wrong outline styling pattern
+            if (/border\s+border-blue-600.*text-blue-600|text-blue-600.*border\s+border-blue-600/.test(content)) {
+              issues.push({
+                type: 'wrong_button_styling',
+                file,
+                message: 'Full Validation button has outline styling (border-blue-600) - should be solid (bg-blue-600 text-white)'
+              });
+            }
+          }
+        } catch {}
+      }
+    }
+
+    // === ISSUE 8: ROOT js/project-view.js uses ../validator/ (wrong path) ===
+    // ROOT files should use ./validator/ not ../validator/
+    const rootProjectView = path.join(projectPath, 'js/project-view.js');
+    if (fs.existsSync(rootProjectView)) {
+      try {
+        const content = fs.readFileSync(rootProjectView, 'utf-8');
+        // Look for ../validator/ in href attributes (excluding comments)
+        const lines = content.split('\n');
+        lines.forEach((line, lineNum) => {
+          // Skip comment lines
+          if (line.trim().startsWith('//') || line.trim().startsWith('*')) return;
+
+          if (/href\s*=\s*['"]\.\.\/validator\/['"]/.test(line)) {
+            issues.push({
+              type: 'wrong_root_validator_path',
+              file: 'js/project-view.js',
+              line: lineNum + 1,
+              message: 'ROOT js/project-view.js uses "../validator/" - should use "./validator/" for correct path resolution'
+            });
+          }
+        });
+      } catch {}
+    }
+
+    // Record issues for this project
+    if (issues.length > 0) {
+      results.projects[project] = issues;
+      results.summary.projectsWithIssues++;
+      results.summary.totalIssues += issues.length;
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Analyze inline scoring presence in all projects.
+ * Checks that each project has:
+ * 1. A validator import in project-view.js (validate*, getScoreColor, getScoreLabel)
+ * 2. A validator-inline.js or jd-validator.js file in assistant/js/
+ * 3. Score display elements in the completion banner (totalScore, scoreColor)
+ * Returns summary and detailed issues per project.
+ */
+function analyzeInlineScoringPresence(genesisToolsDir) {
+  const results = {
+    summary: { projectsChecked: 0, projectsWithoutScoring: 0 },
+    projects: {}
+  };
+
+  for (const project of PROJECTS) {
+    const projectPath = path.join(genesisToolsDir, project);
+    const projectViewPath = path.join(projectPath, 'assistant/js/project-view.js');
+    const issues = [];
+
+    if (!fs.existsSync(projectViewPath)) {
+      continue;
+    }
+
+    results.summary.projectsChecked++;
+
+    try {
+      const content = fs.readFileSync(projectViewPath, 'utf-8');
+
+      // Check for validator import (various patterns)
+      const hasValidatorImport = /import\s+{[^}]*(validate|getScoreColor|getScoreLabel)[^}]*}\s+from\s+['"]\.\/.*validator.*\.js['"]/.test(content);
+      if (!hasValidatorImport) {
+        issues.push('Missing validator import (validate*, getScoreColor, getScoreLabel) in project-view.js');
+      }
+
+      // Check for score display in completion banner
+      // totalScore/scoreColor pattern (most projects) or validation.score/validation.colorClass (jd-assistant)
+      const hasStandardScoreDisplay = /totalScore/.test(content) && /scoreColor/.test(content);
+      const hasJDScoreDisplay = /validation\.score/.test(content) && /validation\.colorClass/.test(content);
+      if (!hasStandardScoreDisplay && !hasJDScoreDisplay) {
+        issues.push('Missing inline score display (totalScore/scoreColor or validation.score/colorClass) in completion banner');
+      }
+
+      // Check for validator file existence
+      const validatorFiles = [
+        'assistant/js/validator-inline.js',
+        'assistant/js/jd-validator.js',  // jd-assistant uses this
+      ];
+      const hasValidatorFile = validatorFiles.some(f =>
+        fs.existsSync(path.join(projectPath, f))
+      );
+      if (!hasValidatorFile) {
+        issues.push('Missing validator-inline.js or jd-validator.js in assistant/js/');
+      }
+    } catch {
+      issues.push('Could not read project-view.js');
+    }
+
+    if (issues.length > 0) {
+      results.projects[project] = issues;
+      results.summary.projectsWithoutScoring++;
+    }
+  }
+
+  return results;
+}
+
+/**
  * Main diff function
  */
 function diffProjects(genesisToolsDir) {
@@ -1054,6 +1393,15 @@ function diffProjects(genesisToolsDir) {
   // Analyze function signature consistency across projects
   results.functionSignatures = analyzeFunctionSignatures(genesisToolsDir);
 
+  // Analyze URL self-reference issues (absolute URLs pointing to wrong project)
+  results.urlSelfReference = analyzeURLSelfReference(genesisToolsDir);
+
+  // Analyze inline scoring presence (all projects should have inline scoring)
+  results.inlineScoring = analyzeInlineScoringPresence(genesisToolsDir);
+
+  // Analyze template customization issues (8 documented hello-world issues)
+  results.templateCustomization = analyzeTemplateCustomization(genesisToolsDir);
+
   return results;
 }
 
@@ -1095,6 +1443,15 @@ function formatConsoleReport(results) {
   }
   if (results.domainBleedOver && results.domainBleedOver.summary.totalBleedOverTerms > 0) {
     lines.push(`  ${red('🩸')} Domain bleed-over: ${results.domainBleedOver.summary.totalBleedOverTerms} terms in ${results.domainBleedOver.summary.projectsWithIssues} projects`);
+  }
+  if (results.urlSelfReference && results.urlSelfReference.summary.totalURLIssues > 0) {
+    lines.push(`  ${red('🔗')} URL self-reference issues: ${results.urlSelfReference.summary.totalURLIssues} URLs in ${results.urlSelfReference.summary.projectsWithIssues} projects`);
+  }
+  if (results.inlineScoring && results.inlineScoring.summary.projectsWithoutScoring > 0) {
+    lines.push(`  ${red('📊')} Missing inline scoring: ${results.inlineScoring.summary.projectsWithoutScoring} projects`);
+  }
+  if (results.templateCustomization && results.templateCustomization.summary.totalIssues > 0) {
+    lines.push(`  ${red('📝')} Template customization issues: ${results.templateCustomization.summary.totalIssues} issues in ${results.templateCustomization.summary.projectsWithIssues} projects`);
   }
   lines.push(`  ${yellow('~')} Intentional differences: ${results.summary.intentional}`);
   lines.push(`  ${cyan('?')} Project-specific: ${results.summary.projectSpecific}`);
@@ -1172,6 +1529,79 @@ function formatConsoleReport(results) {
         }
         if (termIssues.length > 3) {
           lines.push(`      ... and ${termIssues.length - 3} more`);
+        }
+      }
+      lines.push('');
+    }
+  }
+
+  // URL SELF-REFERENCE ISSUES: Absolute URLs pointing to wrong project
+  if (results.urlSelfReference && results.urlSelfReference.summary.totalURLIssues > 0) {
+    lines.push(red(bold('🔗 CRITICAL: URL SELF-REFERENCE ISSUES (wrong project in URLs)')));
+    lines.push(red('─'.repeat(60)));
+    lines.push('');
+    lines.push('  Absolute URLs in project-view.js reference a DIFFERENT project.');
+    lines.push('  This causes links to open the wrong validator/app.');
+    lines.push('  FIX: Use relative URLs (../validator/) or correct the project name.');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.urlSelfReference.projects)) {
+      lines.push(red(`  ${project}: ${issues.length} URL issue(s)`));
+      for (const issue of issues.slice(0, 5)) {
+        lines.push(yellow(`    Line ${issue.line}: URL references "${issue.urlProject}" but project is "${issue.actualProject}"`));
+        lines.push(`      ${issue.context}`);
+      }
+      if (issues.length > 5) {
+        lines.push(`      ... and ${issues.length - 5} more`);
+      }
+      lines.push('');
+    }
+  }
+
+  // INLINE SCORING ISSUES: Projects missing inline scoring in completion banner
+  if (results.inlineScoring && results.inlineScoring.summary.projectsWithoutScoring > 0) {
+    lines.push(red(bold('📊 CRITICAL: MISSING INLINE SCORING (projects without scoring in completion banner)')));
+    lines.push(red('─'.repeat(60)));
+    lines.push('');
+    lines.push('  All projects should display inline quality scores in the Phase 3 completion banner.');
+    lines.push('  This requires: validator-inline.js, import in project-view.js, and score display in banner.');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.inlineScoring.projects)) {
+      lines.push(red(`  ${project}:`));
+      for (const issue of issues) {
+        lines.push(yellow(`    ✗ ${issue}`));
+      }
+      lines.push('');
+    }
+  }
+
+  // TEMPLATE CUSTOMIZATION ISSUES: 8 documented hello-world template issues
+  if (results.templateCustomization && results.templateCustomization.summary.totalIssues > 0) {
+    lines.push(red(bold('📝 TEMPLATE CUSTOMIZATION ISSUES (hello-world template problems)')));
+    lines.push(red('─'.repeat(60)));
+    lines.push('');
+    lines.push('  These issues indicate incomplete template customization or outdated patterns.');
+    lines.push('  See CONTINUOUS_IMPROVEMENT.md for full documentation of these 8 issues.');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.templateCustomization.projects)) {
+      lines.push(red(`  ${project}: ${issues.length} issue(s)`));
+
+      // Group issues by type for cleaner output
+      const byType = {};
+      for (const issue of issues) {
+        if (!byType[issue.type]) byType[issue.type] = [];
+        byType[issue.type].push(issue);
+      }
+
+      for (const [type, typeIssues] of Object.entries(byType)) {
+        for (const issue of typeIssues.slice(0, 3)) {
+          const location = issue.line ? `${issue.file}:${issue.line}` : issue.file;
+          lines.push(yellow(`    ✗ ${location}: ${issue.message}`));
+        }
+        if (typeIssues.length > 3) {
+          lines.push(`      ... and ${typeIssues.length - 3} more of this type`);
         }
       }
       lines.push('');
@@ -1293,11 +1723,19 @@ function formatConsoleReport(results) {
   const internalIssues = results.internalConsistency?.summary?.totalDivergentPairs || 0;
   const bleedOverIssues = results.domainBleedOver?.summary?.totalBleedOverTerms || 0;
   const signatureMismatches = results.functionSignatures?.summary?.signatureMismatches || 0;
+  const urlIssues = results.urlSelfReference?.summary?.totalURLIssues || 0;
+  const scoringIssues = results.inlineScoring?.summary?.projectsWithoutScoring || 0;
+  const templateIssues = results.templateCustomization?.summary?.totalIssues || 0;
 
-  if (results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0) {
+  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0;
+
+  if (allGreen) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
     lines.push(green(bold('  ✓ NO INTERNAL CONSISTENCY ISSUES')));
     lines.push(green(bold('  ✓ NO DOMAIN BLEED-OVER DETECTED')));
+    lines.push(green(bold('  ✓ NO URL SELF-REFERENCE ISSUES')));
+    lines.push(green(bold('  ✓ ALL PROJECTS HAVE INLINE SCORING')));
+    lines.push(green(bold('  ✓ NO TEMPLATE CUSTOMIZATION ISSUES')));
     lines.push(green(bold('  ✓ NO TEST COVERAGE GAPS DETECTED')));
     lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
     lines.push(green(bold('  ✓ NO FUNCTION SIGNATURE MISMATCHES')));
@@ -1310,6 +1748,15 @@ function formatConsoleReport(results) {
     }
     if (bleedOverIssues > 0) {
       lines.push(red(bold(`  🩸 ${bleedOverIssues} DOMAIN BLEED-OVER TERMS - CUSTOMIZE TEMPLATE CONTENT`)));
+    }
+    if (urlIssues > 0) {
+      lines.push(red(bold(`  🔗 ${urlIssues} URL SELF-REFERENCE ISSUES - FIX VALIDATOR LINKS`)));
+    }
+    if (scoringIssues > 0) {
+      lines.push(red(bold(`  📊 ${scoringIssues} PROJECTS MISSING INLINE SCORING - ADD VALIDATOR-INLINE.JS`)));
+    }
+    if (templateIssues > 0) {
+      lines.push(red(bold(`  📝 ${templateIssues} TEMPLATE CUSTOMIZATION ISSUES - FIX HELLO-WORLD TEMPLATE PROBLEMS`)));
     }
     if (signatureMismatches > 0) {
       lines.push(red(bold(`  🔧 ${signatureMismatches} FUNCTION SIGNATURE MISMATCHES - STANDARDIZE APIs`)));
@@ -1349,18 +1796,25 @@ function main() {
     console.log(formatConsoleReport(results));
   }
 
-  // CI mode: exit 1 if divergent files, symlink issues, test coverage gaps, stub validators, internal consistency issues, OR domain bleed-over exist
+  // CI mode: exit 1 if any critical issues exist
   const coverageGapsCount = results.testCoverage?.summary?.patternsWithGaps || 0;
   const stubValidatorsCount = results.validatorStructure?.summary?.stubValidators || 0;
   const internalIssuesCount = results.internalConsistency?.summary?.totalDivergentPairs || 0;
   const bleedOverCount = results.domainBleedOver?.summary?.totalBleedOverTerms || 0;
+  const urlIssuesCount = results.urlSelfReference?.summary?.totalURLIssues || 0;
+  const scoringIssuesCount = results.inlineScoring?.summary?.projectsWithoutScoring || 0;
+  const templateIssuesCount = results.templateCustomization?.summary?.totalIssues || 0;
+
   if (ciMode && (
     results.summary.divergent > 0 ||
     results.summary.symlinkIssues > 0 ||
     coverageGapsCount > 0 ||
     stubValidatorsCount > 0 ||
     internalIssuesCount > 0 ||
-    bleedOverCount > 0
+    bleedOverCount > 0 ||
+    urlIssuesCount > 0 ||
+    scoringIssuesCount > 0 ||
+    templateIssuesCount > 0
   )) {
     process.exit(1);
   }
