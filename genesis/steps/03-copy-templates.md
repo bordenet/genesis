@@ -22,8 +22,8 @@
 # CORRECT: Copy from hello-world
 cp -r genesis/examples/hello-world/* .
 
-# WRONG: Copy individual templates
-# cp genesis/templates/web-app/js/app-template.js js/app.js  # ❌ NO
+# WRONG: Do not copy individual files from templates/ directory
+# (that directory no longer exists - use hello-world instead)
 ```
 
 The hello-world directory is the **canonical reference implementation**. All genesis-derived projects must match it byte-for-byte for MUST_MATCH files.

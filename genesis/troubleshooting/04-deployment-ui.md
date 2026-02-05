@@ -24,9 +24,9 @@ ls -la tests/ai-mock.test.js prompts/phase1.md
 ls -la scripts/deploy-web.sh scripts/install-hooks.sh
 ```
 
-If any missing, copy from Genesis templates:
+If any missing, copy from hello-world:
 ```bash
-cp genesis/templates/PATH/TO/FILE-template DESTINATION
+cp genesis/examples/hello-world/PATH/TO/FILE DESTINATION
 ```
 
 ---
