@@ -2,7 +2,7 @@
 
 > **Generated during**: jd-assistant creation (2026-02-04)
 > **Purpose**: Track all friction points for future genesis improvements
-> **Status**: 🔄 In Progress
+> **Status**: ✅ Core Complete (P0/P1 items done; P2 items optional)
 
 ---
 
