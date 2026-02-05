@@ -87,8 +87,8 @@ Changes needed to genesis templates.
   ### Remaining Work:
   - [x] Backfill exportAll/importAll to jd-assistant ✅ **FIXED 2026-02-05** (PR #5)
   - [x] Backfill exportAll/importAll to hello-world ✅ **FIXED 2026-02-05** (PR #79)
-  - [ ] Backfill exportAll/importAll to strategic-proposal
-  - [ ] Backfill exportAll/importAll to architecture-decision-record
+  - [x] Backfill exportAll/importAll to strategic-proposal ✅ **FIXED 2026-02-05** (PR #12)
+  - [x] Backfill exportAll/importAll to architecture-decision-record ✅ **FIXED 2026-02-05** (PR #25)
 
 - [x] **CRITICAL: hello-world template produces COMPLETELY BROKEN apps** ✅ **FIXED 2026-02-05** (PR #73)
   - **Encountered when**: Deployed jd-assistant to GitHub Pages - app was non-functional (empty screen, no body content, dark mode broken, navigation broken)
