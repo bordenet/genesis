@@ -265,7 +265,6 @@ describe('Feature', () => {
 - [ ] All tests pass
 - [ ] Code coverage ≥ 85%
 - [ ] Documentation updated
-- [ ] CHANGELOG.md updated
 - [ ] No console.log() statements
 - [ ] No TODO comments
 - [ ] Code formatted

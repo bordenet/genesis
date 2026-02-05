@@ -423,10 +423,6 @@ const DB_NAME = '{{DB_NAME}}';  // Still a template variable!
 - Add: "Dark mode button doesn't work" section
 - Link to module-system fix
 
-**Task 5.2**: Add to CHANGELOG.md
-- Version: Next release
-- Entry: "CRITICAL: Enforce ES6 modules in browser templates"
-
 ---
 
 ## Success Criteria
@@ -486,7 +482,6 @@ After implementation, projects bootstrapped from Genesis must:
 - `genesis/REFERENCE-IMPLEMENTATIONS.md` - Add "Module System: Browser ES6 Modules" section
 - `genesis/TROUBLESHOOTING.md` - Add module system debugging section
 - `scripts/setup-macos.sh` - Integrate validation step
-- `CHANGELOG.md` - Document breaking change
 
 ---
 
@@ -541,7 +536,7 @@ After implementation, projects bootstrapped from Genesis must:
 3. **Implementation**: Execute Phase 1-5 tasks
 4. **Testing**: Validate against architecture-decision-record
 5. **Deployment**: Merge templates and update Genesis
-6. **Announcement**: Update CHANGELOG, notify users
+6. **Announcement**: Notify users of breaking change
 
 ---
 

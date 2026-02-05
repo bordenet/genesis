@@ -279,7 +279,6 @@ npm run test:coverage
 
 ### 7. Update Documentation
 - Update README.md
-- Add to CHANGELOG.md
 - Update relevant docs
 
 ---

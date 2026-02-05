@@ -114,11 +114,6 @@ Every project must include:
    - Code style guidelines
    - Pull request process
 
-4. **CHANGELOG.md**:
-   - Version history
-   - Breaking changes
-   - Migration guides
-
 ### Information Architecture
 
 **File Organization**:
@@ -126,7 +121,6 @@ Every project must include:
 project-root/
 ├── README.md                    # Project overview
 ├── LICENSE                      # License file
-├── CHANGELOG.md                 # Version history
 ├── CONTRIBUTING.md              # Contribution guidelines
 │
 ├── docs/                        # Documentation
@@ -468,7 +462,6 @@ Before deploying to production:
 - [ ] All tests pass (unit, integration, e2e)
 - [ ] Code coverage ≥ 85%
 - [ ] Documentation updated
-- [ ] CHANGELOG.md updated
 - [ ] No TODO comments in code
 - [ ] All hyperlinks validated
 - [ ] Cross-browser tested
