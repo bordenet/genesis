@@ -234,7 +234,7 @@ export class Workflow {
      */
   exportAsMarkdown() {
     // CUSTOMIZE: Update attribution URL for your deployed app
-    const attribution = '\n\n---\n\n*Generated with [Document Assistant](https://your-app-url.github.io/your-app/)*';
+    const attribution = '\n\n---\n\n*Generated with [Document Assistant](https://{{GITHUB_USER}}.github.io/{{GITHUB_REPO}}/)*';
 
     // CUSTOMIZE: Update document header format
     let md = `# ${this.project.title}\n\n`;
