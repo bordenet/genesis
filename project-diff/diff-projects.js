@@ -372,6 +372,9 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^tests\/prompts\.test\.js$/,
   // Tests for validator (tests document-specific validation)
   /^validator\/tests\/validator\.test\.js$/,
+  // Smoke tests (jd-assistant uses jd-validator.js instead of validator-inline.js,
+  // so its smoke.test.js has different validator export checks)
+  /^assistant\/tests\/smoke\.test\.js$/,
 
   // === PROJECT-SPECIFIC TOOLS ===
   /^tools\//,
@@ -1191,20 +1194,23 @@ function analyzeTemplateCustomization(genesisToolsDir) {
     }
 
     // === ISSUE 6: Attribution URL placeholder ({{GITHUB_USER}}) ===
-    const workflowFiles = ['js/workflow.js', 'assistant/js/workflow.js'];
-    for (const file of workflowFiles) {
-      const filePath = path.join(projectPath, file);
-      if (fs.existsSync(filePath)) {
-        try {
-          const content = fs.readFileSync(filePath, 'utf-8');
-          if (/\{\{GITHUB_USER\}\}|\{\{GITHUB_REPO\}\}|\{\{PROJECT_TITLE\}\}/i.test(content)) {
-            issues.push({
-              type: 'unreplaced_template_var',
-              file,
-              message: 'Contains unreplaced template variables ({{GITHUB_USER}}, etc.) - sed replacement incomplete'
-            });
-          }
-        } catch {}
+    // Skip this check for hello-world - it IS the template, so template variables are expected
+    if (!isTemplate) {
+      const workflowFiles = ['js/workflow.js', 'assistant/js/workflow.js'];
+      for (const file of workflowFiles) {
+        const filePath = path.join(projectPath, file);
+        if (fs.existsSync(filePath)) {
+          try {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            if (/\{\{GITHUB_USER\}\}|\{\{GITHUB_REPO\}\}|\{\{PROJECT_TITLE\}\}/i.test(content)) {
+              issues.push({
+                type: 'unreplaced_template_var',
+                file,
+                message: 'Contains unreplaced template variables ({{GITHUB_USER}}, etc.) - sed replacement incomplete'
+              });
+            }
+          } catch {}
+        }
       }
     }
 
