@@ -179,6 +179,105 @@ Changes needed to genesis templates.
     - BROKEN: `genesis/examples/hello-world/assistant/index.html` (121 lines, missing js/core/)
     - WORKING: `one-pager/index.html` (196 lines, has js/core/)
 
+- [ ] **CRITICAL: hello-world VALIDATOR is a complete non-functional stub**
+  - **Encountered when**: After fixing jd-assistant validator (2026-02-05), user demanded investigation of hello-world validator
+  - **Impact**: EVERY genesis-derived project inherits a broken validator. The validator "works" in that it loads, but it's missing 80% of the functionality that one-pager has.
+  - **Root cause**: hello-world validator was never completed - it's a minimal stub that got copied to all derived projects
+
+  ### The Evidence (hello-world vs one-pager validator):
+
+  | File | hello-world | one-pager | Gap |
+  |------|-------------|-----------|-----|
+  | `validator/index.html` | 94 lines | 349 lines | **73% missing** |
+  | `validator/js/app.js` | 122 lines | 454 lines | **73% missing** |
+  | `validator/js/prompts.js` | **MISSING** | 179 lines | **100% missing** |
+  | `validator/js/validator.js` | 68 lines | 556 lines | **88% missing** |
+
+  ### What hello-world validator is MISSING:
+
+  **UI Features (index.html):**
+  - ❌ Scoring mode toggle (Quick vs LLM)
+  - ❌ Score breakdown panel with dimension progress bars
+  - ❌ AI Power-ups section (critique/rewrite prompts)
+  - ❌ Footer with save/version controls
+  - ❌ Toast container for notifications
+  - ❌ About modal
+  - ❌ LLM Score Panel
+
+  **Functionality (app.js):**
+  - ❌ Dimension score calculation and display
+  - ❌ Version control with localStorage (save/back/forward)
+  - ❌ AI power-up prompt generation
+  - ❌ Clipboard copy functionality
+  - ❌ Scoring mode toggle logic
+  - ❌ Debounced real-time validation
+
+  **Prompts (prompts.js):**
+  - ❌ `generateLLMScoringPrompt()` - LLM scoring rubric
+  - ❌ `generateCritiquePrompt()` - Detailed feedback prompt
+  - ❌ `generateRewritePrompt()` - Improvement prompt
+  - ❌ `cleanAIResponse()` - Response cleaning utility
+
+  ### What hello-world validator HAS (the stub):
+
+  ```html
+  <!-- Just a basic textarea with Validate/Clear buttons -->
+  <textarea id="document-input" placeholder="Paste your document here..."></textarea>
+  <button id="btn-validate">Validate</button>
+  <button id="btn-clear">Clear</button>
+  <div id="results" class="hidden">...</div>
+  ```
+
+  ```javascript
+  // Just basic validate/clear handlers
+  function handleValidate() {
+    const result = validateDocument(text);
+    showResults(html);
+  }
+  function handleClear() {
+    documentInput.value = '';
+    resultsDiv.classList.add('hidden');
+  }
+  ```
+
+  ### Why This Happened:
+
+  1. **hello-world was created as a "minimal example"** - but it's TOO minimal to be a useful template
+  2. **one-pager evolved independently** - gained full validator features that were never backported
+  3. **No diff tool enforcement** - validator files are in INTENTIONAL_DIFF category, so divergence wasn't flagged
+  4. **No functional testing** - unit tests pass because they mock the DOM; no integration test loads the actual app
+
+  ### Required Fixes:
+
+  1. **OPTION A: Replace hello-world validator with one-pager's structure**
+     - Copy one-pager's validator/index.html, app.js, prompts.js
+     - Make them generic (remove one-pager-specific scoring dimensions)
+     - Add placeholder comments for domain-specific customization
+
+  2. **OPTION B: Mark hello-world as deprecated, use one-pager as canonical template**
+     - Update START-HERE.md to copy from one-pager instead of hello-world
+     - Add deprecation notice to hello-world README
+
+  3. **Add validator to MUST_MATCH or create VALIDATOR_STRUCTURE check**
+     - Ensure all validators have the same structural elements
+     - Flag when a validator is missing prompts.js or key UI elements
+
+  4. **Add integration test for validator**
+     - Load validator/index.html in jsdom
+     - Verify all expected elements exist
+     - Verify app.js initializes without errors
+
+  ### Projects Affected (inherited broken validator):
+
+  - ✅ **jd-assistant** - FIXED (2026-02-05) - now has full validator
+  - ❌ **strategic-proposal** - likely broken
+  - ❌ **architecture-decision-record** - likely broken
+  - ❌ **power-statement-assistant** - likely broken
+  - ❌ **pr-faq-assistant** - likely broken
+  - ❌ **product-requirements-assistant** - likely broken
+
+  **Recommendation**: Audit ALL genesis-derived projects for validator completeness.
+
 ---
 
 ## Phase 4: Tooling Enhancements
