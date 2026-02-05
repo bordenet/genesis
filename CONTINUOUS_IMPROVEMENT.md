@@ -19,17 +19,17 @@
 
 High-impact, low-effort fixes that should be done immediately.
 
-- [ ] **Issue**: README.md references non-existent `create-project.sh` script
+- [x] **Issue**: README.md references non-existent `create-project.sh` script ✅ **FIXED 2026-02-05**
   - **Encountered when**: Following Quick Start in README.md
   - **Current behavior**: README says `./genesis/scripts/create-project.sh --name my-document` but this script doesn't exist
   - **Expected behavior**: Either the script should exist, or README should be updated to reflect manual setup process
-  - **Fix**: Either create the script OR update README.md Quick Start section to point to START-HERE.md manual process
+  - **Fix applied**: Updated README.md Quick Start to point to `genesis/START-HERE.md`
 
-- [ ] **Issue**: START-HERE.md assumes genesis/ is INSIDE the new project
+- [x] **Issue**: START-HERE.md assumes genesis/ is INSIDE the new project ✅ **FIXED 2026-02-05**
   - **Encountered when**: Reading START-HERE.md Step 3 which says "Copy .gitignore" with `cp genesis/templates/...`
   - **Current behavior**: Instructions assume you're in a repo that already has genesis/ as a subdirectory
   - **Expected behavior**: Instructions should clarify the two workflows: (1) genesis as sibling repo, (2) genesis copied into new project
-  - **Fix**: Add a "Prerequisites" section to START-HERE.md explaining how to set up the genesis directory relationship
+  - **Fix applied**: Added "Directory Structure" section to `steps/00-prerequisites.md` explaining sibling directory layout
 
 ---
 
@@ -37,7 +37,7 @@ High-impact, low-effort fixes that should be done immediately.
 
 Missing or unclear documentation that caused confusion.
 
-- [ ] **Gap**: README.md template doesn't include live app links or badges
+- [x] **Gap**: README.md template doesn't include live app links or badges ✅ **FIXED 2026-02-05**
   - **Encountered when**: After deploying jd-assistant, README still had generic template content
   - **Current behavior**: hello-world README template has placeholder content without:
     - "Try it" links to deployed app and validator
@@ -45,20 +45,21 @@ Missing or unclear documentation that caused confusion.
     - Star badge
     - Proper "How the Phases Work" section
     - "Part of Genesis Tools" section with related projects
-  - **Expected behavior**: Template should prompt for or auto-generate these sections
-  - **Fix options**:
-    1. Update hello-world README.md to include placeholder links that get replaced during setup
-    2. Add README customization step to START-HERE.md checklist
-    3. Create a script that generates README from project metadata
-  - **Reference**: Compare one-pager/README.md (good) vs hello-world/README.md (template)
+  - **Fix applied**: Updated hello-world README.md template with:
+    - Template variables `{{PROJECT_TITLE}}`, `{{GITHUB_USER}}`, etc.
+    - Badge placeholders for CI, codecov, stars
+    - "Try it" links section
+    - "How the Phases Work" section
+    - "Part of Genesis Tools" section
 
-- [ ] **Gap**: GitHub Pages deployment architecture not documented in genesis
+- [x] **Gap**: GitHub Pages deployment architecture not documented in genesis ✅ **FIXED 2026-02-05**
   - **Location**: genesis/CHECKLIST.md, genesis/START-HERE.md
   - **What happened**: Agent guessed at GitHub Pages architecture (root vs /docs) instead of verifying against existing projects
-  - **Fix**: Add explicit documentation stating:
-    - Genesis projects serve web app from root (/)
-    - The /docs folder is for markdown documentation only (DESIGN-PATTERNS.md, UI_STYLE_GUIDE.md)
-    - CI workflow handles lint/test/quality; GitHub Pages is configured separately in repo settings
+  - **Fix applied**: Added "GitHub Pages Architecture" section to `steps/00-prerequisites.md` with table showing:
+    - `/` (root) = Web app entry point
+    - `/assistant/` = Assistant web app
+    - `/validator/` = Validator web app
+    - `/docs/` = Markdown documentation only
 
 ---
 
@@ -292,14 +293,14 @@ _No issues recorded yet - document as encountered_
 
 Changes to the overall genesis workflow or AI instructions.
 
-- [ ] **Issue**: AI agents repeatedly commit with wrong git identity
+- [x] **Issue**: AI agents repeatedly commit with wrong git identity ✅ **FIXED 2026-02-05**
   - **Encountered when**: Creating jd-assistant - all 5 commits used `mattbordenet@hotmail.com` instead of `bordenet@users.noreply.github.com`
   - **Impact**: Had to rewrite git history with filter-branch; user frustration
   - **Root cause**: Genesis templates don't include git identity configuration in setup steps
-  - **Fix options**:
-    1. Add git config commands to START-HERE.md Step 1 (before first commit)
-    2. Add a pre-commit hook that validates author email
-    3. Add `.gitconfig` template with correct identity
+  - **Fix applied**: Added "5.1 Configure Git Identity (MANDATORY)" section to `steps/05-deploy.md` with:
+    - Commands to check and configure git identity
+    - Explanation of why it matters
+    - Verification step before first commit
   - **Workaround applied**: Added git identity rules to workspace-level Agents.md and CLAUDE.md
 
 ---
@@ -406,31 +407,21 @@ LLMs have context window limitations and attention degradation over long documen
 - Explicit exit criteria
 - Mandatory verification commands
 
-#### Gap 2: No Mandatory Diff Tool Checkpoints (🔴 CRITICAL)
+#### Gap 2: No Mandatory Diff Tool Checkpoints ✅ **FIXED 2026-02-05**
 
 The diff tool is mentioned but not enforced at phase boundaries. An LLM can complete an entire project without ever running it.
 
-**Required Fix**: Add explicit checkpoints in CHECKLIST.md:
-```markdown
-### CHECKPOINT: After Phase 2 (Template Copying)
-- [ ] Run `node genesis/project-diff/diff-projects.js`
-- [ ] Output shows: "✓ ALL MUST-MATCH FILES ARE IDENTICAL"
-- [ ] ❌ DO NOT PROCEED if divergent files exist
+**Fix Applied**: Added explicit checkpoints to `genesis/CHECKLIST.md`:
+- "CHECKPOINT: After Phase 2 (Template Copying)" with blocking exit criteria
+- "CHECKPOINT: Before Every Commit" with blocking exit criteria
+- Added to Phase 2: "MANDATORY: Added project to PROJECTS array"
+- Added to Phase 2: "MANDATORY: Ran diff-projects.js and verified output"
 
-### CHECKPOINT: Before Every Commit
-- [ ] Run `node genesis/project-diff/diff-projects.js`
-- [ ] ❌ COMMIT BLOCKED if divergent files exist
-```
-
-#### Gap 3: No "Add to PROJECTS Array" Step (🔴 CRITICAL)
+#### Gap 3: No "Add to PROJECTS Array" Step ✅ **FIXED 2026-02-05**
 
 When creating a new project, there is NO instruction to add it to `diff-projects.js`. This means the diff tool won't check the new project at all.
 
-**Required Fix**: Add to Phase 2 of CHECKLIST.md:
-```markdown
-- [ ] Added project to `genesis/project-diff/diff-projects.js` PROJECTS array
-- [ ] Verified: `node diff-projects.js` includes new project in output
-```
+**Fix Applied**: Added to Phase 2 of CHECKLIST.md as MANDATORY steps.
 
 #### Gap 4: No Function-Like Exit Criteria (🔴 CRITICAL)
 
@@ -438,25 +429,22 @@ Steps don't have strict "MUST PASS BEFORE PROCEEDING" gates. Instructions are pr
 
 **Status**: **PARTIALLY FIXED** - New step files in `steps/` have exit criteria, but older files don't.
 
-#### Gap 5: Template Field Validation Missing (🟡 HIGH)
+#### Gap 5: Template Field Validation ✅ **FIXED 2026-02-05**
 
 The `dealershipName` vs `jobTitle` bug shows templates contain domain-specific field names that aren't validated.
 
-**Required Fix**: Add to CHECKLIST.md:
-```markdown
-- [ ] Search for template-specific field names: `grep -r "dealershipName\|proposalTitle\|onePagerTitle" .`
-- [ ] Replace ALL with domain-specific field names
-- [ ] Verify import/export validation uses correct field names
-```
+**Fix Applied**: Added to Phase 3 of CHECKLIST.md:
+- Template field validation step with grep command
+- Replace ALL template-specific field names instruction
+- Verify import/export validation uses correct field names
 
-#### Gap 6: Test Template Mismatch (🟡 HIGH)
+#### Gap 6: Test Template Mismatch ✅ **FIXED 2026-02-05**
 
 Tests copied from templates test wrong domain criteria (One-Pager tests for JD validator).
 
-**Required Fix**: Add to CHECKLIST.md:
-```markdown
-- [ ] Review ALL test files for domain-specific assertions
-- [ ] Validator tests check domain-specific dimensions (not generic)
+**Fix Applied**: Added to Phase 4 of CHECKLIST.md:
+- Test template mismatch check step
+- Validator tests check domain-specific dimensions instruction
 - [ ] Run tests and verify they test YOUR domain, not template domain
 ```
 
@@ -473,15 +461,15 @@ No single script runs ALL mandatory checks in sequence.
 | Priority | Gap | Effort | Impact | Status |
 |----------|-----|--------|--------|--------|
 | P0 | Refactor files to ≤300 lines | HIGH | +20 points | ✅ START-HERE.md done |
-| P0 | Add mandatory diff checkpoints | LOW | +15 points | TODO |
-| P0 | Add "register in PROJECTS" step | LOW | +8 points | TODO |
+| P0 | Add mandatory diff checkpoints | LOW | +15 points | ✅ **FIXED 2026-02-05** |
+| P0 | Add "register in PROJECTS" step | LOW | +8 points | ✅ **FIXED 2026-02-05** |
 | P1 | Function-like exit criteria | MEDIUM | +10 points | ✅ Partial (steps/) |
-| P1 | Template field validation | LOW | +5 points | TODO |
-| P1 | Test template mismatch check | LOW | +5 points | TODO |
+| P1 | Template field validation | LOW | +5 points | ✅ **FIXED 2026-02-05** |
+| P1 | Test template mismatch check | LOW | +5 points | ✅ **FIXED 2026-02-05** |
 | P2 | UI style guide | LOW | +3 points | TODO |
 | P2 | Automated validation script | MEDIUM | +5 points | TODO |
 
-**Current Score**: 42 + ~25 (partial fixes) = **~67/100**
+**Current Score**: 42 + 33 (completed fixes) + 10 (partial) = **~85/100**
 **Target Score**: 95/100
 
 ### The Fundamental Truth

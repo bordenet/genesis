@@ -15,7 +15,31 @@
 
 ---
 
-## 5.1 Initialize Git & Create Repo
+## 5.1 Configure Git Identity (MANDATORY)
+
+**⚠️ BEFORE making any commits, verify git identity:**
+
+```bash
+# Check current identity
+git config user.name
+git config user.email
+
+# If wrong or using personal email, configure for GitHub:
+git config user.name "Your Name"
+git config user.email "username@users.noreply.github.com"
+
+# Verify the change took effect
+git config user.name && git config user.email
+```
+
+**Why this matters:**
+- Wrong identity requires history rewriting later (painful)
+- GitHub noreply email protects your personal email
+- CI/CD checks may fail with unauthorized email addresses
+
+---
+
+## 5.2 Initialize Git & Create Repo
 
 ```bash
 # Initialize git (if not already done)
@@ -36,7 +60,7 @@ git push -u origin main
 
 ---
 
-## 5.2 Enable GitHub Pages
+## 5.3 Enable GitHub Pages
 
 Tell the user:
 
@@ -55,7 +79,7 @@ Tell the user:
 
 ---
 
-## 5.3 Verify Deployment
+## 5.4 Verify Deployment
 
 ```bash
 # Test deployment script
@@ -69,7 +93,7 @@ gh api /repos/{{GITHUB_USER}}/{{GITHUB_REPO}}/pages --jq '.status'
 
 ---
 
-## 5.4 Delete Genesis Directory
+## 5.5 Delete Genesis Directory
 
 ```bash
 # Remove genesis directory
@@ -83,7 +107,7 @@ git push
 
 ---
 
-## 5.5 Final Verification
+## 5.6 Final Verification
 
 Run these checks:
 

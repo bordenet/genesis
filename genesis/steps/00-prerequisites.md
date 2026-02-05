@@ -6,9 +6,34 @@
 
 ---
 
+## Directory Structure
+
+Genesis projects use a **sibling directory layout**:
+
+```
+genesis-tools/              ← Parent workspace
+├── genesis/                ← Genesis templates (THIS repo)
+│   ├── genesis/
+│   │   ├── examples/
+│   │   │   └── hello-world/  ← Copy files FROM here
+│   │   └── steps/
+│   └── project-diff/
+├── one-pager/              ← Example sibling project
+├── jd-assistant/           ← Your NEW project goes here
+└── ... other projects
+```
+
+**Key points:**
+1. You create the new project as a **sibling** to `genesis/`, NOT inside it
+2. You **copy** files FROM `genesis/genesis/examples/hello-world/` TO your new project
+3. The `genesis/project-diff/` tool checks ALL sibling projects for consistency
+
+---
+
 ## Entry Conditions
 
-- [ ] Fresh repository with `genesis/` directory present
+- [ ] You are in the `genesis-tools/` workspace (or equivalent)
+- [ ] The `genesis/` directory exists as a sibling to where you'll create the project
 - [ ] User has requested a new genesis project
 
 ---
@@ -52,6 +77,23 @@ Genesis apps implement a **7-STEP workflow pattern**:
 All Genesis projects have TWO components:
 - **`assistant/`** — Document creation workflow (3-phase)
 - **`validator/`** — Document validation/scoring
+
+### GitHub Pages Architecture
+
+Genesis projects use a specific file layout for deployment:
+
+| Path | Purpose |
+|------|---------|
+| `/` (root) | Web app entry point (index.html) |
+| `/assistant/` | Assistant web app |
+| `/validator/` | Validator web app |
+| `/docs/` | Markdown documentation ONLY (not web app!) |
+
+**Important:**
+- The web app is served from root (`/`), NOT from `/docs`
+- The `/docs` folder contains design documents (DESIGN-PATTERNS.md, UI_STYLE_GUIDE.md)
+- GitHub Pages is configured with "Source: GitHub Actions" (not "Deploy from branch")
+- CI workflow handles lint/test; deployment is configured separately in repo settings
 
 ---
 
