@@ -1,8 +1,15 @@
 /**
- * Type Definitions for Strategic Proposal Generator
- * 
+ * Type Definitions for Hello World (TEMPLATE - CUSTOMIZE FOR YOUR DOMAIN)
+ *
  * This file contains JSDoc type definitions used across the application.
  * Import types using: @type {import('./types.js').TypeName}
+ *
+ * ⚠️ CUSTOMIZATION REQUIRED:
+ * Replace the placeholder fields (title, context, problems, additionalContext)
+ * with YOUR domain-specific fields. These must match:
+ * - Form fields in views.js
+ * - Field mappings in projects.js
+ * - Variable mappings in prompts.js
  */
 
 // ============================================================================
@@ -20,18 +27,16 @@
  * @typedef {Object} Project
  * @property {string} id - Unique identifier (UUID)
  * @property {string} title - Project title
- * @property {string} dealershipName - Name of the dealership
- * @property {string} dealershipLocation - Location of the dealership
- * @property {string} storeCount - Number of stores
- * @property {string} currentVendor - Current vendor name
- * @property {string} decisionMakerName - Name of decision maker
- * @property {string} decisionMakerRole - Role of decision maker
- * @property {string} conversationTranscripts - Conversation transcripts
- * @property {string} meetingNotes - Meeting notes
- * @property {string} attachmentText - Extracted text from attachments
- * @property {string} painPoints - Identified pain points
+ *
+ * CUSTOMIZE: Replace these placeholder fields with YOUR domain fields
+ * Example for JD Assistant: jobTitle, companyName, roleLevel, location, etc.
+ * Example for PRD: problemStatement, targetUsers, successMetrics, etc.
+ *
+ * @property {string} context - Primary context/input (CUSTOMIZE: rename for your domain)
+ * @property {string} problems - Problems to address (CUSTOMIZE: rename for your domain)
  * @property {string} additionalContext - Additional context
- * @property {string} workingDraft - Working draft content
+ *
+ * Standard workflow fields (keep these):
  * @property {string} phase1_output - Output from phase 1
  * @property {string} phase2_output - Output from phase 2
  * @property {string} phase3_output - Output from phase 3
@@ -44,18 +49,12 @@
 /**
  * @typedef {Object} ProjectFormData
  * @property {string} [title] - Optional title override
- * @property {string} dealershipName - Name of the dealership
- * @property {string} [dealershipLocation] - Location of the dealership
- * @property {string} [storeCount] - Number of stores
- * @property {string} [currentVendor] - Current vendor name
- * @property {string} [decisionMakerName] - Name of decision maker
- * @property {string} [decisionMakerRole] - Role of decision maker
- * @property {string} [conversationTranscripts] - Conversation transcripts
- * @property {string} [meetingNotes] - Meeting notes
- * @property {string} [attachmentText] - Extracted text from attachments
- * @property {string} [painPoints] - Identified pain points
+ *
+ * CUSTOMIZE: Replace these placeholder fields with YOUR domain fields
+ *
+ * @property {string} [context] - Primary context/input
+ * @property {string} [problems] - Problems to address
  * @property {string} [additionalContext] - Additional context
- * @property {string} [workingDraft] - Working draft content
  */
 
 // ============================================================================
