@@ -36,6 +36,21 @@ Create a fully working **paired assistant+validator** project:
 
 1. **[`CODE-CONSISTENCY-MANDATE.md`](CODE-CONSISTENCY-MANDATE.md)** — Deviation from hello-world is FORBIDDEN
 2. **[`docs/AI-QUICK-REFERENCE.md`](../docs/AI-QUICK-REFERENCE.md)** — Keep open while coding
+3. **[`../CONTINUOUS_IMPROVEMENT.md`](../CONTINUOUS_IMPROVEMENT.md)** — Log ALL obstacles as you encounter them
+
+---
+
+## 🚨 Mandatory: Throughout Development
+
+**Continuous Improvement Tracking:**
+- As you encounter ANY friction, obstacle, or gap → IMMEDIATELY add to `CONTINUOUS_IMPROVEMENT.md`
+- This feeds improvements back to genesis for the next project
+- NOT optional. This is how genesis gets better.
+
+**Diff Tool Usage:**
+- Run `cd genesis-tools/genesis/project-diff && node diff-projects.js` AGGRESSIVELY
+- After copying templates, after every significant change, before every commit
+- LLMs are stochastic — the diff tool catches inevitable inconsistencies
 
 ---
 

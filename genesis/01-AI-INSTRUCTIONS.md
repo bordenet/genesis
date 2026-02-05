@@ -1,8 +1,41 @@
 # Genesis Project Template - AI Instructions
 
-**Version**: 2.0
-**Last Updated**: 2026-02-03
+**Version**: 2.1
+**Last Updated**: 2026-02-05
 **Purpose**: Instructions for AI assistants creating **paired assistant+validator** projects
+
+---
+
+## 🚨 TWO NON-NEGOTIABLE MANDATES
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  MANDATE 1: CONTINUOUS IMPROVEMENT TRACKING                                 ║
+║                                                                              ║
+║  Maintain: genesis-tools/genesis/CONTINUOUS_IMPROVEMENT.md                  ║
+║                                                                              ║
+║  As you encounter ANY friction, obstacle, or gap:                           ║
+║  → IMMEDIATELY add it to CONTINUOUS_IMPROVEMENT.md                          ║
+║  → Include: what happened, expected behavior, suggested fix                 ║
+║                                                                              ║
+║  This is how genesis improves. NOT optional.                                ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  MANDATE 2: AGGRESSIVE DIFF TOOL USAGE                                      ║
+║                                                                              ║
+║  cd genesis-tools/genesis/project-diff && node diff-projects.js             ║
+║                                                                              ║
+║  Run this:                                                                   ║
+║  ✓ After copying templates                                                  ║
+║  ✓ After EVERY significant change                                           ║
+║  ✓ Before EVERY commit                                                      ║
+║  ✓ When modifying shared files                                              ║
+║                                                                              ║
+║  LLMs are stochastic. The diff tool catches inevitable inconsistencies.     ║
+║  ⛔ DO NOT PROCEED if MUST_MATCH files show divergence!                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+---
 
 **⚠️ CRITICAL - READ FIRST**: Before starting ANY work on a Genesis-created project:
 1. **Read `CODE-CONSISTENCY-MANDATE.md`** - Deviation from hello-world is FORBIDDEN
@@ -10,7 +43,7 @@
 3. Follow the mandatory workflow: **lint → test → proactively communicate what's left**
 4. NEVER include `node_modules/` or build artifacts
 5. ALWAYS create `.gitignore` files
-6. **Run `project-diff --ci` REPEATEDLY** during development (compares all 7 projects)
+6. **Run `project-diff --ci` REPEATEDLY** during development (compares all projects)
 
 ---
 
