@@ -386,6 +386,7 @@ grep -ri "hello.world\|hello-world\|genesis.example" --include="*.html" --includ
 ```
 
 **Files That Commonly Need Updates**:
+
 | File | What to Replace |
 |------|-----------------|
 | `index.html` | `<title>`, header text, dropdown labels |
@@ -452,6 +453,7 @@ Either:
 2. Or document that ROOT `index.html` footer MUST be manually updated during project creation
 
 **Files That Need Footer Updates After Copy**:
+
 | File | Current Footer | Fix Needed |
 |------|----------------|------------|
 | `index.html` (ROOT) | Placeholder `#` links | Add real cross-navigation links |
