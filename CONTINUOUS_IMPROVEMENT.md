@@ -71,11 +71,26 @@ Changes needed to genesis templates.
   - **Files with low coverage**: `projects.js` (0%), `attachments.js` (3%), `ui.js` (46%), `workflow.js` (54%)
   - **Fix**: Either lower the threshold in CHECKLIST.md to match reality, or add tests to hello-world baseline
 
-- [ ] **CRITICAL: hello-world index.html has WRONG structure - produces stillborn apps**
-  - **Encountered when**: Deployed jd-assistant to GitHub Pages - app was non-functional (empty screen, dark mode broken)
-  - **Impact**: TOTAL FAILURE - app shipped broken to production. User extremely frustrated.
-  - **Root cause**: hello-world/index.html uses a DIFFERENT HTML structure than working projects
-  - **Specific differences found**:
+- [ ] **CRITICAL: hello-world template produces COMPLETELY BROKEN apps**
+  - **Encountered when**: Deployed jd-assistant to GitHub Pages - app was non-functional (empty screen, no body content, dark mode broken, navigation broken)
+  - **Impact**: TOTAL FAILURE - app shipped broken to production. User extremely frustrated. Multiple fix attempts required.
+  - **Root cause analysis**:
+
+  ### Issue 1: Missing `js/core/` directory (FATAL)
+  - **Symptom**: App shows header/footer but NO body content. No console errors visible.
+  - **Root cause**: `js/workflow.js` imports from `./core/workflow.js` which DOESN'T EXIST in hello-world template
+  - **Why no console error**: ES module import failures are silent in some browsers
+  - **Fix**: Copy `js/core/` directory from one-pager (contains workflow.js, storage.js, ui.js, index.js)
+  - **Files in js/core/**:
+    - `workflow.js` - 3-phase workflow engine, `detectPromptPaste()`, `createWorkflow()`, `createWorkflowConfig()`
+    - `storage.js` - Core storage utilities
+    - `ui.js` - Core UI utilities
+    - `index.js` - Module exports
+
+  ### Issue 2: Wrong index.html structure (FATAL)
+  - **Symptom**: Even with js/core/ present, app still broken - dark mode doesn't work, no content renders
+  - **Root cause**: hello-world/index.html uses DIFFERENT HTML structure than working projects
+  - **Specific differences found** (11 total):
     1. **Missing `#app-container`** - hello-world has static `#projectListView`/`#workflowView` but `views.js` renders to `#app-container`
     2. **Missing Tailwind Typography plugin** - hello-world has `tailwindcss.com` but working projects have `tailwindcss.com?plugins=typography`
     3. **Missing marked.js script tag** - file exists at `js/lib/marked.min.js` but `<script src="...">` tag is missing
@@ -87,11 +102,25 @@ Changes needed to genesis templates.
     9. **Missing footer** - no `#storage-info` element for footer stats
     10. **Missing favicon** - working projects have emoji favicon
     11. **Missing related projects dropdown** - header navigation to sibling tools
-  - **Fix**: Replace hello-world/index.html with the one-pager structure (or whichever is canonical)
-  - **Validation needed**: Add a check that verifies HTML has all elements the JS expects
+
+  ### Why This Happened (Agent Failure Analysis)
+  1. **Copied from wrong source**: Agent copied templates from `genesis/examples/hello-world` instead of a working project like `one-pager`
+  2. **No validation of copied files**: Agent didn't verify that copied files actually work together
+  3. **Tests passed but app broken**: Unit tests mock the DOM and don't catch missing HTML elements or missing JS modules
+  4. **No integration test**: No test that loads the actual index.html and verifies the app initializes
+  5. **No smoke test before deploy**: Agent pushed to production without manually testing the deployed app
+  6. **Silent failures**: ES module import failures and missing DOM elements fail silently
+
+  ### Required Fixes to Genesis
+  1. **Replace hello-world template** with one-pager structure (or mark hello-world as deprecated)
+  2. **Add js/core/ to hello-world** if keeping it as template
+  3. **Add integration test** that loads index.html and verifies app.js initializes without errors
+  4. **Add HTML validation** that checks all IDs referenced in JS exist in HTML
+  5. **Add pre-deploy checklist** requiring manual smoke test of deployed app
+
   - **Reference files**:
-    - BROKEN: `genesis/examples/hello-world/assistant/index.html` (121 lines)
-    - WORKING: `one-pager/index.html` (196 lines)
+    - BROKEN: `genesis/examples/hello-world/assistant/index.html` (121 lines, missing js/core/)
+    - WORKING: `one-pager/index.html` (196 lines, has js/core/)
 
 ---
 
@@ -141,7 +170,11 @@ _Move completed items here with resolution notes_
 | 2026-02-05 | Implementation complete | All 4 tasks done: form fields, prompts, prompts.js, validator. 316 tests passing. |
 | 2026-02-05 | Git identity issue | All commits used wrong email; had to rewrite history with filter-branch |
 | 2026-02-05 | Friction documented | Added git identity rules to Personal/Agents.md and Personal/CLAUDE.md |
-| 2026-02-05 | **CRITICAL FAILURE** | App deployed but non-functional. Empty screen, dark mode broken. Discovered hello-world template has completely wrong index.html structure. |
-| 2026-02-05 | Root cause identified | 11 differences between hello-world and one-pager index.html - views.js expects `#app-container` which doesn't exist |
-| 2026-02-05 | Fix applied | Replaced jd-assistant/index.html with one-pager structure. Fixed views.js, router.js, app.js terminology. Tests still pass. |
+| 2026-02-05 | **CRITICAL FAILURE #1** | App deployed but non-functional. Empty screen, dark mode broken. Discovered hello-world template has completely wrong index.html structure. |
+| 2026-02-05 | Partial fix | Replaced jd-assistant/index.html with one-pager structure. Fixed views.js, router.js, app.js terminology. Tests still pass. Commit c9b6098. |
+| 2026-02-05 | **CRITICAL FAILURE #2** | App STILL broken after index.html fix. Header/footer visible but NO body content. Dark mode and navigation still non-functional. |
+| 2026-02-05 | Root cause found | `js/workflow.js` imports from `./core/workflow.js` which DOESN'T EXIST. hello-world template is missing entire `js/core/` directory! |
+| 2026-02-05 | Why tests passed | Unit tests mock the DOM and don't catch missing JS modules. ES module import failures are silent in browser. |
+| 2026-02-05 | Fix applied | Copied `js/core/` directory from one-pager (workflow.js, storage.js, ui.js, index.js). Commit caf2e36. |
+| 2026-02-05 | Agent failure analysis | (1) Copied from wrong source (hello-world not one-pager), (2) No validation of copied files, (3) No smoke test before deploy, (4) Silent failures masked the problem |
 
