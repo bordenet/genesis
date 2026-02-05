@@ -129,144 +129,31 @@ Changes needed to genesis templates.
   - `genesis/examples/hello-world/assistant/tests/storage.test.js` - Add exportAll/importAll tests
   - Then propagate to: strategic-proposal, jd-assistant, architecture-decision-record
 
-- [ ] **CRITICAL: hello-world template produces COMPLETELY BROKEN apps**
+- [x] **CRITICAL: hello-world template produces COMPLETELY BROKEN apps** ✅ **FIXED 2026-02-05** (PR #73)
   - **Encountered when**: Deployed jd-assistant to GitHub Pages - app was non-functional (empty screen, no body content, dark mode broken, navigation broken)
   - **Impact**: TOTAL FAILURE - app shipped broken to production. User extremely frustrated. Multiple fix attempts required.
-  - **Root cause analysis**:
+  - **Root cause**: hello-world/index.html had wrong HTML structure (11 differences from working projects)
+  - **Fix applied**: Replaced hello-world assistant/index.html with proper one-pager-based structure (122→193 lines):
+    - Added `#app-container` for dynamic rendering
+    - Added Tailwind Typography plugin
+    - Added marked.js script tag
+    - Added `.prose` fallback styles
+    - Fixed dark mode button ID (`theme-toggle`)
+    - Added `#loading-overlay`, `#toast-container`, `#privacy-notice`
+    - Added footer with `#storage-info`
+    - Added emoji favicon and related projects dropdown
 
-  ### Issue 1: Missing `js/core/` directory (FATAL)
-  - **Symptom**: App shows header/footer but NO body content. No console errors visible.
-  - **Root cause**: `js/workflow.js` imports from `./core/workflow.js` which DOESN'T EXIST in hello-world template
-  - **Why no console error**: ES module import failures are silent in some browsers
-  - **Fix**: Copy `js/core/` directory from one-pager (contains workflow.js, storage.js, ui.js, index.js)
-  - **Files in js/core/**:
-    - `workflow.js` - 3-phase workflow engine, `detectPromptPaste()`, `createWorkflow()`, `createWorkflowConfig()`
-    - `storage.js` - Core storage utilities
-    - `ui.js` - Core UI utilities
-    - `index.js` - Module exports
-
-  ### Issue 2: Wrong index.html structure (FATAL)
-  - **Symptom**: Even with js/core/ present, app still broken - dark mode doesn't work, no content renders
-  - **Root cause**: hello-world/index.html uses DIFFERENT HTML structure than working projects
-  - **Specific differences found** (11 total):
-    1. **Missing `#app-container`** - hello-world has static `#projectListView`/`#workflowView` but `views.js` renders to `#app-container`
-    2. **Missing Tailwind Typography plugin** - hello-world has `tailwindcss.com` but working projects have `tailwindcss.com?plugins=typography`
-    3. **Missing marked.js script tag** - file exists at `js/lib/marked.min.js` but `<script src="...">` tag is missing
-    4. **Missing prose styles** - one-pager has 20+ lines of fallback `.prose` CSS for markdown rendering
-    5. **Wrong dark mode button ID** - hello-world has `id="darkModeToggle"` but `app.js` looks for `id="theme-toggle"`
-    6. **Missing `#loading-overlay`** - `showLoading()`/`hideLoading()` fail silently
-    7. **Missing `#toast-container`** - toast notifications don't appear
-    8. **Missing `#privacy-notice`** - first-run privacy notice not shown
-    9. **Missing footer** - no `#storage-info` element for footer stats
-    10. **Missing favicon** - working projects have emoji favicon
-    11. **Missing related projects dropdown** - header navigation to sibling tools
-
-  ### Why This Happened (Agent Failure Analysis)
-  1. **Copied from wrong source**: Agent copied templates from `genesis/examples/hello-world` instead of a working project like `one-pager`
-  2. **No validation of copied files**: Agent didn't verify that copied files actually work together
-  3. **Tests passed but app broken**: Unit tests mock the DOM and don't catch missing HTML elements or missing JS modules
-  4. **No integration test**: No test that loads the actual index.html and verifies the app initializes
-  5. **No smoke test before deploy**: Agent pushed to production without manually testing the deployed app
-  6. **Silent failures**: ES module import failures and missing DOM elements fail silently
-
-  ### Required Fixes to Genesis
-  1. **Replace hello-world template** with one-pager structure (or mark hello-world as deprecated)
-  2. **Add js/core/ to hello-world** if keeping it as template
-  3. **Add integration test** that loads index.html and verifies app.js initializes without errors
-  4. **Add HTML validation** that checks all IDs referenced in JS exist in HTML
-  5. **Add pre-deploy checklist** requiring manual smoke test of deployed app
-
-  - **Reference files**:
-    - BROKEN: `genesis/examples/hello-world/assistant/index.html` (121 lines, missing js/core/)
-    - WORKING: `one-pager/index.html` (196 lines, has js/core/)
-
-- [ ] **CRITICAL: hello-world VALIDATOR is a complete non-functional stub**
+- [x] **CRITICAL: hello-world VALIDATOR is a complete non-functional stub** ✅ **FIXED 2026-02-05** (PR #74)
   - **Encountered when**: After fixing jd-assistant validator (2026-02-05), user demanded investigation of hello-world validator
   - **Impact**: EVERY genesis-derived project inherits a broken validator. The validator "works" in that it loads, but it's missing 80% of the functionality that one-pager has.
   - **Root cause**: hello-world validator was never completed - it's a minimal stub that got copied to all derived projects
-
-  ### The Evidence (hello-world vs one-pager validator):
-
-  | File | hello-world | one-pager | Gap |
-  |------|-------------|-----------|-----|
-  | `validator/index.html` | 94 lines | 349 lines | **73% missing** |
-  | `validator/js/app.js` | 122 lines | 454 lines | **73% missing** |
-  | `validator/js/prompts.js` | **MISSING** | 179 lines | **100% missing** |
-  | `validator/js/validator.js` | 68 lines | 556 lines | **88% missing** |
-
-  ### What hello-world validator is MISSING:
-
-  **UI Features (index.html):**
-  - ❌ Scoring mode toggle (Quick vs LLM)
-  - ❌ Score breakdown panel with dimension progress bars
-  - ❌ AI Power-ups section (critique/rewrite prompts)
-  - ❌ Footer with save/version controls
-  - ❌ Toast container for notifications
-  - ❌ About modal
-  - ❌ LLM Score Panel
-
-  **Functionality (app.js):**
-  - ❌ Dimension score calculation and display
-  - ❌ Version control with localStorage (save/back/forward)
-  - ❌ AI power-up prompt generation
-  - ❌ Clipboard copy functionality
-  - ❌ Scoring mode toggle logic
-  - ❌ Debounced real-time validation
-
-  **Prompts (prompts.js):**
-  - ❌ `generateLLMScoringPrompt()` - LLM scoring rubric
-  - ❌ `generateCritiquePrompt()` - Detailed feedback prompt
-  - ❌ `generateRewritePrompt()` - Improvement prompt
-  - ❌ `cleanAIResponse()` - Response cleaning utility
-
-  ### What hello-world validator HAS (the stub):
-
-  ```html
-  <!-- Just a basic textarea with Validate/Clear buttons -->
-  <textarea id="document-input" placeholder="Paste your document here..."></textarea>
-  <button id="btn-validate">Validate</button>
-  <button id="btn-clear">Clear</button>
-  <div id="results" class="hidden">...</div>
-  ```
-
-  ```javascript
-  // Just basic validate/clear handlers
-  function handleValidate() {
-    const result = validateDocument(text);
-    showResults(html);
-  }
-  function handleClear() {
-    documentInput.value = '';
-    resultsDiv.classList.add('hidden');
-  }
-  ```
-
-  ### Why This Happened:
-
-  1. **hello-world was created as a "minimal example"** - but it's TOO minimal to be a useful template
-  2. **one-pager evolved independently** - gained full validator features that were never backported
-  3. **No diff tool enforcement** - validator files are in INTENTIONAL_DIFF category, so divergence wasn't flagged
-  4. **No functional testing** - unit tests pass because they mock the DOM; no integration test loads the actual app
-
-  ### Required Fixes:
-
-  1. **OPTION A: Replace hello-world validator with one-pager's structure**
-     - Copy one-pager's validator/index.html, app.js, prompts.js
-     - Make them generic (remove one-pager-specific scoring dimensions)
-     - Add placeholder comments for domain-specific customization
-
-  2. **OPTION B: Mark hello-world as deprecated, use one-pager as canonical template**
-     - Update START-HERE.md to copy from one-pager instead of hello-world
-     - Add deprecation notice to hello-world README
-
-  3. **Add validator to MUST_MATCH or create VALIDATOR_STRUCTURE check**
-     - Ensure all validators have the same structural elements
-     - Flag when a validator is missing prompts.js or key UI elements
-
-  4. **Add integration test for validator**
-     - Load validator/index.html in jsdom
-     - Verify all expected elements exist
-     - Verify app.js initializes without errors
+  - **Fix applied**: Replaced stub validator with full 4-dimension scoring template:
+    - `validator/index.html`: 95→348 lines (scoring mode toggle, quick/LLM panels, AI power-ups, version control, about modal)
+    - `validator/js/app.js`: 123→454 lines (state mgmt, updateScoreDisplay, version control, AI power-ups)
+    - `validator/js/validator.js`: 101→377 lines (4-dimension scoring with pattern detection)
+    - `validator/js/prompts.js`: NEW 164 lines (LLM scoring, critique, rewrite prompts)
+    - `validator/tests/validator.test.js`: Updated for new 4-dimension API
+  - All files now use template variables (`{{DOCUMENT_TYPE}}`, `{{DIMENSION_X_NAME}}`, etc.)
 
   ### Projects Affected (inherited broken validator):
 
