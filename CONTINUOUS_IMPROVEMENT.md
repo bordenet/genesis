@@ -67,10 +67,12 @@ Missing or unclear documentation that caused confusion.
 
 Changes needed to genesis templates.
 
-- [ ] **Template**: hello-world baseline has <70% test coverage
-  - **Issue**: hello-world baseline has 58.55% coverage, below the 70% threshold stated in CHECKLIST.md
-  - **Files with low coverage**: `projects.js` (0%), `attachments.js` (3%), `ui.js` (46%), `workflow.js` (54%)
-  - **Fix**: Either lower the threshold in CHECKLIST.md to match reality, or add tests to hello-world baseline
+- [x] **Template**: hello-world baseline test coverage ✅ **FIXED 2026-02-05** (PR #78)
+  - **Issue**: hello-world baseline had 58.55% coverage, below the 70% threshold stated in CHECKLIST.md
+  - **Resolution**:
+    - Coverage improved to 64.55% after PR #76 (export/import tests)
+    - CHECKLIST.md updated to match jest.config.js threshold (50%)
+    - The 70% was aspirational but not enforced; jest.config.js has always enforced 50%
 
 - [x] **CRITICAL: Export/Import All Tests Are Inconsistent Across Projects** ✅ **PARTIALLY FIXED 2026-02-05** (PR #76)
   - **Encountered when**: Auditing test coverage for Export and Import All features across all genesis apps (2026-02-05)
