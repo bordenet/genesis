@@ -5,85 +5,73 @@ import { describe, it, expect } from '@jest/globals';
 import { validateDocument, getGrade, getScoreColor } from '../js/validator.js';
 
 describe('validateDocument', () => {
-  it('should return low score for very short documents', () => {
+  it('should return totalScore property', () => {
     const result = validateDocument('Hello world');
-    expect(result.score).toBeLessThan(50);
-    expect(result.wordCount).toBe(2);
+    expect(result).toHaveProperty('totalScore');
+    expect(typeof result.totalScore).toBe('number');
   });
 
-  it('should return higher score for longer documents', () => {
-    const longText = 'This is a longer document. '.repeat(20);
-    const result = validateDocument(longText);
-    expect(result.score).toBeGreaterThanOrEqual(25);
+  it('should return all four dimension scores', () => {
+    const result = validateDocument('Some test content');
+    expect(result).toHaveProperty('dimension1');
+    expect(result).toHaveProperty('dimension2');
+    expect(result).toHaveProperty('dimension3');
+    expect(result).toHaveProperty('dimension4');
+
+    // Each dimension should have score, maxScore, issues, strengths
+    expect(result.dimension1).toHaveProperty('score');
+    expect(result.dimension1).toHaveProperty('maxScore');
+    expect(result.dimension1).toHaveProperty('issues');
+    expect(result.dimension1).toHaveProperty('strengths');
   });
 
-  it('should give bonus for headings', () => {
-    const withHeading = '# Title\n\nSome content here.';
-    const withoutHeading = 'Some content here.';
-    
-    const resultWith = validateDocument(withHeading);
-    const resultWithout = validateDocument(withoutHeading);
-    
-    expect(resultWith.score).toBeGreaterThan(resultWithout.score);
+  it('should return low total score for minimal content', () => {
+    const result = validateDocument('Hello world');
+    expect(result.totalScore).toBeLessThan(50);
   });
 
-  it('should give bonus for multiple paragraphs', () => {
-    const multiPara = 'Paragraph one.\n\nParagraph two.\n\nParagraph three.';
-    const singlePara = 'Just one paragraph with all the content.';
-    
-    const resultMulti = validateDocument(multiPara);
-    const resultSingle = validateDocument(singlePara);
-    
-    expect(resultMulti.paragraphCount).toBe(3);
-    expect(resultSingle.paragraphCount).toBe(1);
+  it('should handle empty input', () => {
+    const result = validateDocument('');
+    expect(result.totalScore).toBe(0);
+    expect(result.dimension1.issues).toContain('No content to validate');
   });
 
-  it('should give bonus for lists', () => {
-    const withList = '- Item 1\n- Item 2\n- Item 3';
-    const withoutList = 'No lists here.';
-    
-    const resultWith = validateDocument(withList);
-    const resultWithout = validateDocument(withoutList);
-    
-    expect(resultWith.score).toBeGreaterThan(resultWithout.score);
+  it('should handle null input', () => {
+    const result = validateDocument(null);
+    expect(result.totalScore).toBe(0);
   });
 
-  it('should give bonus for code blocks', () => {
-    const withCode = 'Here is some `inline code` example.';
-    const withoutCode = 'Here is some text example.';
-    
-    const resultWith = validateDocument(withCode);
-    const resultWithout = validateDocument(withoutCode);
-    
-    expect(resultWith.score).toBeGreaterThan(resultWithout.score);
+  it('should return score that sums dimensions', () => {
+    const result = validateDocument('# Section 1\n\nSome quality content here.');
+    const sumOfDimensions =
+      result.dimension1.score +
+      result.dimension2.score +
+      result.dimension3.score +
+      result.dimension4.score;
+    expect(result.totalScore).toBe(sumOfDimensions);
   });
 
-  it('should cap score at 100', () => {
-    // Create a document with all bonus features
-    const maxDoc = `# Title
+  it('should cap total score at 100', () => {
+    // Create a document with lots of content
+    const maxDoc = `# Section 1
 
-This is a longer document with multiple paragraphs and good structure.
+This is a comprehensive document with multiple sections.
 
-## Section One
+## Section 2
 
-Here are some key points:
-- Point one with details
-- Point two with more details
-- Point three completing the list
+More detailed content with quality indicators.
 
-## Section Two
+## Section 3
 
-And here is some \`code\` to demonstrate:
+Additional quality and metric measures.
 
-\`\`\`javascript
-console.log('Hello World');
-\`\`\`
+## Section 4
 
-The document continues with more content to reach the word count threshold.
+Final section with more keywords and content.
 `.repeat(3);
-    
+
     const result = validateDocument(maxDoc);
-    expect(result.score).toBeLessThanOrEqual(100);
+    expect(result.totalScore).toBeLessThanOrEqual(100);
   });
 });
 
