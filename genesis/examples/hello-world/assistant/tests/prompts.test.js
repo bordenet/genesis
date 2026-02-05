@@ -13,11 +13,12 @@ import {
 } from '../js/prompts.js';
 
 // Mock fetch for loading prompt templates
+// Uses generic template variables matching the genericized hello-world template
 global.fetch = jest.fn(async (url) => {
   const templates = {
-    'prompts/phase1.md': 'Phase 1: Proposal for {{DEALERSHIP_NAME}} in {{DEALERSHIP_LOCATION}} with {{STORE_COUNT}} stores. Current vendor: {{CURRENT_VENDOR}}. Decision maker: {{DECISION_MAKER_NAME}} ({{DECISION_MAKER_ROLE}}). Transcripts: {{CONVERSATION_TRANSCRIPTS}}. Notes: {{MEETING_NOTES}}. Pain points: {{PAIN_POINTS}}. Attachments: {{ATTACHMENT_TEXT}}. Draft: {{WORKING_DRAFT}}. Context: {{ADDITIONAL_CONTEXT}}.',
-    'prompts/phase2.md': 'Phase 2: Review for {{DECISION_MAKER_NAME}} ({{DECISION_MAKER_ROLE}}) at {{DEALERSHIP_NAME}}. Previous output: {{PHASE1_OUTPUT}}',
-    'prompts/phase3.md': 'Phase 3: Final synthesis for {{DEALERSHIP_NAME}}. Phase 1: {{PHASE1_OUTPUT}}. Phase 2: {{PHASE2_OUTPUT}}'
+    'prompts/phase1.md': 'Phase 1: Document titled {{TITLE}}. Context: {{CONTEXT}}. Problems: {{PROBLEMS}}. Additional context: {{ADDITIONAL_CONTEXT}}.',
+    'prompts/phase2.md': 'Phase 2: Review for {{TITLE}}. Previous output: {{PHASE1_OUTPUT}}',
+    'prompts/phase3.md': 'Phase 3: Final synthesis for {{TITLE}}. Phase 1: {{PHASE1_OUTPUT}}. Phase 2: {{PHASE2_OUTPUT}}'
   };
 
   return {
@@ -92,72 +93,58 @@ describe('generatePhase1Prompt', () => {
   });
 
   test('should generate prompt with all form data', async () => {
+    // Uses generic field names matching the genericized hello-world template
     const formData = {
-      dealershipName: 'Test Auto Group',
-      dealershipLocation: 'Dallas, TX',
-      storeCount: '5',
-      currentVendor: 'Purple Cloud',
-      decisionMakerName: 'John Smith',
-      decisionMakerRole: 'General Manager',
-      conversationTranscripts: 'Sample transcript',
-      meetingNotes: 'Meeting notes here',
-      painPoints: 'Missed calls issue',
-      attachmentText: 'Attachment content',
-      workingDraft: 'Draft content',
-      additionalContext: 'Extra context'
+      title: 'Test Document Title',
+      context: 'Background context for the document',
+      problems: 'Key problems to address',
+      additionalContext: 'Extra context information'
     };
 
     const prompt = await generatePhase1Prompt(formData);
 
-    expect(prompt).toContain('Test Auto Group');
-    expect(prompt).toContain('Dallas, TX');
-    expect(prompt).toContain('5');
-    expect(prompt).toContain('Purple Cloud');
-    expect(prompt).toContain('John Smith');
-    expect(prompt).toContain('General Manager');
-    expect(prompt).toContain('Sample transcript');
-    expect(prompt).toContain('Meeting notes here');
-    expect(prompt).toContain('Missed calls issue');
+    expect(prompt).toContain('Test Document Title');
+    expect(prompt).toContain('Background context for the document');
+    expect(prompt).toContain('Key problems to address');
+    expect(prompt).toContain('Extra context information');
   });
 
   test('should handle missing form data with placeholders', async () => {
     const formData = {
-      dealershipName: 'Test Dealer'
+      title: 'Test Title'
     };
 
     const prompt = await generatePhase1Prompt(formData);
 
-    expect(prompt).toContain('Test Dealer');
+    expect(prompt).toContain('Test Title');
     expect(prompt).toContain('[Not provided]');
   });
 });
 
 describe('generatePhase2Prompt', () => {
   test('should include phase 1 output', async () => {
+    // Uses generic field names matching the genericized hello-world template
     const formData = {
-      dealershipName: 'Test Dealer',
-      decisionMakerName: 'Jane Doe',
-      decisionMakerRole: 'Owner'
+      title: 'Test Document'
     };
 
     const prompt = await generatePhase2Prompt(formData, 'Phase 1 generated content');
 
     expect(prompt).toContain('Phase 1 generated content');
-    expect(prompt).toContain('Jane Doe');
-    expect(prompt).toContain('Owner');
-    expect(prompt).toContain('Test Dealer');
+    expect(prompt).toContain('Test Document');
   });
 });
 
 describe('generatePhase3Prompt', () => {
   test('should include both phase 1 and phase 2 outputs', async () => {
+    // Uses generic field names matching the genericized hello-world template
     const formData = {
-      dealershipName: 'Final Test Dealer'
+      title: 'Final Test Document'
     };
 
     const prompt = await generatePhase3Prompt(formData, 'Phase 1 content', 'Phase 2 critique');
 
-    expect(prompt).toContain('Final Test Dealer');
+    expect(prompt).toContain('Final Test Document');
     expect(prompt).toContain('Phase 1 content');
     expect(prompt).toContain('Phase 2 critique');
   });
