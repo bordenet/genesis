@@ -9,7 +9,7 @@
  * 3. Update button text and labels throughout
  */
 
-import { getAllProjects, createProject, deleteProject } from './projects.js';
+import { getAllProjects, createProject, updateProject, getProject, deleteProject } from './projects.js';
 import { formatDate, escapeHtml, confirm, showToast, showDocumentPreviewModal } from './ui.js';
 import { navigateTo } from './router.js';
 import { getFinalMarkdown, getExportFilename } from './workflow.js';
@@ -290,6 +290,130 @@ function setupNewProjectFormListeners() {
     const project = await createProject(/** @type {import('./types.js').ProjectFormData} */ (formData));
     // CUSTOMIZE: Update toast message for your domain
     showToast('Document created successfully!', 'success');
+    navigateTo('project', project.id);
+  });
+}
+
+/**
+ * Render the edit project form
+ * @param {string} projectId - ID of the project to edit
+ * @returns {Promise<void>}
+ */
+export async function renderEditProjectForm(projectId) {
+  const project = await getProject(projectId);
+  if (!project) {
+    showToast('Project not found', 'error');
+    navigateTo('home');
+    return;
+  }
+
+  const container = document.getElementById('app-container');
+  if (!container) return;
+  container.innerHTML = getEditProjectFormHTML(project);
+  setupEditProjectFormListeners(project);
+}
+
+/**
+ * Generate HTML for the edit project form
+ * @param {import('./types.js').Project} project - Project to edit
+ * @returns {string} HTML string
+ */
+function getEditProjectFormHTML(project) {
+  return `
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-6">
+                <button id="back-btn" class="text-blue-600 dark:text-blue-400 hover:underline flex items-center">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Document
+                </button>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+                <!-- CUSTOMIZE: Update heading for your domain -->
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                    Edit Document Details
+                </h2>
+
+                <form id="edit-project-form" class="space-y-8">
+                    <!--
+                      ⚠️ CUSTOMIZATION REQUIRED:
+                      These fields must match your new project form.
+                      Make sure field names match types.js and projects.js
+                    -->
+
+                    <!-- Title Section -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                            📝 Document Title
+                        </h3>
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title <span class="text-red-500">*</span></label>
+                            <input type="text" id="title" name="title" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Enter a title for your document" value="${escapeHtml(project.title || '')}">
+                        </div>
+                    </section>
+
+                    <!-- Context Section - CUSTOMIZE for your domain -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                            📋 Context
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="context" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Context</label>
+                                <textarea id="context" name="context" rows="6" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Describe the main context or background for this document...">${escapeHtml(project.context || '')}</textarea>
+                            </div>
+                            <div>
+                                <label for="problems" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Problems / Challenges</label>
+                                <textarea id="problems" name="problems" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="What problems or challenges does this document address?">${escapeHtml(project.problems || '')}</textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Additional Context -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                            ℹ️ Additional Context
+                        </h3>
+                        <div>
+                            <textarea id="additionalContext" name="additionalContext" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Any other context, special considerations, or instructions...">${escapeHtml(project.additionalContext || '')}</textarea>
+                        </div>
+                    </section>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button type="button" id="cancel-btn" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Set up event listeners for the edit project form
+ * @param {import('./types.js').Project} project - Project being edited
+ * @returns {void}
+ */
+function setupEditProjectFormListeners(project) {
+  document.getElementById('back-btn')?.addEventListener('click', () => navigateTo('project', project.id));
+  document.getElementById('cancel-btn')?.addEventListener('click', () => navigateTo('project', project.id));
+
+  // Form submission
+  const form = document.getElementById('edit-project-form');
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const target = /** @type {HTMLFormElement} */ (e.target);
+    const formData = Object.fromEntries(new FormData(target));
+    await updateProject(project.id, formData);
+    // CUSTOMIZE: Update toast message for your domain
+    showToast('Document updated successfully!', 'success');
     navigateTo('project', project.id);
   });
 }
