@@ -85,8 +85,10 @@ Changes needed to genesis templates.
     - Full CRUD tests with proper beforeEach isolation
 
   ### Remaining Work:
-  - [ ] Backfill tests to strategic-proposal, jd-assistant, architecture-decision-record
-  - [ ] Standardize storage.test.js with exportAll/importAll tests
+  - [x] Backfill exportAll/importAll to jd-assistant ✅ **FIXED 2026-02-05** (PR #5)
+  - [x] Backfill exportAll/importAll to hello-world ✅ **FIXED 2026-02-05** (PR #79)
+  - [ ] Backfill exportAll/importAll to strategic-proposal
+  - [ ] Backfill exportAll/importAll to architecture-decision-record
 
 - [x] **CRITICAL: hello-world template produces COMPLETELY BROKEN apps** ✅ **FIXED 2026-02-05** (PR #73)
   - **Encountered when**: Deployed jd-assistant to GitHub Pages - app was non-functional (empty screen, no body content, dark mode broken, navigation broken)
