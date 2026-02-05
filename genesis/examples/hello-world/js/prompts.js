@@ -1,9 +1,14 @@
 /**
- * Strategic Proposal Prompts Module
+ * Hello World Prompts Module (TEMPLATE - CUSTOMIZE FOR YOUR DOMAIN)
  * @module prompts
  *
- * Manages workflow configuration and prompt generation for Strategic Proposals.
+ * Manages workflow configuration and prompt generation.
  * Prompts are stored in prompts/ directory as markdown files.
+ *
+ * ⚠️ CUSTOMIZATION REQUIRED:
+ * 1. Update phase descriptions for your document type
+ * 2. Update generatePhase*Prompt() variable mappings to match YOUR form fields
+ * 3. Update prompts/*.md files with domain-specific content
  */
 
 export const WORKFLOW_CONFIG = {
@@ -15,7 +20,7 @@ export const WORKFLOW_CONFIG = {
       icon: '📝',
       aiModel: 'Claude',
       aiUrl: 'https://claude.ai/new',
-      description: 'Generate initial proposal from dealership data and conversations'
+      description: 'Generate initial document from user input' // CUSTOMIZE: describe your Phase 1
     },
     {
       number: 2,
@@ -23,7 +28,7 @@ export const WORKFLOW_CONFIG = {
       icon: '🔄',
       aiModel: 'Gemini',
       aiUrl: 'https://gemini.google.com/app',
-      description: 'Critique as a shrewd decision-maker evaluating the proposal'
+      description: 'Critique and identify improvements' // CUSTOMIZE: describe your Phase 2
     },
     {
       number: 3,
@@ -31,7 +36,7 @@ export const WORKFLOW_CONFIG = {
       icon: '✨',
       aiModel: 'Claude',
       aiUrl: 'https://claude.ai/new',
-      description: 'Synthesize critique into compelling final proposal'
+      description: 'Synthesize feedback into final document' // CUSTOMIZE: describe your Phase 3
     }
   ]
 };
@@ -92,45 +97,53 @@ function replaceTemplateVars(template, vars) {
 
 /**
  * Phase 1 Prompt: Initial Draft Generation
+ *
+ * ⚠️ CUSTOMIZATION REQUIRED:
+ * Replace these placeholder variable mappings with YOUR form field names.
+ * The keys (TITLE, CONTEXT, etc.) must match {{VARIABLE}} placeholders in prompts/phase1.md
+ *
  * @param {Object} formData - Form data from project
  * @returns {Promise<string>} Generated prompt
  */
 export async function generatePhase1Prompt(formData) {
   const template = await loadPromptTemplate(1);
+  // CUSTOMIZE: Map YOUR form fields to template variables
+  // Example: If your form has 'jobTitle', add: JOB_TITLE: formData.jobTitle || ''
   return replaceTemplateVars(template, {
-    DEALERSHIP_NAME: formData.dealershipName || '',
-    DEALERSHIP_LOCATION: formData.dealershipLocation || '',
-    STORE_COUNT: formData.storeCount || '',
-    CURRENT_VENDOR: formData.currentVendor || '',
-    DECISION_MAKER_NAME: formData.decisionMakerName || '',
-    DECISION_MAKER_ROLE: formData.decisionMakerRole || '',
-    CONVERSATION_TRANSCRIPTS: formData.conversationTranscripts || '',
-    MEETING_NOTES: formData.meetingNotes || '',
-    PAIN_POINTS: formData.painPoints || '',
-    ATTACHMENT_TEXT: formData.attachmentText || '',
-    WORKING_DRAFT: formData.workingDraft || '',
+    TITLE: formData.title || '',
+    CONTEXT: formData.context || '',
+    PROBLEMS: formData.problems || '',
     ADDITIONAL_CONTEXT: formData.additionalContext || ''
   });
 }
 
 /**
  * Phase 2 Prompt: Adversarial Review
+ *
+ * ⚠️ CUSTOMIZATION REQUIRED:
+ * Add any form fields needed for the adversarial review prompt.
+ * PHASE1_OUTPUT is always required - it contains the Phase 1 result.
+ *
  * @param {Object} formData - Form data from project
  * @param {string} phase1Output - Output from phase 1
  * @returns {Promise<string>} Generated prompt
  */
 export async function generatePhase2Prompt(formData, phase1Output) {
   const template = await loadPromptTemplate(2);
+  // CUSTOMIZE: Add any form fields needed for Phase 2 review
   return replaceTemplateVars(template, {
-    DECISION_MAKER_NAME: formData.decisionMakerName || '',
-    DECISION_MAKER_ROLE: formData.decisionMakerRole || '',
-    DEALERSHIP_NAME: formData.dealershipName || '',
+    TITLE: formData.title || '',
     PHASE1_OUTPUT: phase1Output
   });
 }
 
 /**
  * Phase 3 Prompt: Final Synthesis
+ *
+ * ⚠️ CUSTOMIZATION REQUIRED:
+ * Add any form fields needed for the final synthesis prompt.
+ * PHASE1_OUTPUT and PHASE2_OUTPUT are always required.
+ *
  * @param {Object} formData - Form data from project
  * @param {string} phase1Output - Output from phase 1
  * @param {string} phase2Output - Output from phase 2
@@ -138,8 +151,9 @@ export async function generatePhase2Prompt(formData, phase1Output) {
  */
 export async function generatePhase3Prompt(formData, phase1Output, phase2Output) {
   const template = await loadPromptTemplate(3);
+  // CUSTOMIZE: Add any form fields needed for Phase 3 synthesis
   return replaceTemplateVars(template, {
-    DEALERSHIP_NAME: formData.dealershipName || '',
+    TITLE: formData.title || '',
     PHASE1_OUTPUT: phase1Output,
     PHASE2_OUTPUT: phase2Output
   });

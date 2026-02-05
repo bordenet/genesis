@@ -1,7 +1,13 @@
 /**
- * Workflow Module
- * Manages the 3-phase adversarial workflow for Strategic Proposal Generator
+ * Workflow Module (TEMPLATE - CUSTOMIZE FOR YOUR DOMAIN)
+ * Manages the 3-phase adversarial workflow
  * @module workflow
+ *
+ * ⚠️ CUSTOMIZATION REQUIRED:
+ * 1. Update generatePrompt() to map YOUR project fields
+ * 2. Update fillPromptTemplate() variable replacements for YOUR fields
+ * 3. Update exportAsMarkdown() format for YOUR document type
+ * 4. Update getExportFilename() naming convention
  */
 
 import {
@@ -134,22 +140,20 @@ export class Workflow {
   /**
      * Generate the prompt for the current phase
      * Uses prompts.js module for template loading and variable replacement
+     *
+     * ⚠️ CUSTOMIZATION REQUIRED:
+     * Update formData to map YOUR project fields from projects.js/types.js
+     *
      * @returns {Promise<string>}
      */
   async generatePrompt() {
     const p = this.project;
+    // CUSTOMIZE: Map YOUR project fields here
+    // These field names must match what you defined in projects.js createProject()
     const formData = {
-      dealershipName: p.dealershipName,
-      dealershipLocation: p.dealershipLocation,
-      storeCount: p.storeCount,
-      currentVendor: p.currentVendor,
-      decisionMakerName: p.decisionMakerName,
-      decisionMakerRole: p.decisionMakerRole,
-      conversationTranscripts: p.conversationTranscripts,
-      meetingNotes: p.meetingNotes,
-      painPoints: p.painPoints,
-      attachmentText: p.attachmentText,
-      workingDraft: p.workingDraft,
+      title: p.title,
+      context: p.context,
+      problems: p.problems,
       additionalContext: p.additionalContext
     };
 
@@ -171,6 +175,10 @@ export class Workflow {
 
   /**
      * Replace template variables with project data - legacy method kept for backward compatibility
+     *
+     * ⚠️ CUSTOMIZATION REQUIRED:
+     * Update the variable replacements to match YOUR project fields
+     *
      * @param {string} template
      * @returns {string}
      */
@@ -182,23 +190,12 @@ export class Workflow {
     const val = (v, label) => v?.trim() || `[${label} not provided]`;
     const optVal = (v) => v?.trim() || '[Not provided]';
 
-    // Dealership information - required fields get specific labels
-    result = result.replace(/\{dealershipName\}/g, val(p.dealershipName, 'Dealership name'));
-    result = result.replace(/\{dealershipLocation\}/g, optVal(p.dealershipLocation));
-    result = result.replace(/\{storeCount\}/g, optVal(p.storeCount));
-    result = result.replace(/\{currentVendor\}/g, optVal(p.currentVendor));
-    result = result.replace(/\{decisionMakerName\}/g, optVal(p.decisionMakerName));
-    result = result.replace(/\{decisionMakerRole\}/g, optVal(p.decisionMakerRole));
-
-    // Conversation and context data
-    result = result.replace(/\{conversationTranscripts\}/g, optVal(p.conversationTranscripts));
-    result = result.replace(/\{meetingNotes\}/g, optVal(p.meetingNotes));
-    result = result.replace(/\{attachmentText\}/g, optVal(p.attachmentText));
-    result = result.replace(/\{painPoints\}/g, optVal(p.painPoints));
+    // CUSTOMIZE: Replace these with YOUR project field mappings
+    // Example for JD: jobTitle, companyName, roleLevel, etc.
+    result = result.replace(/\{title\}/g, val(p.title, 'Title'));
+    result = result.replace(/\{context\}/g, optVal(p.context));
+    result = result.replace(/\{problems\}/g, optVal(p.problems));
     result = result.replace(/\{additionalContext\}/g, optVal(p.additionalContext));
-
-    // Working draft (for refinement)
-    result = result.replace(/\{workingDraft\}/g, optVal(p.workingDraft));
 
     // Phase outputs for synthesis
     result = result.replace(/\{phase1_output\}/g, p.phase1_output || '[Phase 1 output not yet generated]');
@@ -229,12 +226,18 @@ export class Workflow {
 
   /**
      * Export the project as a Markdown document
+     *
+     * ⚠️ CUSTOMIZATION REQUIRED:
+     * Update the attribution URL and document header format
+     *
      * @returns {string}
      */
   exportAsMarkdown() {
-    const attribution = '\n\n---\n\n*Generated with [Strategic Proposal Assistant](https://bordenet.github.io/strategic-proposal/)*';
+    // CUSTOMIZE: Update attribution URL for your deployed app
+    const attribution = '\n\n---\n\n*Generated with [Document Assistant](https://your-app-url.github.io/your-app/)*';
 
-    let md = `# Strategic Proposal: ${this.project.dealershipName}\n\n`;
+    // CUSTOMIZE: Update document header format
+    let md = `# ${this.project.title}\n\n`;
     md += `**Created**: ${new Date(this.project.createdAt).toLocaleDateString()}\n`;
     md += `**Last Updated**: ${new Date(this.project.updatedAt).toLocaleDateString()}\n\n`;
 
@@ -319,9 +322,14 @@ export function getFinalMarkdown(project) {
 
 /**
  * Generate export filename for a project
+ *
+ * ⚠️ CUSTOMIZATION REQUIRED:
+ * Update the default filename and suffix for your document type
+ *
  * @param {import('./types.js').Project} project - Project object
  * @returns {string} Filename with .md extension
  */
 export function getExportFilename(project) {
-  return `${(project.title || 'strategic-proposal').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-proposal.md`;
+  // CUSTOMIZE: Update default name and suffix for your document type
+  return `${(project.title || 'document').replace(/[^a-z0-9]/gi, '-').toLowerCase()}.md`;
 }

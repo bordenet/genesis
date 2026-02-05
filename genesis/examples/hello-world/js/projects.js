@@ -1,7 +1,12 @@
 /**
- * Project Management Module
- * Handles proposal CRUD operations for Strategic Proposal Generator
+ * Project Management Module (TEMPLATE - CUSTOMIZE FOR YOUR DOMAIN)
+ * Handles project CRUD operations
  * @module projects
+ *
+ * ⚠️ CUSTOMIZATION REQUIRED:
+ * 1. Update createProject() fields to match YOUR form fields
+ * 2. Update exportProject() filename pattern
+ * 3. Update importProjects() validation to check YOUR required fields
  */
 
 import storage from './storage.js';
@@ -55,7 +60,12 @@ function extractTitleFromMarkdown(markdown) {
  */
 
 /**
- * Create a new proposal project with dealership-specific fields
+ * Create a new project
+ *
+ * ⚠️ CUSTOMIZATION REQUIRED:
+ * Replace placeholder fields with YOUR domain-specific fields.
+ * These must match the form fields in views.js and types in types.js.
+ *
  * @param {import('./types.js').ProjectFormData} formData
  * @returns {Promise<import('./types.js').Project>}
  */
@@ -63,32 +73,22 @@ export async function createProject(formData) {
   /** @type {import('./types.js').Project} */
   const project = {
     id: crypto.randomUUID(),
-    title: formData.title || `Proposal - ${formData.dealershipName}`,
+    // CUSTOMIZE: Update title generation for your domain
+    title: formData.title || 'New Document',
 
-    // Dealership Information
-    dealershipName: formData.dealershipName || '',
-    dealershipLocation: formData.dealershipLocation || '',
-    storeCount: formData.storeCount || '',
-    currentVendor: formData.currentVendor || '',
-    decisionMakerName: formData.decisionMakerName || '',
-    decisionMakerRole: formData.decisionMakerRole || '',
-
-    // Input Materials
-    conversationTranscripts: formData.conversationTranscripts || '',
-    meetingNotes: formData.meetingNotes || '',
-    attachmentText: formData.attachmentText || '',
-    painPoints: formData.painPoints || '',
+    // CUSTOMIZE: Replace these placeholder fields with YOUR domain fields
+    // Example for JD: jobTitle, companyName, roleLevel, location, etc.
+    // Example for PRD: problemStatement, targetUsers, successMetrics, etc.
+    context: formData.context || '',
+    problems: formData.problems || '',
     additionalContext: formData.additionalContext || '',
 
-    // Working Draft (for refinement workflow)
-    workingDraft: formData.workingDraft || '',
-
-    // Phase outputs
+    // Phase outputs (keep these)
     phase1_output: '',
     phase2_output: '',
     phase3_output: '',
 
-    // Workflow state
+    // Workflow state (keep these)
     phase: 1,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -199,7 +199,8 @@ export async function exportProject(projectId) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `proposal-${sanitizeFilename(project.dealershipName)}.json`;
+  // CUSTOMIZE: Update filename pattern for your domain
+  a.download = `project-${sanitizeFilename(project.title)}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -223,7 +224,8 @@ export async function exportAllProjects() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `strategic-proposals-backup-${new Date().toISOString().split('T')[0]}.json`;
+  // CUSTOMIZE: Update backup filename for your domain
+  a.download = `projects-backup-${new Date().toISOString().split('T')[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -251,7 +253,9 @@ export async function importProjects(file) {
             await storage.saveProject(project);
             imported++;
           }
-        } else if (content.id && content.dealershipName) {
+        } else if (content.id && content.title) {
+          // CUSTOMIZE: Update validation to check YOUR required fields
+          // Example: content.id && content.jobTitle for JD Assistant
           await storage.saveProject(content);
           imported = 1;
         } else {
@@ -275,7 +279,7 @@ export async function importProjects(file) {
  * @returns {string}
  */
 function sanitizeFilename(filename) {
-  return (filename || 'proposal')
+  return (filename || 'project')
     .replace(/[^a-z0-9]/gi, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')

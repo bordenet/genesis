@@ -1,7 +1,12 @@
 /**
- * Views Module
- * Handles rendering different views for Strategic Proposal Generator
+ * Views Module (TEMPLATE - CUSTOMIZE FOR YOUR DOMAIN)
+ * Handles rendering different views
  * @module views
+ *
+ * ⚠️ CUSTOMIZATION REQUIRED:
+ * 1. Update form fields in renderNewProjectForm() for YOUR domain
+ * 2. Update project card display in renderProjectsList() for YOUR fields
+ * 3. Update button text and labels throughout
  */
 
 import { getAllProjects, createProject, deleteProject } from './projects.js';
@@ -38,12 +43,13 @@ export async function renderProjectsList() {
 
   const container = document.getElementById('app-container');
   container.innerHTML = `
+        <!-- CUSTOMIZE: Update button text and headings for your domain -->
         <div class="mb-6 flex items-center justify-between">
             <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
-                My Proposals
+                My Documents
             </h2>
             <button id="new-project-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                + New Proposal
+                + New Document
             </button>
         </div>
 
@@ -51,13 +57,13 @@ export async function renderProjectsList() {
             <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
                 <span class="text-6xl mb-4 block">📋</span>
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    No proposals yet
+                    No documents yet
                 </h3>
                 <p class="text-gray-600 dark:text-gray-400 mb-6">
-                    Create your first strategic proposal for a dealership
+                    Create your first document to get started
                 </p>
                 <button id="new-project-btn-empty" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                    + Create Your First Proposal
+                    + Create Your First Document
                 </button>
             </div>
         ` : `
@@ -72,8 +78,9 @@ export async function renderProjectsList() {
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer" data-project-id="${project.id}">
                         <div class="p-6">
                             <div class="flex items-start justify-between mb-3">
+                                <!-- CUSTOMIZE: Update to display YOUR primary field -->
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2">
-                                    ${escapeHtml(project.dealershipName || project.title)}
+                                    ${escapeHtml(project.title || 'Untitled')}
                                 </h3>
                                 <div class="flex items-center space-x-2">
                                     ${isComplete ? `
@@ -92,8 +99,9 @@ export async function renderProjectsList() {
                                 </div>
                             </div>
 
+                            <!-- CUSTOMIZE: Update to display YOUR secondary fields -->
                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                ${escapeHtml(project.dealershipLocation || '')} ${project.storeCount ? `• ${project.storeCount} stores` : ''}
+                                ${escapeHtml(project.context ? project.context.substring(0, 100) + (project.context.length > 100 ? '...' : '') : '')}
                             </p>
 
                             <div class="mb-4">
@@ -112,9 +120,6 @@ export async function renderProjectsList() {
 
                             <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                                 <span>Updated ${formatDate(project.updatedAt)}</span>
-                                <span class="px-2 py-1 rounded ${project.currentVendor ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'}">
-                                    ${project.currentVendor ? `vs ${escapeHtml(project.currentVendor)}` : 'New'}
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -200,102 +205,46 @@ function getNewProjectFormHTML() {
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+                <!-- CUSTOMIZE: Update heading for your domain -->
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    Create New Strategic Proposal
+                    Create New Document
                 </h2>
 
                 <form id="new-project-form" class="space-y-8">
-                    <!-- Dealership Information Section -->
+                    <!--
+                      ⚠️ CUSTOMIZATION REQUIRED:
+                      Replace these placeholder form sections with YOUR domain-specific fields.
+                      Make sure field names match:
+                      - types.js Project and ProjectFormData typedefs
+                      - projects.js createProject() field mappings
+                      - prompts.js generatePhase*Prompt() variable mappings
+                    -->
+
+                    <!-- Title Section -->
                     <section>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                            🏢 Dealership Information
+                            📝 Document Title
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="dealershipName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dealership Name *</label>
-                                <input type="text" id="dealershipName" name="dealershipName" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., Team Auto Group">
-                            </div>
-                            <div>
-                                <label for="dealershipLocation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location</label>
-                                <input type="text" id="dealershipLocation" name="dealershipLocation" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., Dallas, TX">
-                            </div>
-                            <div>
-                                <label for="storeCount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Number of Stores</label>
-                                <input type="number" id="storeCount" name="storeCount" min="1" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., 5">
-                            </div>
-                            <div>
-                                <label for="currentVendor" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Vendor (if any)</label>
-                                <input type="text" id="currentVendor" name="currentVendor" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., Purple Cloud">
-                            </div>
-                        </div>
-                    </section>
-                    <!-- Decision Maker Section -->
-                    <section>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                            👤 Decision Maker
-                        </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="decisionMakerName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
-                                <input type="text" id="decisionMakerName" name="decisionMakerName" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., John Smith">
-                            </div>
-                            <div>
-                                <label for="decisionMakerRole" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Role/Title</label>
-                                <input type="text" id="decisionMakerRole" name="decisionMakerRole" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., General Manager, Owner">
-                            </div>
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title *</label>
+                            <input type="text" id="title" name="title" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Enter a title for your document">
                         </div>
                     </section>
 
-                    <!-- Conversation Materials Section -->
+                    <!-- Context Section - CUSTOMIZE for your domain -->
                     <section>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                            💬 Conversation Materials
+                            📋 Context
                         </h3>
                         <div class="space-y-4">
                             <div>
-                                <label for="conversationTranscripts" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Call Transcripts / Conversation Logs</label>
-                                <textarea id="conversationTranscripts" name="conversationTranscripts" rows="6" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Paste call transcripts, email threads, or conversation logs here..."></textarea>
+                                <label for="context" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Context</label>
+                                <textarea id="context" name="context" rows="6" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Describe the main context or background for this document..."></textarea>
                             </div>
                             <div>
-                                <label for="meetingNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meeting Notes</label>
-                                <textarea id="meetingNotes" name="meetingNotes" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Any meeting notes or discovery call summaries..."></textarea>
+                                <label for="problems" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Problems / Challenges</label>
+                                <textarea id="problems" name="problems" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="What problems or challenges does this document address?"></textarea>
                             </div>
-                            <div>
-                                <label for="painPoints" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Known Pain Points</label>
-                                <textarea id="painPoints" name="painPoints" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="List specific pain points identified with current vendor or situation..."></textarea>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- File Upload Section -->
-                    <section>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                            📎 Attachments
-                        </h3>
-                        <div id="drop-zone" class="drop-zone rounded-lg p-8 text-center cursor-pointer">
-                            <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                            </svg>
-                            <p class="text-gray-600 dark:text-gray-400 mb-2">Drop PDF files here or click to upload</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-500">Text will be extracted and included in the proposal context</p>
-                            <input type="file" id="file-input" accept=".pdf,.txt" multiple class="hidden">
-                        </div>
-                        <div id="file-list" class="mt-4 space-y-2"></div>
-                        <div>
-                            <label for="attachmentText" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 mt-4">Extracted/Pasted Attachment Text</label>
-                            <textarea id="attachmentText" name="attachmentText" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Paste text from PDFs or other documents here..."></textarea>
-                        </div>
-                    </section>
-
-                    <!-- Working Draft Section -->
-                    <section>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                            📝 Working Draft (Optional)
-                        </h3>
-                        <div>
-                            <label for="workingDraft" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Existing Proposal Draft</label>
-                            <textarea id="workingDraft" name="workingDraft" rows="8" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white font-mono text-sm" placeholder="If you have an existing draft to refine, paste it here..."></textarea>
-                            <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">If provided, the AI will use this as a starting point for refinement.</p>
                         </div>
                     </section>
 
@@ -315,7 +264,7 @@ function getNewProjectFormHTML() {
                             Cancel
                         </button>
                         <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                            Create Proposal
+                            Create Document
                         </button>
                     </div>
                 </form>
@@ -329,37 +278,8 @@ function getNewProjectFormHTML() {
  * @returns {void}
  */
 function setupNewProjectFormListeners() {
-  // Reset attachment tracking for new form
-  resetAttachmentTracking();
-
   document.getElementById('back-btn')?.addEventListener('click', () => navigateTo('home'));
   document.getElementById('cancel-btn')?.addEventListener('click', () => navigateTo('home'));
-
-  // File upload handling
-  const dropZone = document.getElementById('drop-zone');
-  const fileInput = /** @type {HTMLInputElement | null} */ (document.getElementById('file-input'));
-
-  if (dropZone && fileInput) {
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('drag-over');
-    });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('drag-over');
-      if (e.dataTransfer?.files) {
-        handleFiles(e.dataTransfer.files);
-      }
-    });
-    fileInput.addEventListener('change', (e) => {
-      const target = /** @type {HTMLInputElement} */ (e.target);
-      if (target.files) {
-        handleFiles(target.files);
-      }
-    });
-  }
 
   // Form submission
   const form = document.getElementById('new-project-form');
@@ -368,7 +288,8 @@ function setupNewProjectFormListeners() {
     const target = /** @type {HTMLFormElement} */ (e.target);
     const formData = Object.fromEntries(new FormData(target));
     const project = await createProject(/** @type {import('./types.js').ProjectFormData} */ (formData));
-    showToast('Proposal created successfully!', 'success');
+    // CUSTOMIZE: Update toast message for your domain
+    showToast('Document created successfully!', 'success');
     navigateTo('project', project.id);
   });
 }
