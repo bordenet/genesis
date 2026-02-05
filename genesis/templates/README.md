@@ -138,7 +138,7 @@ All templates must meet the standards defined in `../05-QUALITY-STANDARDS.md`:
 
 ## Related Documentation
 
-- **Master Plan**: `../00-GENESIS-PLAN.md`
+- **Master Plan**: `../docs/historical/00-GENESIS-PLAN.md` _(historical)_
 - **AI Instructions**: `../01-AI-INSTRUCTIONS.md`
 - **Quality Standards**: `../05-QUALITY-STANDARDS.md`
 - **Customization Guide**: `../03-CUSTOMIZATION-GUIDE.md`

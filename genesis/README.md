@@ -250,7 +250,7 @@ js/
 
 ### 📚 Core Documentation
 
-- **`00-GENESIS-PLAN.md`** - Master plan (double-checked, ready for implementation)
+- **`00-GENESIS-PLAN.md`** - Historical planning document (archived to `docs/historical/`)
 - **`01-AI-INSTRUCTIONS.md`** - Step-by-step AI guidance with quality standards
 - **`02-DEPENDENCY-MANAGEMENT.md`** - **THE IRON LAW OF DEPENDENCIES** (MANDATORY - Read First)
 - **`02-QUICK-START.md`** - Human-readable quick start

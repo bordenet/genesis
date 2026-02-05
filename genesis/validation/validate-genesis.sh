@@ -74,7 +74,7 @@ main() {
     
     # Check core documentation
     log_info "Checking core documentation..."
-    check_file "00-GENESIS-PLAN.md" "Master plan"
+    check_file "docs/historical/00-GENESIS-PLAN.md" "Master plan (archived)"
     check_file "01-AI-INSTRUCTIONS.md" "AI instructions"
     check_file "02-QUICK-START.md" "Quick start guide"
     check_file "03-CUSTOMIZATION-GUIDE.md" "Customization guide"
