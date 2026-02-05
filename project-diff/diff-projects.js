@@ -103,7 +103,6 @@ const INTENTIONAL_DIFF_PATTERNS = [
 
   // === PROJECT IDENTITY (contains project name/title) ===
   /^README\.md$/,
-  /^CHANGELOG\.md$/,
   /^CONTRIBUTING\.md$/,
   /^Agents\.md$/,           // Contains project-specific AI guidance
   /^CLAUDE\.md$/,           // Contains project-specific instructions
