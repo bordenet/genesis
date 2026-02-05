@@ -73,16 +73,43 @@ A Genesis project is complete when:
 - [ ] Copied all prompt files (prompts/*.md)
 - [ ] Copied all scripts (scripts/*.sh, scripts/lib/*.sh)
 - [ ] Made all scripts executable: `chmod +x scripts/*.sh scripts/lib/*.sh`
+- [ ] **MANDATORY**: Added project to `genesis/project-diff/diff-projects.js` PROJECTS array
+- [ ] **MANDATORY**: Ran `node genesis/project-diff/diff-projects.js` and verified new project appears in output
+
+#### 🚨 CHECKPOINT: After Phase 2 (Template Copying)
+```bash
+cd genesis-tools/genesis/project-diff && node diff-projects.js
+```
+- [ ] Output shows: "✓ ALL MUST-MATCH FILES ARE IDENTICAL"
+- [ ] Output shows: "✓ NO STUB VALIDATORS DETECTED" (or only hello-world flagged)
+- [ ] ❌ **DO NOT PROCEED** if divergent files exist
 
 ### Phase 3: Variable Replacement
 - [ ] Replaced ALL `{{VARIABLES}}` in all files
 - [ ] Verified: `grep -r "{{" . --exclude-dir=node_modules --exclude-dir=genesis` returns nothing
+- [ ] **Template field validation**: Search for template-specific field names:
+  ```bash
+  grep -rn "dealershipName\|proposalTitle\|onePagerTitle\|problemClarity\|solutionFit" . --exclude-dir=node_modules
+  ```
+- [ ] Replace ALL template-specific field names with your domain-specific names
+- [ ] Verify import/export validation uses YOUR field names (check `projects.js` importProjects function)
 
 ### Phase 4: Install & Test
 - [ ] Ran `npm install`
 - [ ] Ran `./scripts/install-hooks.sh`
 - [ ] Ran `npm run lint` - zero errors
 - [ ] Ran `npm test` - all pass, ≥70% coverage
+- [ ] **Test template mismatch check**: Review ALL test files for domain-specific assertions
+- [ ] Validator tests check YOUR domain dimensions (not generic one-pager dimensions)
+- [ ] Run tests and verify they test YOUR domain, not template domain
+
+#### 🚨 CHECKPOINT: Before Every Commit
+```bash
+cd genesis-tools/genesis/project-diff && node diff-projects.js
+```
+- [ ] Output shows: "✓ ALL MUST-MATCH FILES ARE IDENTICAL"
+- [ ] ❌ **COMMIT BLOCKED** if divergent files exist
+- [ ] If divergent: Fix files to match reference implementation before committing
 
 ### Phase 5: Git & GitHub
 - [ ] `git init && git add . && git commit -m "Initial commit from Genesis"`

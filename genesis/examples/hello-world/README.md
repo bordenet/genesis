@@ -1,111 +1,116 @@
-# Hello World - Genesis Baseline
+# {{PROJECT_TITLE}}
 
-Canonical reference for shared infrastructure code. Paired assistant/validator architecture.
+{{PROJECT_DESCRIPTION}}
+
+[![Star this repo](https://img.shields.io/github/stars/{{GITHUB_USER}}/{{GITHUB_REPO}}?style=social)](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}})
+
+**Try it**: [Assistant](https://{{GITHUB_USER}}.github.io/{{GITHUB_REPO}}/) · [Validator](https://{{GITHUB_USER}}.github.io/{{GITHUB_REPO}}/validator/)
+
+[![CI](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions/workflows/ci.yml/badge.svg)](https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}/actions)
+[![codecov](https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}}/branch/main/graph/badge.svg)](https://codecov.io/gh/{{GITHUB_USER}}/{{GITHUB_REPO}})
 
 ---
 
 ## Quick Start
 
+1. Open the [demo](https://{{GITHUB_USER}}.github.io/{{GITHUB_REPO}}/)
+2. Enter your inputs
+3. Copy prompt → paste into Claude → paste response back
+4. Repeat for review (Gemini) and synthesis (Claude)
+5. Export as Markdown
+
+## What It Does
+
+- **Draft → Review → Synthesize**: Claude writes, Gemini critiques, Claude refines
+- **Browser storage**: Data stays in IndexedDB, nothing leaves your machine
+- **No login**: Just open and use
+- **Dark mode**: Toggle in the UI
+
+## How the Phases Work
+
+**Phase 1** — You provide context. Claude drafts your {{DOCUMENT_TYPE}}.
+
+**Phase 2** — Gemini reviews the draft: What's missing? What's unclear? What's wrong?
+
+**Phase 3** — Claude takes the original draft plus Gemini's critique and produces a final version.
+
+---
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Setup
+
 ```bash
+git clone https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}.git
+cd {{GITHUB_REPO}}
 npm install
-npm test        # Unit tests for both assistant and validator
-open index.html # Assistant UI
-open validator/index.html # Validator UI
+```
+
+### Testing
+
+```bash
+npm test        # Run all tests
+npm run lint    # Run linting
+npm run lint:fix # Fix lint issues
 ```
 
 ---
 
-## What This Is
-
-**This is the baseline template.** All 6 derived projects (one-pager, product-requirements-assistant, etc.) must keep their shared infrastructure files byte-for-byte identical to this project.
+## Paired Architecture
 
 Every project has a **paired architecture**:
 
 - **assistant/** - 3-phase AI workflow for creating documents
 - **validator/** - Document scoring and validation tool
 
-See `CODE-CONSISTENCY-MANDATE.md` for details.
-
 ---
 
-## Directory Structure
+## Project Structure
 
 ```
-hello-world/
-├── index.html              # Root (mirrors assistant/index.html)
-├── js/                     # Root JS (mirrors assistant/js/)
-├── css/                    # Root CSS (mirrors assistant/css/)
-├── assistant/              # Document creation tool
-│   ├── index.html          # Main assistant UI
-│   ├── js/                 # Source files
-│   │   ├── app.js          # Entry point
-│   │   ├── workflow.js     # Phase logic
-│   │   ├── storage.js      # IndexedDB
-│   │   ├── router.js       # Client-side routing
-│   │   ├── error-handler.js    # Error display (MUST_MATCH)
-│   │   ├── same-llm-adversarial.js  # LLM adversarial (MUST_MATCH)
-│   │   └── ai-mock.js      # Mock responses
-│   ├── css/styles.css      # Styles
-│   └── tests/              # Jest unit tests
-├── validator/              # Document validation tool
-│   ├── index.html          # Validator UI
-│   ├── js/                 # Validator source
-│   │   ├── app.js          # Entry point
-│   │   └── validator.js    # Validation logic
-│   ├── css/styles.css      # Styles
-│   ├── tests/              # Jest unit tests
-│   └── testdata/           # Test fixtures
-├── e2e/                    # Playwright E2E tests
-├── scripts/lib/            # Shell utilities
-├── package.json
-├── jest.config.js
-├── playwright.config.js
-└── eslint.config.js
-```
-
-**Note**: Root `index.html`, `js/`, and `css/` mirror `assistant/` for backward compatibility.
-
----
-
-## MUST_MATCH Files
-
-These files must be identical across all 7 projects:
-
-| File | Purpose |
-|------|---------|
-| `js/error-handler.js` | Error display |
-| `js/same-llm-adversarial.js` | Same-LLM adversarial mode |
-| `scripts/lib/compact.sh` | Shell output utilities |
-| `scripts/lib/symlinks.sh` | Symlink handling |
-| `AGENT.md` | AI agent instructions |
-| `CODEX.md` | OpenAI Codex instructions |
-| `COPILOT.md` | GitHub Copilot instructions |
-| `GEMINI.md` | Google Gemini instructions |
-| `ADOPT-PROMPT.md` | AI adoption prompt |
-
-Run `project-diff --ci` to verify consistency.
-
----
-
-## Testing
-
-```bash
-npm test              # All 170 tests
-npm run test:unit     # Unit tests only
-npm run test:e2e      # E2E tests only
-npm run test:coverage # With coverage
+{{GITHUB_REPO}}/
+├── index.html              # Main entry point
+├── js/                     # JavaScript modules
+│   ├── app.js              # Application entry
+│   ├── workflow.js         # Phase orchestration
+│   ├── storage.js          # IndexedDB operations
+│   └── ...
+├── assistant/              # Assistant web app
+│   ├── index.html
+│   └── js/
+├── validator/              # Validator web app
+│   ├── index.html
+│   └── js/
+├── tests/                  # Jest test files
+├── prompts/                # AI prompt templates
+│   ├── phase1.md
+│   ├── phase2.md
+│   └── phase3.md
+└── e2e/                    # Playwright E2E tests
 ```
 
 ---
 
-## Related Projects
+## Part of Genesis Tools
 
-All derived from this template:
+Built with [Genesis](https://github.com/bordenet/genesis). Related tools:
 
-- [one-pager](https://github.com/bordenet/one-pager)
-- [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant)
-- [architecture-decision-record](https://github.com/bordenet/architecture-decision-record)
-- [strategic-proposal](https://github.com/bordenet/strategic-proposal)
-- [power-statement-assistant](https://github.com/bordenet/power-statement-assistant)
-- [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant)
+- [One-Pager](https://github.com/bordenet/one-pager)
+- [Power Statement Assistant](https://github.com/bordenet/power-statement-assistant)
+- [PR/FAQ Assistant](https://github.com/bordenet/pr-faq-assistant)
+- [Product Requirements Assistant](https://github.com/bordenet/product-requirements-assistant)
+- [Strategic Proposal](https://github.com/bordenet/strategic-proposal)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+
+MIT - See [LICENSE](LICENSE)
 

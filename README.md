@@ -48,20 +48,16 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for full details on the paired model.
 
 ### Create a New Paired Project
 
-```bash
-cd genesis-tools/genesis
-./genesis/scripts/create-project.sh --name my-document
-```
+Follow the step-by-step guide in [`genesis/START-HERE.md`](genesis/START-HERE.md).
 
 This creates a new project with:
 - `assistant/` - 3-phase workflow app
 - `validator/` - Document scorer
-- Symlinks to `assistant-core` and `validator-core`
 - Pre-configured Jest, ESLint, GitHub Actions
 
-### Manual Setup
+### Alternative: Copy Template Directly
 
-If you prefer manual setup, use the `hello-world` template:
+For quick prototyping, copy the `hello-world` template:
 
 ```bash
 # Copy the paired template
