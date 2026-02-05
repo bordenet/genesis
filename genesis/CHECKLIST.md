@@ -52,6 +52,20 @@ A Genesis project is complete when:
 - [ ] Asked user for: document type, peer site navigation, GitHub Pages architecture
 - [ ] Did NOT ask questions answered by reference implementation
 
+### Phase 1.5: Domain Research 🔬 (MANDATORY)
+- [ ] Identified 5-7 progressive research prompts with user
+- [ ] Conducted Perplexity research for each prompt
+- [ ] Saved all prompts and answers to `docs/{DOCUMENT_TYPE}-RESEARCH-{YEAR}.md`
+- [ ] Extracted form fields from research findings
+- [ ] Extracted validator scoring dimensions from research
+- [ ] Extracted LLM prompt guidance from research
+- [ ] Identified red flags and anti-patterns to detect
+- [ ] Committed research file to git
+
+> **Why This Matters**: Without domain research, validator will use generic one-pager
+> criteria instead of document-specific criteria. Research is the #1 predictor of quality.
+> See `jd-assistant/docs/JD-RESEARCH-2025.md` for reference.
+
 ### Phase 2: Copy Templates
 - [ ] Copied all core files (.gitignore, CLAUDE.md, DESIGN-PATTERNS.md, README.md, package.json, etc.)
 - [ ] Copied all web app files (index.html, js/*.js, css/*.css)
@@ -84,6 +98,10 @@ A Genesis project is complete when:
 - [ ] Deployment script works: `./scripts/deploy-web.sh`
 - [ ] No `node_modules/` or `coverage/` in git
 - [ ] Created `REVERSE-INTEGRATION-NOTES.md` documenting Genesis gaps
+- [ ] Smoke test: Open app in browser, verify NO console errors
+- [ ] Smoke test: Verify body content renders (not just header/footer)
+- [ ] Smoke test: Verify dark mode toggle works (click and see change)
+- [ ] Smoke test: Verify "New Project" button works (click and see form)
 
 ---
 
@@ -132,6 +150,9 @@ A Genesis project is complete when:
 | Console errors in web app | Test in browser before committing |
 | .env file committed | Ensure `.env` in `.gitignore` BEFORE creating |
 | Buttons without handlers | Wire `addEventListener()` immediately after render |
+| App deployed but broken | Test in actual browser before claiming done |
+| Tests pass, app broken | Unit tests mock DOM - always test in real browser |
+| Silent JS failures | ES module imports fail silently - check console |
 
 ---
 
