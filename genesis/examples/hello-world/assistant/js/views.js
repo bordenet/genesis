@@ -168,9 +168,9 @@ export async function renderProjectsList() {
       const projectId = btn.dataset.projectId;
       const project = projects.find(p => p.id === projectId);
 
-      if (await confirm('Delete Proposal', `Are you sure you want to delete the proposal for "${project.dealershipName || project.title}"?`, 'Delete', 'Cancel')) {
+      if (await confirm(`Are you sure you want to delete "${project.title}"?`, 'Delete Project')) {
         await deleteProject(projectId);
-        showToast('Proposal deleted', 'success');
+        showToast('Project deleted', 'success');
         renderProjectsList();
       }
     });
