@@ -56,10 +56,10 @@ GitHub Actions workflow hasn't run yet, or workflow file is missing
    ls -la .github/workflows/ci.yml
    ```
 
-2. **If missing, copy from template**:
+2. **If missing, copy from hello-world**:
    ```bash
    mkdir -p .github/workflows
-   cp genesis/templates/github/workflows/ci-template.yml .github/workflows/ci.yml
+   cp genesis/examples/hello-world/.github/workflows/ci.yml .github/workflows/ci.yml
    ```
 
 3. **Replace {{DEPLOY_FOLDER}} in ci.yml**:
