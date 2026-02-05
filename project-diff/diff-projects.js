@@ -253,6 +253,33 @@ const DOMAIN_BLEED_OVER = {
   // hello-world is intentionally excluded - it contains generic placeholders
 };
 
+// ============================================================================
+// FUNCTION SIGNATURE CONSISTENCY
+// ============================================================================
+// Boilerplate files that MUST have identical exported function signatures across all projects.
+// This catches bugs like confirm(title, message) vs confirm(message, title) mismatches.
+// The function BODY can differ (for intentional diff files), but the SIGNATURE must match.
+const SIGNATURE_CHECK_FILES = [
+  // Core UI functions - these are called from multiple places
+  'assistant/js/ui.js',
+  'js/ui.js',
+  // Storage functions - critical for data consistency
+  'assistant/js/storage.js',
+  'js/storage.js',
+  // Project management functions
+  'assistant/js/projects.js',
+  'js/projects.js',
+  // Workflow functions
+  'assistant/js/workflow.js',
+  'js/workflow.js',
+  // Router functions
+  'assistant/js/router.js',
+  'js/router.js',
+  // Error handler functions
+  'assistant/js/error-handler.js',
+  'js/error-handler.js',
+];
+
 // Files/patterns that are EXPECTED to differ between projects
 const INTENTIONAL_DIFF_PATTERNS = [
   // === LLM PROMPTS (document-type specific) ===
@@ -769,6 +796,150 @@ function analyzeDomainBleedOver(genesisToolsDir) {
 }
 
 /**
+ * Extract exported function signatures from a JavaScript file.
+ * Returns array of { name, signature, line } objects.
+ * Signature includes function name and parameters but not body.
+ */
+function extractFunctionSignatures(filePath) {
+  const signatures = [];
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const lines = content.split('\n');
+
+    // Patterns to match exported functions
+    // export function name(params) {
+    // export async function name(params) {
+    // export const name = (params) => {
+    // export const name = async (params) => {
+    // export const name = function(params) {
+    const patterns = [
+      // export function name(params)
+      /^export\s+(async\s+)?function\s+(\w+)\s*\(([^)]*)\)/,
+      // export const name = (params) =>
+      /^export\s+const\s+(\w+)\s*=\s*(async\s+)?\(([^)]*)\)\s*=>/,
+      // export const name = function(params)
+      /^export\s+const\s+(\w+)\s*=\s*(async\s+)?function\s*\(([^)]*)\)/,
+    ];
+
+    lines.forEach((line, lineNum) => {
+      const trimmedLine = line.trim();
+
+      for (const pattern of patterns) {
+        const match = trimmedLine.match(pattern);
+        if (match) {
+          let name, params, isAsync;
+
+          if (pattern.source.includes('function\\s+(\\w+)')) {
+            // export [async] function name(params)
+            isAsync = !!match[1];
+            name = match[2];
+            params = match[3];
+          } else {
+            // export const name = [async] (params) => or function(params)
+            name = match[1];
+            isAsync = !!match[2];
+            params = match[3];
+          }
+
+          // Normalize params: remove extra whitespace, keep defaults
+          const normalizedParams = params
+            .split(',')
+            .map(p => p.trim())
+            .filter(p => p.length > 0)
+            .join(', ');
+
+          signatures.push({
+            name,
+            params: normalizedParams,
+            isAsync,
+            signature: `${isAsync ? 'async ' : ''}function ${name}(${normalizedParams})`,
+            line: lineNum + 1
+          });
+          break;
+        }
+      }
+    });
+  } catch {
+    // File doesn't exist or can't be read
+  }
+
+  return signatures;
+}
+
+/**
+ * Analyze function signature consistency across all projects.
+ * Detects when the same exported function has different signatures in different projects.
+ * This catches bugs like confirm(title, message) vs confirm(message, title).
+ */
+function analyzeFunctionSignatures(genesisToolsDir) {
+  const results = {
+    summary: { filesChecked: 0, functionsChecked: 0, signatureMismatches: 0 },
+    mismatches: [],  // Array of { functionName, file, signatures: { project: signature } }
+    allSignatures: {}  // file -> functionName -> { project: signature }
+  };
+
+  for (const file of SIGNATURE_CHECK_FILES) {
+    const fileSignatures = {};  // functionName -> { project: { signature, line } }
+    let fileExists = false;
+
+    for (const project of PROJECTS) {
+      const filePath = path.join(genesisToolsDir, project, file);
+      const signatures = extractFunctionSignatures(filePath);
+
+      if (signatures.length > 0) {
+        fileExists = true;
+        for (const sig of signatures) {
+          if (!fileSignatures[sig.name]) {
+            fileSignatures[sig.name] = {};
+          }
+          fileSignatures[sig.name][project] = {
+            signature: sig.signature,
+            params: sig.params,
+            line: sig.line
+          };
+        }
+      }
+    }
+
+    if (fileExists) {
+      results.summary.filesChecked++;
+      results.allSignatures[file] = fileSignatures;
+
+      // Check for mismatches
+      for (const [funcName, projectSigs] of Object.entries(fileSignatures)) {
+        results.summary.functionsChecked++;
+
+        const uniqueSignatures = [...new Set(Object.values(projectSigs).map(s => s.signature))];
+
+        if (uniqueSignatures.length > 1) {
+          // MISMATCH DETECTED
+          results.summary.signatureMismatches++;
+
+          // Group projects by signature
+          const signatureGroups = {};
+          for (const [project, sigInfo] of Object.entries(projectSigs)) {
+            if (!signatureGroups[sigInfo.signature]) {
+              signatureGroups[sigInfo.signature] = [];
+            }
+            signatureGroups[sigInfo.signature].push({ project, line: sigInfo.line });
+          }
+
+          results.mismatches.push({
+            functionName: funcName,
+            file,
+            signatureGroups,
+            uniqueSignatures
+          });
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+/**
  * Main diff function
  */
 function diffProjects(genesisToolsDir) {
@@ -879,6 +1050,9 @@ function diffProjects(genesisToolsDir) {
 
   // Analyze domain bleed-over (terms from other domains appearing in wrong project)
   results.domainBleedOver = analyzeDomainBleedOver(genesisToolsDir);
+
+  // Analyze function signature consistency across projects
+  results.functionSignatures = analyzeFunctionSignatures(genesisToolsDir);
 
   return results;
 }
@@ -1090,6 +1264,27 @@ function formatConsoleReport(results) {
     lines.push('');
   }
 
+  // FUNCTION SIGNATURE MISMATCHES: Same function with different signatures across projects
+  if (results.functionSignatures && results.functionSignatures.summary.signatureMismatches > 0) {
+    const purple = (s) => `\x1b[35m${s}\x1b[0m`;
+    lines.push(purple(bold('🔧 FUNCTION SIGNATURE MISMATCHES (API inconsistency across projects)')));
+    lines.push(purple('─'.repeat(60)));
+    lines.push('');
+    lines.push('  These functions have DIFFERENT signatures in different projects.');
+    lines.push('  This causes bugs when callers use the wrong parameter order.');
+    lines.push('');
+
+    for (const mismatch of results.functionSignatures.mismatches) {
+      lines.push(purple(`  ${mismatch.functionName}() in ${mismatch.file}`));
+      for (const [signature, projects] of Object.entries(mismatch.signatureGroups)) {
+        const projectList = projects.map(p => `${p.project}:${p.line}`).join(', ');
+        lines.push(red(`    ${signature}`));
+        lines.push(`      Used in: ${projectList}`);
+      }
+      lines.push('');
+    }
+  }
+
   // Final verdict
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
   const symlinkCount = results.summary.symlinkIssues || 0;
@@ -1097,13 +1292,15 @@ function formatConsoleReport(results) {
   const stubValidators = results.validatorStructure?.summary?.stubValidators || 0;
   const internalIssues = results.internalConsistency?.summary?.totalDivergentPairs || 0;
   const bleedOverIssues = results.domainBleedOver?.summary?.totalBleedOverTerms || 0;
+  const signatureMismatches = results.functionSignatures?.summary?.signatureMismatches || 0;
 
-  if (results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0) {
+  if (results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
     lines.push(green(bold('  ✓ NO INTERNAL CONSISTENCY ISSUES')));
     lines.push(green(bold('  ✓ NO DOMAIN BLEED-OVER DETECTED')));
     lines.push(green(bold('  ✓ NO TEST COVERAGE GAPS DETECTED')));
     lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
+    lines.push(green(bold('  ✓ NO FUNCTION SIGNATURE MISMATCHES')));
   } else {
     if (results.summary.divergent > 0) {
       lines.push(red(bold(`  ✗ ${results.summary.divergent} FILES HAVE DIVERGED - FIX REQUIRED`)));
@@ -1113,6 +1310,9 @@ function formatConsoleReport(results) {
     }
     if (bleedOverIssues > 0) {
       lines.push(red(bold(`  🩸 ${bleedOverIssues} DOMAIN BLEED-OVER TERMS - CUSTOMIZE TEMPLATE CONTENT`)));
+    }
+    if (signatureMismatches > 0) {
+      lines.push(red(bold(`  🔧 ${signatureMismatches} FUNCTION SIGNATURE MISMATCHES - STANDARDIZE APIs`)));
     }
     if (symlinkCount > 0) {
       lines.push(magenta(bold(`  ⚡ ${symlinkCount} SYMLINK STRUCTURAL ISSUES - UNIFY REQUIRED`)));
