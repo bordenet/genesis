@@ -39,6 +39,7 @@ const PROJECTS = [
 // These patterns indicate coverage for essential functionality
 // If a pattern exists in ANY project, it must exist in ALL projects
 const CRITICAL_TEST_PATTERNS = [
+  // === EXPORT/IMPORT FUNCTIONALITY ===
   {
     name: 'exportAllProjects',
     description: 'Tests for bulk export functionality',
@@ -67,6 +68,26 @@ const CRITICAL_TEST_PATTERNS = [
       /describe\s*\(\s*['"`]exportProject['"`]/,
       /test\s*\(\s*['"`].*exportProject/i,
       /it\s*\(\s*['"`].*exportProject/i,
+    ]
+  },
+  // === ERROR HANDLING ===
+  {
+    name: 'errorHandler',
+    description: 'Tests for error handling infrastructure',
+    filePattern: /error-handler\.test\.js$/,
+    codePatterns: [
+      /describe\s*\(\s*['"`].*[Ee]rror.*[Hh]andl/,
+      /test\s*\(\s*['"`].*error/i,
+    ]
+  },
+  // === STORAGE FUNCTIONALITY ===
+  {
+    name: 'storageInit',
+    description: 'Tests for storage initialization',
+    filePattern: /storage\.test\.js$/,
+    codePatterns: [
+      /describe\s*\(\s*['"`].*init/i,
+      /test\s*\(\s*['"`].*init/i,
     ]
   },
 ];
@@ -581,8 +602,11 @@ function formatConsoleReport(results) {
   // Final verdict
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
   const symlinkCount = results.summary.symlinkIssues || 0;
-  if (results.summary.divergent === 0 && symlinkCount === 0) {
+  const coverageGaps = results.testCoverage?.summary?.patternsWithGaps || 0;
+
+  if (results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
+    lines.push(green(bold('  ✓ NO TEST COVERAGE GAPS DETECTED')));
   } else {
     if (results.summary.divergent > 0) {
       lines.push(red(bold(`  ✗ ${results.summary.divergent} FILES HAVE DIVERGED - FIX REQUIRED`)));
@@ -590,6 +614,9 @@ function formatConsoleReport(results) {
     if (symlinkCount > 0) {
       const magenta = (s) => `\x1b[35m${s}\x1b[0m`;
       lines.push(magenta(bold(`  ⚡ ${symlinkCount} SYMLINK STRUCTURAL ISSUES - UNIFY REQUIRED`)));
+    }
+    if (coverageGaps > 0) {
+      lines.push(red(bold(`  🔍 ${coverageGaps} TEST COVERAGE GAPS - ADD MISSING TESTS`)));
     }
   }
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
@@ -617,8 +644,13 @@ function main() {
     console.log(formatConsoleReport(results));
   }
 
-  // CI mode: exit 1 if divergent files or symlink issues exist
-  if (ciMode && (results.summary.divergent > 0 || results.summary.symlinkIssues > 0)) {
+  // CI mode: exit 1 if divergent files, symlink issues, OR test coverage gaps exist
+  const coverageGapsCount = results.testCoverage?.summary?.patternsWithGaps || 0;
+  if (ciMode && (
+    results.summary.divergent > 0 ||
+    results.summary.symlinkIssues > 0 ||
+    coverageGapsCount > 0
+  )) {
     process.exit(1);
   }
 }

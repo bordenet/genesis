@@ -71,6 +71,7 @@ cd genesis/project-diff && node diff-projects.js --ci
 ## Quick Reference
 
 ### Template Variables
+
 | Variable | Example |
 |----------|---------|
 | `{{PROJECT_NAME}}` | `one-pager` |
@@ -79,6 +80,7 @@ cd genesis/project-diff && node diff-projects.js --ci
 | `{{DOCUMENT_TYPE}}` | `One-Pager` |
 
 ### Key Files
+
 | File | Purpose |
 |------|---------|
 | `genesis/examples/hello-world/` | Source of truth for copying |

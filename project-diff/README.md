@@ -1,6 +1,6 @@
 # Genesis Project Diff Tool
 
-Compares all 7 genesis projects to detect divergence in shared infrastructure files.
+Compares all 8 genesis projects to detect divergence in shared infrastructure files and test coverage gaps.
 
 ---
 
@@ -11,13 +11,14 @@ cd genesis/project-diff
 node diff-projects.js --ci
 ```
 
-Exit code 0 = all MUST_MATCH files are identical. Exit code 1 = divergence detected.
+Exit code 0 = all checks pass. Exit code 1 = divergence, symlink issues, or test coverage gaps detected.
 
 ---
 
 ## What It Does
 
-Scans all 7 projects and categorizes every file:
+### File Comparison
+Scans all 8 projects and categorizes every file:
 
 | Category | Description |
 |----------|-------------|
@@ -25,17 +26,31 @@ Scans all 7 projects and categorizes every file:
 | **INTENTIONAL_DIFF** | Expected to differ (prompts, templates, project-specific code) |
 | **PROJECT_SPECIFIC** | Only exists in some projects (acceptable) |
 
+### Test Coverage Gap Detection
+Scans test files for **critical test patterns**. If a pattern exists in ANY project, it must exist in ALL.
+
+| Pattern | Description |
+|---------|-------------|
+| `exportAllProjects` | Tests for bulk export functionality |
+| `importProjects` | Tests for bulk import functionality |
+| `exportProject` | Tests for single project export |
+| `errorHandler` | Tests for error handling infrastructure |
+| `storageInit` | Tests for storage initialization |
+
+> **Why?** This prevents situations where one project has comprehensive tests but others only have stubs.
+
 ---
 
 ## Projects Compared
 
 1. `architecture-decision-record`
-2. `one-pager`
-3. `power-statement-assistant`
-4. `pr-faq-assistant`
-5. `product-requirements-assistant`
-6. `strategic-proposal`
-7. `genesis/genesis/examples/hello-world` (baseline)
+2. `jd-assistant`
+3. `one-pager`
+4. `power-statement-assistant`
+5. `pr-faq-assistant`
+6. `product-requirements-assistant`
+7. `strategic-proposal`
+8. `genesis/genesis/examples/hello-world` (baseline)
 
 ---
 
@@ -48,7 +63,7 @@ node diff-projects.js
 # JSON output (for automation)
 node diff-projects.js --json
 
-# CI mode (exit 1 if MUST_MATCH files diverge)
+# CI mode (exit 1 if any issues detected)
 node diff-projects.js --ci
 ```
 
@@ -56,27 +71,52 @@ node diff-projects.js --ci
 
 ## Output
 
-### CI Mode (`--ci`)
+### All Checks Pass
 
 ```
-Projects: 7
-MUST_MATCH files (identical): 20
-Intentional differences: 39
-Project-specific files: 163
+SUMMARY
+  Total files scanned: 225
+  ✓ Identical (MUST_MATCH): 42
+  ✗ Divergent (MUST_MATCH): 0
+  ~ Intentional differences: 58
+  ? Project-specific: 125
 
-✓ ALL MUST-MATCH FILES ARE IDENTICAL
+═══════════════════════════════════════════════════════════════
+  ✓ ALL MUST-MATCH FILES ARE IDENTICAL
+  ✓ NO TEST COVERAGE GAPS DETECTED
+═══════════════════════════════════════════════════════════════
 ```
 
-### Divergence Detected
+### Test Coverage Gaps Detected
 
 ```
-❌ DIVERGENT FILES DETECTED
+🔍 TEST COVERAGE GAPS (critical patterns missing in some projects)
+────────────────────────────────────────────────────────────
 
-File: js/error-handler.js
-  - architecture-decision-record: abc123...
-  - one-pager: def456...
+  If a test pattern exists in ANY project, it should exist in ALL.
 
-Action: Copy the correct version to all projects.
+  exportProject: Tests for single project export
+    ✓ Has tests: architecture-decision-record, jd-assistant, one-pager, ...
+    ✗ Missing:   pr-faq-assistant
+
+═══════════════════════════════════════════════════════════════
+  🔍 1 TEST COVERAGE GAPS - ADD MISSING TESTS
+═══════════════════════════════════════════════════════════════
+```
+
+### File Divergence Detected
+
+```
+🚨 CRITICAL: DIVERGENT FILES (MUST BE IDENTICAL)
+────────────────────────────────────────────────────────────
+
+  js/error-handler.js
+    Version 1 (abc12345...): architecture-decision-record, one-pager
+    Version 2 (def67890...): pr-faq-assistant
+
+═══════════════════════════════════════════════════════════════
+  ✗ 1 FILES HAVE DIVERGED - FIX REQUIRED
+═══════════════════════════════════════════════════════════════
 ```
 
 ---
@@ -115,6 +155,26 @@ Files matching these patterns are expected to differ. The authoritative list is 
 4. **After changes to shared infrastructure** - Propagate to all projects
 
 > ⚠️ **Don't skip the diff check!** Inconsistency between projects leads to maintenance nightmares.
+
+---
+
+## Adding New Critical Test Patterns
+
+To detect new test coverage gaps, add entries to `CRITICAL_TEST_PATTERNS` in `diff-projects.js`:
+
+```javascript
+{
+  name: 'patternName',           // Identifier for the pattern
+  description: 'What this tests', // Human-readable description
+  filePattern: /filename\.test\.js$/, // Regex matching test file names
+  codePatterns: [                 // Regexes to find in test file content
+    /describe\s*\(\s*['"`]patternName['"`]/,
+    /test\s*\(\s*['"`].*patternName/i,
+  ]
+}
+```
+
+The tool will report when ANY project has the pattern but SOME projects don't.
 
 ---
 

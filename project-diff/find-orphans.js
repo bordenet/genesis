@@ -18,9 +18,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// All 7 projects
+// All 8 projects
 const PROJECTS = [
   'architecture-decision-record',
+  'jd-assistant',
   'one-pager',
   'power-statement-assistant',
   'pr-faq-assistant',
