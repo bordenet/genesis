@@ -11,7 +11,7 @@ cd genesis/project-diff
 node diff-projects.js --ci
 ```
 
-Exit code 0 = all checks pass. Exit code 1 = divergence, symlink issues, or test coverage gaps detected.
+Exit code 0 = all checks pass. Exit code 1 = divergence, symlink issues, test coverage gaps, or domain bleed-over detected.
 
 ---
 
@@ -38,6 +38,19 @@ Scans test files for **critical test patterns**. If a pattern exists in ANY proj
 | `storageInit` | Tests for storage initialization |
 
 > **Why?** This prevents situations where one project has comprehensive tests but others only have stubs.
+
+### Domain Bleed-Over Detection
+Scans domain-specific files (prompts.js, views.js, types.js, workflow.js, projects.js, prompts/*.md) for **terms from other project domains**.
+
+| Project | Banned Terms (from other domains) |
+|---------|-----------------------------------|
+| `jd-assistant` | dealership, DEALERSHIP_NAME, proposal |
+| `one-pager` | dealership, DEALERSHIP_NAME, etc. |
+| `power-statement-assistant` | dealership, proposal, etc. |
+| `pr-faq-assistant` | dealership, DEALERSHIP_NAME, etc. |
+| ... | See `DOMAIN_BLEED_OVER` in diff-projects.js |
+
+> **Why?** When copying hello-world to create a new project, domain-specific content from the template (like strategic-proposal's "dealership" fields) can bleed into the new project if not properly customized. This check catches that.
 
 ---
 
@@ -83,7 +96,10 @@ SUMMARY
 
 ═══════════════════════════════════════════════════════════════
   ✓ ALL MUST-MATCH FILES ARE IDENTICAL
+  ✓ NO INTERNAL CONSISTENCY ISSUES
+  ✓ NO DOMAIN BLEED-OVER DETECTED
   ✓ NO TEST COVERAGE GAPS DETECTED
+  ✓ NO STUB VALIDATORS DETECTED
 ═══════════════════════════════════════════════════════════════
 ```
 
@@ -116,6 +132,27 @@ SUMMARY
 
 ═══════════════════════════════════════════════════════════════
   ✗ 1 FILES HAVE DIVERGED - FIX REQUIRED
+═══════════════════════════════════════════════════════════════
+```
+
+### Domain Bleed-Over Detected
+
+```
+🩸 CRITICAL: DOMAIN BLEED-OVER (terms from other domains)
+────────────────────────────────────────────────────────────
+
+  Domain-specific terms from another project type have bled over.
+  This indicates the template was not properly customized.
+  Example: "dealership" in jd-assistant = strategic-proposal bleed-over.
+
+  power-statement-assistant: 3 bleed-over occurrences
+    "proposal" found 3 times:
+      assistant/js/types.js:114
+      js/types.js:114
+      prompts/phase3.md:89
+
+═══════════════════════════════════════════════════════════════
+  🩸 3 DOMAIN BLEED-OVER TERMS - CUSTOMIZE TEMPLATE CONTENT
 ═══════════════════════════════════════════════════════════════
 ```
 

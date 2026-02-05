@@ -186,6 +186,70 @@ const INTERNAL_CONSISTENCY_PAIRS = [
   { root: 'js/core/index.js', assistant: 'assistant/js/core/index.js' },
 ];
 
+// ============================================================================
+// DOMAIN BLEED-OVER DETECTION
+// ============================================================================
+// Each project should ONLY contain terminology specific to its domain.
+// Terms from other project domains bleeding into a project indicate
+// the template was not properly customized during project creation.
+//
+// Example: "dealership" appearing in jd-assistant means strategic-proposal
+// content bled over during template copying.
+
+// Files to scan for domain bleed-over (these contain domain-specific content)
+const BLEED_OVER_FILES = [
+  'assistant/js/prompts.js',
+  'assistant/js/views.js',
+  'assistant/js/projects.js',
+  'assistant/js/types.js',
+  'assistant/js/workflow.js',
+  'js/prompts.js',
+  'js/views.js',
+  'js/projects.js',
+  'js/types.js',
+  'js/workflow.js',
+  'prompts/phase1.md',
+  'prompts/phase2.md',
+  'prompts/phase3.md',
+];
+
+// Domain-specific terms that should ONLY appear in their respective projects
+// Format: project -> { bannedTerms: [terms from OTHER domains that should NOT appear] }
+// Note: hello-world is excluded - it uses generic placeholders intentionally
+const DOMAIN_BLEED_OVER = {
+  'strategic-proposal': {
+    // Strategic proposal owns these terms - they should NOT appear in other projects
+    ownTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR'],
+    // No banned terms - this is the "source" domain that was bleeding over
+    bannedTerms: []
+  },
+  'jd-assistant': {
+    ownTerms: ['job description', 'responsibilities', 'qualifications', 'experience required'],
+    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR', 'proposal']
+  },
+  'one-pager': {
+    ownTerms: ['one-pager', 'executive summary'],
+    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR']
+  },
+  'power-statement-assistant': {
+    ownTerms: ['power statement', 'achievement', 'impact'],
+    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR', 'proposal']
+  },
+  'pr-faq-assistant': {
+    ownTerms: ['press release', 'FAQ', 'frequently asked'],
+    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR']
+  },
+  'product-requirements-assistant': {
+    ownTerms: ['PRD', 'product requirements', 'user story', 'acceptance criteria'],
+    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR']
+  },
+  'architecture-decision-record': {
+    ownTerms: ['ADR', 'architecture decision', 'decision drivers', 'considered options'],
+    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR', 'proposal']
+  },
+  // hello-world is intentionally excluded - it contains generic placeholders
+};
+
 // Files/patterns that are EXPECTED to differ between projects
 const INTENTIONAL_DIFF_PATTERNS = [
   // === LLM PROMPTS (document-type specific) ===
@@ -629,6 +693,79 @@ function analyzeInternalConsistency(genesisToolsDir) {
 }
 
 /**
+ * Analyze domain bleed-over across all projects.
+ * Detects when domain-specific terms from one project type (e.g., strategic-proposal)
+ * appear in another project (e.g., jd-assistant).
+ * This indicates the template was not properly customized during project creation.
+ */
+function analyzeDomainBleedOver(genesisToolsDir) {
+  const results = {
+    summary: { projectsChecked: 0, projectsWithIssues: 0, totalBleedOverTerms: 0 },
+    projects: {}
+  };
+
+  for (const project of PROJECTS) {
+    // Skip hello-world - it uses generic placeholders intentionally
+    if (project.includes('hello-world')) {
+      continue;
+    }
+
+    const config = DOMAIN_BLEED_OVER[project];
+    if (!config || config.bannedTerms.length === 0) {
+      continue;  // No banned terms configured for this project
+    }
+
+    const projectPath = path.join(genesisToolsDir, project);
+    const projectIssues = [];
+    results.summary.projectsChecked++;
+
+    for (const file of BLEED_OVER_FILES) {
+      const filePath = path.join(projectPath, file);
+      if (!fs.existsSync(filePath)) {
+        continue;
+      }
+
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        const lines = content.split('\n');
+
+        for (const bannedTerm of config.bannedTerms) {
+          // Create case-insensitive regex for the term
+          const regex = new RegExp(bannedTerm, 'gi');
+
+          lines.forEach((line, lineNum) => {
+            // Skip comment lines that might be documentation about what to customize
+            if (line.trim().startsWith('//') || line.trim().startsWith('*') || line.trim().startsWith('#')) {
+              // Still check - bleed-over in comments is still a problem
+            }
+
+            const matches = line.match(regex);
+            if (matches) {
+              projectIssues.push({
+                file,
+                line: lineNum + 1,
+                term: bannedTerm,
+                context: line.trim().substring(0, 100)
+              });
+              results.summary.totalBleedOverTerms++;
+            }
+          });
+        }
+      } catch {
+        // Skip files that can't be read
+      }
+    }
+
+    if (projectIssues.length > 0) {
+      results.projects[project] = projectIssues;
+      results.summary.projectsWithIssues++;
+    }
+  }
+
+  return results;
+}
+
+/**
  * Main diff function
  */
 function diffProjects(genesisToolsDir) {
@@ -737,6 +874,9 @@ function diffProjects(genesisToolsDir) {
   // Analyze internal consistency (js/ vs assistant/js/)
   results.internalConsistency = analyzeInternalConsistency(genesisToolsDir);
 
+  // Analyze domain bleed-over (terms from other domains appearing in wrong project)
+  results.domainBleedOver = analyzeDomainBleedOver(genesisToolsDir);
+
   return results;
 }
 
@@ -775,6 +915,9 @@ function formatConsoleReport(results) {
   }
   if (results.internalConsistency && results.internalConsistency.summary.totalDivergentPairs > 0) {
     lines.push(`  ${red('🔀')} Internal consistency issues: ${results.internalConsistency.summary.totalDivergentPairs} divergent file pairs`);
+  }
+  if (results.domainBleedOver && results.domainBleedOver.summary.totalBleedOverTerms > 0) {
+    lines.push(`  ${red('🩸')} Domain bleed-over: ${results.domainBleedOver.summary.totalBleedOverTerms} terms in ${results.domainBleedOver.summary.projectsWithIssues} projects`);
   }
   lines.push(`  ${yellow('~')} Intentional differences: ${results.summary.intentional}`);
   lines.push(`  ${cyan('?')} Project-specific: ${results.summary.projectSpecific}`);
@@ -819,6 +962,40 @@ function formatConsoleReport(results) {
       lines.push(red(`  ${project}:`));
       for (const issue of issues) {
         lines.push(`    ${issue.rootFile} (${issue.rootHash}) ≠ ${issue.assistantFile} (${issue.assistantHash})`);
+      }
+      lines.push('');
+    }
+  }
+
+  // DOMAIN BLEED-OVER: Terms from other domains appearing in wrong project
+  if (results.domainBleedOver && results.domainBleedOver.summary.totalBleedOverTerms > 0) {
+    lines.push(red(bold('🩸 CRITICAL: DOMAIN BLEED-OVER (terms from other domains)')));
+    lines.push(red('─'.repeat(60)));
+    lines.push('');
+    lines.push('  Domain-specific terms from another project type have bled over.');
+    lines.push('  This indicates the template was not properly customized.');
+    lines.push('  Example: "dealership" in jd-assistant = strategic-proposal bleed-over.');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.domainBleedOver.projects)) {
+      lines.push(red(`  ${project}: ${issues.length} bleed-over occurrences`));
+
+      // Group issues by term for cleaner output
+      const byTerm = {};
+      for (const issue of issues) {
+        if (!byTerm[issue.term]) byTerm[issue.term] = [];
+        byTerm[issue.term].push(issue);
+      }
+
+      for (const [term, termIssues] of Object.entries(byTerm)) {
+        lines.push(yellow(`    "${term}" found ${termIssues.length} times:`));
+        // Show first 3 occurrences
+        for (const issue of termIssues.slice(0, 3)) {
+          lines.push(`      ${issue.file}:${issue.line}`);
+        }
+        if (termIssues.length > 3) {
+          lines.push(`      ... and ${termIssues.length - 3} more`);
+        }
       }
       lines.push('');
     }
@@ -916,10 +1093,12 @@ function formatConsoleReport(results) {
   const coverageGaps = results.testCoverage?.summary?.patternsWithGaps || 0;
   const stubValidators = results.validatorStructure?.summary?.stubValidators || 0;
   const internalIssues = results.internalConsistency?.summary?.totalDivergentPairs || 0;
+  const bleedOverIssues = results.domainBleedOver?.summary?.totalBleedOverTerms || 0;
 
-  if (results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0) {
+  if (results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
     lines.push(green(bold('  ✓ NO INTERNAL CONSISTENCY ISSUES')));
+    lines.push(green(bold('  ✓ NO DOMAIN BLEED-OVER DETECTED')));
     lines.push(green(bold('  ✓ NO TEST COVERAGE GAPS DETECTED')));
     lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
   } else {
@@ -928,6 +1107,9 @@ function formatConsoleReport(results) {
     }
     if (internalIssues > 0) {
       lines.push(red(bold(`  🔀 ${internalIssues} INTERNAL CONSISTENCY ISSUES - js/ vs assistant/js/ DIVERGED`)));
+    }
+    if (bleedOverIssues > 0) {
+      lines.push(red(bold(`  🩸 ${bleedOverIssues} DOMAIN BLEED-OVER TERMS - CUSTOMIZE TEMPLATE CONTENT`)));
     }
     if (symlinkCount > 0) {
       lines.push(magenta(bold(`  ⚡ ${symlinkCount} SYMLINK STRUCTURAL ISSUES - UNIFY REQUIRED`)));
@@ -964,16 +1146,18 @@ function main() {
     console.log(formatConsoleReport(results));
   }
 
-  // CI mode: exit 1 if divergent files, symlink issues, test coverage gaps, stub validators, OR internal consistency issues exist
+  // CI mode: exit 1 if divergent files, symlink issues, test coverage gaps, stub validators, internal consistency issues, OR domain bleed-over exist
   const coverageGapsCount = results.testCoverage?.summary?.patternsWithGaps || 0;
   const stubValidatorsCount = results.validatorStructure?.summary?.stubValidators || 0;
   const internalIssuesCount = results.internalConsistency?.summary?.totalDivergentPairs || 0;
+  const bleedOverCount = results.domainBleedOver?.summary?.totalBleedOverTerms || 0;
   if (ciMode && (
     results.summary.divergent > 0 ||
     results.summary.symlinkIssues > 0 ||
     coverageGapsCount > 0 ||
     stubValidatorsCount > 0 ||
-    internalIssuesCount > 0
+    internalIssuesCount > 0 ||
+    bleedOverCount > 0
   )) {
     process.exit(1);
   }
