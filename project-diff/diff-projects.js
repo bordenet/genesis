@@ -117,6 +117,37 @@ const CRITICAL_TEST_PATTERNS = [
 ];
 
 // ============================================================================
+// SHARED LIBRARY NAMING REQUIREMENTS
+// ============================================================================
+// Shared library files MUST use generic function names, not document-specific names.
+// This catches anti-patterns like validateProposal, validateOnePager, validateADR
+// that should instead be validateDocument.
+//
+// WHY: Document-specific names in shared libraries create arbitrary variation,
+// prevent MUST_MATCH file consistency, and are a source of bugs.
+
+// Document-specific terms that should NOT appear in shared library function names
+const DOCUMENT_SPECIFIC_TERMS = [
+  'Proposal',           // validateProposal, exportProposal, etc.
+  'OnePager',           // validateOnePager
+  'ADR',                // validateADR
+  'PRFAQ',              // validatePRFAQ
+  'PRD',                // validatePRD (but NOT PRDGenerated which is different)
+  'PowerStatement',     // validatePowerStatement
+  'StrategicProposal',  // validateStrategicProposal
+  'AcceptanceCriteria', // validateAcceptanceCriteria
+  'JobDescription',     // validateJobDescription
+];
+
+// Shared library files that MUST use generic function names
+const SHARED_LIBRARY_FILES = [
+  'assistant/js/validator-inline.js',
+  'js/validator-inline.js',
+  // Note: jd-assistant uses jd-validator.js which is project-specific by design
+  // so we don't include it here
+];
+
+// ============================================================================
 // VALIDATOR STRUCTURE REQUIREMENTS
 // ============================================================================
 // Minimum file sizes (in lines) for a functional validator
@@ -1313,6 +1344,82 @@ function analyzeInlineScoringPresence(genesisToolsDir) {
 }
 
 /**
+ * Analyze shared library naming conventions across all projects.
+ * Detects document-specific function names in shared libraries that should
+ * use generic names instead (e.g., validateProposal should be validateDocument).
+ *
+ * Returns summary and detailed issues per project.
+ */
+function analyzeSharedLibraryNaming(genesisToolsDir) {
+  const results = {
+    summary: { projectsChecked: 0, projectsWithIssues: 0, antiPatternsFound: 0 },
+    projects: {}
+  };
+
+  for (const project of PROJECTS) {
+    // Skip jd-assistant - it uses jd-validator.js which is project-specific by design
+    if (project === 'jd-assistant') continue;
+
+    const projectPath = path.join(genesisToolsDir, project);
+    const projectIssues = [];
+    results.summary.projectsChecked++;
+
+    for (const file of SHARED_LIBRARY_FILES) {
+      const filePath = path.join(projectPath, file);
+
+      if (!fs.existsSync(filePath)) continue;
+
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        const lines = content.split('\n');
+
+        // Pattern to match exported functions
+        const patterns = [
+          /^export\s+(?:async\s+)?function\s+(\w+)/,           // export function name(
+          /^export\s+const\s+(\w+)\s*=\s*(?:async\s+)?\(/,    // export const name = (
+          /^export\s+const\s+(\w+)\s*=\s*(?:async\s+)?function/, // export const name = function
+        ];
+
+        lines.forEach((line, lineNum) => {
+          const trimmed = line.trim();
+          for (const pattern of patterns) {
+            const match = trimmed.match(pattern);
+            if (match) {
+              const functionName = match[1];
+
+              // Check for document-specific terms in function name
+              for (const term of DOCUMENT_SPECIFIC_TERMS) {
+                if (functionName.includes(term)) {
+                  projectIssues.push({
+                    file,
+                    functionName,
+                    line: lineNum + 1,
+                    term,
+                    suggestedName: functionName.replace(term, 'Document'),
+                  });
+                  results.summary.antiPatternsFound++;
+                  break;
+                }
+              }
+              break;
+            }
+          }
+        });
+      } catch {
+        // Skip files that can't be read
+      }
+    }
+
+    if (projectIssues.length > 0) {
+      results.projects[project] = projectIssues;
+      results.summary.projectsWithIssues++;
+    }
+  }
+
+  return results;
+}
+
+/**
  * Main diff function
  */
 function diffProjects(genesisToolsDir) {
@@ -1436,6 +1543,9 @@ function diffProjects(genesisToolsDir) {
   // Analyze template customization issues (8 documented hello-world issues)
   results.templateCustomization = analyzeTemplateCustomization(genesisToolsDir);
 
+  // Analyze shared library naming (detect document-specific names in shared libs)
+  results.sharedLibraryNaming = analyzeSharedLibraryNaming(genesisToolsDir);
+
   return results;
 }
 
@@ -1486,6 +1596,9 @@ function formatConsoleReport(results) {
   }
   if (results.templateCustomization && results.templateCustomization.summary.totalIssues > 0) {
     lines.push(`  ${red('📝')} Template customization issues: ${results.templateCustomization.summary.totalIssues} issues in ${results.templateCustomization.summary.projectsWithIssues} projects`);
+  }
+  if (results.sharedLibraryNaming && results.sharedLibraryNaming.summary.antiPatternsFound > 0) {
+    lines.push(`  ${red('🏷️')} Shared library naming issues: ${results.sharedLibraryNaming.summary.antiPatternsFound} anti-patterns in ${results.sharedLibraryNaming.summary.projectsWithIssues} projects`);
   }
   lines.push(`  ${yellow('~')} Intentional differences: ${results.summary.intentional}`);
   lines.push(`  ${cyan('?')} Project-specific: ${results.summary.projectSpecific}`);
@@ -1642,6 +1755,25 @@ function formatConsoleReport(results) {
     }
   }
 
+  // SHARED LIBRARY NAMING: Document-specific names in shared libraries
+  if (results.sharedLibraryNaming && results.sharedLibraryNaming.summary.antiPatternsFound > 0) {
+    lines.push(red(bold('🏷️ CRITICAL: SHARED LIBRARY NAMING ANTI-PATTERNS')));
+    lines.push(red('─'.repeat(60)));
+    lines.push('');
+    lines.push('  Shared libraries MUST use generic function names, not document-specific names.');
+    lines.push('  Example: validateDocument (correct) vs validateProposal (anti-pattern)');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.sharedLibraryNaming.projects)) {
+      lines.push(red(`  ${project}: ${issues.length} anti-pattern(s)`));
+      for (const issue of issues) {
+        lines.push(yellow(`    ✗ ${issue.file}:${issue.line} - ${issue.functionName}`));
+        lines.push(`      Contains "${issue.term}" → suggest: ${issue.suggestedName}`);
+      }
+      lines.push('');
+    }
+  }
+
   // SYMLINK ISSUES: Some projects use symlinks, others use regular files
   if (results.symlinkIssues && results.symlinkIssues.length > 0) {
     const magenta = (s) => `\x1b[35m${s}\x1b[0m`;
@@ -1760,8 +1892,9 @@ function formatConsoleReport(results) {
   const urlIssues = results.urlSelfReference?.summary?.totalURLIssues || 0;
   const scoringIssues = results.inlineScoring?.summary?.projectsWithoutScoring || 0;
   const templateIssues = results.templateCustomization?.summary?.totalIssues || 0;
+  const namingIssues = results.sharedLibraryNaming?.summary?.antiPatternsFound || 0;
 
-  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0;
+  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0;
 
   if (allGreen) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
@@ -1770,6 +1903,7 @@ function formatConsoleReport(results) {
     lines.push(green(bold('  ✓ NO URL SELF-REFERENCE ISSUES')));
     lines.push(green(bold('  ✓ ALL PROJECTS HAVE INLINE SCORING')));
     lines.push(green(bold('  ✓ NO TEMPLATE CUSTOMIZATION ISSUES')));
+    lines.push(green(bold('  ✓ NO SHARED LIBRARY NAMING ISSUES')));
     lines.push(green(bold('  ✓ NO TEST COVERAGE GAPS DETECTED')));
     lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
     lines.push(green(bold('  ✓ NO FUNCTION SIGNATURE MISMATCHES')));
@@ -1791,6 +1925,9 @@ function formatConsoleReport(results) {
     }
     if (templateIssues > 0) {
       lines.push(red(bold(`  📝 ${templateIssues} TEMPLATE CUSTOMIZATION ISSUES - FIX HELLO-WORLD TEMPLATE PROBLEMS`)));
+    }
+    if (namingIssues > 0) {
+      lines.push(red(bold(`  🏷️ ${namingIssues} SHARED LIBRARY NAMING ISSUES - USE GENERIC FUNCTION NAMES`)));
     }
     if (signatureMismatches > 0) {
       lines.push(red(bold(`  🔧 ${signatureMismatches} FUNCTION SIGNATURE MISMATCHES - STANDARDIZE APIs`)));
@@ -1838,6 +1975,7 @@ function main() {
   const urlIssuesCount = results.urlSelfReference?.summary?.totalURLIssues || 0;
   const scoringIssuesCount = results.inlineScoring?.summary?.projectsWithoutScoring || 0;
   const templateIssuesCount = results.templateCustomization?.summary?.totalIssues || 0;
+  const namingIssuesCount = results.sharedLibraryNaming?.summary?.antiPatternsFound || 0;
 
   if (ciMode && (
     results.summary.divergent > 0 ||
@@ -1848,7 +1986,8 @@ function main() {
     bleedOverCount > 0 ||
     urlIssuesCount > 0 ||
     scoringIssuesCount > 0 ||
-    templateIssuesCount > 0
+    templateIssuesCount > 0 ||
+    namingIssuesCount > 0
   )) {
     process.exit(1);
   }
@@ -1859,5 +1998,5 @@ if (process.argv[1] === __filename) {
   main();
 }
 
-export { diffProjects, PROJECTS, INTENTIONAL_DIFF_PATTERNS, formatConsoleReport };
+export { diffProjects, PROJECTS, INTENTIONAL_DIFF_PATTERNS, formatConsoleReport, analyzeSharedLibraryNaming };
 
