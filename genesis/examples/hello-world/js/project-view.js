@@ -327,14 +327,12 @@ function attachPhaseEventListeners(project, phase) {
 
     if (!warningAcknowledged) {
       const confirmed = await confirm(
-        '⚠️ External AI Warning',
         'You are about to copy a prompt that may contain proprietary data.\n\n' +
                 '• This prompt will be pasted into an external AI service (Claude/Gemini)\n' +
                 '• Data sent to these services is processed on third-party servers\n' +
                 '• For sensitive documents, use an internal tool like LibreGPT instead\n\n' +
                 'Do you want to continue?',
-        'Copy Anyway',
-        'Cancel'
+        'External AI Warning'
       );
 
       if (!confirmed) {
@@ -534,14 +532,12 @@ function attachPhaseEventListeners(project, phase) {
       destructive: true,
       onClick: async () => {
         const confirmed = await confirm(
-          '🗑️ Delete Proposal?',
-          'Are you sure you want to delete this proposal? This cannot be undone.',
-          'Delete',
-          'Cancel'
+          'Are you sure you want to delete this project? This cannot be undone.',
+          'Delete Project'
         );
         if (confirmed) {
           await deleteProject(project.id);
-          showToast('Proposal deleted', 'success');
+          showToast('Project deleted', 'success');
           navigateTo('');
         }
       }
