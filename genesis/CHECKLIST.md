@@ -6,6 +6,48 @@
 
 ---
 
+## 🚨 MANDATORY: CONTINUOUS IMPROVEMENT TRACKING
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  EVERY genesis child creation MUST maintain CONTINUOUS_IMPROVEMENT.md       ║
+║                                                                              ║
+║  Location: genesis-tools/genesis/CONTINUOUS_IMPROVEMENT.md                  ║
+║                                                                              ║
+║  As you encounter ANY friction, obstacle, or gap:                           ║
+║  1. IMMEDIATELY add it to CONTINUOUS_IMPROVEMENT.md                         ║
+║  2. Categorize by phase (Immediate Fixes, Documentation Gaps, etc.)         ║
+║  3. Include: what happened, expected behavior, suggested fix                ║
+║                                                                              ║
+║  This is NOT optional. This is how genesis improves.                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
+## 🚨 MANDATORY: DIFF TOOL USAGE
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  LLMs are STOCHASTIC. Inconsistency is INEVITABLE without verification.     ║
+║                                                                              ║
+║  Run the diff tool AGGRESSIVELY throughout development:                     ║
+║                                                                              ║
+║  cd genesis-tools/genesis/project-diff && node diff-projects.js             ║
+║                                                                              ║
+║  WHEN TO RUN:                                                                ║
+║  ✓ After copying templates (Phase 2)                                        ║
+║  ✓ After EVERY significant change                                           ║
+║  ✓ Before EVERY commit                                                      ║
+║  ✓ When modifying files that exist across multiple projects                 ║
+║  ✓ When uncertain if a change should propagate                              ║
+║                                                                              ║
+║  ⛔ DO NOT PROCEED if MUST_MATCH files show divergence!                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
 ## 🚨 BEFORE YOU START
 
 ### Essential Reading (in order):
