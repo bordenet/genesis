@@ -35,7 +35,7 @@ Study https://github.com/bordenet/product-requirements-assistant - especially:
 ## ✅ SUCCESS CRITERIA
 
 A Genesis project is complete when:
-- [ ] All tests pass with ≥70% coverage
+- [ ] All tests pass with ≥50% coverage (enforced in jest.config.js)
 - [ ] All linting passes with zero errors
 - [ ] Pre-commit hooks installed and working
 - [ ] GitHub Actions CI/CD passes
@@ -98,7 +98,7 @@ cd genesis-tools/genesis/project-diff && node diff-projects.js
 - [ ] Ran `npm install`
 - [ ] Ran `./scripts/install-hooks.sh`
 - [ ] Ran `npm run lint` - zero errors
-- [ ] Ran `npm test` - all pass, ≥70% coverage
+- [ ] Ran `npm test` - all pass, ≥50% coverage (enforced in jest.config.js)
 - [ ] **Test template mismatch check**: Review ALL test files for domain-specific assertions
 - [ ] Validator tests check YOUR domain dimensions (not generic one-pager dimensions)
 - [ ] Run tests and verify they test YOUR domain, not template domain
