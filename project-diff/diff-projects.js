@@ -225,7 +225,8 @@ const DOMAIN_BLEED_OVER = {
   },
   'jd-assistant': {
     ownTerms: ['job description', 'responsibilities', 'qualifications', 'experience required'],
-    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR', 'proposal']
+    // Ban 'proposalId' (code bleed-over) but not 'proposal' (could be legitimate context)
+    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR', 'proposalId']
   },
   'one-pager': {
     ownTerms: ['one-pager', 'executive summary'],
@@ -233,7 +234,8 @@ const DOMAIN_BLEED_OVER = {
   },
   'power-statement-assistant': {
     ownTerms: ['power statement', 'achievement', 'impact'],
-    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR', 'proposal']
+    // Note: 'proposal' is NOT banned because power statements are legitimately used in proposals
+    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR', 'proposalId']
   },
   'pr-faq-assistant': {
     ownTerms: ['press release', 'FAQ', 'frequently asked'],
@@ -245,7 +247,8 @@ const DOMAIN_BLEED_OVER = {
   },
   'architecture-decision-record': {
     ownTerms: ['ADR', 'architecture decision', 'decision drivers', 'considered options'],
-    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR', 'proposal']
+    // Ban 'proposalId' (code bleed-over) but not 'proposal' (could be legitimate context)
+    bannedTerms: ['dealership', 'DEALERSHIP_NAME', 'DEALERSHIP_LOCATION', 'STORE_COUNT', 'CURRENT_VENDOR', 'proposalId']
   },
   // hello-world is intentionally excluded - it contains generic placeholders
 };
