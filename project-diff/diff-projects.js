@@ -1094,16 +1094,16 @@ function analyzeTemplateCustomization(genesisToolsDir) {
     }
 
     // === ISSUE 4: Standalone Compare Phases button (outdated UI pattern) ===
-    // NOTE: Compare Phases as a dynamic feature in JavaScript is acceptable.
-    // We only flag it if it appears in HTML templates as a static button.
-    // Check the HTML files for hardcoded Compare Phases buttons
+    // The Compare Phases button should NOT appear in the completion banner.
+    // It's acceptable in the hamburger menu (dynamically rendered), but NOT as a
+    // standalone button between "Preview & Copy" and "Full Validation".
+    // Check HTML files for hardcoded Compare Phases buttons
     const htmlFiles = ['index.html', 'assistant/index.html'];
     for (const file of htmlFiles) {
       const filePath = path.join(projectPath, file);
       if (fs.existsSync(filePath)) {
         try {
           const content = fs.readFileSync(filePath, 'utf-8');
-          // Only flag if there's a hardcoded Compare Phases button in HTML
           if (/compare-phases-btn|>Compare\s+Phases<|"Compare Phases"/i.test(content)) {
             issues.push({
               type: 'outdated_compare_phases',
@@ -1115,6 +1115,29 @@ function analyzeTemplateCustomization(genesisToolsDir) {
       }
     }
     const projectViewFiles = ['js/project-view.js', 'assistant/js/project-view.js'];
+
+    // Also check JavaScript files for Compare Phases button in completion banner
+    // The anti-pattern is: compare-phases-btn appearing in the completionBanner template literal
+    // (NOT in the hamburger menu which is acceptable)
+    for (const file of projectViewFiles) {
+      const filePath = path.join(projectPath, file);
+      if (fs.existsSync(filePath)) {
+        try {
+          const content = fs.readFileSync(filePath, 'utf-8');
+          // Look for compare-phases-btn in the completion banner area
+          // The pattern: completionBanner = ` ... compare-phases-btn ... `
+          // We detect this by looking for compare-phases-btn near "is Complete!" or "completionBanner"
+          const completionBannerMatch = content.match(/completionBanner\s*=\s*`[\s\S]*?`;/);
+          if (completionBannerMatch && /compare-phases-btn|Compare\s+Phases/.test(completionBannerMatch[0])) {
+            issues.push({
+              type: 'outdated_compare_phases_in_banner',
+              file,
+              message: 'Compare Phases button in completion banner - should only be in hamburger menu, not between Preview & Copy and Full Validation'
+            });
+          }
+        } catch {}
+      }
+    }
 
     // === ISSUE 5: About modal with hardcoded "Strategic Proposal Generator" ===
     // Skip hello-world template - it has placeholder text
@@ -1249,9 +1272,20 @@ function analyzeInlineScoringPresence(genesisToolsDir) {
       // Check for score display in completion banner
       // totalScore/scoreColor pattern (most projects) or validation.score/validation.colorClass (jd-assistant)
       const hasStandardScoreDisplay = /totalScore/.test(content) && /scoreColor/.test(content);
-      const hasJDScoreDisplay = /validation\.score/.test(content) && /validation\.colorClass/.test(content);
+      const hasJDScoreDisplay = /validationResult\.totalScore/.test(content) && /scoreColor/.test(content);
       if (!hasStandardScoreDisplay && !hasJDScoreDisplay) {
-        issues.push('Missing inline score display (totalScore/scoreColor or validation.score/colorClass) in completion banner');
+        issues.push('Missing inline score display (totalScore/scoreColor or validationResult.totalScore/scoreColor) in completion banner');
+      }
+
+      // Check for the "Inline Quality Score" section with 4-column breakdown
+      // This is the full quality score UI that should be present in ALL projects
+      const hasInlineQualityScoreSection = /Inline Quality Score/.test(content);
+      const hasScoreBreakdown = /grid-cols-2\s+md:grid-cols-4/.test(content);
+      if (!hasInlineQualityScoreSection) {
+        issues.push('Missing "Inline Quality Score" section in completion banner - should show 4-column breakdown');
+      }
+      if (!hasScoreBreakdown) {
+        issues.push('Missing 4-column score breakdown grid (grid-cols-2 md:grid-cols-4) in completion banner');
       }
 
       // Check for validator file existence

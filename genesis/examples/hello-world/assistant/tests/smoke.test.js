@@ -130,9 +130,10 @@ describe('Smoke Test - App Initialization', () => {
   });
 
   describe('Export Consistency - validator-inline.js exports match project-view.js imports', () => {
-    test('validator-inline.js exports validateProposal', async () => {
+    // All projects must use validateDocument (generic name for shared library)
+    test('validator-inline.js exports validateDocument', async () => {
       const validator = await import('../js/validator-inline.js');
-      expect(typeof validator.validateProposal).toBe('function');
+      expect(typeof validator.validateDocument).toBe('function');
     });
 
     test('validator-inline.js exports getScoreColor', async () => {
