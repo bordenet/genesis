@@ -35,6 +35,42 @@ const PROJECTS = [
   'genesis/genesis/examples/hello-world',
 ];
 
+// Critical test patterns that MUST exist in ALL projects
+// These patterns indicate coverage for essential functionality
+// If a pattern exists in ANY project, it must exist in ALL projects
+const CRITICAL_TEST_PATTERNS = [
+  {
+    name: 'exportAllProjects',
+    description: 'Tests for bulk export functionality',
+    filePattern: /projects\.test\.js$/,
+    codePatterns: [
+      /describe\s*\(\s*['"`]exportAllProjects['"`]/,
+      /test\s*\(\s*['"`].*exportAllProjects/i,
+      /it\s*\(\s*['"`].*exportAllProjects/i,
+    ]
+  },
+  {
+    name: 'importProjects',
+    description: 'Tests for bulk import functionality',
+    filePattern: /projects\.test\.js$/,
+    codePatterns: [
+      /describe\s*\(\s*['"`]importProjects['"`]/,
+      /test\s*\(\s*['"`].*importProjects/i,
+      /it\s*\(\s*['"`].*importProjects/i,
+    ]
+  },
+  {
+    name: 'exportProject',
+    description: 'Tests for single project export',
+    filePattern: /projects\.test\.js$/,
+    codePatterns: [
+      /describe\s*\(\s*['"`]exportProject['"`]/,
+      /test\s*\(\s*['"`].*exportProject/i,
+      /it\s*\(\s*['"`].*exportProject/i,
+    ]
+  },
+];
+
 // Files/patterns that are EXPECTED to differ between projects
 const INTENTIONAL_DIFF_PATTERNS = [
   // === LLM PROMPTS (document-type specific) ===
@@ -237,6 +273,86 @@ function isIntentionalDiff(relativePath) {
 }
 
 /**
+ * Find test files in a project matching a filename pattern
+ */
+function findTestFiles(projectPath, filePattern) {
+  const testFiles = [];
+  const testDirs = ['tests', 'assistant/tests', 'validator/tests'];
+
+  for (const testDir of testDirs) {
+    const dir = path.join(projectPath, testDir);
+    if (!fs.existsSync(dir)) continue;
+
+    try {
+      const files = fs.readdirSync(dir);
+      for (const file of files) {
+        if (filePattern.test(file)) {
+          testFiles.push(path.join(dir, file));
+        }
+      }
+    } catch {
+      // Skip if directory can't be read
+    }
+  }
+
+  return testFiles;
+}
+
+/**
+ * Analyze test coverage for critical patterns across all projects
+ */
+function analyzeTestCoverage(genesisToolsDir) {
+  const results = {
+    patterns: {},  // pattern name -> { hasPattern: [projects], missingPattern: [projects] }
+    summary: { patternsChecked: 0, patternsWithGaps: 0 }
+  };
+
+  for (const pattern of CRITICAL_TEST_PATTERNS) {
+    results.patterns[pattern.name] = {
+      description: pattern.description,
+      hasPattern: [],
+      missingPattern: []
+    };
+    results.summary.patternsChecked++;
+
+    for (const project of PROJECTS) {
+      const projectPath = path.join(genesisToolsDir, project);
+      let found = false;
+
+      // Find test files matching filePattern
+      const testFiles = findTestFiles(projectPath, pattern.filePattern);
+
+      for (const testFile of testFiles) {
+        try {
+          const content = fs.readFileSync(testFile, 'utf-8');
+          // Check if any code pattern matches
+          if (pattern.codePatterns.some(regex => regex.test(content))) {
+            found = true;
+            break;
+          }
+        } catch {
+          // Skip if file can't be read
+        }
+      }
+
+      if (found) {
+        results.patterns[pattern.name].hasPattern.push(project);
+      } else {
+        results.patterns[pattern.name].missingPattern.push(project);
+      }
+    }
+
+    // Track gaps: if SOME projects have it but not ALL, it's a gap
+    if (results.patterns[pattern.name].missingPattern.length > 0 &&
+        results.patterns[pattern.name].hasPattern.length > 0) {
+      results.summary.patternsWithGaps++;
+    }
+  }
+
+  return results;
+}
+
+/**
  * Main diff function
  */
 function diffProjects(genesisToolsDir) {
@@ -336,6 +452,9 @@ function diffProjects(genesisToolsDir) {
     }
   }
 
+  // Analyze test coverage for critical patterns
+  results.testCoverage = analyzeTestCoverage(genesisToolsDir);
+
   return results;
 }
 
@@ -364,6 +483,9 @@ function formatConsoleReport(results) {
   lines.push(`  ${red('✗')} Divergent (MUST_MATCH): ${results.summary.divergent}`);
   if (results.summary.symlinkIssues > 0) {
     lines.push(`  ${magenta('⚡')} Symlink structural issues: ${results.summary.symlinkIssues}`);
+  }
+  if (results.testCoverage && results.testCoverage.summary.patternsWithGaps > 0) {
+    lines.push(`  ${red('🔍')} Test coverage gaps: ${results.testCoverage.summary.patternsWithGaps}`);
   }
   lines.push(`  ${yellow('~')} Intentional differences: ${results.summary.intentional}`);
   lines.push(`  ${cyan('?')} Project-specific: ${results.summary.projectSpecific}`);
@@ -410,6 +532,24 @@ function formatConsoleReport(results) {
       lines.push(`    Regular in: ${issue.regularIn.join(', ')}`);
     }
     lines.push('');
+  }
+
+  // TEST COVERAGE GAPS: Critical test patterns missing from some projects
+  if (results.testCoverage && results.testCoverage.summary.patternsWithGaps > 0) {
+    lines.push(red(bold('🔍 TEST COVERAGE GAPS (critical patterns missing in some projects)')));
+    lines.push(red('─'.repeat(60)));
+    lines.push('');
+    lines.push('  If a test pattern exists in ANY project, it should exist in ALL.');
+    lines.push('');
+
+    for (const [name, data] of Object.entries(results.testCoverage.patterns)) {
+      if (data.missingPattern.length > 0 && data.hasPattern.length > 0) {
+        lines.push(red(`  ${name}: ${data.description}`));
+        lines.push(green(`    ✓ Has tests: ${data.hasPattern.join(', ')}`));
+        lines.push(red(`    ✗ Missing:   ${data.missingPattern.join(', ')}`));
+        lines.push('');
+      }
+    }
   }
 
   // Project-specific files (might indicate missing files)

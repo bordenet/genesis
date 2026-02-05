@@ -205,6 +205,48 @@ Changes to the overall genesis workflow or AI instructions.
 
 ---
 
+## Critical Process Failures
+
+### 2026-02-05: Diff Tool Must Be Run Aggressively Throughout Development
+
+**Severity**: CRITICAL
+**Status**: DOCUMENTED (process failure)
+
+**The Problem**:
+LLMs are inherently stochastic. By their very nature, they will introduce inconsistencies when making changes across files. This is not a bug—it's a fundamental property of how language models work. Without a systematic check, divergence between genesis-derived projects is **inevitable**.
+
+**The Solution**:
+The genesis project includes a diffing tool at `genesis/project-diff/diff-projects.js`. This tool compares EVERY file across all genesis-derived projects and reports:
+- **MUST_MATCH files**: Must be byte-for-byte identical (core engine files)
+- **INTENTIONAL_DIFF files**: Expected to differ (prompts, types, domain-specific code)
+- **PROJECT_SPECIFIC files**: Only exist in some projects (acceptable)
+
+**The Mandate**:
+Run the diff tool **AGGRESSIVELY** throughout development:
+1. After EVERY significant change
+2. Before EVERY commit
+3. Any time you modify files that exist across multiple projects
+4. When you're uncertain if a change should propagate
+
+```bash
+cd genesis-tools/genesis/project-diff && node diff-projects.js
+```
+
+**Why This Matters**:
+The diff tool is a mission-critical crutch that compensates for LLM stochasticity. Without it:
+- MUST_MATCH files drift apart silently
+- Bug fixes in one project don't propagate
+- The entire genesis ecosystem loses consistency
+- Future maintenance becomes exponentially harder
+
+**jd-assistant was missing from PROJECTS list**:
+During initial development, jd-assistant was not added to the PROJECTS array in `diff-projects.js`, meaning the diff tool wasn't even checking it. This was discovered only after the user demanded aggressive diff tool usage.
+
+**Lesson Learned**:
+When creating a new genesis-derived project, IMMEDIATELY add it to the PROJECTS array in `diff-projects.js`. Then run the diff tool continuously throughout development.
+
+---
+
 ## Resolved Items
 
 _Move completed items here with resolution notes_
@@ -234,4 +276,122 @@ _Move completed items here with resolution notes_
 | 2026-02-05 | Why tests passed | Unit tests mock the DOM and don't catch missing JS modules. ES module import failures are silent in browser. |
 | 2026-02-05 | Fix applied | Copied `js/core/` directory from one-pager (workflow.js, storage.js, ui.js, index.js). Commit caf2e36. |
 | 2026-02-05 | Agent failure analysis | (1) Copied from wrong source (hello-world not one-pager), (2) No validation of copied files, (3) No smoke test before deploy, (4) Silent failures masked the problem |
+| 2026-02-05 | START-HERE.md refactored | Split 1,150-line file into 128-line orchestrator + 6 step files (≤163 lines each) |
+| 2026-02-05 | Attribution URLs fixed | jd-assistant workflow.js and phase3-synthesis.js had wrong "Strategic Proposal" attribution |
 
+---
+
+## Genesis Confidence Assessment
+
+### Current Confidence Score: 42/100
+
+**Assessment Date**: 2026-02-05
+**Methodology**: Rigorous analysis of genesis instruction files, failure patterns from jd-assistant development, and LLM context window limitations.
+
+### Critical Gaps Preventing 95% Confidence
+
+#### Gap 1: Instruction Files Exceed Safe Length (🔴 CRITICAL)
+
+LLMs have context window limitations and attention degradation over long documents. Files over 300 lines risk losing critical instructions.
+
+| File | Lines | Risk | Status |
+|------|-------|------|--------|
+| `START-HERE.md` | 1,150 → 128 | 🔴 → ✅ | **FIXED** (refactored to steps/) |
+| `00-GENESIS-PLAN.md` | 1,018 | 🔴 3.4x over limit | TODO |
+| `01-AI-INSTRUCTIONS.md` | 936 | 🔴 3.1x over limit | TODO |
+| `TROUBLESHOOTING.md` | 776 | 🔴 2.6x over limit | TODO |
+| `05-QUALITY-STANDARDS.md` | 489 | 🟡 1.6x over limit | TODO |
+
+**Required Fix**: Refactor into modular step files with each file ≤300 lines. Each step file must have:
+- Clear entry conditions
+- Explicit exit criteria
+- Mandatory verification commands
+
+#### Gap 2: No Mandatory Diff Tool Checkpoints (🔴 CRITICAL)
+
+The diff tool is mentioned but not enforced at phase boundaries. An LLM can complete an entire project without ever running it.
+
+**Required Fix**: Add explicit checkpoints in CHECKLIST.md:
+```markdown
+### CHECKPOINT: After Phase 2 (Template Copying)
+- [ ] Run `node genesis/project-diff/diff-projects.js`
+- [ ] Output shows: "✓ ALL MUST-MATCH FILES ARE IDENTICAL"
+- [ ] ❌ DO NOT PROCEED if divergent files exist
+
+### CHECKPOINT: Before Every Commit
+- [ ] Run `node genesis/project-diff/diff-projects.js`
+- [ ] ❌ COMMIT BLOCKED if divergent files exist
+```
+
+#### Gap 3: No "Add to PROJECTS Array" Step (🔴 CRITICAL)
+
+When creating a new project, there is NO instruction to add it to `diff-projects.js`. This means the diff tool won't check the new project at all.
+
+**Required Fix**: Add to Phase 2 of CHECKLIST.md:
+```markdown
+- [ ] Added project to `genesis/project-diff/diff-projects.js` PROJECTS array
+- [ ] Verified: `node diff-projects.js` includes new project in output
+```
+
+#### Gap 4: No Function-Like Exit Criteria (🔴 CRITICAL)
+
+Steps don't have strict "MUST PASS BEFORE PROCEEDING" gates. Instructions are prose, not code.
+
+**Status**: **PARTIALLY FIXED** - New step files in `steps/` have exit criteria, but older files don't.
+
+#### Gap 5: Template Field Validation Missing (🟡 HIGH)
+
+The `dealershipName` vs `jobTitle` bug shows templates contain domain-specific field names that aren't validated.
+
+**Required Fix**: Add to CHECKLIST.md:
+```markdown
+- [ ] Search for template-specific field names: `grep -r "dealershipName\|proposalTitle\|onePagerTitle" .`
+- [ ] Replace ALL with domain-specific field names
+- [ ] Verify import/export validation uses correct field names
+```
+
+#### Gap 6: Test Template Mismatch (🟡 HIGH)
+
+Tests copied from templates test wrong domain criteria (One-Pager tests for JD validator).
+
+**Required Fix**: Add to CHECKLIST.md:
+```markdown
+- [ ] Review ALL test files for domain-specific assertions
+- [ ] Validator tests check domain-specific dimensions (not generic)
+- [ ] Run tests and verify they test YOUR domain, not template domain
+```
+
+#### Gap 7: No UI Style Guide (🟡 MEDIUM)
+
+Button sizes, colors, and spacing are inconsistent. No standard defined.
+
+#### Gap 8: No Automated Validation Script (🟡 MEDIUM)
+
+No single script runs ALL mandatory checks in sequence.
+
+### Roadmap to 95% Confidence
+
+| Priority | Gap | Effort | Impact | Status |
+|----------|-----|--------|--------|--------|
+| P0 | Refactor files to ≤300 lines | HIGH | +20 points | ✅ START-HERE.md done |
+| P0 | Add mandatory diff checkpoints | LOW | +15 points | TODO |
+| P0 | Add "register in PROJECTS" step | LOW | +8 points | TODO |
+| P1 | Function-like exit criteria | MEDIUM | +10 points | ✅ Partial (steps/) |
+| P1 | Template field validation | LOW | +5 points | TODO |
+| P1 | Test template mismatch check | LOW | +5 points | TODO |
+| P2 | UI style guide | LOW | +3 points | TODO |
+| P2 | Automated validation script | MEDIUM | +5 points | TODO |
+
+**Current Score**: 42 + ~25 (partial fixes) = **~67/100**
+**Target Score**: 95/100
+
+### The Fundamental Truth
+
+LLMs are stochastic. Even with perfect instructions, there is always a non-zero probability of deviation. The goal is not 100% confidence—it's building enough guardrails that deviations are caught immediately and corrected before they compound.
+
+**The Three Pillars of LLM-Proof Genesis**:
+1. **Short, focused instruction files** (≤300 lines each)
+2. **Mandatory checkpoints with blocking exit criteria**
+3. **Aggressive diff tool usage as a compensating control**
+
+Without all three, confidence cannot exceed 60%.
