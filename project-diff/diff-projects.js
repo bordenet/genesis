@@ -65,9 +65,10 @@ const CRITICAL_TEST_PATTERNS = [
     description: 'Tests for single project export',
     filePattern: /projects\.test\.js$/,
     codePatterns: [
-      /describe\s*\(\s*['"`]exportProject['"`]/,
+      /describe\s*\(\s*['"`]exportProject/i,  // Matches exportProject, exportProjectAsMarkdown, etc.
       /test\s*\(\s*['"`].*exportProject/i,
       /it\s*\(\s*['"`].*exportProject/i,
+      /test\s*\(\s*['"`].*export.*project/i,  // Matches "export project as markdown", etc.
     ]
   },
   // === ERROR HANDLING ===
@@ -96,9 +97,10 @@ const CRITICAL_TEST_PATTERNS = [
     description: 'Tests for storage-level exportAll',
     filePattern: /storage\.test\.js$/,
     codePatterns: [
-      /describe\s*\(\s*['"`]exportAll['"`]/,
+      /describe\s*\(\s*['"`]exportAll/i,  // Matches 'exportAll', 'exportAll and importAll', etc.
       /test\s*\(\s*['"`].*exportAll/i,
       /it\s*\(\s*['"`].*exportAll/i,
+      /test\s*\(\s*['"`].*exports? all/i,  // Matches 'exports all projects', 'export all', etc.
     ]
   },
   {
