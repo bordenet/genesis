@@ -154,6 +154,36 @@ const VALIDATOR_STRUCTURE_REQUIREMENTS = {
   ],
 };
 
+// ============================================================================
+// INTERNAL CONSISTENCY REQUIREMENTS
+// ============================================================================
+// Files that exist in BOTH js/ and assistant/js/ MUST be identical within each project.
+// This catches the common bug where changes are made to one copy but not the other.
+// The ROOT index.html loads from js/, while assistant/index.html loads from assistant/js/.
+// If these diverge, users see different behavior depending on which entry point they use.
+const INTERNAL_CONSISTENCY_PAIRS = [
+  // Core application files that MUST be identical between js/ and assistant/js/
+  { root: 'js/project-view.js', assistant: 'assistant/js/project-view.js' },
+  { root: 'js/views.js', assistant: 'assistant/js/views.js' },
+  { root: 'js/router.js', assistant: 'assistant/js/router.js' },
+  { root: 'js/workflow.js', assistant: 'assistant/js/workflow.js' },
+  { root: 'js/projects.js', assistant: 'assistant/js/projects.js' },
+  { root: 'js/ui.js', assistant: 'assistant/js/ui.js' },
+  { root: 'js/storage.js', assistant: 'assistant/js/storage.js' },
+  { root: 'js/app.js', assistant: 'assistant/js/app.js' },
+  { root: 'js/prompts.js', assistant: 'assistant/js/prompts.js' },
+  { root: 'js/error-handler.js', assistant: 'assistant/js/error-handler.js' },
+  { root: 'js/ai-mock.js', assistant: 'assistant/js/ai-mock.js' },
+  { root: 'js/diff-view.js', assistant: 'assistant/js/diff-view.js' },
+  { root: 'js/types.js', assistant: 'assistant/js/types.js' },
+  { root: 'js/attachments.js', assistant: 'assistant/js/attachments.js' },
+  // Core shared modules
+  { root: 'js/core/ui.js', assistant: 'assistant/js/core/ui.js' },
+  { root: 'js/core/storage.js', assistant: 'assistant/js/core/storage.js' },
+  { root: 'js/core/workflow.js', assistant: 'assistant/js/core/workflow.js' },
+  { root: 'js/core/index.js', assistant: 'assistant/js/core/index.js' },
+];
+
 // Files/patterns that are EXPECTED to differ between projects
 const INTENTIONAL_DIFF_PATTERNS = [
   // === LLM PROMPTS (document-type specific) ===
@@ -551,6 +581,52 @@ function analyzeTestCoverage(genesisToolsDir) {
 }
 
 /**
+ * Check internal consistency within each project.
+ * Files in js/ and assistant/js/ should be identical.
+ * This catches the common bug where changes are made to one copy but not the other.
+ */
+function analyzeInternalConsistency(genesisToolsDir) {
+  const results = {
+    summary: { projectsChecked: 0, projectsWithIssues: 0, totalDivergentPairs: 0 },
+    projects: {}
+  };
+
+  for (const project of PROJECTS) {
+    const projectPath = path.join(genesisToolsDir, project);
+    const projectIssues = [];
+    results.summary.projectsChecked++;
+
+    for (const pair of INTERNAL_CONSISTENCY_PAIRS) {
+      const rootPath = path.join(projectPath, pair.root);
+      const assistantPath = path.join(projectPath, pair.assistant);
+
+      // Only check if BOTH files exist
+      if (fs.existsSync(rootPath) && fs.existsSync(assistantPath)) {
+        const rootHash = getFileHash(rootPath);
+        const assistantHash = getFileHash(assistantPath);
+
+        if (rootHash !== assistantHash) {
+          projectIssues.push({
+            rootFile: pair.root,
+            assistantFile: pair.assistant,
+            rootHash: rootHash.substring(0, 8),
+            assistantHash: assistantHash.substring(0, 8)
+          });
+          results.summary.totalDivergentPairs++;
+        }
+      }
+    }
+
+    if (projectIssues.length > 0) {
+      results.projects[project] = projectIssues;
+      results.summary.projectsWithIssues++;
+    }
+  }
+
+  return results;
+}
+
+/**
  * Main diff function
  */
 function diffProjects(genesisToolsDir) {
@@ -656,6 +732,9 @@ function diffProjects(genesisToolsDir) {
   // Analyze validator structure for stub detection
   results.validatorStructure = analyzeValidatorStructure(genesisToolsDir);
 
+  // Analyze internal consistency (js/ vs assistant/js/)
+  results.internalConsistency = analyzeInternalConsistency(genesisToolsDir);
+
   return results;
 }
 
@@ -692,6 +771,9 @@ function formatConsoleReport(results) {
   if (results.testCoverage && results.testCoverage.summary.patternsWithGaps > 0) {
     lines.push(`  ${red('🔍')} Test coverage gaps: ${results.testCoverage.summary.patternsWithGaps}`);
   }
+  if (results.internalConsistency && results.internalConsistency.summary.totalDivergentPairs > 0) {
+    lines.push(`  ${red('🔀')} Internal consistency issues: ${results.internalConsistency.summary.totalDivergentPairs} divergent file pairs`);
+  }
   lines.push(`  ${yellow('~')} Intentional differences: ${results.summary.intentional}`);
   lines.push(`  ${cyan('?')} Project-specific: ${results.summary.projectSpecific}`);
   lines.push('');
@@ -719,6 +801,25 @@ function formatConsoleReport(results) {
       }
     }
     lines.push('');
+  }
+
+  // INTERNAL CONSISTENCY: js/ vs assistant/js/ divergence within projects
+  if (results.internalConsistency && results.internalConsistency.summary.totalDivergentPairs > 0) {
+    lines.push(red(bold('🔀 CRITICAL: INTERNAL CONSISTENCY ISSUES (js/ vs assistant/js/)')));
+    lines.push(red('─'.repeat(60)));
+    lines.push('');
+    lines.push('  Files in js/ and assistant/js/ MUST be identical within each project.');
+    lines.push('  ROOT index.html loads from js/, assistant/index.html loads from assistant/js/.');
+    lines.push('  Divergence causes different behavior depending on entry point!');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.internalConsistency.projects)) {
+      lines.push(red(`  ${project}:`));
+      for (const issue of issues) {
+        lines.push(`    ${issue.rootFile} (${issue.rootHash}) ≠ ${issue.assistantFile} (${issue.assistantHash})`);
+      }
+      lines.push('');
+    }
   }
 
   // SYMLINK ISSUES: Some projects use symlinks, others use regular files
@@ -812,14 +913,19 @@ function formatConsoleReport(results) {
   const symlinkCount = results.summary.symlinkIssues || 0;
   const coverageGaps = results.testCoverage?.summary?.patternsWithGaps || 0;
   const stubValidators = results.validatorStructure?.summary?.stubValidators || 0;
+  const internalIssues = results.internalConsistency?.summary?.totalDivergentPairs || 0;
 
-  if (results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0) {
+  if (results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
+    lines.push(green(bold('  ✓ NO INTERNAL CONSISTENCY ISSUES')));
     lines.push(green(bold('  ✓ NO TEST COVERAGE GAPS DETECTED')));
     lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
   } else {
     if (results.summary.divergent > 0) {
       lines.push(red(bold(`  ✗ ${results.summary.divergent} FILES HAVE DIVERGED - FIX REQUIRED`)));
+    }
+    if (internalIssues > 0) {
+      lines.push(red(bold(`  🔀 ${internalIssues} INTERNAL CONSISTENCY ISSUES - js/ vs assistant/js/ DIVERGED`)));
     }
     if (symlinkCount > 0) {
       lines.push(magenta(bold(`  ⚡ ${symlinkCount} SYMLINK STRUCTURAL ISSUES - UNIFY REQUIRED`)));
@@ -856,14 +962,16 @@ function main() {
     console.log(formatConsoleReport(results));
   }
 
-  // CI mode: exit 1 if divergent files, symlink issues, test coverage gaps, OR stub validators exist
+  // CI mode: exit 1 if divergent files, symlink issues, test coverage gaps, stub validators, OR internal consistency issues exist
   const coverageGapsCount = results.testCoverage?.summary?.patternsWithGaps || 0;
   const stubValidatorsCount = results.validatorStructure?.summary?.stubValidators || 0;
+  const internalIssuesCount = results.internalConsistency?.summary?.totalDivergentPairs || 0;
   if (ciMode && (
     results.summary.divergent > 0 ||
     results.summary.symlinkIssues > 0 ||
     coverageGapsCount > 0 ||
-    stubValidatorsCount > 0
+    stubValidatorsCount > 0 ||
+    internalIssuesCount > 0
   )) {
     process.exit(1);
   }
