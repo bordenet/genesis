@@ -341,6 +341,110 @@ Before starting, ensure:
 
 ---
 
+### Phase 1.5: Domain Research (15-30 minutes) 🔬
+
+**⚠️ CRITICAL: This phase is MANDATORY before implementation.**
+
+**Your Task**: Conduct comprehensive research on the document type using Perplexity AI (or equivalent research tool) and save the results to a local markdown file.
+
+**Why This Matters**:
+- Domain research directly informs validator heuristics and scoring dimensions
+- LLM prompts must include domain-specific guidance (not generic templates)
+- Without research, you'll create generic one-pager criteria instead of document-specific criteria
+- This is the #1 predictor of project quality
+
+**Research Process**:
+
+1. **Identify Research Questions** (work with user to define 5-7 progressive prompts):
+   - Document structure and optimal format
+   - Industry-specific best practices (2025-2026, not 2018-era advice)
+   - Inclusive language guidelines (if applicable)
+   - Common anti-patterns and red flags
+   - Quality metrics and scoring criteria
+   - Any domain-specific requirements
+
+2. **Conduct Progressive Perplexity Research**:
+   Each prompt should build on previous answers. Example progression for JD Assistant:
+   ```
+   Prompt 1: Modern JD structure & AI-optimization (sections, length, format)
+   Prompt 2: Inclusive language - gender (masculine-coded words, alternatives)
+   Prompt 3: Inclusive language - neurodiversity (introvert/ADHD/autism-friendly)
+   Prompt 4: Requirements & leveling (must-have vs nice-to-have, avoiding inflation)
+   Prompt 5: Compensation transparency (salary ranges, benefits disclosure)
+   Prompt 6: Red flags & anti-patterns (phrases that scare away good candidates)
+   Prompt 7: Domain-specific elements (e.g., AI/LLM role requirements for 2025)
+   ```
+
+3. **Save Research to Local File**:
+   ```bash
+   mkdir -p docs
+   touch docs/{DOCUMENT_TYPE}-RESEARCH-{YEAR}.md
+   ```
+
+   File structure:
+   ```markdown
+   # {Document Type} Research — {Year}
+
+   > **Purpose**: Foundational research for building the {Project Name} tool.
+   > **Date**: {Date}
+   > **Method**: Progressive Perplexity prompts synthesizing current best practices.
+
+   ---
+
+   ## Table of Contents
+   1. [Topic 1](#1-topic-1)
+   2. [Topic 2](#2-topic-2)
+   ...
+
+   ---
+
+   ## 1. Topic 1
+
+   ### Prompt
+   ```
+   {Exact prompt sent to Perplexity}
+   ```
+
+   ### Answer
+   {Synthesized answer with tables, lists, examples}
+
+   ---
+   ```
+
+4. **Extract Actionable Insights**:
+   At the end of the research file, add:
+   ```markdown
+   ## Key Takeaways for Implementation
+
+   ### Form Fields Derived
+   - Field 1: {reason}
+   - Field 2: {reason}
+
+   ### Validator Scoring Dimensions
+   - Dimension 1 (X points): {criteria}
+   - Dimension 2 (Y points): {criteria}
+
+   ### LLM Prompt Guidance
+   - Must include: {specific instructions}
+   - Must avoid: {anti-patterns}
+
+   ### Red Flag Detection Rules
+   - Pattern 1: {what to flag and why}
+   - Pattern 2: {what to flag and why}
+   ```
+
+**Output**: `docs/{DOCUMENT_TYPE}-RESEARCH-{YEAR}.md` file with all research captured.
+
+**Example**: See `jd-assistant/docs/JD-RESEARCH-2025.md` for a complete reference implementation.
+
+**Verification Checklist**:
+- [ ] 5-7 progressive research prompts completed
+- [ ] All prompts and answers saved to markdown file
+- [ ] Key takeaways section with form fields, validator dimensions, and prompt guidance
+- [ ] Research file committed to git
+
+---
+
 ### Phase 2: Validate Configuration (2-5 minutes)
 
 **Your Task**: Verify all information is correct and complete.
@@ -422,10 +526,14 @@ Before starting, ensure:
    - Adjust for phase count
    - Save to `{{DEPLOY_FOLDER}}/`
 
-7. **Create prompt templates**:
-   - For each phase, create `prompts/phase{{N}}.txt`
-   - Use examples from `genesis/examples/one-pager/prompts/` as reference
-   - Customize for user's workflow
+7. **Create prompt templates** (⚠️ MUST use domain research):
+   - For each phase, create `prompts/phase{{N}}.md`
+   - **CRITICAL**: Use insights from `docs/{DOCUMENT_TYPE}-RESEARCH-{YEAR}.md` to:
+     - Include domain-specific terminology and best practices
+     - Add anti-pattern warnings (e.g., masculine-coded words for JDs)
+     - Include scoring criteria that match validator dimensions
+   - Use examples from `genesis/examples/one-pager/prompts/` as structure reference
+   - Customize for user's document type based on research findings
 
 8. **Create scripts** (CRITICAL - Follow Shell Script Standards):
    - **⚠️ STUDY REFERENCE FIRST**: Review https://github.com/bordenet/product-requirements-assistant/tree/main/scripts

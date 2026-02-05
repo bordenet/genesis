@@ -71,6 +71,63 @@ Changes needed to genesis templates.
   - **Files with low coverage**: `projects.js` (0%), `attachments.js` (3%), `ui.js` (46%), `workflow.js` (54%)
   - **Fix**: Either lower the threshold in CHECKLIST.md to match reality, or add tests to hello-world baseline
 
+- [ ] **CRITICAL: Export/Import All Tests Are Inconsistent Across Projects**
+  - **Encountered when**: Auditing test coverage for Export and Import All features across all genesis apps (2026-02-05)
+  - **Impact**: The canonical hello-world template has MINIMAL tests for export/import, while derived projects have inconsistent coverage
+  - **Root cause**: hello-world only verifies functions exist (stub tests), doesn't test actual functionality
+
+  ### Current State (as of 2026-02-05):
+
+  | Project | `exportAllProjects` | `importProjects` | `storage.exportAll` | `storage.importAll` |
+  |---------|---------------------|------------------|---------------------|---------------------|
+  | **hello-world** (canonical) | ⚠️ Stub only | ⚠️ Stub only | ❌ None | ❌ None |
+  | **one-pager** | ✅ Full | ✅ Full (4 tests) | ❌ None | ❌ None |
+  | **power-statement-assistant** | ✅ Full | ✅ Full (4 tests) | ✅ Full | ✅ Full |
+  | **pr-faq-assistant** | ✅ Full | ✅ Basic (1 test) | ✅ Structure | ✅ Validation |
+  | **product-requirements-assistant** | ✅ Full | ✅ Full (4 tests) | ❌ None | ❌ None |
+  | **strategic-proposal** | ⚠️ Stub only | ⚠️ Stub only | ❌ None | ❌ None |
+  | **jd-assistant** | ⚠️ Stub only | ⚠️ Stub only | ❌ None | ❌ None |
+  | **architecture-decision-record** | ⚠️ Stub only | ⚠️ Stub only | ❌ None | ❌ None |
+
+  Legend: ✅ Full functional tests | ⚠️ Only verifies function exists | ❌ No tests
+
+  ### What "Stub Only" Means:
+  ```javascript
+  // This is ALL hello-world has - just checks the function exists:
+  test('should export exportAllProjects function', () => {
+    expect(exportAllProjects).toBeInstanceOf(Function);
+  });
+  ```
+
+  ### What "Full Tests" Look Like (from one-pager):
+  ```javascript
+  describe('exportAllProjects', () => {
+    test('should export all projects as backup JSON', async () => {
+      await createProject('Project 1', 'Problems 1', 'Context 1');
+      await exportAllProjects();
+      expect(URL.createObjectURL).toHaveBeenCalled();
+    });
+  });
+
+  describe('importProjects', () => {
+    test('should import backup file format', async () => { /* ... */ });
+    test('should import single project format', async () => { /* ... */ });
+    test('should reject invalid file format', async () => { /* ... */ });
+    test('should reject invalid JSON', async () => { /* ... */ });
+  });
+  ```
+
+  ### Required Fixes:
+  1. **Add comprehensive export/import tests to hello-world** - This is the canonical reference, it MUST have full test coverage
+  2. **Backfill tests to strategic-proposal, jd-assistant, architecture-decision-record** - These match hello-world's broken state
+  3. **Standardize storage.test.js** - power-statement-assistant has `exportAll`/`importAll` tests that others lack
+  4. **Add to project-diff checks** - Ensure test coverage for these features is consistent across projects
+
+  ### Files to Update:
+  - `genesis/examples/hello-world/assistant/tests/projects.test.js` - Add full export/import tests
+  - `genesis/examples/hello-world/assistant/tests/storage.test.js` - Add exportAll/importAll tests
+  - Then propagate to: strategic-proposal, jd-assistant, architecture-decision-record
+
 - [ ] **CRITICAL: hello-world template produces COMPLETELY BROKEN apps**
   - **Encountered when**: Deployed jd-assistant to GitHub Pages - app was non-functional (empty screen, no body content, dark mode broken, navigation broken)
   - **Impact**: TOTAL FAILURE - app shipped broken to production. User extremely frustrated. Multiple fix attempts required.

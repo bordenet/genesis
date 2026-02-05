@@ -52,6 +52,20 @@ A Genesis project is complete when:
 - [ ] Asked user for: document type, peer site navigation, GitHub Pages architecture
 - [ ] Did NOT ask questions answered by reference implementation
 
+### Phase 1.5: Domain Research 🔬 (MANDATORY)
+- [ ] Identified 5-7 progressive research prompts with user
+- [ ] Conducted Perplexity research for each prompt
+- [ ] Saved all prompts and answers to `docs/{DOCUMENT_TYPE}-RESEARCH-{YEAR}.md`
+- [ ] Extracted form fields from research findings
+- [ ] Extracted validator scoring dimensions from research
+- [ ] Extracted LLM prompt guidance from research
+- [ ] Identified red flags and anti-patterns to detect
+- [ ] Committed research file to git
+
+> **Why This Matters**: Without domain research, validator will use generic one-pager
+> criteria instead of document-specific criteria. Research is the #1 predictor of quality.
+> See `jd-assistant/docs/JD-RESEARCH-2025.md` for reference.
+
 ### Phase 2: Copy Templates
 - [ ] Copied all core files (.gitignore, CLAUDE.md, DESIGN-PATTERNS.md, README.md, package.json, etc.)
 - [ ] Copied all web app files (index.html, js/*.js, css/*.css)
