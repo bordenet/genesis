@@ -359,3 +359,307 @@ LLMs are stochastic. Even with perfect instructions, there is always a non-zero 
 3. **Aggressive diff tool usage as a compensating control**
 
 Without all three, confidence cannot exceed 60%.
+
+---
+
+## Critical Process Failures (Continued)
+
+### 2026-02-05: MANDATORY Hello World Scan After Template Copy
+
+**Severity**: CRITICAL
+**Status**: DOCUMENTED (process failure discovered during acceptance-criteria-assistant creation)
+
+**The Problem**:
+When copying from `hello-world` template, many files contain literal "Hello World" text that MUST be replaced with the new project's name. The acceptance-criteria-assistant was deployed with:
+- `<title>Hello World - Genesis Example</title>` in index.html
+- "Hello World" in navigation headers
+- "Genesis Examples" dropdown labels
+- "Contributing to Hello World Genesis Example" in CONTRIBUTING.md
+- "Hello-World Prompt Templates" in prompts/README.md
+- References to `hello-world.git` in clone instructions
+
+**The Mandate**:
+After copying from hello-world template, ALWAYS run this scan:
+
+```bash
+grep -ri "hello.world\|hello-world\|genesis.example" --include="*.html" --include="*.md" --include="*.json" . | grep -v node_modules | grep -v "for example"
+```
+
+**Files That Commonly Need Updates**:
+| File | What to Replace |
+|------|-----------------|
+| `index.html` | `<title>`, header text, dropdown labels |
+| `assistant/index.html` | Same as above |
+| `validator/index.html` | Same as above |
+| `CONTRIBUTING.md` | Project name, clone URL |
+| `prompts/README.md` | "Hello-World Prompt Templates" header |
+| `README.md` | All template placeholders |
+
+**Why This Was Missed**:
+1. The sed replacement only targeted `{{PROJECT_TITLE}}` placeholders
+2. Some files had hardcoded "Hello World" text, not template variables
+3. No post-copy validation step existed to catch literal template text
+
+**Lesson Learned**:
+Template variables (`{{PROJECT_TITLE}}`) are not sufficient. Some files have hardcoded template text that must be manually scanned and replaced. Add this scan to Phase 2 of CHECKLIST.md as a MANDATORY step.
+
+---
+
+### 2026-02-05: ROOT index.html Footer is Placeholder Links
+
+**Severity**: HIGH
+**Status**: DOCUMENTED (discovered during acceptance-criteria-assistant creation)
+
+**The Problem**:
+The hello-world template has TWO different `index.html` files with DIFFERENT footer implementations:
+
+| File | Footer Implementation | Status |
+|------|----------------------|--------|
+| `hello-world/assistant/index.html` | Proper `{{GITHUB_USER}}` template variables | ✅ Correct |
+| `hello-world/index.html` (ROOT) | Placeholder `href="#"` links with wrong labels | ❌ BROKEN |
+
+The ROOT `index.html` footer contains:
+```html
+<a href="#" target="_blank" rel="noopener">GitHub</a>
+<a href="#">Genesis Docs</a>
+<a href="#">Examples</a>
+<a href="#" id="about-link">About</a>
+```
+
+But it SHOULD have real cross-navigation links like the `assistant/index.html`:
+```html
+<a href="https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}" target="_blank" rel="noopener">GitHub</a>
+<a href="https://{{GITHUB_USER}}.github.io/product-requirements-assistant/">PRD</a>
+<a href="https://{{GITHUB_USER}}.github.io/architecture-decision-record/">ADR</a>
+<!-- ... etc ... -->
+```
+
+**What Was Wrong**:
+1. `href="#"` links go nowhere - completely non-functional
+2. "Genesis Docs" and "Examples" labels are template-specific, not project-specific
+3. No cross-navigation to other genesis tools (PRD, ADR, PR-FAQ, One-Pager, JD, AC)
+4. Unlike `assistant/index.html`, the ROOT file has NO template variables for the footer
+
+**Fix Applied for acceptance-criteria-assistant**:
+Manually replaced all placeholder links with proper cross-navigation:
+- GitHub → `https://github.com/bordenet/acceptance-criteria-assistant`
+- Added PRD, ADR, PR-FAQ, One-Pager, JD links
+- Kept About link
+
+**Recommended Fix for hello-world Template**:
+Either:
+1. Add `{{GITHUB_USER}}` template variables to ROOT `index.html` footer (matching assistant/index.html)
+2. Or document that ROOT `index.html` footer MUST be manually updated during project creation
+
+**Files That Need Footer Updates After Copy**:
+| File | Current Footer | Fix Needed |
+|------|----------------|------------|
+| `index.html` (ROOT) | Placeholder `#` links | Add real cross-navigation links |
+| `assistant/index.html` | Template variables | ✅ Works (sed replaces) |
+| `validator/index.html` | Template variables | ✅ Works (sed replaces) |
+
+---
+
+### 2026-02-05: ROOT index.html Tagline is Wrong
+
+**Severity**: HIGH
+**Status**: DOCUMENTED (discovered during acceptance-criteria-assistant creation)
+
+**The Problem**:
+The ROOT `index.html` contains the tagline:
+```html
+<p class="text-sm text-gray-500 dark:text-gray-400">
+    A minimal 2-phase AI workflow application
+</p>
+```
+
+This is wrong for multiple reasons:
+1. **Wrong phase count**: Most genesis tools are 3-phase (Draft → Critique → Refine), not 2-phase
+2. **Wrong tagline**: Other genesis projects use "100% Client-Side • Privacy-First • No Server Required"
+3. **Template-specific text**: This is hello-world template text that should be replaced
+
+**What Other Projects Use**:
+```html
+<p class="text-sm text-gray-500 dark:text-gray-400">
+    100% Client-Side • Privacy-First • <span class="relative group underline decoration-dotted cursor-help">No Server Required<span class="invisible group-hover:visible absolute left-0 top-full mt-1 w-64 p-2 text-xs text-white bg-gray-800 dark:bg-gray-700 rounded shadow-lg z-50">We don't touch your data—it never leaves your browser. Just be thoughtful about which AI you paste prompts into.</span></span>
+</p>
+```
+
+**Fix Applied for acceptance-criteria-assistant**:
+Replaced the tagline with the correct "100% Client-Side • Privacy-First • No Server Required" text.
+
+**Recommended Fix for hello-world Template**:
+Update ROOT `index.html` to use the same tagline as `assistant/index.html` and other genesis projects.
+
+---
+
+### 2026-02-05: Standalone "Compare Phases" Button is Outdated
+
+**Severity**: MEDIUM
+**Status**: DOCUMENTED (discovered during acceptance-criteria-assistant creation)
+
+**The Problem**:
+The hello-world template has a standalone "Compare Phases" button in Phase 4 completion view:
+
+```javascript
+// hello-world/assistant/js/project-view.js lines 209-211
+<button id="compare-phases-btn" class="px-4 py-2 border border-purple-600...">
+    🔄 Compare Phases
+</button>
+```
+
+But in the reference implementation (one-pager), Compare Phases functionality has been moved to the `...` (kebab) menu. The standalone button is an outdated UI pattern.
+
+**What one-pager Has**:
+- NO standalone Compare Phases button
+- Compare Phases is in the kebab menu (line 657-662 in project-view.js)
+
+**What hello-world Has**:
+- Standalone Compare Phases button in Phase 4 HTML
+- ALSO has Compare Phases in the kebab menu (duplicate functionality)
+
+**Fix Applied for acceptance-criteria-assistant**:
+Removed the standalone `compare-phases-btn` button from both `assistant/js/project-view.js` and `js/project-view.js`.
+
+**Recommended Fix for hello-world Template**:
+Remove lines 209-211 from `assistant/js/project-view.js` (the standalone button). Keep the kebab menu version.
+
+---
+
+### 2026-02-05: About Modal Contains Hardcoded Template Values
+
+**Severity**: MEDIUM
+**Status**: DOCUMENTED (discovered during acceptance-criteria-assistant creation)
+
+**The Problem**:
+The `app.js` file contains an About modal with hardcoded text that doesn't use template variables:
+
+```javascript
+// hello-world/assistant/js/app.js lines 193-201
+<h3>📋 Strategic Proposal Generator</h3>
+<p>Generate compelling strategic proposals using AI-assisted adversarial review.</p>
+...
+<a href="https://github.com/bordenet/strategic-proposal">View on GitHub →</a>
+```
+
+**Issues**:
+1. Title says "Strategic Proposal Generator" instead of project name
+2. Description says "strategic proposals" instead of project description
+3. GitHub link hardcoded to `strategic-proposal` instead of `{{GITHUB_REPO}}`
+
+**Why This Was Missed**:
+- The `app.js` About modal uses literal strings, not `{{PROJECT_TITLE}}` template variables
+- sed substitution doesn't touch these hardcoded values
+
+**Fix Applied for acceptance-criteria-assistant**:
+Updated both `assistant/js/app.js` and `js/app.js` with correct values.
+
+**Recommended Fix for hello-world Template**:
+Either use template variables in the About modal, OR add this file to the mandatory post-creation scan.
+
+---
+
+### 2026-02-05: Attribution URL in workflow.js is a Placeholder
+
+**Severity**: LOW
+**Status**: DOCUMENTED (discovered during acceptance-criteria-assistant creation)
+
+**The Problem**:
+The `workflow.js` file has a placeholder attribution URL in the `exportAsMarkdown()` function:
+
+```javascript
+// hello-world/assistant/js/workflow.js line 237
+const attribution = '\n\n---\n\n*Generated with [Document Assistant](https://your-app-url.github.io/your-app/)*';
+```
+
+**Why This Was Missed**:
+- This is a literal placeholder string, not a template variable
+- The comment says "CUSTOMIZE: Update attribution URL" but this was missed during creation
+
+**Fix Applied for acceptance-criteria-assistant**:
+Updated to `https://bordenet.github.io/acceptance-criteria-assistant/`
+
+**Recommended Fix for hello-world Template**:
+Either use `{{GITHUB_USER}}.github.io/{{GITHUB_REPO}}` pattern, OR add this to mandatory post-creation scan.
+
+---
+
+### 2026-02-05: Full Validation Button Has Wrong Styling
+
+**Severity**: MEDIUM
+**Status**: DOCUMENTED (discovered during acceptance-criteria-assistant creation)
+
+**The Problem**:
+The hello-world template has inconsistent button styling in Phase 4 completion view:
+
+```javascript
+// hello-world/assistant/js/project-view.js lines 206-214
+<button id="export-complete-btn" class="px-6 py-3 bg-green-600 text-white ... text-lg">
+    📄 Preview & Copy
+</button>
+<a href="../validator/" class="px-4 py-2 border border-blue-600 text-blue-600 ...">
+    Full Validation ↗
+</a>
+```
+
+**Issues**:
+1. Preview & Copy: `px-6 py-3` (large) vs Full Validation: `px-4 py-2` (small)
+2. Preview & Copy: `bg-green-600 text-white` (solid) vs Full Validation: `border text-blue-600` (outline)
+3. Preview & Copy: `text-lg` vs Full Validation: no text-lg
+
+**What jd-assistant/product-requirements-assistant Have**:
+Both buttons use consistent styling:
+```javascript
+<button class="px-6 py-3 bg-green-600 text-white ... text-lg">📄 Preview & Copy</button>
+<button class="px-6 py-3 bg-blue-600 text-white ... text-lg">📋 Copy & Validate ↗</button>
+```
+
+**Fix Applied for acceptance-criteria-assistant**:
+Updated both `assistant/js/project-view.js` and `js/project-view.js` to use consistent styling.
+
+**Recommended Fix for hello-world Template**:
+Update the Full Validation link to match the Preview & Copy button styling:
+- `px-6 py-3` (same padding)
+- `bg-blue-600 text-white` (solid background, white text)
+- `text-lg` (same text size)
+
+---
+
+### 2026-02-05: ROOT js/project-view.js Has Wrong Validator Path
+
+**Severity**: HIGH (produces broken links)
+**Status**: DOCUMENTED (discovered during acceptance-criteria-assistant creation)
+
+**The Problem**:
+The hello-world template has DUPLICATE JavaScript files:
+- `assistant/js/project-view.js` - loaded from `/project/assistant/` context
+- `js/project-view.js` (ROOT) - loaded from `/project/` context
+
+BOTH files use `../validator/` for the validator link, but they resolve differently:
+
+| File Location | Loaded From | `../validator/` Resolves To |
+|---------------|-------------|----------------------------|
+| `assistant/js/project-view.js` | `/project/assistant/` | `/project/validator/` ✅ |
+| `js/project-view.js` (ROOT) | `/project/` | `/validator/` ❌ BROKEN |
+
+**What the User Saw**:
+`https://bordenet.github.io/validator/` instead of `https://bordenet.github.io/acceptance-criteria-assistant/validator/`
+
+**Lines Affected in hello-world**:
+```javascript
+// hello-world/js/project-view.js lines 212, 278
+<a href="../validator/" ...>Full Validation ↗</a>
+<a href="../validator/" ...>Proposal Validator</a>
+```
+
+**Root Cause**:
+The ROOT `js/` files are a copy of `assistant/js/` but the relative paths need to be different because they're loaded from a different context. The ROOT files should use `./validator/` not `../validator/`.
+
+**Fix Applied for acceptance-criteria-assistant**:
+Changed ROOT `js/project-view.js` to use `./validator/` instead of `../validator/`.
+
+**Recommended Fix for hello-world Template**:
+Either:
+1. Update ROOT `js/project-view.js` to use `./validator/` instead of `../validator/`
+2. Or eliminate the duplicate ROOT `js/` directory entirely
+3. Add to post-creation checklist: "Verify validator links work from BOTH index.html pages"
