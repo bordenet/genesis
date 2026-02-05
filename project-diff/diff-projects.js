@@ -90,7 +90,69 @@ const CRITICAL_TEST_PATTERNS = [
       /test\s*\(\s*['"`].*init/i,
     ]
   },
+  // === STORAGE EXPORT/IMPORT (storage.test.js level) ===
+  {
+    name: 'storage.exportAll',
+    description: 'Tests for storage-level exportAll',
+    filePattern: /storage\.test\.js$/,
+    codePatterns: [
+      /describe\s*\(\s*['"`]exportAll['"`]/,
+      /test\s*\(\s*['"`].*exportAll/i,
+      /it\s*\(\s*['"`].*exportAll/i,
+    ]
+  },
+  {
+    name: 'storage.importAll',
+    description: 'Tests for storage-level importAll',
+    filePattern: /storage\.test\.js$/,
+    codePatterns: [
+      /describe\s*\(\s*['"`]importAll['"`]/,
+      /test\s*\(\s*['"`].*importAll/i,
+      /it\s*\(\s*['"`].*importAll/i,
+    ]
+  },
 ];
+
+// ============================================================================
+// VALIDATOR STRUCTURE REQUIREMENTS
+// ============================================================================
+// Minimum file sizes (in lines) for a functional validator
+// Based on one-pager reference implementation
+// If a validator file is significantly smaller, it's likely a stub
+const VALIDATOR_STRUCTURE_REQUIREMENTS = {
+  // Minimum line counts for functional validator files
+  // Based on one-pager (the reference implementation)
+  minLineCounts: {
+    'validator/index.html': 200,      // one-pager: 349 lines, stub: 94 lines
+    'validator/js/app.js': 300,       // one-pager: 454 lines, stub: 122 lines
+    'validator/js/validator.js': 200, // one-pager: 556 lines, stub: 68 lines
+  },
+  // Required files that MUST exist for a functional validator
+  requiredFiles: [
+    'validator/index.html',
+    'validator/js/app.js',
+    'validator/js/validator.js',
+    'validator/js/prompts.js',  // CRITICAL: Missing in hello-world template
+  ],
+  // Required UI elements in validator/index.html
+  // Based on actual working validators (one-pager, jd-assistant)
+  requiredHtmlElements: [
+    { pattern: /id=["']?btn-toggle-mode["']?/, description: 'Scoring mode toggle button' },
+    { pattern: /id=["']?quick-score-panel["']?/, description: 'Quick score panel' },
+    { pattern: /id=["']?llm-score-panel["']?/, description: 'LLM score panel' },
+    { pattern: /id=["']?ai-powerups["']?/, description: 'AI Power-ups section' },
+    { pattern: /id=["']?btn-save["']?/, description: 'Save button for version control' },
+    { pattern: /id=["']?btn-back["']?/, description: 'Back button for version control' },
+    { pattern: /id=["']?btn-forward["']?/, description: 'Forward button for version control' },
+  ],
+  // Required functions/patterns in validator/js/app.js
+  requiredAppFunctions: [
+    { pattern: /updateScoreDisplay|updateScore/, description: 'Score display update function' },
+    { pattern: /storage\.saveVersion|saveVersion/, description: 'Version save functionality' },
+    { pattern: /storage\.goBack|goBack/, description: 'Version back navigation' },
+    { pattern: /storage\.goForward|goForward/, description: 'Version forward navigation' },
+  ],
+};
 
 // Files/patterns that are EXPECTED to differ between projects
 const INTENTIONAL_DIFF_PATTERNS = [
@@ -319,6 +381,122 @@ function findTestFiles(projectPath, filePattern) {
 }
 
 /**
+ * Count lines in a file
+ */
+function countLines(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    return content.split('\n').length;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Check if file content matches a pattern
+ */
+function fileContainsPattern(filePath, pattern) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    return pattern.test(content);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Analyze validator structure across all projects
+ * Detects stub validators that are missing critical functionality
+ */
+function analyzeValidatorStructure(genesisToolsDir) {
+  const results = {
+    projects: {},  // project -> { issues: [], isStub: boolean }
+    summary: { projectsChecked: 0, stubValidators: 0, totalIssues: 0 }
+  };
+
+  for (const project of PROJECTS) {
+    const projectPath = path.join(genesisToolsDir, project);
+    const projectIssues = [];
+    results.summary.projectsChecked++;
+
+    // Check required files exist
+    for (const requiredFile of VALIDATOR_STRUCTURE_REQUIREMENTS.requiredFiles) {
+      const filePath = path.join(projectPath, requiredFile);
+      if (!fs.existsSync(filePath)) {
+        projectIssues.push({
+          type: 'missing_file',
+          file: requiredFile,
+          message: `Missing required file: ${requiredFile}`
+        });
+      }
+    }
+
+    // Check minimum line counts
+    for (const [file, minLines] of Object.entries(VALIDATOR_STRUCTURE_REQUIREMENTS.minLineCounts)) {
+      const filePath = path.join(projectPath, file);
+      if (fs.existsSync(filePath)) {
+        const lineCount = countLines(filePath);
+        if (lineCount < minLines) {
+          projectIssues.push({
+            type: 'undersized_file',
+            file,
+            lineCount,
+            minLines,
+            message: `${file} has ${lineCount} lines (minimum: ${minLines}) - likely a stub`
+          });
+        }
+      }
+    }
+
+    // Check required HTML elements in index.html
+    const indexPath = path.join(projectPath, 'validator/index.html');
+    if (fs.existsSync(indexPath)) {
+      for (const element of VALIDATOR_STRUCTURE_REQUIREMENTS.requiredHtmlElements) {
+        if (!fileContainsPattern(indexPath, element.pattern)) {
+          projectIssues.push({
+            type: 'missing_html_element',
+            file: 'validator/index.html',
+            element: element.description,
+            message: `Missing UI element: ${element.description}`
+          });
+        }
+      }
+    }
+
+    // Check required functions in app.js
+    const appPath = path.join(projectPath, 'validator/js/app.js');
+    if (fs.existsSync(appPath)) {
+      for (const func of VALIDATOR_STRUCTURE_REQUIREMENTS.requiredAppFunctions) {
+        if (!fileContainsPattern(appPath, func.pattern)) {
+          projectIssues.push({
+            type: 'missing_function',
+            file: 'validator/js/app.js',
+            function: func.description,
+            message: `Missing function: ${func.description}`
+          });
+        }
+      }
+    }
+
+    // Determine if this is a stub validator (3+ issues = stub)
+    const isStub = projectIssues.length >= 3;
+
+    results.projects[project] = {
+      issues: projectIssues,
+      isStub,
+      issueCount: projectIssues.length
+    };
+
+    if (isStub) {
+      results.summary.stubValidators++;
+    }
+    results.summary.totalIssues += projectIssues.length;
+  }
+
+  return results;
+}
+
+/**
  * Analyze test coverage for critical patterns across all projects
  */
 function analyzeTestCoverage(genesisToolsDir) {
@@ -475,6 +653,9 @@ function diffProjects(genesisToolsDir) {
   // Analyze test coverage for critical patterns
   results.testCoverage = analyzeTestCoverage(genesisToolsDir);
 
+  // Analyze validator structure for stub detection
+  results.validatorStructure = analyzeValidatorStructure(genesisToolsDir);
+
   return results;
 }
 
@@ -497,12 +678,16 @@ function formatConsoleReport(results) {
 
   // Summary
   const magenta = (s) => `\x1b[35m${s}\x1b[0m`;
+  const orange = (s) => `\x1b[38;5;208m${s}\x1b[0m`;
   lines.push(bold('SUMMARY'));
   lines.push(`  Total files scanned: ${results.summary.total}`);
   lines.push(`  ${green('✓')} Identical (MUST_MATCH): ${results.summary.identical}`);
   lines.push(`  ${red('✗')} Divergent (MUST_MATCH): ${results.summary.divergent}`);
   if (results.summary.symlinkIssues > 0) {
     lines.push(`  ${magenta('⚡')} Symlink structural issues: ${results.summary.symlinkIssues}`);
+  }
+  if (results.validatorStructure && results.validatorStructure.summary.stubValidators > 0) {
+    lines.push(`  ${orange('🔧')} Stub validators: ${results.validatorStructure.summary.stubValidators}`);
   }
   if (results.testCoverage && results.testCoverage.summary.patternsWithGaps > 0) {
     lines.push(`  ${red('🔍')} Test coverage gaps: ${results.testCoverage.summary.patternsWithGaps}`);
@@ -572,6 +757,30 @@ function formatConsoleReport(results) {
     }
   }
 
+  // STUB VALIDATORS: Validators missing critical functionality
+  if (results.validatorStructure && results.validatorStructure.summary.stubValidators > 0) {
+    lines.push(orange(bold('🔧 STUB VALIDATORS (missing critical functionality)')));
+    lines.push(orange('─'.repeat(60)));
+    lines.push('');
+    lines.push('  These validators are incomplete stubs that need to be replaced');
+    lines.push('  with full implementations based on one-pager reference.');
+    lines.push('');
+
+    for (const [project, data] of Object.entries(results.validatorStructure.projects)) {
+      if (data.isStub) {
+        lines.push(orange(`  ${project} (${data.issueCount} issues):`));
+        // Show first 5 issues
+        for (const issue of data.issues.slice(0, 5)) {
+          lines.push(red(`    ✗ ${issue.message}`));
+        }
+        if (data.issues.length > 5) {
+          lines.push(`    ... and ${data.issues.length - 5} more issues`);
+        }
+        lines.push('');
+      }
+    }
+  }
+
   // Project-specific files (might indicate missing files)
   if (results.projectSpecific.length > 0) {
     lines.push(yellow(bold('⚠️  PROJECT-SPECIFIC FILES (not in all projects)')));
@@ -602,17 +811,21 @@ function formatConsoleReport(results) {
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
   const symlinkCount = results.summary.symlinkIssues || 0;
   const coverageGaps = results.testCoverage?.summary?.patternsWithGaps || 0;
+  const stubValidators = results.validatorStructure?.summary?.stubValidators || 0;
 
-  if (results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0) {
+  if (results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
     lines.push(green(bold('  ✓ NO TEST COVERAGE GAPS DETECTED')));
+    lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
   } else {
     if (results.summary.divergent > 0) {
       lines.push(red(bold(`  ✗ ${results.summary.divergent} FILES HAVE DIVERGED - FIX REQUIRED`)));
     }
     if (symlinkCount > 0) {
-      const magenta = (s) => `\x1b[35m${s}\x1b[0m`;
       lines.push(magenta(bold(`  ⚡ ${symlinkCount} SYMLINK STRUCTURAL ISSUES - UNIFY REQUIRED`)));
+    }
+    if (stubValidators > 0) {
+      lines.push(orange(bold(`  🔧 ${stubValidators} STUB VALIDATORS - REPLACE WITH FULL IMPLEMENTATION`)));
     }
     if (coverageGaps > 0) {
       lines.push(red(bold(`  🔍 ${coverageGaps} TEST COVERAGE GAPS - ADD MISSING TESTS`)));
@@ -643,12 +856,14 @@ function main() {
     console.log(formatConsoleReport(results));
   }
 
-  // CI mode: exit 1 if divergent files, symlink issues, OR test coverage gaps exist
+  // CI mode: exit 1 if divergent files, symlink issues, test coverage gaps, OR stub validators exist
   const coverageGapsCount = results.testCoverage?.summary?.patternsWithGaps || 0;
+  const stubValidatorsCount = results.validatorStructure?.summary?.stubValidators || 0;
   if (ciMode && (
     results.summary.divergent > 0 ||
     results.summary.symlinkIssues > 0 ||
-    coverageGapsCount > 0
+    coverageGapsCount > 0 ||
+    stubValidatorsCount > 0
   )) {
     process.exit(1);
   }
