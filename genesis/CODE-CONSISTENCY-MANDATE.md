@@ -45,3 +45,28 @@ The tool compares **all 7 projects** (6 derived + hello-world baseline).
 
 **The rule is simple**: If it's not explicitly in the plugin layer, don't touch it. Use the diff tool. Every time.
 
+---
+
+## 🚨 CRITICAL: Files That MUST Be Customized
+
+While most files should match hello-world exactly, these files **MUST** be changed for each new project:
+
+### IndexedDB Storage (MANDATORY)
+
+**Files**: `js/storage.js` AND `assistant/js/storage.js`
+
+```javascript
+// ❌ WRONG - Causes data corruption between tools!
+const DB_NAME = 'hello-world-assistant-db';
+
+// ✅ CORRECT - Unique per project
+const DB_NAME = 'your-project-name-db';
+const STORE_NAME = 'your-documents';  // Also change this
+```
+
+**Why**: All genesis tools share the same domain (`bordenet.github.io`). IndexedDB is scoped by domain, not URL path. Same `DB_NAME` = shared/corrupted data.
+
+**Also update**: `assistant/tests/storage.test.js` to expect the new `STORE_NAME`.
+
+See [Web App Customization](./customization-guide/web-app.md) for full details.
+

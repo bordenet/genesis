@@ -64,6 +64,27 @@ node ~/.codex/superpowers-augment/superpowers-augment.js bootstrap
 
 <!-- Add project-specific guidance below this line -->
 
+### 🚨 CRITICAL: IndexedDB Database Name (When Creating New Project)
+
+**If you are creating a new project from this hello-world template, you MUST change the IndexedDB database name!**
+
+**Files to update**:
+1. `js/storage.js`
+2. `assistant/js/storage.js`
+3. `assistant/tests/storage.test.js`
+
+**What to change**:
+```javascript
+// ❌ WRONG - Will cause data corruption with other tools!
+const DB_NAME = 'hello-world-assistant-db';
+const STORE_NAME = 'projects';
+
+// ✅ CORRECT - Unique to your project
+const DB_NAME = 'your-project-name-db';
+const STORE_NAME = 'your-documents';
+```
+
+**Why**: All genesis tools share `bordenet.github.io`. IndexedDB is scoped by domain, not path. Same DB_NAME = shared/corrupted data between tools.
 
 ---
 

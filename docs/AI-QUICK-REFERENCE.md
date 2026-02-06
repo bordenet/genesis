@@ -146,11 +146,40 @@ Before any commit:
 | `prompts/phase2.md` | Phase 2 adversarial prompt |
 | `prompts/phase3.md` | Phase 3 synthesis prompt |
 | `js/workflow.js` | Phase logic, prompt generation |
-| `js/storage.js` | IndexedDB persistence |
+| `js/storage.js` | IndexedDB persistence ⚠️ **MUST CUSTOMIZE** |
 | `js/ui.js` | Toast, modals, clipboard |
 | `js/slop-detection.js` | AI slop detection (150+ patterns) |
 | `js/document-specific-templates.js` | Document-type starter templates |
 | `docs/About.md` | Perplexity research Q&A (if applicable) |
+
+---
+
+## 🚨 CRITICAL: IndexedDB Database Names
+
+**Every new project MUST have a unique IndexedDB database name!**
+
+When creating a new project from hello-world, you **MUST** change these values in **BOTH** `js/storage.js` AND `assistant/js/storage.js`:
+
+```javascript
+// ❌ WRONG - Using template default
+const DB_NAME = 'hello-world-assistant-db';
+const STORE_NAME = 'projects';
+
+// ✅ CORRECT - Unique to your project
+const DB_NAME = 'my-new-assistant-db';  // Change this!
+const STORE_NAME = 'documents';          // Change this!
+```
+
+**Why this matters**: All genesis tools are hosted on the same domain (`bordenet.github.io`). IndexedDB databases are scoped by domain, NOT by path. If two tools use the same `DB_NAME`, they will **share data and corrupt each other**.
+
+**Naming convention**:
+- `DB_NAME`: `{project-name}-db` (e.g., `business-justification-assistant-db`)
+- `STORE_NAME`: Descriptive noun for what you're storing (e.g., `justifications`, `criteria`, `proposals`)
+
+**Files to update**:
+1. `js/storage.js` - Root storage module
+2. `assistant/js/storage.js` - Assistant storage module
+3. `assistant/tests/storage.test.js` - Update test to expect new STORE_NAME
 
 ---
 
