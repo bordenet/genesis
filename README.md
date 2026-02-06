@@ -12,6 +12,26 @@ Ecosystem of AI-powered document assistants and validators using a paired archit
 
 ---
 
+## About This Project
+
+I started Genesis as a personal challenge to see how deterministic I could make Claude Code. By my third clone of the same implementation patterns, I'd seen every variation the LLM could produce.
+
+So I experimented:
+- Spec-driven development with strict style guides and linting
+- Self-generated frameworks and templates
+- TDD with home-grown validation tools
+- Self-reinforcing AI instructions with continuous improvement loops
+
+It worked. The tools are consistent, the patterns reproducible.
+
+But it wasn't worth it.
+
+I confirmed what I suspected from the start: a clean architecture with strong principles and clear abstractions would have been 10x more efficient. The time I spent building conformity mechanisms should have gone into thoughtful design.
+
+Genesis remains useful as a reference for pushing AI-assisted development to its limits, and as a reminder that simpler approaches usually win.
+
+---
+
 ## Architecture
 
 Every genesis-tools project contains **BOTH**:
