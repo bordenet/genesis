@@ -45,6 +45,8 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for full details on the paired model.
 
 9 paired projects, each with 90%+ test coverage and CI/CD.
 
+> **Note:** These tools currently exist as separate repositories with a shared codebase. Enterprise deployment options (monorepo, unified portal, etc.) are under consideration.
+
 ---
 
 ## Quick Start
