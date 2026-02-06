@@ -3,14 +3,14 @@
  */
 import { validateDocument, getScoreColor, getScoreLabel } from '../js/validator-inline.js';
 
-describe('Inline Document Validator', () => {
+describe('Inline One-Pager Validator', () => {
   describe('validateDocument', () => {
     test('should return zero scores for empty content', () => {
       const result = validateDocument('');
       expect(result.totalScore).toBe(0);
-      expect(result.structure.score).toBe(0);
-      expect(result.clarity.score).toBe(0);
-      expect(result.businessValue.score).toBe(0);
+      expect(result.problemClarity.score).toBe(0);
+      expect(result.solution.score).toBe(0);
+      expect(result.scope.score).toBe(0);
       expect(result.completeness.score).toBe(0);
     });
 
@@ -24,68 +24,75 @@ describe('Inline Document Validator', () => {
       expect(result.totalScore).toBe(0);
     });
 
-    test('should score a well-structured proposal', () => {
-      const goodProposal = `
-# Executive Summary
-This proposal outlines a plan to implement a new customer portal.
+    test('should score a well-structured one-pager', () => {
+      const goodOnePager = `
+# Problem Statement
+Our customers struggle with manual data entry, causing 500+ hours wasted per month.
+The cost of inaction is $50,000 annually in lost productivity.
+This impacts our business revenue and customer satisfaction.
 
-## Problem Statement
-Currently, customers struggle to access their account information, leading to 500+ support calls per month.
+## Solution
+We will build an automated data pipeline that reduces manual effort by 80%.
+Our approach delivers measurable goals including faster processing and fewer errors.
 
-## Proposed Solution
-We will build a self-service portal that reduces support costs by $50,000 annually.
+## Goals and Benefits
+- Reduce processing time by 75%
+- Improve data accuracy to 99%
+- Save $40,000 per year
 
-## Benefits and Value
-- Customer satisfaction improvement by 25%
-- Reduced support tickets by 40%
-- Revenue growth through upsell opportunities
+## Scope
+### In Scope
+- We will automate the ingestion process
+- We will provide real-time monitoring
 
-## Implementation Plan
-- Q1: Design phase
-- Q2: Development
-- Q3: Testing and launch
+### Out of Scope
+- We will not modify the legacy database
+- Phase 2: Advanced analytics (future)
 
-### Next Steps
-1. Assign product owner
-2. Schedule kickoff meeting
+## Success Metrics
+- Measure: 90% reduction in manual tasks
+- KPI: Less than 1% error rate
+- Target: Full deployment in Q2
 
-## Risks and Assumptions
-- Risk: Integration complexity. Mitigation: Early prototype testing.
-- Assumption: API availability
+## Stakeholders
+- Product Owner: Jane Doe (responsible)
+- Engineering Lead: John Smith (accountable)
+- Team: Core Platform
+
+## Timeline
+- Phase 1 (Q1): Design and prototype
+- Phase 2 (Q2): Development and testing
+- Milestone: Production launch by end of Q2
       `;
-      const result = validateDocument(goodProposal);
-      expect(result.totalScore).toBeGreaterThan(50);
-      expect(result.structure.score).toBeGreaterThan(10);
-      expect(result.clarity.score).toBeGreaterThan(10);
+      const result = validateDocument(goodOnePager);
+      expect(result.totalScore).toBeGreaterThan(60);
+      expect(result.problemClarity.score).toBeGreaterThan(15);
+      expect(result.solution.score).toBeGreaterThanOrEqual(10);
     });
 
-    test('should penalize vague language', () => {
-      const vagueProposal = `
-# Executive Summary
-This will be an easy to use, user-friendly, intuitive, seamless, flexible, and robust solution.
-It will provide good performance and high quality results in a reasonable timeframe.
-The scalable and efficient approach will be minimal effort with appropriate resources.
-      `.repeat(3); // Make it long enough to pass minimum length
+    test('should identify missing problem section', () => {
+      const noProblem = `
+# Solution
+We will build something great.
 
-      const result = validateDocument(vagueProposal);
-      expect(result.clarity.issues.some(i => i.includes('vague'))).toBe(true);
+## Scope
+- In scope: Everything good
+      `.repeat(2);
+      const result = validateDocument(noProblem);
+      expect(result.problemClarity.issues.some(i => i.toLowerCase().includes('problem'))).toBe(true);
     });
 
-    test('should reward measurable metrics', () => {
-      const measurableProposal = `
-# Executive Summary
-This proposal will reduce costs by 25% and save $100,000 per year.
-Response time will improve by 50ms.
-We expect 1000 new users within 30 days.
+    test('should identify missing out-of-scope', () => {
+      const noOutOfScope = `
+# Problem
+There is a big problem affecting our users and costing the business money.
 
-## Problem
-Current system has 500ms latency and costs $200,000 annually.
-
-## Solution  
-Implement new architecture to reduce latency to 100ms.
-      `;
-      const result = validateDocument(measurableProposal);
-      expect(result.clarity.score).toBeGreaterThan(5);
+## Scope
+- In scope: We will do good things
+- We will deliver value
+      `.repeat(2);
+      const result = validateDocument(noOutOfScope);
+      expect(result.scope.issues.some(i => i.toLowerCase().includes('out-of-scope'))).toBe(true);
     });
   });
 
@@ -139,4 +146,3 @@ Implement new architecture to reduce latency to 100ms.
     });
   });
 });
-
