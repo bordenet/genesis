@@ -44,6 +44,7 @@ The authoritative list is in `project-diff/diff-projects.js` → `INTENTIONAL_DI
 | `ai-mock.js` | Mock data generates fake document content |
 | `types.js` | Document schema definitions |
 | `validator/js/validator.js` | Validation rules specific to document type |
+| `validator-inline.js` | **CRITICAL**: Inline scoring - MUST match `validator.js` scoring dimensions |
 
 **Project Identity (contain project name/title):**
 

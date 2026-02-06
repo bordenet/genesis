@@ -140,11 +140,12 @@ const DOCUMENT_SPECIFIC_TERMS = [
 ];
 
 // Shared library files that MUST use generic function names
+// NOTE: validator-inline.js was REMOVED from this list on 2026-02-06.
+// It previously caused a bug where the AI would copy generic scoring functions
+// from hello-world, but validator-inline.js MUST have document-specific scoring
+// that matches validator.js. See INTENTIONAL_DIFF_PATTERNS for validator-inline.js.
 const SHARED_LIBRARY_FILES = [
-  'assistant/js/validator-inline.js',
-  'js/validator-inline.js',
   // Note: jd-assistant uses jd-validator.js which is project-specific by design
-  // so we don't include it here
 ];
 
 // ============================================================================
@@ -380,6 +381,17 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // Smoke tests (jd-assistant uses jd-validator.js instead of validator-inline.js,
   // so its smoke.test.js has different validator export checks)
   /^assistant\/tests\/smoke\.test\.js$/,
+
+  // === INLINE VALIDATOR (document-specific scoring - MUST MATCH validator.js) ===
+  // CRITICAL: validator-inline.js MUST have document-specific scoring functions
+  // that align with validator.js. Each project has different scoring dimensions
+  // (e.g., scoreProblemClarity for business-justification, scoreExecutiveSummary for one-pager).
+  // Generic functions like scoreDocumentStructure will cause score discrepancies
+  // between the Assistant (which uses validator-inline.js) and the Validator tool.
+  /^assistant\/js\/validator-inline\.js$/,
+  /^js\/validator-inline\.js$/,
+  // Tests for inline validator (tests document-specific inline validation)
+  /^assistant\/tests\/validator-inline\.test\.js$/,
 
   // === PROJECT-SPECIFIC TOOLS ===
   /^tools\//,
