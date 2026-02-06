@@ -82,7 +82,7 @@ Each project is **self-contained with real directories** (no symlinks):
 
 ### Keeping Projects Aligned
 
-Use the **project-diff tools** to maintain consistency across all 7 projects:
+Use the **project-diff tools** to maintain consistency across all 9 projects:
 
 ```bash
 # From genesis/project-diff directory
@@ -111,14 +111,13 @@ Run these tools **at least 3 times** during development:
 - Automatic deployment on push
 
 ### ✅ CI/CD Pipeline
-- Clones core repos, replaces symlinks
+- Simple `npm ci && npm test` workflow
 - Runs tests for both assistant and validator
 - Code coverage tracking
 
 ### ✅ Shared Libraries
-- `assistant-core` - Common assistant utilities
-- `validator-core` - Common validator utilities
-- Symlinks for local dev, copied files in CI
+- Core utilities are copied into each project's `js/core/` directory
+- Source repos: [`assistant-core`](https://github.com/bordenet/assistant-core), [`validator-core`](https://github.com/bordenet/validator-core)
 
 ---
 
@@ -143,17 +142,22 @@ hello-world/
 | PRD | [Demo](https://bordenet.github.io/product-requirements-assistant/) | [Demo](https://bordenet.github.io/product-requirements-assistant/validator/) |
 | ADR | [Demo](https://bordenet.github.io/architecture-decision-record/) | [Demo](https://bordenet.github.io/architecture-decision-record/validator/) |
 | Strategic Proposal | [Demo](https://bordenet.github.io/strategic-proposal/) | [Demo](https://bordenet.github.io/strategic-proposal/validator/) |
+| Power Statement | [Demo](https://bordenet.github.io/power-statement-assistant/) | [Demo](https://bordenet.github.io/power-statement-assistant/validator/) |
+| PR-FAQ | [Demo](https://bordenet.github.io/pr-faq-assistant/) | [Demo](https://bordenet.github.io/pr-faq-assistant/validator/) |
+| Job Description | [Demo](https://bordenet.github.io/jd-assistant/) | [Demo](https://bordenet.github.io/jd-assistant/validator/) |
+| Acceptance Criteria | [Demo](https://bordenet.github.io/acceptance-criteria-assistant/) | [Demo](https://bordenet.github.io/acceptance-criteria-assistant/validator/) |
+| Business Justification | [Demo](https://bordenet.github.io/business-justification-assistant/) | [Demo](https://bordenet.github.io/business-justification-assistant/validator/) |
 
 ---
 
 ## Troubleshooting
 
-### Symlinks not working locally
+### Core files missing
 ```bash
-# Verify symlinks point to correct locations
+# Verify core directories exist with actual files
 ls -la assistant/js/core
 ls -la validator/js/core
-# Should show: core -> ../../../assistant-core/src (or validator-core)
+# Should show: index.js, storage.js, ui.js, etc.
 ```
 
 ### GitHub Pages shows 404 for /validator/
@@ -162,9 +166,9 @@ ls -la validator/js/core
 - Verify source is set to "GitHub Actions"
 
 ### Tests fail in CI but pass locally
-- CI replaces symlinks with copied files
-- Check that core repos are being cloned correctly
-- Verify the `cp -r` commands in workflow
+- Check Node.js version matches `.nvmrc`
+- Verify `npm ci` completes without errors
+- Check for environment-specific path issues
 
 ---
 
@@ -181,7 +185,7 @@ ls -la validator/js/core
 
 - **Architecture**: [`../ARCHITECTURE.md`](../ARCHITECTURE.md) - Detailed paired model docs
 - **Start Here**: [`START-HERE.md`](START-HERE.md) - AI assistant entry point
-- **Code Consistency**: [`../project-diff/`](../project-diff/) - Check consistency across all 7 projects
+- **Code Consistency**: [`../project-diff/`](../project-diff/) - Check consistency across all 9 projects
 
 ---
 
