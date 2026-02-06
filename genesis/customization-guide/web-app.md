@@ -145,3 +145,67 @@ Already uses `{{PROJECT_TITLE}}` variable - just set it in config.
    }
    ```
 
+---
+
+## 🚨 CRITICAL: Validator Alignment (validator-inline.js)
+
+**Every project has TWO validator files that MUST be aligned:**
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `validator.js` | `validator/js/validator.js` | Standalone Validator tool |
+| `validator-inline.js` | `assistant/js/validator-inline.js` | Inline scoring in Assistant Phase 3 |
+
+### Why Alignment Matters
+
+When users complete Phase 3 in the Assistant, they see a quality score in the completion banner. This score comes from `validator-inline.js`. When they paste the same document into the Validator tool, they expect the **same score**.
+
+**If the scoring dimensions differ, users see conflicting scores!**
+
+### What Must Match
+
+Both files MUST have the same:
+
+1. **Scoring dimensions** (the 4 categories that add up to 100 points)
+2. **Score calculations** (same logic for each dimension)
+3. **Score labels and colors** (same thresholds for Excellent/Good/Needs Work)
+
+### Example: Business Justification Assistant
+
+```javascript
+// validator.js scoring dimensions (MUST match validator-inline.js):
+// 1. Problem Clarity: 25 points
+// 2. Solution Quality: 25 points
+// 3. Business Case: 25 points
+// 4. Implementation Plan: 25 points
+
+// validator-inline.js MUST use the same dimensions and point values!
+```
+
+### Customization Checklist
+
+When creating a new project:
+
+- [ ] Define your 4 scoring dimensions in `validator.js`
+- [ ] Copy the scoring logic to `validator-inline.js`
+- [ ] Ensure point totals add up to 100 in both files
+- [ ] Run `npm test` to verify both validators produce same scores
+- [ ] Test manually: paste same document in Assistant (Phase 3) and Validator
+
+### Common Mistake
+
+❌ **WRONG**: Copying `validator-inline.js` from hello-world with generic functions:
+```javascript
+// Generic functions that don't match your validator.js
+scoreDocumentStructure(markdown)
+scoreClarity(markdown)
+```
+
+✅ **CORRECT**: Creating document-specific functions that match `validator.js`:
+```javascript
+// Same dimensions as validator.js
+scoreProblemClarity(markdown)
+scoreSolutionQuality(markdown)
+scoreBusinessCase(markdown)
+scoreImplementationPlan(markdown)
+```

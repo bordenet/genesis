@@ -47,4 +47,6 @@
 | Dark mode broken | Missing Tailwind config | Add `tailwind.config = { darkMode: 'class' }` |
 | `{{VAR}}` in output | Template not replaced | Replace all template variables |
 | Gray GitHub text | Footer link not styled | Ensure `<a>` tag wraps GitHub text |
+| **Score discrepancy between Assistant and Validator** | `validator-inline.js` has different scoring than `validator.js` | Align scoring dimensions in both files - see [Web App Customization](../customization-guide/web-app.md#-critical-validator-alignment-validator-inlinejs) |
+| **Title shows as `{Document Title}`** | `extractTitleFromMarkdown()` matched template placeholder | Add check: `if (title.includes('{')) return null` |
 
