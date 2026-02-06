@@ -1,41 +1,47 @@
 # Same-LLM Adversarial Configuration Guide
 
-## 🎯 Overview
+Automatically detects when Phase 1 and Phase 2 use the same LLM and applies Gemini personality simulation to maintain adversarial tension.
 
-The Same-LLM Adversarial Configuration system automatically detects when Phase 1 and Phase 2 use the same LLM model and applies Gemini personality simulation to maintain adversarial tension. This is critical for corporate deployments using single-endpoint LLM platforms like LibreChat.
+## Quick Start
 
-## 🔍 Problem Statement
+```javascript
+import { ConfigurationManager, AdversarialPromptAugmenter } from './js/same-llm-adversarial.js';
 
-**The Challenge**: In corporate environments, organizations often deploy a single LLM endpoint (e.g., LibreChat, ChatGPT Enterprise, Azure OpenAI) for all AI interactions. When the 3-phase workflow uses the same LLM for both Phase 1 (initial draft) and Phase 2 (adversarial review), the adversarial tension is lost.
+const config = new ConfigurationManager().detectConfiguration();
+if (config.isSameLLM) {
+    const augmenter = new AdversarialPromptAugmenter();
+    const augmentedPrompt = augmenter.generateGeminiStylePrompt(originalPrompt);
+}
+```
 
-**The Impact**: Without adversarial tension, Phase 2 becomes a "review and improve" task instead of a "challenge and reconstruct" task, resulting in lower-quality outputs.
+## Problem Statement
 
-**The Solution**: Automatically detect same-LLM scenarios and augment Phase 2 prompts with Gemini personality simulation to maintain constructive adversarial analysis.
+**The Challenge**: Corporate environments deploy single LLM endpoints (LibreChat, ChatGPT Enterprise, Azure OpenAI). When the 3-phase workflow uses the same LLM for Phase 1 (initial draft) and Phase 2 (adversarial review), adversarial tension is lost.
 
-## 🏗️ Architecture
+**The Impact**: Phase 2 becomes "review and improve" instead of "challenge and reconstruct", reducing output quality.
+
+**The Solution**: Detect same-LLM scenarios and augment Phase 2 prompts with Gemini personality simulation.
+
+## Architecture
 
 ### Core Components
 
-1. **SameLLMAdversarialSystem** - Main orchestration class
-   - Executes 3-phase workflow with automatic same-LLM detection
-   - Coordinates between configuration, augmentation, and validation
+| Class | Purpose |
+| ----- | ------- |
+| `SameLLMAdversarialSystem` | Main orchestration - executes 3-phase workflow with automatic detection |
+| `ConfigurationManager` | Detects same-LLM via provider/model, URL, or endpoint matching |
+| `AdversarialPromptAugmenter` | Modifies prompts - detects forget clauses, applies Gemini simulation |
+| `AdversarialQualityValidator` | Measures effectiveness via semantic difference and adversarial language |
 
-2. **ConfigurationManager** - Detects same-LLM scenarios
-   - Provider/model matching: `phase1.provider === phase2.provider && phase1.model === phase2.model`
-   - URL matching: For LibreChat deployments
-   - Endpoint matching: For localhost/corporate deployments
+### Helper Functions (Legacy API)
 
-3. **AdversarialPromptAugmenter** - Handles prompt modification
-   - Detects "forget" clauses in prompts
-   - Replaces entire prompt if forget clause detected
-   - Prepends Gemini simulation if no forget clause
+| Function | Purpose |
+| -------- | ------- |
+| `detectSameLLM(model1, model2)` | Simple model name comparison |
+| `getAdversarialStrategy(model)` | Returns strategy string for model type |
+| `applyAdversarialPrompt(prompt, model)` | Augments prompt with adversarial mode tag |
 
-4. **AdversarialQualityValidator** - Measures effectiveness
-   - Calculates semantic difference between Phase 1 and Phase 2
-   - Detects adversarial language patterns
-   - Counts direct challenges
-
-## 🔧 Detection Methods
+## Detection Methods
 
 ### 1. Provider/Model Match (Highest Priority)
 ```javascript
@@ -58,23 +64,47 @@ phase2.endpoint === 'http://localhost:3000/api'
 // Result: Same LLM detected via endpoint_match (deploymentType: local_deployment)
 ```
 
-## 🎭 Gemini Personality Simulation
+### Deployment Types
+
+| Type | Trigger | Example |
+| ---- | ------- | ------- |
+| `librechat` | URL/endpoint contains "librechat" | `https://librechat.company.com/api` |
+| `local_deployment` | URL/endpoint contains "localhost" | `http://localhost:3000/api` |
+| `corporate_single_endpoint` | Same URL for both phases | Corporate AI gateway |
+| `same_provider` | Same provider, different models | anthropic/claude-3-sonnet vs anthropic/claude-3-opus |
+| `multi_provider` | Different providers | anthropic vs google (no augmentation needed) |
+
+### Corporate Deployment Detection
+
+The system recognizes these corporate patterns:
+
+- `librechat` - LibreChat deployments
+- `chatgpt-enterprise` - ChatGPT Enterprise
+- `azure-openai` - Azure OpenAI Service
+- `aws-bedrock` - AWS Bedrock
+- `google-vertex` - Google Vertex AI
+- `internal-llm` - Internal LLM endpoints
+- `corporate-ai` - Generic corporate AI endpoints
+
+## Gemini Personality Simulation
 
 ### Behavioral Profile
-- **Highly analytical and precision-focused**
-- **Constructively adversarial and skeptical by design**
-- **Evidence-demanding and assumption-challenging**
-- **Systematic in identifying logical gaps**
-- **Professional but relentlessly thorough**
+
+- Highly analytical and precision-focused
+- Constructively adversarial and skeptical by design
+- Evidence-demanding and assumption-challenging
+- Systematic in identifying logical gaps and inconsistencies
+- Professional but relentlessly thorough in critique
 
 ### Key Characteristics
+
 1. **Skeptical Precision**: Approach every claim with professional skepticism
 2. **Evidence Demands**: Question assertions lacking substantiating evidence
 3. **Assumption Challenges**: Identify and probe hidden assumptions
 4. **Logic Gaps**: Systematically identify incomplete arguments
 5. **Clarity Demands**: Highlight vagueness and ambiguity
 
-## 🔄 Prompt Augmentation Strategy
+## Prompt Augmentation Strategy
 
 ### Forget Clause Detection
 The system detects these patterns:
@@ -98,35 +128,50 @@ if (containsForgetClause(originalPrompt)) {
 ### Why This Matters
 **Critical Discovery**: Phase 2 prompts often contain "Forget all previous sessions" clauses. If we prepend Gemini simulation, the forget clause nullifies it. Solution: Replace the entire prompt when forget clause detected.
 
-## 📊 Quality Validation
+## Quality Validation
 
 ### Effectiveness Criteria
+
 An adversarial review is considered effective when:
-1. **Semantic Difference ≥ 30%**: Phase 2 output differs significantly from Phase 1
-2. **Adversarial Language ≥ 3**: Contains at least 3 adversarial phrases
-3. **Challenge Count ≥ 2**: Includes at least 2 direct challenges
+
+| Metric | Threshold | Description |
+| ------ | --------- | ----------- |
+| Semantic Difference | ≥ 0.3 | Phase 2 output differs significantly from Phase 1 |
+| Adversarial Language | ≥ 3 | Contains at least 3 adversarial phrases |
+| Challenge Count | ≥ 2 | Includes at least 2 direct challenges |
 
 ### Adversarial Language Patterns
-- however, but, challenge, question, assumption
-- evidence, unclear, vague, inconsistent, gap
-- overlooks, fails to consider, lacks, insufficient
-- problematic, concerning, requires clarification
+
+```text
+however, but, challenge, question, assumption
+evidence, unclear, vague, inconsistent, gap
+overlooks, fails to consider, lacks, insufficient
+problematic, concerning, requires clarification
+```
 
 ### Challenge Patterns
-- "Why does/is/are/would..."
-- "What evidence..."
-- "How can we be sure..."
-- "This assumes..."
-- "Lacks detail/evidence/clarity..."
 
-## 🚀 Usage in Genesis Projects
+```text
+"Why does/is/are/would..."
+"What evidence..."
+"How can we be sure..."
+"This assumes..."
+"Lacks detail/evidence/clarity..."
+```
+
+## Usage in Genesis Projects
 
 ### Automatic Integration
+
 When you create a new project from Genesis, the same-LLM adversarial system is automatically included:
 
-1. **Implementation File**: `js/same-llm-adversarial.js`
-2. **Test Suite**: `tests/same-llm-adversarial.test.js` (19 test scenarios)
-3. **Configuration**: Environment variables for Phase 1 and Phase 2
+| File | Purpose |
+| ---- | ------- |
+| [`js/same-llm-adversarial.js`][impl] | Implementation (515 lines, 4 classes) |
+| [`assistant/tests/same-llm-adversarial.test.js`][tests] | Test suite (41 tests across 8 categories) |
+
+[impl]: https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/js/same-llm-adversarial.js
+[tests]: https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/tests/same-llm-adversarial.test.js
 
 ### Environment Variables
 ```bash
@@ -153,64 +198,50 @@ PHASE2_URL=https://librechat.company.com/api/chat
 # Applies Gemini personality simulation to Phase 2
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Test Coverage
-The test suite includes 19 comprehensive test scenarios across 6 categories:
 
-1. **Configuration Detection** (5 tests)
-   - Provider/model match
-   - URL match (LibreChat)
-   - Endpoint match (localhost)
-   - Different LLMs
-   - Priority handling
+The test suite includes **41 tests** across **8 categories**:
 
-2. **Forget Clause Detection** (3 tests)
-   - "Forget all previous" detection
-   - Multiple pattern detection
-   - False positive prevention
-
-3. **Prompt Augmentation Strategy** (2 tests)
-   - Replacement strategy for forget clauses
-   - Prepending strategy for safe prompts
-
-4. **Integration Tests** (3 tests)
-   - LibreChat end-to-end
-   - Multi-provider scenario
-   - Actual Phase 2 prompt handling
-
-5. **Quality Validation** (6 tests)
-   - Effective adversarial tension
-   - Ineffective adversarial tension
-   - Adversarial language counting
-   - Challenge counting
-   - Semantic difference calculation
+| Category | Tests | What It Covers |
+| -------- | ----- | -------------- |
+| Configuration Detection | 5 | Provider/model match, URL match, endpoint match, different LLMs, priority |
+| Forget Clause Detection | 3 | Pattern detection, multiple patterns, false positive prevention |
+| Prompt Augmentation Strategy | 2 | Replacement vs prepending strategies |
+| Integration Tests | 3 | LibreChat end-to-end, multi-provider, actual Phase 2 prompts |
+| Quality Validation | 6 | Semantic difference, adversarial language, challenges |
+| SameLLMAdversarialSystem | 9 | Full system integration, phase execution |
+| Legacy Helper Functions | 8 | Backward compatibility functions |
+| Corporate Deployment Detection | 5 | LibreChat, Azure, AWS Bedrock patterns |
 
 ### Running Tests
+
 ```bash
-npm test tests/same-llm-adversarial.test.js
+# From any genesis project
+npm test -- same-llm-adversarial.test.js
 ```
 
-## 📚 Reference Implementation
+## Best Practices
 
-The same-LLM adversarial system is based on the validated implementation from the one-pager repository:
-- **Source**: https://github.com/bordenet/one-pager
-- **Implementation**: `same_llm_adversarial_implementation.js`
-- **Tests**: `tests/same-llm-adversarial.test.js`
-- **Validation**: 54/54 tests passing
-
-## 🎓 Best Practices
-
-1. **Always configure environment variables** for Phase 1 and Phase 2
+1. **Configure environment variables** for Phase 1 and Phase 2
 2. **Test with actual corporate endpoints** before deployment
 3. **Monitor quality metrics** to ensure adversarial effectiveness
 4. **Review Phase 2 outputs** to verify Gemini simulation is working
 5. **Update prompts carefully** to avoid breaking forget clause detection
 
-## 🔗 Related Documentation
+## Related
 
-- [START-HERE.md](START-HERE.md) - Genesis setup instructions
-- [CHECKLIST.md](CHECKLIST.md) - Consolidated execution checklist
-- [REFERENCE-IMPLEMENTATIONS.md](REFERENCE-IMPLEMENTATIONS.md) - Reference projects
-- [TESTING-PROCEDURE.md](TESTING-PROCEDURE.md) - Testing guidelines
+| Resource | Description |
+| -------- | ----------- |
+| [START-HERE.md][start] | Genesis setup instructions |
+| [CHECKLIST.md][checklist] | Consolidated execution checklist |
+| [BACKGROUND.md][bg] | Genesis ecosystem history and metrics |
+| [CODE-CONSISTENCY-MANDATE.md][ccm] | File categorization and consistency rules |
+| [one-pager][op] | Reference implementation (41/41 tests passing) |
 
+[start]: https://github.com/bordenet/genesis/blob/main/genesis/START-HERE.md
+[checklist]: https://github.com/bordenet/genesis/blob/main/genesis/CHECKLIST.md
+[bg]: https://github.com/bordenet/genesis/blob/main/BACKGROUND.md
+[ccm]: https://github.com/bordenet/genesis/blob/main/genesis/CODE-CONSISTENCY-MANDATE.md
+[op]: https://github.com/bordenet/one-pager
