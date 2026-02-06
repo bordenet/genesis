@@ -1450,6 +1450,7 @@ function analyzeSharedLibraryNaming(genesisToolsDir) {
  * Checks:
  * 1. Slop deduction formula consistency
  * 2. js/validator-inline.js matches assistant/js/validator-inline.js
+ * 3. Scoring function names match between inline and full validators
  *
  * Returns summary and detailed issues per project.
  */
@@ -1463,6 +1464,9 @@ function analyzeValidatorScoringAlignment(genesisToolsDir) {
   const STANDARD_SLOP_FORMULA = 'Math.min(5, Math.floor(slopPenalty.penalty * 0.6))';
   const SLOP_PATTERN = /slopDeduction\s*=\s*Math\.min\s*\(\s*(\d+)\s*,\s*Math\.floor\s*\(\s*slopPenalty\.penalty\s*\*\s*([\d.]+)\s*\)\s*\)/;
   const ALT_SLOP_PATTERN = /slopDeduction\s*=\s*Math\.min\s*\(\s*(\d+)\s*,\s*slopPenalty\.penalty\s*\)/;
+
+  // Pattern to extract scoring function names
+  const SCORE_FUNCTION_PATTERN = /^(?:export\s+)?function\s+(score[A-Za-z]+)\s*\(/gm;
 
   for (const project of PROJECTS) {
     // Skip hello-world baseline - it's a template
@@ -1556,6 +1560,47 @@ function analyzeValidatorScoringAlignment(genesisToolsDir) {
             type: 'inline_validator_mismatch',
             file: 'js/validator-inline.js',
             message: `js/validator-inline.js differs from assistant/js/validator-inline.js - users will see different scores`
+          });
+        }
+      } catch {
+        // Skip files that can't be read
+      }
+    }
+
+    // Check 4: Scoring function names match between inline and full validators
+    // Different function names indicate different scoring algorithms
+    if (fs.existsSync(inlineValidatorPath) && fs.existsSync(fullValidatorPath)) {
+      try {
+        const inlineContent = fs.readFileSync(inlineValidatorPath, 'utf-8');
+        const fullContent = fs.readFileSync(fullValidatorPath, 'utf-8');
+
+        // Extract scoring function names from both files
+        const inlineFunctions = new Set();
+        const fullFunctions = new Set();
+
+        let match;
+        const inlinePattern = /^(?:export\s+)?function\s+(score[A-Za-z]+)\s*\(/gm;
+        while ((match = inlinePattern.exec(inlineContent)) !== null) {
+          inlineFunctions.add(match[1]);
+        }
+
+        const fullPattern = /^(?:export\s+)?function\s+(score[A-Za-z]+)\s*\(/gm;
+        while ((match = fullPattern.exec(fullContent)) !== null) {
+          fullFunctions.add(match[1]);
+        }
+
+        // Check if the scoring functions match
+        const inlineOnly = [...inlineFunctions].filter(f => !fullFunctions.has(f));
+        const fullOnly = [...fullFunctions].filter(f => !inlineFunctions.has(f));
+
+        // If there are functions unique to each file, they're using different algorithms
+        if (inlineOnly.length > 0 && fullOnly.length > 0) {
+          projectIssues.push({
+            type: 'scoring_algorithm_mismatch',
+            file: 'validator-inline.js vs validator.js',
+            inlineFunctions: inlineOnly,
+            fullFunctions: fullOnly,
+            message: `Inline and full validators use DIFFERENT scoring algorithms - scores will NOT match`
           });
         }
       } catch {
@@ -2057,6 +2102,10 @@ function formatConsoleReport(results) {
           lines.push(`      Expected: ${issue.expected}`);
         } else if (issue.type === 'inline_validator_mismatch') {
           lines.push(red(`    ✗ ${issue.message}`));
+        } else if (issue.type === 'scoring_algorithm_mismatch') {
+          lines.push(red(`    ✗ ${issue.message}`));
+          lines.push(`      Inline-only functions: ${issue.inlineFunctions.join(', ')}`);
+          lines.push(`      Full-only functions: ${issue.fullFunctions.join(', ')}`);
         }
       }
       lines.push('');
