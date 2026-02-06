@@ -227,16 +227,15 @@ export class Workflow {
   /**
      * Export the project as a Markdown document
      *
-     * ⚠️ CUSTOMIZATION REQUIRED:
-     * Update the attribution URL and document header format
-     *
      * @returns {string}
      */
   exportAsMarkdown() {
-    // CUSTOMIZE: Update attribution URL for your deployed app
-    const attribution = '\n\n---\n\n*Generated with [Document Assistant](https://{{GITHUB_USER}}.github.io/{{GITHUB_REPO}}/)*';
+    // Get project metadata from page for attribution
+    const projectTitle = document.querySelector('h1')?.textContent?.trim() || 'Document Assistant';
+    const currentUrl = window.location.origin + window.location.pathname;
+    const attribution = `\n\n---\n\n*Generated with [${projectTitle}](${currentUrl})*`;
 
-    // CUSTOMIZE: Update document header format
+    // Build document header
     let md = `# ${this.project.title}\n\n`;
     md += `**Created**: ${new Date(this.project.createdAt).toLocaleDateString()}\n`;
     md += `**Last Updated**: ${new Date(this.project.updatedAt).toLocaleDateString()}\n\n`;

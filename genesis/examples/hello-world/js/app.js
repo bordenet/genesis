@@ -189,17 +189,21 @@ async function updateStorageInfo() {
 function showAboutModal() {
   const modal = document.createElement('div');
   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-  // CUSTOMIZE: Update the title, description, and GitHub link for your project
+
+  // Get project metadata from page
+  const projectTitle = document.querySelector('h1')?.textContent?.trim() || 'Document Assistant';
+  const githubLink = document.querySelector('a[href*="github.com"]')?.href || '#';
+
   modal.innerHTML = `
         <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-2xl shadow-xl">
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">📋 {{PROJECT_TITLE}}</h3>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">${projectTitle}</h3>
             <div class="text-gray-700 dark:text-gray-300 space-y-3 mb-6">
                 <p>Generate documents using AI-assisted adversarial review.</p>
                 <p><strong>100% Client-Side:</strong> All your data is stored locally in your browser. Nothing is ever sent to any server.</p>
                 <p><strong>Privacy-First:</strong> No tracking, no analytics, no cookies (except preferences).</p>
             </div>
             <div class="flex justify-between items-center">
-                <a href="https://github.com/{{GITHUB_USER}}/{{GITHUB_REPO}}" target="_blank" rel="noopener" class="text-blue-600 dark:text-blue-400 hover:underline">View on GitHub →</a>
+                <a href="${githubLink}" target="_blank" rel="noopener" class="text-blue-600 dark:text-blue-400 hover:underline">View on GitHub →</a>
                 <button type="button" id="close-about-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Close</button>
             </div>
         </div>
