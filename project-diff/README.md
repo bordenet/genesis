@@ -1,8 +1,6 @@
 # Genesis Project Diff Tool
 
-Compares all 8 genesis projects to detect divergence in shared infrastructure files and test coverage gaps.
-
----
+Compares all 9 genesis projects to detect divergence, test coverage gaps, domain bleed-over, and internal consistency issues.
 
 ## Quick Start
 
@@ -11,23 +9,23 @@ cd genesis/project-diff
 node diff-projects.js --ci
 ```
 
-Exit code 0 = all checks pass. Exit code 1 = divergence, symlink issues, test coverage gaps, or domain bleed-over detected.
-
----
+Exit code 0 = all checks pass. Exit code 1 = issues detected.
 
 ## What It Does
 
-### File Comparison
-Scans all 8 projects and categorizes every file:
+### 1. File Comparison
+
+Scans all 9 projects and categorizes every file:
 
 | Category | Description |
 |----------|-------------|
-| **MUST_MATCH** | Must be byte-for-byte identical across all projects |
+| **MUST_MATCH** | Byte-for-byte identical across all projects |
 | **INTENTIONAL_DIFF** | Expected to differ (prompts, templates, project-specific code) |
 | **PROJECT_SPECIFIC** | Only exists in some projects (acceptable) |
 
-### Test Coverage Gap Detection
-Scans test files for **critical test patterns**. If a pattern exists in ANY project, it must exist in ALL.
+### 2. Test Coverage Gap Detection
+
+Scans test files for **critical test patterns**. If a pattern exists in ANY project, it must exist in ALL:
 
 | Pattern | Description |
 |---------|-------------|
@@ -36,34 +34,64 @@ Scans test files for **critical test patterns**. If a pattern exists in ANY proj
 | `exportProject` | Tests for single project export |
 | `errorHandler` | Tests for error handling infrastructure |
 | `storageInit` | Tests for storage initialization |
+| `storage.exportAll` | Tests for storage-level exportAll |
+| `storage.importAll` | Tests for storage-level importAll |
 
-> **Why?** This prevents situations where one project has comprehensive tests but others only have stubs.
+> **Why?** Prevents situations where one project has comprehensive tests but others only have stubs.
 
-### Domain Bleed-Over Detection
-Scans domain-specific files (prompts.js, views.js, types.js, workflow.js, projects.js, prompts/*.md) for **terms from other project domains**.
+### 3. Domain Bleed-Over Detection
 
-| Project | Banned Terms (from other domains) |
-|---------|-----------------------------------|
-| `jd-assistant` | dealership, DEALERSHIP_NAME, proposal |
-| `one-pager` | dealership, DEALERSHIP_NAME, etc. |
-| `power-statement-assistant` | dealership, proposal, etc. |
-| `pr-faq-assistant` | dealership, DEALERSHIP_NAME, etc. |
-| ... | See `DOMAIN_BLEED_OVER` in diff-projects.js |
+Scans domain-specific files for **terms from other project domains**. Catches when template content from one project type bleeds into another.
 
-> **Why?** When copying hello-world to create a new project, domain-specific content from the template (like strategic-proposal's "dealership" fields) can bleed into the new project if not properly customized. This check catches that.
+| Project | Banned Terms |
+|---------|-------------|
+| `jd-assistant` | dealership, DEALERSHIP_NAME, proposalId |
+| `one-pager` | dealership, DEALERSHIP_NAME, STORE_COUNT |
+| `power-statement-assistant` | dealership, DEALERSHIP_NAME, proposalId |
+| `pr-faq-assistant` | dealership, DEALERSHIP_NAME, STORE_COUNT |
+| `architecture-decision-record` | dealership, DEALERSHIP_NAME, proposalId |
+| `product-requirements-assistant` | dealership, DEALERSHIP_NAME, STORE_COUNT |
+| `acceptance-criteria-assistant` | dealership, DEALERSHIP_NAME, proposalId |
 
----
+> **Why?** When copying hello-world, domain-specific content (like strategic-proposal's "dealership" fields) can bleed into the new project. This check catches that.
+
+### 4. Internal Consistency Check
+
+Files in `js/` and `assistant/js/` MUST be identical within each project:
+
+| Root Path | Must Match |
+|-----------|------------|
+| `js/projects.js` | `assistant/js/projects.js` |
+| `js/views.js` | `assistant/js/views.js` |
+| `js/workflow.js` | `assistant/js/workflow.js` |
+| `js/ui.js` | `assistant/js/ui.js` |
+| ... | (14 files total) |
+
+> **Why?** ROOT `index.html` loads from `js/`, while `assistant/index.html` loads from `assistant/js/`. Divergence causes different behavior depending on entry point.
+
+### 5. Stub Validator Detection
+
+Detects validators that are missing critical functionality based on line counts:
+
+| File | Minimum Lines |
+|------|---------------|
+| `validator/index.html` | 200 |
+| `validator/js/app.js` | 300 |
+| `validator/js/validator.js` | 200 |
+
+Also checks for required UI elements and functions.
 
 ## Projects Compared
 
-1. `architecture-decision-record`
-2. `jd-assistant`
-3. `one-pager`
-4. `power-statement-assistant`
-5. `pr-faq-assistant`
-6. `product-requirements-assistant`
-7. `strategic-proposal`
-8. `genesis/genesis/examples/hello-world` (baseline)
+1. `acceptance-criteria-assistant`
+2. `architecture-decision-record`
+3. `jd-assistant`
+4. `one-pager`
+5. `power-statement-assistant`
+6. `pr-faq-assistant`
+7. `product-requirements-assistant`
+8. `strategic-proposal`
+9. `genesis/genesis/examples/hello-world` (baseline)
 
 ---
 
@@ -86,7 +114,7 @@ node diff-projects.js --ci
 
 ### All Checks Pass
 
-```
+```text
 SUMMARY
   Total files scanned: 225
   ✓ Identical (MUST_MATCH): 42
@@ -105,14 +133,14 @@ SUMMARY
 
 ### Test Coverage Gaps Detected
 
-```
+```text
 🔍 TEST COVERAGE GAPS (critical patterns missing in some projects)
 ────────────────────────────────────────────────────────────
 
   If a test pattern exists in ANY project, it should exist in ALL.
 
   exportProject: Tests for single project export
-    ✓ Has tests: architecture-decision-record, jd-assistant, one-pager, ...
+    ✓ Has tests: architecture-decision-record, jd-assistant, one-pager
     ✗ Missing:   pr-faq-assistant
 
 ═══════════════════════════════════════════════════════════════
@@ -122,7 +150,7 @@ SUMMARY
 
 ### File Divergence Detected
 
-```
+```text
 🚨 CRITICAL: DIVERGENT FILES (MUST BE IDENTICAL)
 ────────────────────────────────────────────────────────────
 
@@ -137,7 +165,7 @@ SUMMARY
 
 ### Domain Bleed-Over Detected
 
-```
+```text
 🩸 CRITICAL: DOMAIN BLEED-OVER (terms from other domains)
 ────────────────────────────────────────────────────────────
 
@@ -156,67 +184,125 @@ SUMMARY
 ═══════════════════════════════════════════════════════════════
 ```
 
----
+### Internal Consistency Issues Detected
+
+```text
+🔀 CRITICAL: INTERNAL CONSISTENCY ISSUES (js/ vs assistant/js/)
+────────────────────────────────────────────────────────────
+
+  Files in js/ and assistant/js/ MUST be identical within each project.
+
+  jd-assistant:
+    js/projects.js (7864e3da) ≠ assistant/js/projects.js (bc3a22db)
+
+═══════════════════════════════════════════════════════════════
+  🔀 1 INTERNAL CONSISTENCY ISSUES - js/ vs assistant/js/ DIVERGED
+═══════════════════════════════════════════════════════════════
+```
 
 ## INTENTIONAL_DIFF Patterns
 
-Files matching these patterns are expected to differ. The authoritative list is in `diff-projects.js` → `INTENTIONAL_DIFF_PATTERNS`.
+Files matching these patterns are expected to differ. See `INTENTIONAL_DIFF_PATTERNS` in
+[`diff-projects.js`](https://github.com/bordenet/genesis/blob/main/project-diff/diff-projects.js).
 
 **Document-Type Specific:**
+
 - `prompts/`, `templates/`, `prompts.js`
 - `ai-mock.js`, `types.js`, `validator.js`
 - `storage.js`, `workflow.js`, `project-view.js`
 
 **Project Identity:**
+
 - `README.md`, `package.json`, `index.html`
 - `Agents.md`, `CLAUDE.md` (contain project-specific content)
 
 **MUST_MATCH AI Instruction Files:**
-> Note: These are NOT in INTENTIONAL_DIFF - they must be identical across all projects:
+
+These are NOT in INTENTIONAL_DIFF - they must be identical across all projects:
+
 - `AGENT.md`, `CODEX.md`, `COPILOT.md`, `GEMINI.md`, `ADOPT-PROMPT.md`
 
 **Hello-World Specific (different directory structure):**
+
 - `jest.config.js`, `playwright.config.js` (path differences)
 - `tests/*.test.js` (hello-world uses `tests/`, derived use `assistant/tests/`)
 - `.github/workflows/ci.yml` (path differences)
 
----
+## find-orphans.js
 
-## When to Run These Tools
+Detects JS files that exist but are never imported by any other file.
 
-**Run diff-projects.js and find-orphans.js REPEATEDLY during development:**
+```bash
+node find-orphans.js        # Full report
+node find-orphans.js --ci   # Exit 1 if orphans found
+```
+
+### What It Checks
+
+- Scans `js/`, `assistant/js/`, and `validator/js/` directories
+- Finds files that are never imported by other files
+- Excludes known entry points (`app.js`, `validator.js`, `prompts.js`, etc.)
+
+### Allowed Orphans
+
+Some files are intentionally standalone:
+
+- `app.js` - Entry point loaded by HTML
+- `prompts.js` - Dynamically loaded
+- `ai-mock.js` - Conditionally loaded
+- `validator.js` - Validator entry point
+- See `ALLOWED_ORPHANS` in `find-orphans.js` for full list
+
+## When to Run
+
+Run **both tools** repeatedly during development:
 
 1. **After initial scaffolding** - Verify new project matches template
 2. **Before every commit** - Catch accidental deviations
 3. **Before creating a PR** - Final consistency check
 4. **After changes to shared infrastructure** - Propagate to all projects
 
-> ⚠️ **Don't skip the diff check!** Inconsistency between projects leads to maintenance nightmares.
+> ⚠️ Inconsistency between projects leads to maintenance nightmares.
 
----
+## Extending the Tool
 
-## Adding New Critical Test Patterns
+### Adding New Critical Test Patterns
 
-To detect new test coverage gaps, add entries to `CRITICAL_TEST_PATTERNS` in `diff-projects.js`:
+Add entries to `CRITICAL_TEST_PATTERNS` in [`diff-projects.js`](https://github.com/bordenet/genesis/blob/main/project-diff/diff-projects.js):
 
 ```javascript
 {
-  name: 'patternName',           // Identifier for the pattern
-  description: 'What this tests', // Human-readable description
-  filePattern: /filename\.test\.js$/, // Regex matching test file names
-  codePatterns: [                 // Regexes to find in test file content
+  name: 'patternName',
+  description: 'What this tests',
+  filePattern: /filename\.test\.js$/,
+  codePatterns: [
     /describe\s*\(\s*['"`]patternName['"`]/,
     /test\s*\(\s*['"`].*patternName/i,
   ]
 }
 ```
 
-The tool will report when ANY project has the pattern but SOME projects don't.
+### Adding New Domain Bleed-Over Terms
 
----
+Add entries to `DOMAIN_BLEED_OVER` in `diff-projects.js`:
+
+```javascript
+'project-name': {
+  ownTerms: ['terms', 'this', 'project', 'owns'],
+  bannedTerms: ['terms', 'from', 'other', 'domains']
+}
+```
 
 ## Related
 
-- [`CODE-CONSISTENCY-MANDATE.md`](../genesis/CODE-CONSISTENCY-MANDATE.md) - Consistency rules
-- [`hello-world/`](../genesis/examples/hello-world/) - Baseline template
+| Resource | Description |
+| -------- | ----------- |
+| [CODE-CONSISTENCY-MANDATE.md][ccm] | Consistency rules and file categorization |
+| [hello-world template][hw] | Baseline template for all projects |
+| [BACKGROUND.md][bg] | Genesis ecosystem history and metrics |
+| [CONTINUOUS_IMPROVEMENT.md][ci] | Self-reinforcing AI instructions approach |
 
+[ccm]: https://github.com/bordenet/genesis/blob/main/genesis/CODE-CONSISTENCY-MANDATE.md
+[hw]: https://github.com/bordenet/genesis/tree/main/genesis/examples/hello-world
+[bg]: https://github.com/bordenet/genesis/blob/main/BACKGROUND.md
+[ci]: https://github.com/bordenet/genesis/blob/main/CONTINUOUS_IMPROVEMENT.md

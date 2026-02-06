@@ -18,8 +18,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// All 8 projects
+// All 9 projects (8 derived + hello-world baseline)
 const PROJECTS = [
+  'acceptance-criteria-assistant',
   'architecture-decision-record',
   'jd-assistant',
   'one-pager',
