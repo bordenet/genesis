@@ -69,4 +69,3 @@ export function showToast(message, type = 'info') {
 2. Toasts auto-dismiss after 3-5 seconds
 3. Toast container ID: `toast-container`
 4. Position: top-right of viewport
-

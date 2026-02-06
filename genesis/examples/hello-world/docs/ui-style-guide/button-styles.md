@@ -106,4 +106,3 @@ When Phase 3 is completed, users MUST see a prominent export CTA.
 
 - "Open AI" link is **disabled** until prompt is copied (opacity-50, pointer-events-none)
 - After copying, link becomes active and opens in named tab `target="ai-assistant-tab"`
-

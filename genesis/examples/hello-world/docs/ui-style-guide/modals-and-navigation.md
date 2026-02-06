@@ -39,4 +39,3 @@
 - Active tab: `bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300`
 - Completed phases show checkmark icon
 - Clicking tab switches view without navigation
-
