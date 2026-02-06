@@ -136,6 +136,35 @@ cd genesis-tools/genesis/project-diff && node diff-projects.js
 - [ ] Replace ALL template-specific field names with your domain-specific names
 - [ ] Verify import/export validation uses YOUR field names (check `projects.js` importProjects function)
 
+#### 🚨 MANDATORY: Post-Template Verification Scans
+
+**Why This Exists**: On 2026-02-06, `business-justification-assistant` was discovered to have been created from hello-world but NEVER CUSTOMIZED. Only README.md was updated - all app code retained template placeholders and the validator scored documents against one-pager criteria!
+
+**Run these scans IMMEDIATELY after Phase 3 variable replacement:**
+
+```bash
+# 1. Check for ANY remaining template placeholders
+grep -rn "{{" . --include="*.html" --include="*.js" --include="*.json" | grep -v node_modules | grep -v "\.test\." | grep -v "// " | grep -v "prompts.js.*VAR_NAME"
+# Expected: EMPTY output (no template placeholders remaining)
+
+# 2. Check for one-pager references in non-navigation code
+grep -rn "one-pager\|One-Pager\|One Pager" . --include="*.html" --include="*.js" --include="*.json" | grep -v node_modules | grep -v "github.io/one-pager"
+# Expected: Only navigation links to one-pager tool (if any)
+
+# 3. Verify package.json name is NOT hello-world
+grep '"name":' package.json
+# Expected: YOUR project name, NOT "hello-world-genesis-example"
+
+# 4. Verify IndexedDB names are unique (CRITICAL - prevents data collision!)
+grep -rn "DB_NAME\|createStorage" . --include="*.js" | grep -v node_modules | grep -v "\.test\."
+# Expected: YOUR project name in DB_NAME, NOT "one-pager" or "hello-world"
+```
+
+- [ ] **SCAN 1**: No template placeholders remaining
+- [ ] **SCAN 2**: No one-pager references (except navigation links)
+- [ ] **SCAN 3**: package.json name is YOUR project name
+- [ ] **SCAN 4**: IndexedDB names use YOUR project name (format: `{project-name}-db`)
+
 ### Phase 4: Install & Test
 - [ ] Ran `npm install`
 - [ ] Ran `./scripts/install-hooks.sh`
