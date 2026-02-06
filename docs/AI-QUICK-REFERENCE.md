@@ -148,6 +148,33 @@ Before any commit:
 | `js/workflow.js` | Phase logic, prompt generation |
 | `js/storage.js` | IndexedDB persistence |
 | `js/ui.js` | Toast, modals, clipboard |
+| `js/slop-detection.js` | AI slop detection (150+ patterns) |
+| `js/document-specific-templates.js` | Document-type starter templates |
+| `docs/About.md` | Perplexity research Q&A (if applicable) |
+
+---
+
+## AI Slop Detection
+
+All validators include slop detection to penalize AI-generated content patterns:
+
+```javascript
+import { calculateSlopScore, getSlopPenalty } from './slop-detection.js';
+
+// In your validation function:
+const slopPenalty = getSlopPenalty(text);
+if (slopPenalty.penalty > 0) {
+  // Apply penalty to total score
+  slopDeduction = Math.min(5, Math.floor(slopPenalty.penalty * 0.6));
+}
+```
+
+**Detected patterns:**
+- Generic boosters (delve, incredibly, truly)
+- Buzzwords (robust, seamless, leverage)
+- Filler phrases ("it's important to note that")
+- Em-dashes (classic AI marker)
+- Formulaic introductions
 
 ---
 

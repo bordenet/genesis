@@ -123,9 +123,24 @@ node find-orphans.js --ci
 
 See [`project-diff/README.md`](project-diff/README.md) for documentation.
 
+### AI Slop Detection (All Projects)
+
+All validators include `slop-detection.js` with 150+ patterns to detect AI-generated content:
+- Generic boosters, buzzwords, filler phrases
+- Formulaic structures and over-signposting
+- Em-dashes (classic AI marker)
+
+When creating new projects, copy `slop-detection.js` from hello-world and integrate into validator.
+
+### About.md Convention
+
+When conducting Perplexity research for a new genesis project, save the Q&A as `docs/About.md`.
+This establishes foundational research that informs the validator and prompt design.
+
 ### Resources
 
 - Go Style Guide: `docs/GO_STYLE_GUIDE.md`
 - Python Style Guide: `docs/PYTHON_STYLE_GUIDE.md`
 - UI Patterns: `docs/GENESIS-UI-WORKFLOW-BUG-PREVENTION.md`
 - Adversarial Pattern: `docs/ADVERSARIAL-WORKFLOW-PATTERN.md`
+- AI Quick Reference: `docs/AI-QUICK-REFERENCE.md`

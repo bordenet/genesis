@@ -56,12 +56,27 @@ For each prompt:
 2. Record prompt and synthesized answer
 3. Extract actionable insights
 
-### 3. Create Research Document
+### 3. Create Research Documents
+
+**Two documents are required:**
 
 ```bash
+# 1. About.md (root level) - Documents the research process
+touch About.md
+
+# 2. Technical research doc (in docs/) - Detailed findings
 mkdir -p docs
 # Create: docs/{DOCUMENT_TYPE}-RESEARCH-{YEAR}.md
 ```
+
+#### About.md Purpose
+The `About.md` file documents the **research journey** for the project:
+- All Perplexity.ai prompts used and their responses
+- Key decisions made based on research
+- Sources and references consulted
+- Rationale for template choices and scoring dimensions
+
+This creates a permanent record of how the tool was designed, enabling future maintainers to understand the reasoning behind implementation choices.
 
 ---
 
@@ -109,18 +124,26 @@ mkdir -p docs
 ## ⛔ Exit Criteria (ALL MUST PASS)
 
 ```bash
-# 1. Verify research document exists
+# 1. Verify About.md exists (root level)
+[ -f "About.md" ] && echo "✅ About.md exists" || echo "❌ BLOCKED: Create About.md"
+
+# 2. Verify research document exists
 RESEARCH_FILE="docs/${DOCUMENT_TYPE}-RESEARCH-$(date +%Y).md"
 [ -f "$RESEARCH_FILE" ] && echo "✅ Research doc exists" || echo "❌ BLOCKED: Create research doc"
 
-# 2. Verify key takeaways section exists
+# 3. Verify key takeaways section exists
 grep -q "Key Takeaways" "$RESEARCH_FILE" && echo "✅ Takeaways extracted" || echo "❌ BLOCKED: Add takeaways"
+
+# 4. Verify About.md has Perplexity prompts documented
+grep -q "Perplexity" "About.md" && echo "✅ Perplexity research documented" || echo "❌ BLOCKED: Document Perplexity prompts"
 ```
 
 ### Verification Checklist
 
+- [ ] **About.md created** (root level, documents research journey)
 - [ ] Research document created in `docs/`
 - [ ] 5-7 research prompts answered
+- [ ] All Perplexity prompts and responses recorded in About.md
 - [ ] Form fields derived from research
 - [ ] Validator scoring dimensions defined
 - [ ] LLM prompt guidance extracted
