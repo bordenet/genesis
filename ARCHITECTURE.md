@@ -1,8 +1,6 @@
 # Genesis Tools Architecture
 
-This document explains the paired architecture used by all genesis-tools projects.
-
----
+This document explains the paired architecture used by all 9 genesis-tools projects.
 
 ## Paired Project Model
 
@@ -47,16 +45,21 @@ Each project is **self-contained with real directories** (no symlinks):
 - No external repositories required for development or CI/CD
 - Clone and run - simple setup
 
-### Reference Libraries
+### Reference Implementation
 
-The patterns used in each project were derived from these reference repos:
+The [hello-world][hw] template in genesis serves as the canonical reference for all patterns:
 
-| Library | Purpose | Repository |
-|---------|---------|------------|
-| `assistant-core` | Reference storage, workflow, UI patterns | [bordenet/assistant-core](https://github.com/bordenet/assistant-core) |
-| `validator-core` | Reference storage, UI, clipboard patterns | [bordenet/validator-core](https://github.com/bordenet/validator-core) |
+| Module | Purpose |
+|--------|---------|
+| `assistant/js/workflow.js` | 3-phase AI workflow orchestration |
+| `assistant/js/storage.js` | IndexedDB persistence |
+| `assistant/js/prompts.js` | AI prompt templates |
+| `validator/js/validator.js` | Document scoring logic |
+| `js/slop-detection.js` | AI slop pattern detection |
 
-> **Note**: These are reference repos for pattern development. Child projects have real copies of the code, not symlinks.
+All 9 child projects copy these modules (not symlink) and customize only the domain-specific files.
+
+[hw]: https://github.com/bordenet/genesis/tree/main/genesis/examples/hello-world
 
 ---
 
@@ -110,16 +113,16 @@ npm test
 
 ### Customization Steps
 
-1. Copy `genesis/examples/hello-world` as template
+1. Copy [hello-world][hw] as template
 2. Customize `assistant/js/prompts.js` for your document type
 3. Customize `validator/js/validator.js` for your scoring dimensions
 4. Update package.json name and description
 5. Run tests: `npm test`
-6. **Run project-diff tools** to verify alignment
+6. **Run [project-diff][diff] tools** to verify alignment
 
 ### Maintaining Consistency
 
-**Use the project-diff tools REPEATEDLY during development:**
+Use the [project-diff][diff] tools REPEATEDLY during development:
 
 ```bash
 # From genesis/project-diff directory
@@ -131,6 +134,14 @@ Run these at least:
 1. After initial scaffolding
 2. Before every commit
 3. Before creating a PR
+
+See [project-diff README][diff] for all 6 checks:
+- File comparison (MUST_MATCH vs INTENTIONAL_DIFF)
+- Test coverage gap detection
+- Domain bleed-over detection
+- Internal consistency check
+- Stub validator detection
+- Validator scoring alignment
 
 ---
 
@@ -162,4 +173,21 @@ Each project defines dimensions appropriate to its document type.
 | `validator/testdata/` | Fixture files for validator tests |
 | `scripts/deploy-web.sh` | GitHub Pages deployment |
 | `.github/workflows/ci.yml` | CI/CD pipeline |
+
+---
+
+## Related
+
+| Resource | Description |
+|----------|-------------|
+| [hello-world][hw] | Canonical template for all projects |
+| [project-diff][diff] | Cross-project consistency checking |
+| [one-pager][op] | Reference implementation (most mature) |
+| [BACKGROUND.md][bg] | Genesis ecosystem history and metrics |
+| [CODE-CONSISTENCY-MANDATE.md][ccm] | File categorization rules |
+
+[diff]: https://github.com/bordenet/genesis/tree/main/project-diff
+[op]: https://github.com/bordenet/one-pager
+[bg]: https://github.com/bordenet/genesis/blob/main/BACKGROUND.md
+[ccm]: https://github.com/bordenet/genesis/blob/main/genesis/CODE-CONSISTENCY-MANDATE.md
 
