@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{VALIDATOR_TITLE}}</title>
+  <title>One-Pager Validator</title>
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -25,7 +25,7 @@
     <!-- Header -->
     <header class="bg-slate-600 dark:bg-slate-900 border-b border-slate-500 dark:border-slate-800 shadow-sm">
       <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <h1 class="text-3xl font-bold text-white dark:text-white">{{VALIDATOR_TITLE}}</h1>
+        <h1 class="text-3xl font-bold text-white dark:text-white">One-Pager Validator</h1>
         <div class="flex items-center gap-3">
           <button
             id="btn-dark-mode"
@@ -61,15 +61,15 @@
           <!-- Left: Markdown Editor -->
           <div class="flex-1 flex flex-col min-w-0">
             <label for="editor" class="block text-sm font-semibold text-white dark:text-slate-300 mb-1">
-              Paste Your {{DOCUMENT_TYPE}}
+              Paste Your One-Pager
             </label>
             <p class="text-xs text-slate-300 dark:text-slate-400 mb-2">
-              Generate a {{DOCUMENT_TYPE_LOWERCASE}} with the <a href="{{ASSISTANT_URL}}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 underline">{{PROJECT_TITLE}} Assistant</a>, then paste the markdown here.
+              Generate a one-pager with the <a href="https://bordenet.github.io/one-pager/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 underline">One-Pager Assistant</a>, then paste the markdown here. Look for <code class="bg-slate-700 px-1 rounded">#</code> headings to identify sections.
             </p>
             <textarea
               id="editor"
               class="flex-1 w-full p-4 border border-slate-400 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 resize-none font-mono text-sm"
-              placeholder="→ Paste your {{DOCUMENT_TYPE}} here (Cmd/Ctrl+V)&#10;&#10;The validator scores across 4 dimensions:&#10;• {{DIMENSION_1_NAME}} ({{DIMENSION_1_POINTS}} pts)&#10;• {{DIMENSION_2_NAME}} ({{DIMENSION_2_POINTS}} pts)&#10;• {{DIMENSION_3_NAME}} ({{DIMENSION_3_POINTS}} pts)&#10;• {{DIMENSION_4_NAME}} ({{DIMENSION_4_POINTS}} pts)"
+              placeholder="→ Paste your One-Pager here (Cmd/Ctrl+V)&#10;  Coming from the Assistant? It's already in your clipboard.&#10;&#10;# Your One-Pager Title&#10;&#10;The validator scores:&#10;• Problem Clarity (30 pts)&#10;• Solution Quality (25 pts)&#10;• Scope Discipline (25 pts)&#10;• Completeness (20 pts)"
             ></textarea>
           </div>
 
@@ -106,55 +106,55 @@
 
               <!-- Score Breakdown -->
               <div class="space-y-4">
-                <!-- Dimension 1 -->
+                <!-- Problem Clarity -->
                 <div>
                   <div class="flex justify-between items-center mb-1">
-                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{DIMENSION_1_NAME}}</span>
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Problem Clarity</span>
                     <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                      <span id="score-dimension-1">--</span>/{{DIMENSION_1_POINTS}}
+                      <span id="score-problem-clarity">--</span>/30
                     </span>
                   </div>
                   <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
-                    <div id="score-dimension-1-bar" class="bg-emerald-500 dark:bg-emerald-400 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    <div id="score-problem-clarity-bar" class="bg-emerald-500 dark:bg-emerald-400 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                   </div>
                 </div>
 
-                <!-- Dimension 2 -->
+                <!-- Solution Quality -->
                 <div>
                   <div class="flex justify-between items-center mb-1">
-                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{DIMENSION_2_NAME}}</span>
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Solution Quality</span>
                     <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                      <span id="score-dimension-2">--</span>/{{DIMENSION_2_POINTS}}
+                      <span id="score-solution">--</span>/25
                     </span>
                   </div>
                   <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
-                    <div id="score-dimension-2-bar" class="bg-blue-500 dark:bg-blue-400 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    <div id="score-solution-bar" class="bg-blue-500 dark:bg-blue-400 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                   </div>
                 </div>
 
-                <!-- Dimension 3 -->
+                <!-- Scope Discipline -->
                 <div>
                   <div class="flex justify-between items-center mb-1">
-                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{DIMENSION_3_NAME}}</span>
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Scope Discipline</span>
                     <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                      <span id="score-dimension-3">--</span>/{{DIMENSION_3_POINTS}}
+                      <span id="score-scope">--</span>/25
                     </span>
                   </div>
                   <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
-                    <div id="score-dimension-3-bar" class="bg-amber-500 dark:bg-amber-400 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    <div id="score-scope-bar" class="bg-amber-500 dark:bg-amber-400 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                   </div>
                 </div>
 
-                <!-- Dimension 4 -->
+                <!-- Completeness -->
                 <div>
                   <div class="flex justify-between items-center mb-1">
-                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{DIMENSION_4_NAME}}</span>
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Completeness</span>
                     <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                      <span id="score-dimension-4">--</span>/{{DIMENSION_4_POINTS}}
+                      <span id="score-completeness">--</span>/20
                     </span>
                   </div>
                   <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
-                    <div id="score-dimension-4-bar" class="bg-rose-500 dark:bg-rose-400 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    <div id="score-completeness-bar" class="bg-rose-500 dark:bg-rose-400 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                   </div>
                 </div>
               </div>
@@ -225,7 +225,7 @@
           <ol class="text-sm text-slate-300 dark:text-slate-400 mb-4 list-decimal list-inside space-y-1">
             <li>Click a button below to copy a prompt to your clipboard</li>
             <li>Paste into Claude.ai and submit</li>
-            <li>Copy the revised {{DOCUMENT_TYPE_LOWERCASE}} from Claude's response</li>
+            <li>Copy the revised one-pager from Claude's response</li>
             <li>Select all text in the editor above (Cmd+A) and paste to replace</li>
           </ol>
 
@@ -311,29 +311,29 @@
   <!-- About Modal (hidden by default) -->
   <div id="about-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
     <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">About {{VALIDATOR_TITLE}}</h2>
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">About One-Pager Validator</h2>
       <p class="text-slate-700 dark:text-slate-300 mb-4">
-        A client-side tool for validating {{DOCUMENT_TYPE_LOWERCASE}} documents against best practices.
+        A client-side tool for validating one-pager documents against best practices.
       </p>
       <p class="text-slate-700 dark:text-slate-300 mb-6">
-        The validator scores your {{DOCUMENT_TYPE_LOWERCASE}} across four dimensions:
+        The validator scores your one-pager across four dimensions:
       </p>
       <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300 mb-6">
         <li class="flex items-start gap-2">
           <span class="text-emerald-500 font-bold">•</span>
-          <span><strong>{{DIMENSION_1_NAME}} ({{DIMENSION_1_POINTS}} pts)</strong> - {{DIMENSION_1_DESCRIPTION}}</span>
+          <span><strong>Problem Clarity (30 pts)</strong> - Clear problem statement, context, and impact</span>
         </li>
         <li class="flex items-start gap-2">
           <span class="text-blue-500 font-bold">•</span>
-          <span><strong>{{DIMENSION_2_NAME}} ({{DIMENSION_2_POINTS}} pts)</strong> - {{DIMENSION_2_DESCRIPTION}}</span>
+          <span><strong>Solution Quality (25 pts)</strong> - Well-defined solution, approach, and benefits</span>
         </li>
         <li class="flex items-start gap-2">
           <span class="text-amber-500 font-bold">•</span>
-          <span><strong>{{DIMENSION_3_NAME}} ({{DIMENSION_3_POINTS}} pts)</strong> - {{DIMENSION_3_DESCRIPTION}}</span>
+          <span><strong>Scope Discipline (25 pts)</strong> - Clear scope boundaries and constraints</span>
         </li>
         <li class="flex items-start gap-2">
           <span class="text-rose-500 font-bold">•</span>
-          <span><strong>{{DIMENSION_4_NAME}} ({{DIMENSION_4_POINTS}} pts)</strong> - {{DIMENSION_4_DESCRIPTION}}</span>
+          <span><strong>Completeness (20 pts)</strong> - Timeline, resources, success metrics, risks</span>
         </li>
       </ul>
       <button

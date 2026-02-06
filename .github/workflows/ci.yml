@@ -150,60 +150,7 @@ jobs:
             echo "✓ No markdown files to validate"
           fi
 
-  # Project diff tool - validates all genesis assistants have identical shared files
-  # This does byte-for-byte comparison of files that MUST be identical across projects
-  # MANDATORY: Enforces cross-project consistency (P3 task from CONTINUOUS_IMPROVEMENT.md)
-  # NOTE: Currently informational due to pre-existing ecosystem issues (stub validators, test gaps)
-  project-diff:
-    name: Project Diff Check
-    runs-on: ubuntu-latest
-    if: github.repository == 'bordenet/genesis'
-    continue-on-error: true  # Informational until ecosystem issues are fixed
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          path: genesis
-
-      - name: Checkout all genesis-derived projects
-        run: |
-          cd ..
-          echo "🔍 Cloning all genesis-derived projects..."
-
-          # Clone all 8 derived projects as siblings to genesis
-          git clone --depth 1 https://github.com/bordenet/acceptance-criteria-assistant.git || echo "⚠️  acceptance-criteria-assistant not found"
-          git clone --depth 1 https://github.com/bordenet/architecture-decision-record.git || echo "⚠️  architecture-decision-record not found"
-          git clone --depth 1 https://github.com/bordenet/jd-assistant.git || echo "⚠️  jd-assistant not found"
-          git clone --depth 1 https://github.com/bordenet/one-pager.git || echo "⚠️  one-pager not found"
-          git clone --depth 1 https://github.com/bordenet/power-statement-assistant.git || echo "⚠️  power-statement-assistant not found"
-          git clone --depth 1 https://github.com/bordenet/pr-faq-assistant.git || echo "⚠️  pr-faq-assistant not found"
-          git clone --depth 1 https://github.com/bordenet/product-requirements-assistant.git || echo "⚠️  product-requirements-assistant not found"
-          git clone --depth 1 https://github.com/bordenet/strategic-proposal.git || echo "⚠️  strategic-proposal not found"
-
-          echo "✅ All projects cloned"
-          ls -la
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '20'
-
-      - name: Run ecosystem validation
-        run: |
-          cd genesis/project-diff
-          echo "🔍 Running ecosystem validation..."
-          echo ""
-          echo "Checking that all 9 projects exist:"
-          echo "  - acceptance-criteria-assistant"
-          echo "  - architecture-decision-record"
-          echo "  - jd-assistant"
-          echo "  - one-pager"
-          echo "  - power-statement-assistant"
-          echo "  - pr-faq-assistant"
-          echo "  - product-requirements-assistant"
-          echo "  - strategic-proposal"
-          echo "  - genesis/examples/hello-world (baseline)"
-          echo ""
-
-          # Run diff tool in CI mode - exits 1 if any critical issues
-          node diff-projects.js --ci
+  # Project diff tool - MOVED TO PRE-COMMIT HOOK
+  # The diff tool validates ecosystem consistency but requires all 8 repos cloned locally
+  # This is enforced via pre-commit hook (.git/hooks/pre-commit) instead of CI
+  # Rationale: CI can't reliably clone all repos; local validation is more practical

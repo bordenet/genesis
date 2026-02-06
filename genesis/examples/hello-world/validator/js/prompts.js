@@ -1,44 +1,54 @@
 /**
- * Prompt generation for LLM-based {{DOCUMENT_TYPE}} scoring
- *
- * TEMPLATE: Replace {{DOCUMENT_TYPE}}, {{DIMENSION_1_NAME}}, etc. with your document type specifics.
- * Example: "One-Pager" -> "Job Description", "Problem Clarity" -> "Inclusive Language"
+ * Prompt generation for LLM-based One-Pager scoring
  */
 
 /**
  * Generate comprehensive LLM scoring prompt
- * @param {string} documentContent - The document content to score
+ * @param {string} onePagerContent - The one-pager content to score
  * @returns {string} Complete prompt for LLM scoring
  */
-export function generateLLMScoringPrompt(documentContent) {
-  return `You are an expert evaluating a {{DOCUMENT_TYPE}} document.
+export function generateLLMScoringPrompt(onePagerContent) {
+  return `You are an expert Product Manager evaluating a One-Pager document.
 
-Score this {{DOCUMENT_TYPE}} using the following rubric (0-100 points total):
+Score this One-Pager using the following rubric (0-100 points total):
 
 ## SCORING RUBRIC
 
-### 1. {{DIMENSION_1_NAME}} ({{DIMENSION_1_POINTS}} points)
-{{DIMENSION_1_CRITERIA}}
+### 1. Problem Clarity (30 points)
+- **Problem Statement (10 pts)**: Clear, specific problem definition with dedicated section
+- **Cost of Inaction (10 pts)**: Quantified impact of not solving this problem
+- **Business Focus (10 pts)**: Problem tied to customer/business value, not just technical
 
-### 2. {{DIMENSION_2_NAME}} ({{DIMENSION_2_POINTS}} points)
-{{DIMENSION_2_CRITERIA}}
+### 2. Solution Quality (25 points)
+- **Addresses Problem (10 pts)**: Solution clearly maps to stated problem
+- **Measurable Goals (10 pts)**: Goals are specific and measurable, not vague
+- **High-Level (5 pts)**: Solution stays at appropriate level, no implementation details
 
-### 3. {{DIMENSION_3_NAME}} ({{DIMENSION_3_POINTS}} points)
-{{DIMENSION_3_CRITERIA}}
+### 3. Scope Discipline (25 points)
+- **In-Scope (8 pts)**: Clear definition of what WILL be done
+- **Out-of-Scope (9 pts)**: Explicit definition of what WON'T be done
+- **SMART Metrics (8 pts)**: Success metrics are Specific, Measurable, Achievable, Relevant, Time-bound
 
-### 4. {{DIMENSION_4_NAME}} ({{DIMENSION_4_POINTS}} points)
-{{DIMENSION_4_CRITERIA}}
+### 4. Completeness (20 points)
+- **Required Sections (8 pts)**: Problem, Solution, Goals, Scope, Metrics, Stakeholders, Timeline
+- **Stakeholders (6 pts)**: Clear identification of who's involved and their roles
+- **Timeline (6 pts)**: Realistic milestones and phased approach
 
 ## CALIBRATION GUIDANCE
-- Be HARSH. Most documents score 40-60. Only exceptional ones score 80+.
-- A score of 70+ means ready for stakeholder review.
-- Deduct points for vague language, missing sections, or unclear structure.
-- Reward specificity, clarity, and completeness.
+- Be HARSH. Most one-pagers score 40-60. Only exceptional ones score 80+.
+- A score of 70+ means ready for executive decision-making.
+- One-pagers should fit on ONE PAGE - deduct points for verbosity.
+- Deduct points for EVERY vague qualifier without metrics.
+- Deduct points for weasel words ("should be able to", "might", "could potentially").
+- Deduct points for marketing fluff ("best-in-class", "cutting-edge", "world-class").
+- Reward explicit scope boundaries (both in AND out).
+- Reward quantified metrics and business impact.
+- Deduct points for missing required sections.
 
-## DOCUMENT TO EVALUATE
+## ONE-PAGER TO EVALUATE
 
 \`\`\`
-${documentContent}
+${onePagerContent}
 \`\`\`
 
 ## REQUIRED OUTPUT FORMAT
@@ -47,16 +57,16 @@ Provide your evaluation in this exact format:
 
 **TOTAL SCORE: [X]/100**
 
-### {{DIMENSION_1_NAME}}: [X]/{{DIMENSION_1_POINTS}}
+### Problem Clarity: [X]/30
 [2-3 sentence justification]
 
-### {{DIMENSION_2_NAME}}: [X]/{{DIMENSION_2_POINTS}}
+### Solution Quality: [X]/25
 [2-3 sentence justification]
 
-### {{DIMENSION_3_NAME}}: [X]/{{DIMENSION_3_POINTS}}
+### Scope Discipline: [X]/25
 [2-3 sentence justification]
 
-### {{DIMENSION_4_NAME}}: [X]/{{DIMENSION_4_POINTS}}
+### Completeness: [X]/20
 [2-3 sentence justification]
 
 ### Top 3 Issues
@@ -72,76 +82,81 @@ Provide your evaluation in this exact format:
 
 /**
  * Generate critique prompt for detailed feedback
- * @param {string} documentContent - The document content to critique
+ * @param {string} onePagerContent - The one-pager content to critique
  * @param {Object} currentResult - Current validation results
  * @returns {string} Complete prompt for critique
  */
-export function generateCritiquePrompt(documentContent, currentResult) {
+export function generateCritiquePrompt(onePagerContent, currentResult) {
   const issuesList = [
-    ...(currentResult.dimension1?.issues || []),
-    ...(currentResult.dimension2?.issues || []),
-    ...(currentResult.dimension3?.issues || []),
-    ...(currentResult.dimension4?.issues || [])
+    ...(currentResult.problemClarity?.issues || []),
+    ...(currentResult.solution?.issues || []),
+    ...(currentResult.scope?.issues || []),
+    ...(currentResult.completeness?.issues || [])
   ].slice(0, 5).map(i => `- ${i}`).join('\n');
 
-  return `You are an expert providing detailed feedback on a {{DOCUMENT_TYPE}}.
+  return `You are a senior Product Manager providing detailed feedback on a One-Pager.
 
 ## CURRENT VALIDATION RESULTS
 Total Score: ${currentResult.totalScore}/100
-- {{DIMENSION_1_NAME}}: ${currentResult.dimension1?.score || 0}/{{DIMENSION_1_POINTS}}
-- {{DIMENSION_2_NAME}}: ${currentResult.dimension2?.score || 0}/{{DIMENSION_2_POINTS}}
-- {{DIMENSION_3_NAME}}: ${currentResult.dimension3?.score || 0}/{{DIMENSION_3_POINTS}}
-- {{DIMENSION_4_NAME}}: ${currentResult.dimension4?.score || 0}/{{DIMENSION_4_POINTS}}
+- Problem Clarity: ${currentResult.problemClarity?.score || 0}/30
+- Solution Quality: ${currentResult.solution?.score || 0}/25
+- Scope Discipline: ${currentResult.scope?.score || 0}/25
+- Completeness: ${currentResult.completeness?.score || 0}/20
 
 Key issues detected:
 ${issuesList || '- None detected by automated scan'}
 
-## DOCUMENT TO CRITIQUE
+## ONE-PAGER TO CRITIQUE
 
 \`\`\`
-${documentContent}
+${onePagerContent}
 \`\`\`
 
 ## YOUR TASK
 
 Provide:
-1. **Executive Summary** (2-3 sentences on overall document quality)
+1. **Executive Summary** (2-3 sentences on overall one-pager quality)
 2. **Detailed Critique** by dimension:
    - What works well
    - What needs improvement
    - Specific suggestions with examples
-3. **Revised Document** - A complete rewrite addressing all issues
+3. **Revised One-Pager** - A complete rewrite addressing all issues
 
-Be specific. Show exact rewrites. Make it ready for stakeholder review.`;
+Be specific. Show exact rewrites. Keep it to ONE PAGE. Make it ready for executive decision-making.`;
 }
 
 /**
  * Generate rewrite prompt
- * @param {string} documentContent - The document content to rewrite
+ * @param {string} onePagerContent - The one-pager content to rewrite
  * @param {Object} currentResult - Current validation results
  * @returns {string} Complete prompt for rewrite
  */
-export function generateRewritePrompt(documentContent, currentResult) {
-  return `You are an expert rewriting a {{DOCUMENT_TYPE}} to achieve a score of 85+.
+export function generateRewritePrompt(onePagerContent, currentResult) {
+  return `You are a senior Product Manager rewriting a One-Pager to achieve a score of 85+.
 
 ## CURRENT SCORE: ${currentResult.totalScore}/100
 
-## ORIGINAL DOCUMENT
+## ORIGINAL ONE-PAGER
 
 \`\`\`
-${documentContent}
+${onePagerContent}
 \`\`\`
 
 ## REWRITE REQUIREMENTS
 
-Create a complete, polished {{DOCUMENT_TYPE}} that:
-1. Scores 85+ across all dimensions
-2. Has all required sections clearly organized
-3. Uses clear, specific language
-4. Avoids vague qualifiers and jargon
-5. Is concise and stakeholder-focused
+Create a complete, polished One-Pager that:
+1. Fits on ONE PAGE (concise, executive-focused)
+2. Has all required sections (Problem, Cost of Inaction, Solution, Goals, Scope, Metrics, Stakeholders, Timeline)
+3. Includes explicit "In Scope" AND "Out of Scope" definitions
+4. Has specific, quantified metrics (numbers, percentages, timeframes)
+5. Clearly ties problem to business/customer value
+6. Includes measurable goals tied to the problem
+7. Defines stakeholders and their roles
+8. Provides realistic timeline with phases/milestones
+9. Avoids vague qualifiers, weasel words, and marketing fluff
+10. Stays high-level (no implementation details)
 
-Output ONLY the rewritten document in markdown format. No commentary.`;
+Output ONLY the rewritten One-Pager in markdown format. No commentary.`;
 }
 
 /**
@@ -161,4 +176,3 @@ export function cleanAIResponse(response) {
 
   return cleaned.trim();
 }
-
