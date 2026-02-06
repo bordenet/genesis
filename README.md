@@ -41,7 +41,7 @@ Every genesis-tools project contains **BOTH**:
 | **Assistant** | 3-phase AI workflow for creating documents | `assistant/` |
 | **Validator** | Score documents against quality dimensions | `validator/` |
 
-**Shared Libraries** (used via symlinks during development):
+**Shared Libraries** (copied into each project's `js/core/` directory):
 - [`assistant-core`](https://github.com/bordenet/assistant-core) - UI, storage, workflow utilities
 - [`validator-core`](https://github.com/bordenet/validator-core) - UI, storage, scoring utilities
 
@@ -112,14 +112,14 @@ my-project/
 │   │   ├── app.js              # Application logic
 │   │   ├── workflow.js         # 3-phase workflow
 │   │   ├── prompts.js          # AI prompts
-│   │   └── core -> symlink     # → assistant-core/src
+│   │   └── core/               # Shared utilities (from assistant-core)
 │   └── tests/                  # Jest tests
 ├── validator/                   # Document scoring
 │   ├── index.html              # Validator app
 │   ├── js/
 │   │   ├── app.js              # Application logic
 │   │   ├── validator.js        # Scoring functions
-│   │   └── core -> symlink     # → validator-core/src
+│   │   └── core/               # Shared utilities (from validator-core)
 │   └── tests/                  # Jest tests
 ├── package.json                # Dependencies
 ├── jest.config.js              # Test configuration
@@ -167,30 +167,28 @@ await copyToClipboard(documentText);
 
 ## CI/CD Pattern
 
-GitHub Actions workflow handles symlinks by cloning core repos:
+Each project includes the core libraries as actual files (not symlinks), so CI is straightforward:
 
 ```yaml
 steps:
-  - uses: actions/checkout@v4
+  - uses: actions/checkout@v6
 
-  # Clone core libraries
-  - name: Clone assistant-core
-    run: git clone https://github.com/bordenet/assistant-core.git ../assistant-core
+  - name: Setup Node.js
+    uses: actions/setup-node@v6
+    with:
+      node-version-file: '.nvmrc'
+      cache: 'npm'
 
-  - name: Clone validator-core
-    run: git clone https://github.com/bordenet/validator-core.git ../validator-core
+  - name: Install dependencies
+    run: npm ci
 
-  # Replace symlinks with actual files
-  - name: Replace symlinks
+  - name: Lint and test
     run: |
-      rm -rf assistant/js/core
-      cp -r ../assistant-core/src assistant/js/core
-      rm -rf validator/js/core
-      cp -r ../validator-core/src validator/js/core
-
-  # Run tests
-  - run: npm test
+      npm run lint
+      npm run test:coverage
 ```
+
+See [`.github/workflows/ci.yml`](.github/workflows/ci.yml) for the full workflow.
 
 ---
 
@@ -204,7 +202,7 @@ npm run test:coverage       # Coverage report
 npm run lint                # ESLint
 ```
 
-**Coverage targets**: 85%+ statements, 80%+ branches
+**Coverage targets**: ≥70% (enforced in jest.config.js)
 
 ---
 

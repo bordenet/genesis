@@ -118,11 +118,11 @@ The [validators](https://bordenet.github.io/product-requirements-assistant/valid
 
 ## What Worked
 
-The tools work. Each [Assistant](https://bordenet.github.io/one-pager/) guides users through a 3-phase workflow. Each [Validator](https://bordenet.github.io/one-pager/validator/) scores documents against defined dimensions. The [`project-diff`](https://github.com/bordenet/genesis/blob/main/project-diff/diff-projects.js) tool catches divergence. [CI/CD](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/.github/workflows/ci.yml) runs automatically. Test coverage exceeds 90% in most projects.
+The tools work. Each [Assistant](https://bordenet.github.io/one-pager/) guides users through a 3-phase workflow. Each [Validator](https://bordenet.github.io/one-pager/validator/) scores documents against defined dimensions. The [`project-diff`](https://github.com/bordenet/genesis/blob/main/project-diff/diff-projects.js) tool catches divergence. [CI/CD](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/.github/workflows/ci.yml) runs automatically. Test coverage is 72% JS, 93% Go.
 
 Consistency improved over time. By the ninth project, I could spawn a new repository and have it running in under an hour.
 
-[**CONTINUOUS_IMPROVEMENT.md**](https://github.com/bordenet/genesis/blob/main/CONTINUOUS_IMPROVEMENT.md) was the game-changer. Every bug discovered during development gets logged with severity, root cause, and fix. These feed back into the [AI instructions](https://github.com/bordenet/genesis/tree/main/genesis/ai-instructions), preventing the same mistake twice. The confidence score (currently 95/100) tracks how reliable the system has become.
+[**CONTINUOUS_IMPROVEMENT.md**](https://github.com/bordenet/genesis/blob/main/CONTINUOUS_IMPROVEMENT.md) was the game-changer. Every bug discovered during development gets logged with severity, root cause, and fix. These feed back into the [AI instructions](https://github.com/bordenet/genesis/tree/main/genesis/ai-instructions), preventing the same mistake twice.
 
 ## What Failed
 
@@ -157,7 +157,7 @@ LLMs lose attention in long documents. Critical instructions buried on line 800 
 - `00-GENESIS-PLAN.md`: 1,018 → 38 lines (archived original)
 - `TROUBLESHOOTING.md`: 776 → 73 lines ([split into 5 files](https://github.com/bordenet/genesis/tree/main/genesis/troubleshooting))
 - `GENESIS-PROCESS-IMPROVEMENTS.md`: 1,023 → 76 lines
-- `CONTINUOUS_IMPROVEMENT.md`: 668 → 193 lines
+- `CONTINUOUS_IMPROVEMENT.md`: 668 → 117 lines (history moved to `docs/IMPROVEMENT-HISTORY.md`)
 
 ### Dead Code from LLM Prompt Tuning
 
