@@ -1443,6 +1443,137 @@ function analyzeSharedLibraryNaming(genesisToolsDir) {
 }
 
 /**
+ * Analyze validator scoring alignment between inline and full validators.
+ * Detects when assistant/js/validator-inline.js and validator/js/validator.js
+ * would produce different scores for the same document.
+ *
+ * Checks:
+ * 1. Slop deduction formula consistency
+ * 2. js/validator-inline.js matches assistant/js/validator-inline.js
+ *
+ * Returns summary and detailed issues per project.
+ */
+function analyzeValidatorScoringAlignment(genesisToolsDir) {
+  const results = {
+    summary: { projectsChecked: 0, projectsWithIssues: 0, totalIssues: 0 },
+    projects: {}
+  };
+
+  // Standard slop deduction formula that all validators should use
+  const STANDARD_SLOP_FORMULA = 'Math.min(5, Math.floor(slopPenalty.penalty * 0.6))';
+  const SLOP_PATTERN = /slopDeduction\s*=\s*Math\.min\s*\(\s*(\d+)\s*,\s*Math\.floor\s*\(\s*slopPenalty\.penalty\s*\*\s*([\d.]+)\s*\)\s*\)/;
+  const ALT_SLOP_PATTERN = /slopDeduction\s*=\s*Math\.min\s*\(\s*(\d+)\s*,\s*slopPenalty\.penalty\s*\)/;
+
+  for (const project of PROJECTS) {
+    // Skip hello-world baseline - it's a template
+    if (project.includes('hello-world')) continue;
+    // Skip jd-assistant - uses different validator structure
+    if (project === 'jd-assistant') continue;
+
+    const projectPath = path.join(genesisToolsDir, project);
+    const projectIssues = [];
+    results.summary.projectsChecked++;
+
+    // Files to check
+    const inlineValidatorPath = path.join(projectPath, 'assistant/js/validator-inline.js');
+    const rootInlineValidatorPath = path.join(projectPath, 'js/validator-inline.js');
+    const fullValidatorPath = path.join(projectPath, 'validator/js/validator.js');
+
+    // Check 1: Slop deduction formula in inline validator
+    if (fs.existsSync(inlineValidatorPath)) {
+      try {
+        const content = fs.readFileSync(inlineValidatorPath, 'utf-8');
+        const match = content.match(SLOP_PATTERN);
+        const altMatch = content.match(ALT_SLOP_PATTERN);
+
+        if (match) {
+          const maxPenalty = match[1];
+          const multiplier = match[2];
+          if (maxPenalty !== '5' || multiplier !== '0.6') {
+            projectIssues.push({
+              type: 'slop_formula_mismatch',
+              file: 'assistant/js/validator-inline.js',
+              found: `Math.min(${maxPenalty}, Math.floor(penalty * ${multiplier}))`,
+              expected: STANDARD_SLOP_FORMULA,
+              message: `Inline validator uses non-standard slop formula`
+            });
+          }
+        } else if (altMatch) {
+          projectIssues.push({
+            type: 'slop_formula_mismatch',
+            file: 'assistant/js/validator-inline.js',
+            found: `Math.min(${altMatch[1]}, penalty)`,
+            expected: STANDARD_SLOP_FORMULA,
+            message: `Inline validator uses non-standard slop formula (missing floor/multiplier)`
+          });
+        }
+      } catch {
+        // Skip files that can't be read
+      }
+    }
+
+    // Check 2: Slop deduction formula in full validator
+    if (fs.existsSync(fullValidatorPath)) {
+      try {
+        const content = fs.readFileSync(fullValidatorPath, 'utf-8');
+        const match = content.match(SLOP_PATTERN);
+        const altMatch = content.match(ALT_SLOP_PATTERN);
+
+        if (match) {
+          const maxPenalty = match[1];
+          const multiplier = match[2];
+          if (maxPenalty !== '5' || multiplier !== '0.6') {
+            projectIssues.push({
+              type: 'slop_formula_mismatch',
+              file: 'validator/js/validator.js',
+              found: `Math.min(${maxPenalty}, Math.floor(penalty * ${multiplier}))`,
+              expected: STANDARD_SLOP_FORMULA,
+              message: `Full validator uses non-standard slop formula`
+            });
+          }
+        } else if (altMatch) {
+          projectIssues.push({
+            type: 'slop_formula_mismatch',
+            file: 'validator/js/validator.js',
+            found: `Math.min(${altMatch[1]}, penalty)`,
+            expected: STANDARD_SLOP_FORMULA,
+            message: `Full validator uses non-standard slop formula (missing floor/multiplier)`
+          });
+        }
+      } catch {
+        // Skip files that can't be read
+      }
+    }
+
+    // Check 3: js/validator-inline.js matches assistant/js/validator-inline.js
+    if (fs.existsSync(inlineValidatorPath) && fs.existsSync(rootInlineValidatorPath)) {
+      try {
+        const inlineContent = fs.readFileSync(inlineValidatorPath, 'utf-8');
+        const rootContent = fs.readFileSync(rootInlineValidatorPath, 'utf-8');
+
+        if (inlineContent !== rootContent) {
+          projectIssues.push({
+            type: 'inline_validator_mismatch',
+            file: 'js/validator-inline.js',
+            message: `js/validator-inline.js differs from assistant/js/validator-inline.js - users will see different scores`
+          });
+        }
+      } catch {
+        // Skip files that can't be read
+      }
+    }
+
+    if (projectIssues.length > 0) {
+      results.projects[project] = projectIssues;
+      results.summary.projectsWithIssues++;
+      results.summary.totalIssues += projectIssues.length;
+    }
+  }
+
+  return results;
+}
+
+/**
  * Main diff function
  */
 function diffProjects(genesisToolsDir) {
@@ -1568,6 +1699,9 @@ function diffProjects(genesisToolsDir) {
 
   // Analyze shared library naming (detect document-specific names in shared libs)
   results.sharedLibraryNaming = analyzeSharedLibraryNaming(genesisToolsDir);
+
+  // Analyze validator scoring alignment (inline vs full validator consistency)
+  results.validatorScoringAlignment = analyzeValidatorScoringAlignment(genesisToolsDir);
 
   return results;
 }
@@ -1904,6 +2038,31 @@ function formatConsoleReport(results) {
     }
   }
 
+  // VALIDATOR SCORING ALIGNMENT: Inline vs full validator consistency
+  if (results.validatorScoringAlignment && results.validatorScoringAlignment.summary.totalIssues > 0) {
+    const pink = (s) => `\x1b[38;5;205m${s}\x1b[0m`;
+    lines.push(pink(bold('⚖️  VALIDATOR SCORING ALIGNMENT (inline vs full validator mismatch)')));
+    lines.push(pink('─'.repeat(60)));
+    lines.push('');
+    lines.push('  Users will see DIFFERENT scores in the Assistant vs Validator.');
+    lines.push('  Standard slop formula: Math.min(5, Math.floor(penalty * 0.6))');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.validatorScoringAlignment.projects)) {
+      lines.push(pink(`  ${project}:`));
+      for (const issue of issues) {
+        if (issue.type === 'slop_formula_mismatch') {
+          lines.push(red(`    ✗ ${issue.file}: ${issue.message}`));
+          lines.push(`      Found: ${issue.found}`);
+          lines.push(`      Expected: ${issue.expected}`);
+        } else if (issue.type === 'inline_validator_mismatch') {
+          lines.push(red(`    ✗ ${issue.message}`));
+        }
+      }
+      lines.push('');
+    }
+  }
+
   // Final verdict
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
   const symlinkCount = results.summary.symlinkIssues || 0;
@@ -1916,8 +2075,9 @@ function formatConsoleReport(results) {
   const scoringIssues = results.inlineScoring?.summary?.projectsWithoutScoring || 0;
   const templateIssues = results.templateCustomization?.summary?.totalIssues || 0;
   const namingIssues = results.sharedLibraryNaming?.summary?.antiPatternsFound || 0;
+  const scoringAlignmentIssues = results.validatorScoringAlignment?.summary?.totalIssues || 0;
 
-  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0;
+  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0;
 
   if (allGreen) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
@@ -1930,6 +2090,7 @@ function formatConsoleReport(results) {
     lines.push(green(bold('  ✓ NO TEST COVERAGE GAPS DETECTED')));
     lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
     lines.push(green(bold('  ✓ NO FUNCTION SIGNATURE MISMATCHES')));
+    lines.push(green(bold('  ✓ VALIDATOR SCORING ALIGNED (inline = full)')));
   } else {
     if (results.summary.divergent > 0) {
       lines.push(red(bold(`  ✗ ${results.summary.divergent} FILES HAVE DIVERGED - FIX REQUIRED`)));
@@ -1954,6 +2115,9 @@ function formatConsoleReport(results) {
     }
     if (signatureMismatches > 0) {
       lines.push(red(bold(`  🔧 ${signatureMismatches} FUNCTION SIGNATURE MISMATCHES - STANDARDIZE APIs`)));
+    }
+    if (scoringAlignmentIssues > 0) {
+      lines.push(red(bold(`  ⚖️ ${scoringAlignmentIssues} VALIDATOR SCORING MISALIGNED - SYNC SLOP FORMULAS`)));
     }
     if (symlinkCount > 0) {
       lines.push(magenta(bold(`  ⚡ ${symlinkCount} SYMLINK STRUCTURAL ISSUES - UNIFY REQUIRED`)));
@@ -1999,6 +2163,7 @@ function main() {
   const scoringIssuesCount = results.inlineScoring?.summary?.projectsWithoutScoring || 0;
   const templateIssuesCount = results.templateCustomization?.summary?.totalIssues || 0;
   const namingIssuesCount = results.sharedLibraryNaming?.summary?.antiPatternsFound || 0;
+  const scoringAlignmentCount = results.validatorScoringAlignment?.summary?.totalIssues || 0;
 
   if (ciMode && (
     results.summary.divergent > 0 ||
@@ -2010,7 +2175,8 @@ function main() {
     urlIssuesCount > 0 ||
     scoringIssuesCount > 0 ||
     templateIssuesCount > 0 ||
-    namingIssuesCount > 0
+    namingIssuesCount > 0 ||
+    scoringAlignmentCount > 0
   )) {
     process.exit(1);
   }
