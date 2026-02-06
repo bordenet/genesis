@@ -181,13 +181,13 @@ Without all three, confidence cannot exceed 60%.
 
 These are known issues in the hello-world template. Check for them after copying:
 
-| Issue | Severity | File(s) | What to Fix |
-|-------|----------|---------|-------------|
-| Hardcoded "Hello World" text | CRITICAL | All HTML/MD | Run grep scan (see above) |
-| ROOT index.html footer has `#` links | HIGH | `index.html` | Add real cross-nav links |
-| ROOT index.html wrong tagline | HIGH | `index.html` | Change to "100% Client-Side • Privacy-First" |
-| ROOT js/ has wrong validator path | HIGH | `js/project-view.js` | Use `./validator/` not `../validator/` |
-| About modal hardcoded text | MEDIUM | `app.js` | Update title/description/GitHub link |
-| workflow.js placeholder URL | LOW | `workflow.js` | Update attribution URL |
+| Issue | Severity | File(s) | Status | What to Fix |
+|-------|----------|---------|--------|-------------|
+| Hardcoded "Hello World" text | CRITICAL | All HTML/MD | ⚠️ VERIFY | Run grep scan (see above) |
+| ROOT index.html footer has `#` links | HIGH | `index.html` | ✅ FIXED (PR #108) | Already uses real cross-nav links |
+| ROOT index.html wrong tagline | HIGH | `index.html` | ✅ FIXED | Already correct tagline |
+| ROOT js/ has wrong validator path | HIGH | `js/project-view.js` | ✅ FIXED | Already uses `./validator/` |
+| About modal hardcoded text | MEDIUM | `app.js` | ✅ FIXED (PR #108) | Dynamically reads from page |
+| workflow.js placeholder URL | LOW | `workflow.js` | ✅ FIXED (PR #108) | Uses `window.location` |
 
-**These should be fixed in the hello-world template itself, but verify after copying until they are.**
+**Status as of 2026-02-05**: Most template issues have been fixed in PR #108. Only the "Hello World" text in test fixtures remains (expected/acceptable).
