@@ -352,6 +352,10 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // Router (imports from views.js which differs per project)
   /^js\/router\.js$/,
   /^assistant\/js\/router\.js$/,
+  // Document-specific templates (one-pager templates, PR FAQ templates, etc.)
+  /^js\/document-specific-templates\.js$/,
+  /^assistant\/js\/document-specific-templates\.js$/,
+  /^assistant\/tests\/document-specific-templates\.test\.js$/,
   // Validator logic (document-specific validation rules)
   /^validator\/js\/validator\.js$/,
   // Deploy scripts (contain project-specific paths/names)
