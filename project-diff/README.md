@@ -81,6 +81,32 @@ Detects validators that are missing critical functionality based on line counts:
 
 Also checks for required UI elements and functions.
 
+### 6. Validator Scoring Alignment
+
+Detects when `validator-inline.js` (Assistant) and `validator.js` (Validator tool) would produce **different scores** for the same document:
+
+| Check | Description |
+|-------|-------------|
+| Slop formula consistency | Both must use `Math.min(5, Math.floor(penalty * 0.6))` |
+| Internal consistency | `js/validator-inline.js` must match `assistant/js/validator-inline.js` |
+| Scoring algorithm match | Both validators must use the **same scoring functions** |
+
+#### Scoring Algorithm Mismatch Detection
+
+Different function names indicate different scoring logic:
+
+```text
+⚖️  VALIDATOR SCORING ALIGNMENT (inline vs full validator mismatch)
+────────────────────────────────────────────────────────────
+
+  pr-faq-assistant:
+    ✗ Inline and full validators use DIFFERENT scoring algorithms - scores will NOT match
+      Inline-only functions: scoreStructure, scoreContent
+      Full-only functions: scoreStructureAndHook, scoreContentQuality
+```
+
+> **Why?** This catches cases where the inline validator uses simple pattern matching (e.g., `scoreStructure`) while the full validator uses sophisticated analysis (e.g., `scoreStructureAndHook`), causing **4+ point score differences** for users.
+
 ## Projects Compared
 
 1. `acceptance-criteria-assistant`
@@ -126,8 +152,14 @@ SUMMARY
   ✓ ALL MUST-MATCH FILES ARE IDENTICAL
   ✓ NO INTERNAL CONSISTENCY ISSUES
   ✓ NO DOMAIN BLEED-OVER DETECTED
+  ✓ NO URL SELF-REFERENCE ISSUES
+  ✓ ALL PROJECTS HAVE INLINE SCORING
+  ✓ NO TEMPLATE CUSTOMIZATION ISSUES
+  ✓ NO SHARED LIBRARY NAMING ISSUES
   ✓ NO TEST COVERAGE GAPS DETECTED
   ✓ NO STUB VALIDATORS DETECTED
+  ✓ NO FUNCTION SIGNATURE MISMATCHES
+  ✓ VALIDATOR SCORING ALIGNED (inline = full)
 ═══════════════════════════════════════════════════════════════
 ```
 
