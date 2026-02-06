@@ -6,8 +6,8 @@ Ecosystem of AI-powered document assistants and validators using a paired archit
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/bordenet/genesis/actions/workflows/ci.yml/badge.svg)](https://github.com/bordenet/genesis/actions/workflows/ci.yml)
-[![JS Coverage](https://img.shields.io/badge/JS%20coverage-95.7%25-brightgreen.svg)](genesis/examples/hello-world)
-[![Go Coverage](https://img.shields.io/badge/Go%20coverage-93.3%25-brightgreen.svg)](genesis-validator)
+[![JS Coverage](https://img.shields.io/badge/JS%20coverage-72%25-yellow.svg)](genesis/examples/hello-world)
+[![Go Coverage](https://img.shields.io/badge/Go%20coverage-93%25-brightgreen.svg)](genesis-validator)
 [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-blue.svg)](https://github.com/bordenet/genesis/security/dependabot)
 
 ---
@@ -187,7 +187,7 @@ npm run lint                # ESLint
 
 ## Code Consistency Tools
 
-Check consistency across all 7 genesis projects:
+Check consistency across all 8 genesis projects:
 
 ```bash
 cd genesis/project-diff
