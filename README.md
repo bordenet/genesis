@@ -30,6 +30,8 @@ I confirmed what I suspected from the start: a clean architecture with strong pr
 
 Genesis remains useful as a reference for pushing AI-assisted development to its limits, and as a reminder that simpler approaches usually win.
 
+For the full story, see [BACKGROUND.md](BACKGROUND.md).
+
 ---
 
 ## Architecture
