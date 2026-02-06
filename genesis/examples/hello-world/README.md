@@ -100,11 +100,17 @@ Every project has a **paired architecture**:
 
 Built with [Genesis](https://github.com/bordenet/genesis). Related tools:
 
-- [One-Pager](https://github.com/bordenet/one-pager)
-- [Power Statement Assistant](https://github.com/bordenet/power-statement-assistant)
-- [PR/FAQ Assistant](https://github.com/bordenet/pr-faq-assistant)
-- [Product Requirements Assistant](https://github.com/bordenet/product-requirements-assistant)
-- [Strategic Proposal](https://github.com/bordenet/strategic-proposal)
+| Project | Document Type |
+|---------|---------------|
+| [One-Pager](https://github.com/bordenet/one-pager) | Executive summaries |
+| [Power Statement Assistant](https://github.com/bordenet/power-statement-assistant) | Value propositions |
+| [PR/FAQ Assistant](https://github.com/bordenet/pr-faq-assistant) | Press release / FAQ |
+| [Product Requirements Assistant](https://github.com/bordenet/product-requirements-assistant) | Product specs |
+| [Strategic Proposal](https://github.com/bordenet/strategic-proposal) | Strategic documents |
+| [Business Justification Assistant](https://github.com/bordenet/business-justification-assistant) | Business cases |
+| [JD Assistant](https://github.com/bordenet/jd-assistant) | Job descriptions |
+| [Acceptance Criteria Assistant](https://github.com/bordenet/acceptance-criteria-assistant) | User story acceptance |
+| [Architecture Decision Record](https://github.com/bordenet/architecture-decision-record) | ADRs |
 
 ## Contributing
 

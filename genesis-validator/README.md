@@ -2,16 +2,19 @@
 
 A Go-based validation tool that ensures Genesis template consistency and completeness.
 
-## 🎯 Purpose
+## Purpose
 
 This tool performs comprehensive validation of the Genesis bootstrapping system to ensure:
 
 1. **All template files are referenced** in documentation (no orphaned files)
 2. **All referenced files exist** (no broken references)
-3. **Documentation is consistent** between START-HERE.md and AI-EXECUTION-CHECKLIST.md
+3. **Documentation is consistent** between [START-HERE.md][start] and [CHECKLIST.md][checklist]
 4. **Quality gates are enforced** before commits
 
-## 🚀 Quick Start
+[start]: https://github.com/bordenet/genesis/blob/main/genesis/START-HERE.md
+[checklist]: https://github.com/bordenet/genesis/blob/main/genesis/CHECKLIST.md
+
+## Quick Start
 
 ### Build
 
@@ -66,7 +69,7 @@ golangci-lint run ./...
 - Validates documentation consistency
 - Provides clear error messages with fix suggestions
 
-## 📋 What It Validates
+## What It Validates
 
 ### 1. Template File Inventory
 
@@ -76,7 +79,7 @@ golangci-lint run ./...
 ### 2. Documentation References
 
 - Parses `genesis/START-HERE.md` for template references
-- Parses `genesis/AI-EXECUTION-CHECKLIST.md` for template references
+- Parses `genesis/CHECKLIST.md` for template references
 - Extracts references from multiple patterns:
   - `cp genesis/templates/...` (copy commands)
   - `` `templates/...` `` (backtick references)
@@ -95,25 +98,27 @@ golangci-lint run ./...
 
 ### 5. Documentation Consistency
 
-- Ensures START-HERE.md and AI-EXECUTION-CHECKLIST.md reference the same templates
+- Ensures START-HERE.md and CHECKLIST.md reference the same templates
 - **Impact**: Inconsistent instructions confuse AI assistants
 
-## 🔧 Command-Line Options
+## Command-Line Options
 
-```text
--verbose          Enable verbose output (shows all files found)
--no-prompt        Disable LLM prompt generation
--genesis-root     Path to genesis directory (default: genesis)
--help             Show help message
-```
+| Flag | Description |
+|------|-------------|
+| `-verbose` | Enable verbose output (shows all files found) |
+| `-no-prompt` | Disable LLM prompt generation |
+| `-genesis-root` | Path to genesis directory (default: genesis) |
+| `-help` | Show help message |
 
-## 📊 Exit Codes
+## Exit Codes
 
-- **0** - All checks passed ✅
-- **1** - Critical errors found (orphaned/missing files) ❌
-- **2** - Warnings found (inconsistencies) ⚠️
+| Code | Meaning |
+|------|---------|
+| 0 | All checks passed |
+| 1 | Critical errors found (orphaned/missing files) |
+| 2 | Warnings found (inconsistencies) |
 
-## 🎯 Use Cases
+## Use Cases
 
 ### 1. Pre-Commit Hook
 
@@ -159,23 +164,25 @@ touch genesis/templates/web-app/new-feature-template.js
 # Should pass ✅
 ```
 
-## 🧪 Testing
+## Testing
 
 The validator includes comprehensive tests:
 
-- **Scanner tests**: Template file detection
-- **Parser tests**: Reference extraction from documentation
-- **Validator tests**: End-to-end validation scenarios
-- **Coverage**: 57.7% (focused on critical paths)
+| Test Suite | What It Tests |
+|------------|---------------|
+| Scanner tests | Template file detection |
+| Parser tests | Reference extraction from documentation |
+| Validator tests | End-to-end validation scenarios |
 
 Run tests:
 
 ```bash
 cd genesis-validator
 go test -v ./internal/validator/...
+go test -cover ./internal/validator/...
 ```
 
-## 🏗️ Architecture
+## Architecture
 
 ```text
 genesis-validator/
@@ -199,7 +206,7 @@ genesis-validator/
 └── README.md
 ```
 
-## 📝 Example Output
+## Example Output
 
 ### Success
 
@@ -220,7 +227,7 @@ genesis-validator/
 [LLM PROMPT WITH DETAILED FIXES]
 ```
 
-## 🔄 Integration with Genesis
+## Integration with Genesis
 
 This validator is designed to be run as part of the Genesis quality gates:
 
@@ -228,9 +235,16 @@ This validator is designed to be run as part of the Genesis quality gates:
 2. **CI/CD**: Blocks merges if validation fails
 3. **Periodic audits**: Generates LLM prompts for self-correction
 
-## 📚 Related Documentation
+## Related
 
-- `genesis/START-HERE.md` - Primary Genesis documentation
-- `genesis/AI-EXECUTION-CHECKLIST.md` - Execution checklist
-- `GENESIS-AUDIT-PASS-1.md` - First comprehensive audit
-- `GENESIS-AUDIT-PASS-2.md` - Second comprehensive audit
+| Resource | Description |
+|----------|-------------|
+| [START-HERE.md][start] | Primary Genesis documentation |
+| [CHECKLIST.md][checklist] | Execution checklist |
+| [project-diff][diff] | Cross-project consistency checking |
+| [BACKGROUND.md][bg] | Genesis ecosystem history and metrics |
+| [CODE-CONSISTENCY-MANDATE.md][ccm] | File categorization and consistency rules |
+
+[diff]: https://github.com/bordenet/genesis/tree/main/project-diff
+[bg]: https://github.com/bordenet/genesis/blob/main/BACKGROUND.md
+[ccm]: https://github.com/bordenet/genesis/blob/main/genesis/CODE-CONSISTENCY-MANDATE.md
