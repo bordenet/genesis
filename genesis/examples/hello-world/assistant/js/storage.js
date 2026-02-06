@@ -1,17 +1,19 @@
 /**
  * IndexedDB Storage Module
- * Handles all client-side data persistence for Strategic Proposal Generator
+ * Handles all client-side data persistence for Hello World Assistant
  * @module storage
  */
 
 /** @type {string} */
-const DB_NAME = 'strategic-proposal-db';
+// IMPORTANT: Change this to a unique database name for your project (e.g., 'my-assistant-db')
+const DB_NAME = 'hello-world-assistant-db';
 
 /** @type {number} */
 const DB_VERSION = 1;
 
 /** @type {string} */
-const STORE_NAME = 'proposals';
+// IMPORTANT: Change this to a descriptive store name for your project (e.g., 'documents')
+const STORE_NAME = 'projects';
 
 /**
  * Storage class for IndexedDB operations
