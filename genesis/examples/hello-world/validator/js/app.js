@@ -1,10 +1,9 @@
 // ============================================================
-// {{DOCUMENT_TYPE}} Validator - Main Application
-// TEMPLATE: Replace {{DOCUMENT_TYPE}}, dimension names, etc.
+// One-Pager Web Validator - Main Application
 // ============================================================
 
-import { validateDocument, getScoreColor } from './validator.js';
-import { showToast, copyToClipboard, debounce, showPromptModal, createStorage } from './core/index.js';
+import { validateOnePager } from './validator.js';
+import { showToast, copyToClipboard, debounce, getScoreColor, showPromptModal, createStorage } from './core/index.js';
 import { generateCritiquePrompt, generateRewritePrompt, generateLLMScoringPrompt } from './prompts.js';
 
 // ============================================================
@@ -17,7 +16,7 @@ let currentPrompt = null;
 let isLLMMode = false;
 
 // Initialize storage with factory
-const storage = createStorage('{{STORAGE_KEY}}-validator-history');
+const storage = createStorage('one-pager-validator-history');
 
 // ============================================================
 // DOM Elements
@@ -25,10 +24,10 @@ const storage = createStorage('{{STORAGE_KEY}}-validator-history');
 
 const editor = document.getElementById('editor');
 const scoreTotal = document.getElementById('score-total');
-const scoreDimension1 = document.getElementById('score-dimension-1');
-const scoreDimension2 = document.getElementById('score-dimension-2');
-const scoreDimension3 = document.getElementById('score-dimension-3');
-const scoreDimension4 = document.getElementById('score-dimension-4');
+const scoreProblemClarity = document.getElementById('score-problem-clarity');
+const scoreSolution = document.getElementById('score-solution');
+const scoreScope = document.getElementById('score-scope');
+const scoreCompleteness = document.getElementById('score-completeness');
 const aiPowerups = document.getElementById('ai-powerups');
 const btnCritique = document.getElementById('btn-critique');
 const btnRewrite = document.getElementById('btn-rewrite');
@@ -63,36 +62,36 @@ function updateScoreDisplay(result) {
   scoreTotal.textContent = result.totalScore;
   scoreTotal.className = `text-4xl font-bold ${getScoreColor(result.totalScore, 100)}`;
 
-  // Update dimension scores
-  scoreDimension1.textContent = result.dimension1.score;
-  scoreDimension2.textContent = result.dimension2.score;
-  scoreDimension3.textContent = result.dimension3.score;
-  scoreDimension4.textContent = result.dimension4.score;
+  // Update dimension scores (just the score number - max is hardcoded in HTML)
+  scoreProblemClarity.textContent = result.problemClarity.score;
+  scoreSolution.textContent = result.solution.score;
+  scoreScope.textContent = result.scope.score;
+  scoreCompleteness.textContent = result.completeness.score;
 
   // Apply colors to dimension scores
-  scoreDimension1.className = getScoreColor(result.dimension1.score, result.dimension1.maxScore);
-  scoreDimension2.className = getScoreColor(result.dimension2.score, result.dimension2.maxScore);
-  scoreDimension3.className = getScoreColor(result.dimension3.score, result.dimension3.maxScore);
-  scoreDimension4.className = getScoreColor(result.dimension4.score, result.dimension4.maxScore);
+  scoreProblemClarity.className = getScoreColor(result.problemClarity.score, result.problemClarity.maxScore);
+  scoreSolution.className = getScoreColor(result.solution.score, result.solution.maxScore);
+  scoreScope.className = getScoreColor(result.scope.score, result.scope.maxScore);
+  scoreCompleteness.className = getScoreColor(result.completeness.score, result.completeness.maxScore);
 
   // Update progress bars
   const totalPercent = (result.totalScore / 100) * 100;
-  const dim1Percent = (result.dimension1.score / result.dimension1.maxScore) * 100;
-  const dim2Percent = (result.dimension2.score / result.dimension2.maxScore) * 100;
-  const dim3Percent = (result.dimension3.score / result.dimension3.maxScore) * 100;
-  const dim4Percent = (result.dimension4.score / result.dimension4.maxScore) * 100;
+  const problemClarityPercent = (result.problemClarity.score / result.problemClarity.maxScore) * 100;
+  const solutionPercent = (result.solution.score / result.solution.maxScore) * 100;
+  const scopePercent = (result.scope.score / result.scope.maxScore) * 100;
+  const completenessPercent = (result.completeness.score / result.completeness.maxScore) * 100;
 
   const scoreBar = document.getElementById('score-bar');
-  const dim1Bar = document.getElementById('score-dimension-1-bar');
-  const dim2Bar = document.getElementById('score-dimension-2-bar');
-  const dim3Bar = document.getElementById('score-dimension-3-bar');
-  const dim4Bar = document.getElementById('score-dimension-4-bar');
+  const problemClarityBar = document.getElementById('score-problem-clarity-bar');
+  const solutionBar = document.getElementById('score-solution-bar');
+  const scopeBar = document.getElementById('score-scope-bar');
+  const completenessBar = document.getElementById('score-completeness-bar');
 
   if (scoreBar) scoreBar.style.width = `${totalPercent}%`;
-  if (dim1Bar) dim1Bar.style.width = `${dim1Percent}%`;
-  if (dim2Bar) dim2Bar.style.width = `${dim2Percent}%`;
-  if (dim3Bar) dim3Bar.style.width = `${dim3Percent}%`;
-  if (dim4Bar) dim4Bar.style.width = `${dim4Percent}%`;
+  if (problemClarityBar) problemClarityBar.style.width = `${problemClarityPercent}%`;
+  if (solutionBar) solutionBar.style.width = `${solutionPercent}%`;
+  if (scopeBar) scopeBar.style.width = `${scopePercent}%`;
+  if (completenessBar) completenessBar.style.width = `${completenessPercent}%`;
 }
 
 // ============================================================
@@ -101,7 +100,7 @@ function updateScoreDisplay(result) {
 
 function runValidation() {
   const content = editor.value || '';
-  currentResult = validateDocument(content);
+  currentResult = validateOnePager(content);
   updateScoreDisplay(currentResult);
 
   // Show/hide AI power-ups based on content length
@@ -366,16 +365,16 @@ function showAbout() {
   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
   modal.innerHTML = `
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4 shadow-xl">
-      <h2 class="text-xl font-bold mb-4 dark:text-white">{{VALIDATOR_TITLE}}</h2>
+      <h2 class="text-xl font-bold mb-4 dark:text-white">One-Pager Validator</h2>
       <p class="text-gray-600 dark:text-gray-300 mb-4">
-        A client-side tool for validating {{DOCUMENT_TYPE_LOWERCASE}} documents against best practices.
+        A client-side tool for validating one-pager documents against best practices.
       </p>
       <p class="text-gray-600 dark:text-gray-300 mb-4">
         <strong>Scoring Dimensions:</strong><br>
-        • {{DIMENSION_1_NAME}} ({{DIMENSION_1_POINTS}} pts)<br>
-        • {{DIMENSION_2_NAME}} ({{DIMENSION_2_POINTS}} pts)<br>
-        • {{DIMENSION_3_NAME}} ({{DIMENSION_3_POINTS}} pts)<br>
-        • {{DIMENSION_4_NAME}} ({{DIMENSION_4_POINTS}} pts)
+        • Problem Clarity (30 pts)<br>
+        • Solution Quality (25 pts)<br>
+        • Scope Discipline (25 pts)<br>
+        • Completeness (20 pts)
       </p>
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
         100% client-side. Your content never leaves your browser.

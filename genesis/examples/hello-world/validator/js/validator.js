@@ -1,58 +1,72 @@
 /**
- * {{DOCUMENT_TYPE}} Validator - Scoring Logic
+ * One-Pager Validator - Scoring Logic
  *
- * TEMPLATE: This is a genesis template. Replace {{DOCUMENT_TYPE}}, {{DIMENSION_X_NAME}}, etc.
- * with your document type specifics before deploying.
- *
- * Scoring Dimensions (customize for your document type):
- * 1. {{DIMENSION_1_NAME}} ({{DIMENSION_1_POINTS}} pts) - {{DIMENSION_1_DESCRIPTION}}
- * 2. {{DIMENSION_2_NAME}} ({{DIMENSION_2_POINTS}} pts) - {{DIMENSION_2_DESCRIPTION}}
- * 3. {{DIMENSION_3_NAME}} ({{DIMENSION_3_POINTS}} pts) - {{DIMENSION_3_DESCRIPTION}}
- * 4. {{DIMENSION_4_NAME}} ({{DIMENSION_4_POINTS}} pts) - {{DIMENSION_4_DESCRIPTION}}
+ * Scoring Dimensions:
+ * 1. Problem Clarity (30 pts) - Problem statement, cost of inaction, customer focus
+ * 2. Solution Quality (25 pts) - Solution addresses problem, measurable goals, high-level
+ * 3. Scope Discipline (25 pts) - In/out scope, success metrics, SMART criteria
+ * 4. Completeness (20 pts) - Required sections, stakeholders, timeline
  */
 
 // ============================================================================
-// Constants - CUSTOMIZE THESE FOR YOUR DOCUMENT TYPE
+// Constants
 // ============================================================================
 
-/**
- * Required sections for a complete document
- * Customize patterns and weights for your document type
- */
 const REQUIRED_SECTIONS = [
-  { pattern: /^#+\s*(section.?1|heading.?1)/im, name: 'Section 1', weight: 2 },
-  { pattern: /^#+\s*(section.?2|heading.?2)/im, name: 'Section 2', weight: 2 },
-  { pattern: /^#+\s*(section.?3|heading.?3)/im, name: 'Section 3', weight: 2 },
-  { pattern: /^#+\s*(section.?4|heading.?4)/im, name: 'Section 4', weight: 1 },
-  { pattern: /^#+\s*(section.?5|heading.?5)/im, name: 'Section 5', weight: 1 },
+  { pattern: /^#+\s*(problem|challenge|pain.?point|context)/im, name: 'Problem/Challenge', weight: 2 },
+  { pattern: /^#+\s*(solution|proposal|approach|recommendation)/im, name: 'Solution/Proposal', weight: 2 },
+  { pattern: /^#+\s*(goal|objective|benefit|outcome)/im, name: 'Goals/Benefits', weight: 2 },
+  { pattern: /^#+\s*(scope|in.scope|out.of.scope|boundary|boundaries)/im, name: 'Scope Definition', weight: 2 },
+  { pattern: /^#+\s*(success|metric|kpi|measure|success.metric)/im, name: 'Success Metrics', weight: 1 },
+  { pattern: /^#+\s*(stakeholder|team|owner|raci|responsible)/im, name: 'Stakeholders/Team', weight: 1 },
+  { pattern: /^#+\s*(timeline|milestone|phase|schedule|roadmap)/im, name: 'Timeline/Milestones', weight: 1 }
 ];
 
-// Dimension 1 patterns - CUSTOMIZE
-const DIMENSION_1_PATTERNS = {
-  sectionPattern: /^#+\s*(dimension.?1|section.?1)/im,
-  contentPattern: /\b(keyword1|keyword2|keyword3)\b/gi,
-  qualityPattern: /\b(quality|metric|measure)\b/gi,
+// Problem clarity patterns
+const PROBLEM_PATTERNS = {
+  problemSection: /^#+\s*(problem|challenge|pain.?point|context|why)/im,
+  problemLanguage: /\b(problem|challenge|pain.?point|issue|struggle|difficult|frustrat|current.?state|today|existing)\b/gi,
+  costOfInaction: /\b(cost|impact|consequence|risk|without|if.?not|delay|postpone|inaction|doing.?nothing|status.?quo)\b/gi,
+  quantified: /\d+\s*(%|million|thousand|hour|day|week|month|year|\$|dollar|user|customer|transaction)/gi,
+  businessFocus: /\b(business|customer|user|market|revenue|profit|competitive|strategic|value)\b/gi
 };
 
-// Dimension 2 patterns - CUSTOMIZE
-const DIMENSION_2_PATTERNS = {
-  sectionPattern: /^#+\s*(dimension.?2|section.?2)/im,
-  contentPattern: /\b(keyword4|keyword5|keyword6)\b/gi,
-  qualityPattern: /\b(quality|metric|measure)\b/gi,
+// Solution patterns
+const SOLUTION_PATTERNS = {
+  solutionSection: /^#+\s*(solution|proposal|approach|recommendation|how)/im,
+  solutionLanguage: /\b(solution|approach|proposal|implement|build|create|develop|enable|provide|deliver)\b/gi,
+  measurable: /\b(measure|metric|kpi|track|monitor|quantify|achieve|reach|target|goal)\b/gi,
+  highlevel: /\b(overview|summary|high.?level|architecture|design|flow|process|workflow)\b/gi,
+  avoidImplementation: /\b(code|function|class|method|api|database|sql|algorithm|library|framework)\b/gi
 };
 
-// Dimension 3 patterns - CUSTOMIZE
-const DIMENSION_3_PATTERNS = {
-  sectionPattern: /^#+\s*(dimension.?3|section.?3)/im,
-  contentPattern: /\b(keyword7|keyword8|keyword9)\b/gi,
-  qualityPattern: /\b(quality|metric|measure)\b/gi,
+// Scope patterns
+const SCOPE_PATTERNS = {
+  inScope: /\b(in.scope|included|within.scope|we.will|we.are|we.provide|we.deliver)\b/gi,
+  outOfScope: /\b(out.of.scope|not.included|excluded|we.will.not|won't|outside.scope|future|phase.2|post.mvp|not.in.v1)\b/gi,
+  scopeSection: /^#+\s*(scope|boundaries|in.scope|out.of.scope)/im
 };
 
-// Dimension 4 patterns - CUSTOMIZE
-const DIMENSION_4_PATTERNS = {
-  sectionPattern: /^#+\s*(dimension.?4|section.?4)/im,
-  contentPattern: /\b(keyword10|keyword11|keyword12)\b/gi,
-  qualityPattern: /\b(quality|metric|measure)\b/gi,
+// Success metrics patterns
+const METRICS_PATTERNS = {
+  smart: /\b(specific|measurable|achievable|relevant|time.bound|smart)\b/gi,
+  quantified: /\d+\s*(%|million|thousand|hour|day|week|month|year|\$|dollar|user|customer|transaction|request|response)/gi,
+  metricsSection: /^#+\s*(success|metric|kpi|measure|success.metric)/im,
+  metricsLanguage: /\b(metric|kpi|measure|target|goal|achieve|reach|improve|reduce|increase)\b/gi
+};
+
+// Stakeholder patterns
+const STAKEHOLDER_PATTERNS = {
+  stakeholderSection: /^#+\s*(stakeholder|team|owner|raci|responsible|responsible.accountable)/im,
+  stakeholderLanguage: /\b(stakeholder|owner|lead|team|responsible|accountable|raci|sponsor|approver)\b/gi,
+  roleDefinition: /\b(responsible|accountable|consulted|informed|raci)\b/gi
+};
+
+// Timeline patterns
+const TIMELINE_PATTERNS = {
+  timelineSection: /^#+\s*(timeline|milestone|phase|schedule|roadmap)/im,
+  datePatterns: /\b(week|month|quarter|q[1-4]|phase|milestone|sprint|release|v\d+)\b/gi,
+  phasing: /\b(phase|stage|wave|iteration|sprint|release)\b/gi
 };
 
 // ============================================================================
@@ -60,93 +74,159 @@ const DIMENSION_4_PATTERNS = {
 // ============================================================================
 
 /**
- * Detect dimension 1 content in text
+ * Detect problem statement in text
  * @param {string} text - Text to analyze
- * @returns {Object} Detection results
+ * @returns {Object} Problem detection results
  */
-export function detectDimension1(text) {
-  const hasSection = DIMENSION_1_PATTERNS.sectionPattern.test(text);
-  const contentMatches = text.match(DIMENSION_1_PATTERNS.contentPattern) || [];
-  const qualityMatches = text.match(DIMENSION_1_PATTERNS.qualityPattern) || [];
+export function detectProblemStatement(text) {
+  const hasProblemSection = PROBLEM_PATTERNS.problemSection.test(text);
+  const problemMatches = text.match(PROBLEM_PATTERNS.problemLanguage) || [];
+  const costMatches = text.match(PROBLEM_PATTERNS.costOfInaction) || [];
+  const quantifiedMatches = text.match(PROBLEM_PATTERNS.quantified) || [];
+  const businessMatches = text.match(PROBLEM_PATTERNS.businessFocus) || [];
 
   return {
-    hasSection,
-    hasContent: contentMatches.length > 0,
-    contentCount: contentMatches.length,
-    hasQuality: qualityMatches.length > 0,
+    hasProblemSection,
+    hasProblemLanguage: problemMatches.length > 0,
+    hasCostOfInaction: costMatches.length > 0,
+    isQuantified: quantifiedMatches.length > 0,
+    quantifiedCount: quantifiedMatches.length,
+    hasBusinessFocus: businessMatches.length > 0,
     indicators: [
-      hasSection && 'Dedicated section found',
-      contentMatches.length > 0 && `${contentMatches.length} content matches`,
-      qualityMatches.length > 0 && 'Quality indicators present'
+      hasProblemSection && 'Dedicated problem section',
+      problemMatches.length > 0 && 'Problem framing language',
+      costMatches.length > 0 && 'Cost of inaction mentioned',
+      quantifiedMatches.length > 0 && `${quantifiedMatches.length} quantified metrics`,
+      businessMatches.length > 0 && 'Business/customer focus'
     ].filter(Boolean)
   };
 }
 
 /**
- * Detect dimension 2 content in text
+ * Detect cost of inaction in text
  * @param {string} text - Text to analyze
- * @returns {Object} Detection results
+ * @returns {Object} Cost of inaction detection results
  */
-export function detectDimension2(text) {
-  const hasSection = DIMENSION_2_PATTERNS.sectionPattern.test(text);
-  const contentMatches = text.match(DIMENSION_2_PATTERNS.contentPattern) || [];
-  const qualityMatches = text.match(DIMENSION_2_PATTERNS.qualityPattern) || [];
+export function detectCostOfInaction(text) {
+  const costMatches = text.match(PROBLEM_PATTERNS.costOfInaction) || [];
+  const quantifiedMatches = text.match(PROBLEM_PATTERNS.quantified) || [];
+  const hasCostSection = /^#+\s*(cost|impact|consequence|risk|why.now|urgency)/im.test(text);
 
   return {
-    hasSection,
-    hasContent: contentMatches.length > 0,
-    contentCount: contentMatches.length,
-    hasQuality: qualityMatches.length > 0,
+    hasCostLanguage: costMatches.length > 0,
+    costCount: costMatches.length,
+    isQuantified: quantifiedMatches.length > 0,
+    quantifiedCount: quantifiedMatches.length,
+    hasCostSection,
     indicators: [
-      hasSection && 'Dedicated section found',
-      contentMatches.length > 0 && `${contentMatches.length} content matches`,
-      qualityMatches.length > 0 && 'Quality indicators present'
+      costMatches.length > 0 && `${costMatches.length} cost/impact references`,
+      quantifiedMatches.length > 0 && `${quantifiedMatches.length} quantified values`,
+      hasCostSection && 'Dedicated cost/impact section'
     ].filter(Boolean)
   };
 }
 
 /**
- * Detect dimension 3 content in text
+ * Detect solution in text
  * @param {string} text - Text to analyze
- * @returns {Object} Detection results
+ * @returns {Object} Solution detection results
  */
-export function detectDimension3(text) {
-  const hasSection = DIMENSION_3_PATTERNS.sectionPattern.test(text);
-  const contentMatches = text.match(DIMENSION_3_PATTERNS.contentPattern) || [];
-  const qualityMatches = text.match(DIMENSION_3_PATTERNS.qualityPattern) || [];
+export function detectSolution(text) {
+  const hasSolutionSection = SOLUTION_PATTERNS.solutionSection.test(text);
+  const solutionMatches = text.match(SOLUTION_PATTERNS.solutionLanguage) || [];
+  const measurableMatches = text.match(SOLUTION_PATTERNS.measurable) || [];
+  const highlevelMatches = text.match(SOLUTION_PATTERNS.highlevel) || [];
+  const implementationMatches = text.match(SOLUTION_PATTERNS.avoidImplementation) || [];
 
   return {
-    hasSection,
-    hasContent: contentMatches.length > 0,
-    contentCount: contentMatches.length,
-    hasQuality: qualityMatches.length > 0,
+    hasSolutionSection,
+    hasSolutionLanguage: solutionMatches.length > 0,
+    hasMeasurable: measurableMatches.length > 0,
+    isHighLevel: highlevelMatches.length > 0 && implementationMatches.length === 0,
+    hasImplementationDetails: implementationMatches.length > 0,
     indicators: [
-      hasSection && 'Dedicated section found',
-      contentMatches.length > 0 && `${contentMatches.length} content matches`,
-      qualityMatches.length > 0 && 'Quality indicators present'
+      hasSolutionSection && 'Dedicated solution section',
+      solutionMatches.length > 0 && 'Solution language present',
+      measurableMatches.length > 0 && 'Measurable outcomes mentioned',
+      highlevelMatches.length > 0 && 'High-level approach described',
+      implementationMatches.length === 0 && 'No implementation details (good)'
     ].filter(Boolean)
   };
 }
 
 /**
- * Detect dimension 4 content in text
+ * Detect measurable goals in text
  * @param {string} text - Text to analyze
- * @returns {Object} Detection results
+ * @returns {Object} Measurable goals detection results
  */
-export function detectDimension4(text) {
-  const hasSection = DIMENSION_4_PATTERNS.sectionPattern.test(text);
-  const contentMatches = text.match(DIMENSION_4_PATTERNS.contentPattern) || [];
-  const qualityMatches = text.match(DIMENSION_4_PATTERNS.qualityPattern) || [];
+export function detectMeasurableGoals(text) {
+  const measurableMatches = text.match(SOLUTION_PATTERNS.measurable) || [];
+  const quantifiedMatches = text.match(SOLUTION_PATTERNS.measurable) || [];
+  const goalMatches = text.match(/\b(goal|objective|benefit|outcome|result)\b/gi) || [];
 
   return {
-    hasSection,
-    hasContent: contentMatches.length > 0,
-    contentCount: contentMatches.length,
-    hasQuality: qualityMatches.length > 0,
+    hasMeasurable: measurableMatches.length > 0,
+    measurableCount: measurableMatches.length,
+    hasQuantified: quantifiedMatches.length > 0,
+    hasGoals: goalMatches.length > 0,
+    goalCount: goalMatches.length,
     indicators: [
-      hasSection && 'Dedicated section found',
-      contentMatches.length > 0 && `${contentMatches.length} content matches`,
-      qualityMatches.length > 0 && 'Quality indicators present'
+      measurableMatches.length > 0 && `${measurableMatches.length} measurable terms`,
+      goalMatches.length > 0 && `${goalMatches.length} goal/objective mentions`,
+      quantifiedMatches.length > 0 && 'Quantified metrics present'
+    ].filter(Boolean)
+  };
+}
+
+/**
+ * Detect scope definitions in text
+ * @param {string} text - Text to analyze
+ * @returns {Object} Scope detection results
+ */
+export function detectScope(text) {
+  const inScopeMatches = text.match(SCOPE_PATTERNS.inScope) || [];
+  const outOfScopeMatches = text.match(SCOPE_PATTERNS.outOfScope) || [];
+  const hasScopeSection = SCOPE_PATTERNS.scopeSection.test(text);
+
+  return {
+    hasInScope: inScopeMatches.length > 0,
+    inScopeCount: inScopeMatches.length,
+    hasOutOfScope: outOfScopeMatches.length > 0,
+    outOfScopeCount: outOfScopeMatches.length,
+    hasBothBoundaries: inScopeMatches.length > 0 && outOfScopeMatches.length > 0,
+    hasScopeSection,
+    indicators: [
+      inScopeMatches.length > 0 && 'In-scope items defined',
+      outOfScopeMatches.length > 0 && 'Out-of-scope items defined',
+      hasScopeSection && 'Dedicated scope section'
+    ].filter(Boolean)
+  };
+}
+
+/**
+ * Detect success metrics in text
+ * @param {string} text - Text to analyze
+ * @returns {Object} Success metrics detection results
+ */
+export function detectSuccessMetrics(text) {
+  const smartMatches = text.match(METRICS_PATTERNS.smart) || [];
+  const quantifiedMatches = text.match(METRICS_PATTERNS.quantified) || [];
+  const metricsMatches = text.match(METRICS_PATTERNS.metricsLanguage) || [];
+  const hasMetricsSection = METRICS_PATTERNS.metricsSection.test(text);
+
+  return {
+    hasMetricsSection,
+    hasSmart: smartMatches.length > 0,
+    smartCount: smartMatches.length,
+    hasQuantified: quantifiedMatches.length > 0,
+    quantifiedCount: quantifiedMatches.length,
+    hasMetrics: metricsMatches.length > 0,
+    metricsCount: metricsMatches.length,
+    indicators: [
+      hasMetricsSection && 'Dedicated metrics section',
+      smartMatches.length > 0 && 'SMART criteria mentioned',
+      quantifiedMatches.length > 0 && `${quantifiedMatches.length} quantified metrics`,
+      metricsMatches.length > 0 && `${metricsMatches.length} metric references`
     ].filter(Boolean)
   };
 }
@@ -171,146 +251,271 @@ export function detectSections(text) {
   return { found, missing };
 }
 
+/**
+ * Detect stakeholders in text
+ * @param {string} text - Text to analyze
+ * @returns {Object} Stakeholder detection results
+ */
+export function detectStakeholders(text) {
+  const stakeholderMatches = text.match(STAKEHOLDER_PATTERNS.stakeholderLanguage) || [];
+  const roleMatches = text.match(STAKEHOLDER_PATTERNS.roleDefinition) || [];
+  const hasStakeholderSection = STAKEHOLDER_PATTERNS.stakeholderSection.test(text);
+
+  return {
+    hasStakeholderSection,
+    hasStakeholders: stakeholderMatches.length > 0,
+    stakeholderCount: stakeholderMatches.length,
+    hasRoles: roleMatches.length > 0,
+    roleCount: roleMatches.length,
+    indicators: [
+      hasStakeholderSection && 'Dedicated stakeholder section',
+      stakeholderMatches.length > 0 && `${stakeholderMatches.length} stakeholder references`,
+      roleMatches.length > 0 && 'Roles/responsibilities defined'
+    ].filter(Boolean)
+  };
+}
+
+/**
+ * Detect timeline in text
+ * @param {string} text - Text to analyze
+ * @returns {Object} Timeline detection results
+ */
+export function detectTimeline(text) {
+  const dateMatches = text.match(TIMELINE_PATTERNS.datePatterns) || [];
+  const phasingMatches = text.match(TIMELINE_PATTERNS.phasing) || [];
+  const hasTimelineSection = TIMELINE_PATTERNS.timelineSection.test(text);
+
+  return {
+    hasTimelineSection,
+    hasTimeline: dateMatches.length > 0,
+    dateCount: dateMatches.length,
+    hasPhasing: phasingMatches.length > 0,
+    phasingCount: phasingMatches.length,
+    indicators: [
+      hasTimelineSection && 'Dedicated timeline section',
+      dateMatches.length > 0 && `${dateMatches.length} timeline references`,
+      phasingMatches.length > 0 && `${phasingMatches.length} phases/milestones`
+    ].filter(Boolean)
+  };
+}
+
 // ============================================================================
 // Scoring Functions
 // ============================================================================
 
 /**
- * Score dimension 1 ({{DIMENSION_1_POINTS}} pts max)
- * @param {string} text - Document content
+ * Score problem clarity (30 pts max)
+ * @param {string} text - One-pager content
  * @returns {Object} Score result with issues and strengths
  */
-export function scoreDimension1(text) {
+export function scoreProblemClarity(text) {
   const issues = [];
   const strengths = [];
   let score = 0;
-  const maxScore = 30; // {{DIMENSION_1_POINTS}}
+  const maxScore = 30;
 
-  const detection = detectDimension1(text);
-
-  if (detection.hasSection && detection.hasContent) {
-    score += 20;
-    strengths.push('Strong dimension 1 content with dedicated section');
-  } else if (detection.hasContent) {
+  // Problem statement exists and is specific (0-10 pts)
+  const problemDetection = detectProblemStatement(text);
+  if (problemDetection.hasProblemSection && problemDetection.hasProblemLanguage) {
     score += 10;
-    issues.push('Dimension 1 content present but lacks dedicated section');
+    strengths.push('Clear problem statement with dedicated section');
+  } else if (problemDetection.hasProblemLanguage) {
+    score += 6;
+    issues.push('Problem mentioned but lacks dedicated section');
   } else {
-    issues.push('Dimension 1 content missing or insufficient');
+    issues.push('Problem statement missing or unclear - define the specific problem');
   }
 
-  if (detection.hasQuality) {
+  // Cost of doing nothing present and quantified (0-10 pts)
+  const costDetection = detectCostOfInaction(text);
+  if (costDetection.hasCostLanguage && costDetection.isQuantified) {
     score += 10;
-    strengths.push('Quality indicators present');
+    strengths.push('Cost of inaction quantified with specific metrics');
+  } else if (costDetection.hasCostLanguage) {
+    score += 5;
+    issues.push('Cost of inaction mentioned but not quantified - add numbers/percentages');
   } else {
-    issues.push('Add quality indicators to strengthen this dimension');
+    issues.push('Missing cost of inaction - explain impact of not solving this problem');
   }
 
-  return { score: Math.min(score, maxScore), maxScore, issues, strengths };
+  // Problem is customer/business focused (0-10 pts)
+  if (problemDetection.hasBusinessFocus) {
+    score += 10;
+    strengths.push('Problem clearly tied to customer/business value');
+  } else {
+    issues.push('Strengthen customer/business focus - explain why this matters to stakeholders');
+  }
+
+  return {
+    score: Math.min(score, maxScore),
+    maxScore,
+    issues,
+    strengths
+  };
 }
 
 /**
- * Score dimension 2 ({{DIMENSION_2_POINTS}} pts max)
- * @param {string} text - Document content
+ * Score solution quality (25 pts max)
+ * @param {string} text - One-pager content
  * @returns {Object} Score result with issues and strengths
  */
-export function scoreDimension2(text) {
+export function scoreSolutionQuality(text) {
   const issues = [];
   const strengths = [];
   let score = 0;
-  const maxScore = 25; // {{DIMENSION_2_POINTS}}
+  const maxScore = 25;
 
-  const detection = detectDimension2(text);
+  // Solution addresses stated problem (0-10 pts)
+  const solutionDetection = detectSolution(text);
+  const problemDetection = detectProblemStatement(text);
 
-  if (detection.hasSection && detection.hasContent) {
-    score += 15;
-    strengths.push('Strong dimension 2 content with dedicated section');
-  } else if (detection.hasContent) {
+  if (solutionDetection.hasSolutionSection && problemDetection.hasProblemLanguage) {
+    score += 10;
+    strengths.push('Solution clearly addresses stated problem');
+  } else if (solutionDetection.hasSolutionLanguage) {
+    score += 6;
+    issues.push('Solution present but connection to problem could be clearer');
+  } else {
+    issues.push('Solution section missing or unclear');
+  }
+
+  // Key goals/benefits are measurable (0-10 pts)
+  const goalsDetection = detectMeasurableGoals(text);
+  if (goalsDetection.hasMeasurable && goalsDetection.hasGoals) {
+    score += 10;
+    strengths.push('Goals are measurable and well-defined');
+  } else if (goalsDetection.hasGoals) {
+    score += 5;
+    issues.push('Goals defined but not measurable - add specific metrics');
+  } else {
+    issues.push('Goals/benefits missing - define what success looks like');
+  }
+
+  // Solution is high-level, not implementation (0-5 pts)
+  if (solutionDetection.isHighLevel && !solutionDetection.hasImplementationDetails) {
+    score += 5;
+    strengths.push('Solution stays at appropriate high-level');
+  } else if (solutionDetection.hasImplementationDetails) {
+    issues.push('Solution includes too much implementation detail - keep it high-level');
+  }
+
+  return {
+    score: Math.min(score, maxScore),
+    maxScore,
+    issues,
+    strengths
+  };
+}
+
+/**
+ * Score scope discipline (25 pts max)
+ * @param {string} text - One-pager content
+ * @returns {Object} Score result with issues and strengths
+ */
+export function scoreScopeDiscipline(text) {
+  const issues = [];
+  const strengths = [];
+  let score = 0;
+  const maxScore = 25;
+
+  // In-scope clearly defined (0-8 pts)
+  const scopeDetection = detectScope(text);
+  if (scopeDetection.hasInScope && scopeDetection.hasScopeSection) {
     score += 8;
-    issues.push('Dimension 2 content present but lacks dedicated section');
+    strengths.push('In-scope items clearly defined');
+  } else if (scopeDetection.hasInScope) {
+    score += 4;
+    issues.push('In-scope items mentioned but lack dedicated section');
   } else {
-    issues.push('Dimension 2 content missing or insufficient');
+    issues.push('In-scope not clearly defined - list what you WILL do');
   }
 
-  if (detection.hasQuality) {
-    score += 10;
-    strengths.push('Quality indicators present');
+  // Out-of-scope explicitly stated (0-9 pts)
+  if (scopeDetection.hasOutOfScope) {
+    score += 9;
+    strengths.push('Out-of-scope explicitly defined');
   } else {
-    issues.push('Add quality indicators to strengthen this dimension');
+    issues.push('Out-of-scope missing - explicitly state what you WON\'T do');
   }
 
-  return { score: Math.min(score, maxScore), maxScore, issues, strengths };
-}
-
-/**
- * Score dimension 3 ({{DIMENSION_3_POINTS}} pts max)
- * @param {string} text - Document content
- * @returns {Object} Score result with issues and strengths
- */
-export function scoreDimension3(text) {
-  const issues = [];
-  const strengths = [];
-  let score = 0;
-  const maxScore = 25; // {{DIMENSION_3_POINTS}}
-
-  const detection = detectDimension3(text);
-
-  if (detection.hasSection && detection.hasContent) {
-    score += 15;
-    strengths.push('Strong dimension 3 content with dedicated section');
-  } else if (detection.hasContent) {
+  // Success metrics are SMART (0-8 pts)
+  const metricsDetection = detectSuccessMetrics(text);
+  if (metricsDetection.hasMetricsSection && metricsDetection.hasQuantified) {
     score += 8;
-    issues.push('Dimension 3 content present but lacks dedicated section');
+    strengths.push('Success metrics are SMART and quantified');
+  } else if (metricsDetection.hasMetrics) {
+    score += 4;
+    issues.push('Metrics present but not SMART - make them Specific, Measurable, Achievable, Relevant, Time-bound');
   } else {
-    issues.push('Dimension 3 content missing or insufficient');
+    issues.push('Success metrics missing - define how you\'ll measure success');
   }
 
-  if (detection.hasQuality) {
-    score += 10;
-    strengths.push('Quality indicators present');
-  } else {
-    issues.push('Add quality indicators to strengthen this dimension');
-  }
-
-  return { score: Math.min(score, maxScore), maxScore, issues, strengths };
+  return {
+    score: Math.min(score, maxScore),
+    maxScore,
+    issues,
+    strengths
+  };
 }
 
 /**
- * Score dimension 4 ({{DIMENSION_4_POINTS}} pts max)
- * @param {string} text - Document content
+ * Score completeness (20 pts max)
+ * @param {string} text - One-pager content
  * @returns {Object} Score result with issues and strengths
  */
-export function scoreDimension4(text) {
+export function scoreCompleteness(text) {
   const issues = [];
   const strengths = [];
   let score = 0;
-  const maxScore = 20; // {{DIMENSION_4_POINTS}}
+  const maxScore = 20;
 
-  const detection = detectDimension4(text);
+  // All required sections present (0-8 pts)
   const sections = detectSections(text);
-
-  // Section completeness
   const sectionScore = sections.found.reduce((sum, s) => sum + s.weight, 0);
   const maxSectionScore = REQUIRED_SECTIONS.reduce((sum, s) => sum + s.weight, 0);
   const sectionPercentage = sectionScore / maxSectionScore;
 
   if (sectionPercentage >= 0.85) {
-    score += 10;
+    score += 8;
     strengths.push(`${sections.found.length}/${REQUIRED_SECTIONS.length} required sections present`);
   } else if (sectionPercentage >= 0.70) {
     score += 5;
     issues.push(`Missing sections: ${sections.missing.map(s => s.name).join(', ')}`);
   } else {
+    score += 2;
     issues.push(`Only ${sections.found.length} of ${REQUIRED_SECTIONS.length} sections present`);
   }
 
-  if (detection.hasQuality) {
-    score += 10;
-    strengths.push('Quality indicators present');
+  // Stakeholders clearly identified (0-6 pts)
+  const stakeholderDetection = detectStakeholders(text);
+  if (stakeholderDetection.hasStakeholderSection && stakeholderDetection.hasRoles) {
+    score += 6;
+    strengths.push('Stakeholders and roles clearly identified');
+  } else if (stakeholderDetection.hasStakeholders) {
+    score += 3;
+    issues.push('Stakeholders mentioned but roles not clearly defined');
   } else {
-    issues.push('Add quality indicators to strengthen this dimension');
+    issues.push('Stakeholders not identified - list who\'s involved and their roles');
   }
 
-  return { score: Math.min(score, maxScore), maxScore, issues, strengths };
+  // Timeline is realistic and phased (0-6 pts)
+  const timelineDetection = detectTimeline(text);
+  if (timelineDetection.hasTimelineSection && timelineDetection.hasPhasing) {
+    score += 6;
+    strengths.push('Timeline is phased and realistic');
+  } else if (timelineDetection.hasTimeline) {
+    score += 3;
+    issues.push('Timeline present but lacks clear phasing');
+  } else {
+    issues.push('Timeline missing - provide realistic milestones and phases');
+  }
+
+  return {
+    score: Math.min(score, maxScore),
+    maxScore,
+    issues,
+    strengths
+  };
 }
 
 // ============================================================================
@@ -318,60 +523,33 @@ export function scoreDimension4(text) {
 // ============================================================================
 
 /**
- * Validate a document and return comprehensive scoring results
- * @param {string} text - Document content
+ * Validate a one-pager and return comprehensive scoring results
+ * @param {string} text - One-pager content
  * @returns {Object} Complete validation results
  */
-export function validateDocument(text) {
+export function validateOnePager(text) {
   if (!text || typeof text !== 'string') {
     return {
       totalScore: 0,
-      dimension1: { score: 0, maxScore: 30, issues: ['No content to validate'], strengths: [] },
-      dimension2: { score: 0, maxScore: 25, issues: ['No content to validate'], strengths: [] },
-      dimension3: { score: 0, maxScore: 25, issues: ['No content to validate'], strengths: [] },
-      dimension4: { score: 0, maxScore: 20, issues: ['No content to validate'], strengths: [] }
+      problemClarity: { score: 0, maxScore: 30, issues: ['No content to validate'], strengths: [] },
+      solution: { score: 0, maxScore: 25, issues: ['No content to validate'], strengths: [] },
+      scope: { score: 0, maxScore: 25, issues: ['No content to validate'], strengths: [] },
+      completeness: { score: 0, maxScore: 20, issues: ['No content to validate'], strengths: [] }
     };
   }
 
-  const dimension1 = scoreDimension1(text);
-  const dimension2 = scoreDimension2(text);
-  const dimension3 = scoreDimension3(text);
-  const dimension4 = scoreDimension4(text);
+  const problemClarity = scoreProblemClarity(text);
+  const solution = scoreSolutionQuality(text);
+  const scope = scoreScopeDiscipline(text);
+  const completeness = scoreCompleteness(text);
 
-  const totalScore = dimension1.score + dimension2.score + dimension3.score + dimension4.score;
+  const totalScore = problemClarity.score + solution.score + scope.score + completeness.score;
 
   return {
     totalScore,
-    dimension1,
-    dimension2,
-    dimension3,
-    dimension4
+    problemClarity,
+    solution,
+    scope,
+    completeness
   };
-}
-
-/**
- * Get letter grade from numeric score
- * @param {number} score - Numeric score 0-100
- * @returns {string} Letter grade
- */
-export function getGrade(score) {
-  if (score >= 90) return 'A';
-  if (score >= 80) return 'B';
-  if (score >= 70) return 'C';
-  if (score >= 60) return 'D';
-  return 'F';
-}
-
-/**
- * Get Tailwind color class for score
- * @param {number} score - Numeric score 0-100
- * @param {number} maxScore - Maximum possible score (default 100)
- * @returns {string} Tailwind color class
- */
-export function getScoreColor(score, maxScore = 100) {
-  const percentage = (score / maxScore) * 100;
-  if (percentage >= 80) return 'text-green-400';
-  if (percentage >= 60) return 'text-yellow-400';
-  if (percentage >= 40) return 'text-orange-400';
-  return 'text-red-400';
 }
