@@ -42,15 +42,65 @@ grep -ri "hello.world\|hello-world\|genesis.example" --include="*.html" --includ
 
 Many files have hardcoded "Hello World" text that template variables don't replace.
 
+### MANDATORY Template Placeholder Verification
+
+**Severity**: CRITICAL
+
+**Date Discovered**: 2026-02-06
+
+**What Happened**: The `business-justification-assistant` was created from hello-world template but ONLY the README.md and About.md were customized. The actual application code retained template placeholders (`{{PROJECT_TITLE}}`, `{{PROJECT_EMOJI}}`, `{{GITHUB_USER}}`, etc.) and the validator was copied from one-pager without modification. This resulted in:
+- Validator showing "One-Pager Validator" title
+- Validator scoring documents against one-pager criteria instead of business justification criteria
+- Storage using `one-pager-validator-history` database name (IndexedDB collision!)
+- package.json still saying `"name": "hello-world-genesis-example"`
+
+**The Mandate**:
+After copying from hello-world, ALWAYS run:
+```bash
+# Check for unfilled template placeholders
+grep -rn "{{" . --include="*.html" --include="*.js" --include="*.json" | grep -v node_modules | grep -v "\.test\." | grep -v "// " | grep -v "prompts.js.*VAR_NAME"
+
+# Check for one-pager references in non-navigation code
+grep -rn "one-pager\|One-Pager\|One Pager" . --include="*.html" --include="*.js" --include="*.json" | grep -v node_modules | grep -v "github.io/one-pager"
+
+# Verify package.json name
+grep '"name":' package.json
+```
+
+**Files That MUST Be Customized** (in addition to README.md):
+1. `package.json` - name and description
+2. `assistant/index.html` - title, emoji, description, meta tags
+3. `index.html` (root) - same as above
+4. `validator/index.html` - title, h1, placeholder text, scoring rubric in About modal
+5. `validator/js/app.js` - storage name, About modal content
+6. `validator/js/prompts.js` - COMPLETE REWRITE for your document type's scoring criteria
+7. `validator/js/validator.js` - header comment
+8. `**/js/same-llm-adversarial.js` - `{{DOCUMENT_TYPE}}` placeholder
+
+### MANDATORY IndexedDB Naming (Prevents Cross-Tool Data Collision)
+
+**Severity**: CRITICAL
+
+All genesis-derived tools share the same domain (`bordenet.github.io`). IndexedDB is scoped by domain, not URL path. If two tools use the same database name, they will corrupt each other's data.
+
+**Files to update for EVERY new project:**
+- `js/storage.js` - `DB_NAME` constant
+- `assistant/js/storage.js` - `DB_NAME` constant
+- `assistant/tests/storage.test.js` - test expectation
+
+**Naming convention:**
+- `DB_NAME`: `{project-name}-db` (e.g., `business-justification-assistant-db`)
+- `STORE_NAME`: Descriptive noun (e.g., `justifications`, `criteria`)
+
 ---
 
 ## Genesis Confidence Assessment
 
-### Current Confidence Score: 100/100 🎉
+### Current Confidence Score: 95/100
 
 **Assessment Date**: 2026-02-06
-**Previous Score**: 95/100 (before P3 automation)
-**Methodology**: Rigorous analysis of genesis instruction files, failure patterns from jd-assistant development, LLM context window limitations, and cross-project consistency verification.
+**Previous Score**: 100/100 (before uncustomized project discovery)
+**Methodology**: Rigorous analysis of genesis instruction files, failure patterns from jd-assistant and business-justification-assistant development, LLM context window limitations, and cross-project consistency verification.
 
 ### Score History
 
@@ -59,6 +109,7 @@ Many files have hardcoded "Hello World" text that template variables don't repla
 | 2026-02-05 | 42 → 85 | Long file refactoring, mandatory checkpoints |
 | 2026-02-05 | 85 → 95 | Genesis normalization complete, orphaned templates removed |
 | 2026-02-06 | 95 → 100 | P3 automation complete: CI enforcement + ecosystem validation |
+| 2026-02-06 | 100 → 95 | **CRITICAL**: Discovered business-justification-assistant was never customized |
 
 ### Critical Gaps Fixed
 
@@ -181,9 +232,11 @@ No automated check that all 9 projects exist and are accessible.
 | P2 | Cross-project consistency | HIGH | +5 points | ✅ **FIXED 2026-02-05** |
 | P3 | CI enforcement of diff tool | MEDIUM | +3 points | ✅ **FIXED 2026-02-06** |
 | P3 | Automated ecosystem validation | MEDIUM | +2 points | ✅ **FIXED 2026-02-06** |
+| **P0** | **Template placeholder verification** | LOW | -5 points | 🔴 **NEW 2026-02-06** |
+| **P0** | **IndexedDB naming verification** | LOW | incl. above | 🔴 **NEW 2026-02-06** |
 
-**Current Score**: 100/100 🎉 **ALL TASKS COMPLETE**
-**Achievement Date**: 2026-02-06
+**Current Score**: 95/100 (was 100 before uncustomized project discovery)
+**Target**: Add mandatory verification scans to CHECKLIST.md and AI instructions
 
 ### The Fundamental Truth
 
