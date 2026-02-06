@@ -83,4 +83,3 @@ When enabling a previously disabled button:
 2. Add hover class: `hover:bg-[color]-700`
 3. Remove `aria-disabled` attribute
 4. For textareas: `element.disabled = false`
-

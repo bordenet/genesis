@@ -73,4 +73,3 @@ When adding any color class, ask: "What is the dark mode equivalent?"
 | Warning Background | `bg-yellow-50` | `dark:bg-yellow-900/20` |
 | Warning Text | `text-yellow-800` | `dark:text-yellow-300` |
 | Warning Border | `border-yellow-200` | `dark:border-yellow-800` |
-

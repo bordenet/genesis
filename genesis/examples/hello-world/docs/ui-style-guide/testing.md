@@ -50,4 +50,3 @@ describe('copyToClipboard', () => {
 ---
 
 **Reference**: See `js/ui.js`, `js/views.js`, and `js/project-view.js` for implementation details.
-
