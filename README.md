@@ -41,8 +41,9 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for full details on the paired model.
 | [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) | [ADR](https://adr.github.io/) | [▶️](https://bordenet.github.io/architecture-decision-record/) | [▶️](https://bordenet.github.io/architecture-decision-record/validator/) |
 | [jd-assistant](https://github.com/bordenet/jd-assistant) | Job Description | [▶️](https://bordenet.github.io/jd-assistant/) | [▶️](https://bordenet.github.io/jd-assistant/validator/) |
 | [acceptance-criteria-assistant](https://github.com/bordenet/acceptance-criteria-assistant) | Acceptance Criteria | [▶️](https://bordenet.github.io/acceptance-criteria-assistant/) | [▶️](https://bordenet.github.io/acceptance-criteria-assistant/validator/) |
+| [business-justification-assistant](https://github.com/bordenet/business-justification-assistant) | Business Justification | [▶️](https://bordenet.github.io/business-justification-assistant/) | [▶️](https://bordenet.github.io/business-justification-assistant/validator/) |
 
-8 paired projects, each with 90%+ test coverage and CI/CD.
+9 paired projects, each with 90%+ test coverage and CI/CD.
 
 ---
 
@@ -187,7 +188,7 @@ npm run lint                # ESLint
 
 ## Code Consistency Tools
 
-Check consistency across all 8 genesis projects:
+Check consistency across all 9 genesis projects:
 
 ```bash
 cd genesis/project-diff
@@ -214,5 +215,3 @@ See [`project-diff/README.md`](project-diff/README.md) for full documentation.
 ## License
 
 MIT License - See [LICENSE](LICENSE) file for details.
-
-
