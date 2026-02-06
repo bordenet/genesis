@@ -358,6 +358,7 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^assistant\/tests\/document-specific-templates\.test\.js$/,
   // Validator logic (document-specific validation rules)
   /^validator\/js\/validator\.js$/,
+  /^js\/validator\.js$/,  // Root copy of validator/js/validator.js
   // Deploy scripts (contain project-specific paths/names)
   /^scripts\/deploy-web\.sh$/,
 

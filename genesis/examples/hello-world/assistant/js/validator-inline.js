@@ -4,7 +4,14 @@
  *
  * This is a lightweight validation module for inline proposal scoring
  * directly in the assistant after Phase 3 completion.
+ *
+ * CUSTOMIZE: Import slop detection for AI-generated content detection
  */
+
+import { getSlopPenalty, calculateSlopScore } from './slop-detection.js';
+
+// Re-export for direct access
+export { calculateSlopScore };
 
 // Required sections detection patterns
 const REQUIRED_SECTIONS = [
@@ -184,14 +191,35 @@ export function validateDocument(text) {
   const businessValue = scoreBusinessValue(text);
   const completeness = scoreCompleteness(text);
 
-  const totalScore = structure.score + clarity.score + businessValue.score + completeness.score;
+  // CUSTOMIZE: AI slop detection - adjust penalty weight for your document type
+  const slopPenalty = getSlopPenalty(text);
+  let slopDeduction = 0;
+  const slopIssues = [];
+
+  if (slopPenalty.penalty > 0) {
+    // CUSTOMIZE: Adjust max penalty (5) and multiplier (0.6) for your document type
+    slopDeduction = Math.min(5, Math.floor(slopPenalty.penalty * 0.6));
+    if (slopPenalty.issues.length > 0) {
+      slopIssues.push(...slopPenalty.issues.slice(0, 2));
+    }
+  }
+
+  const totalScore = Math.max(0,
+    structure.score + clarity.score + businessValue.score + completeness.score - slopDeduction
+  );
 
   return {
     totalScore,
     structure,
     clarity,
     businessValue,
-    completeness
+    completeness,
+    // CUSTOMIZE: Include slopDetection in return for transparency
+    slopDetection: {
+      ...slopPenalty,
+      deduction: slopDeduction,
+      issues: slopIssues
+    }
   };
 }
 
