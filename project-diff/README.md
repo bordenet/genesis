@@ -21,9 +21,34 @@ Scans all 9 projects and categorizes every file:
 |----------|-------------|
 | **MUST_MATCH** | Byte-for-byte identical across all projects |
 | **INTENTIONAL_DIFF** | Expected to differ (prompts, templates, project-specific code) |
+| **HIGH_ENTROPY_RISK** | Exists in 7+ projects but missing from a few (almost always unintentional) |
 | **PROJECT_SPECIFIC** | Only exists in some projects (acceptable) |
 
-### 2. Test Coverage Gap Detection
+### 2. High Entropy Risk Detection
+
+Files that exist in **7+ of 9 projects** but are missing from a few are flagged as HIGH ENTROPY RISK. These are almost never intentionally missing—they represent propagation gaps.
+
+**Threshold**: `Math.max(7, Math.floor(PROJECTS.length * 0.78))` = 7 with 9 projects (~78%)
+
+**Example output**:
+
+```text
+🔥 HIGH ENTROPY RISK (exists in 7+ projects, missing from few)
+────────────────────────────────────────────────────────────
+
+  These files exist in MOST projects but are missing from a few.
+  This is almost certainly unintentional entropy - propagate or remove.
+
+  CHANGELOG.md
+    Missing from: acceptance-criteria-assistant, genesis/genesis/examples/hello-world
+
+  shared/js/import-document.js
+    Missing from: product-requirements-assistant
+```
+
+> **Why?** When a file exists in 8 of 9 projects, it's almost certainly supposed to be universal. The HIGH ENTROPY RISK section surfaces these propagation gaps so they can be fixed.
+
+### 3. Test Coverage Gap Detection
 
 Scans test files for **critical test patterns**. If a pattern exists in ANY project, it must exist in ALL:
 
@@ -39,7 +64,7 @@ Scans test files for **critical test patterns**. If a pattern exists in ANY proj
 
 > **Why?** Prevents situations where one project has comprehensive tests but others only have stubs.
 
-### 3. Domain Bleed-Over Detection
+### 4. Domain Bleed-Over Detection
 
 Scans domain-specific files for **terms from other project domains**. Catches when template content from one project type bleeds into another.
 
@@ -55,7 +80,7 @@ Scans domain-specific files for **terms from other project domains**. Catches wh
 
 > **Why?** When copying hello-world, domain-specific content (like strategic-proposal's "dealership" fields) can bleed into the new project. This check catches that.
 
-### 4. Internal Consistency Check
+### 5. Internal Consistency Check
 
 Files in `js/` and `assistant/js/` MUST be identical within each project:
 
@@ -69,7 +94,7 @@ Files in `js/` and `assistant/js/` MUST be identical within each project:
 
 > **Why?** ROOT `index.html` loads from `js/`, while `assistant/index.html` loads from `assistant/js/`. Divergence causes different behavior depending on entry point.
 
-### 5. Stub Validator Detection
+### 6. Stub Validator Detection
 
 Detects validators that are missing critical functionality based on line counts:
 
@@ -81,7 +106,7 @@ Detects validators that are missing critical functionality based on line counts:
 
 Also checks for required UI elements and functions.
 
-### 6. Validator Scoring Alignment
+### 7. Validator Scoring Alignment
 
 Detects when `validator-inline.js` (Assistant) and `validator.js` (Validator tool) would produce **different scores** for the same document:
 
@@ -107,7 +132,7 @@ Different function names indicate different scoring logic:
 
 > **Why?** This catches cases where the inline validator uses simple pattern matching (e.g., `scoreStructure`) while the full validator uses sophisticated analysis (e.g., `scoreStructureAndHook`), causing **4+ point score differences** for users.
 
-### 7. Fit-and-Finish Consistency
+### 8. Fit-and-Finish Consistency
 
 Ensures consistent UI/UX polish across all projects:
 
@@ -203,11 +228,12 @@ node diff-projects.js --ci
 
 ```text
 SUMMARY
-  Total files scanned: 225
-  ✓ Identical (MUST_MATCH): 42
+  Total files scanned: 182
+  ✓ Identical (MUST_MATCH): 39
   ✗ Divergent (MUST_MATCH): 0
-  ~ Intentional differences: 58
-  ? Project-specific: 125
+  ~ Intentional differences: 51
+  🔥 High entropy risk: 7
+  ? Project-specific: 85
 
 ═══════════════════════════════════════════════════════════════
   ✓ ALL MUST-MATCH FILES ARE IDENTICAL
@@ -321,6 +347,17 @@ These are NOT in INTENTIONAL_DIFF - they must be identical across all projects:
 - `jest.config.js`, `playwright.config.js` (path differences)
 - `tests/*.test.js` (hello-world uses `tests/`, derived use `assistant/tests/`)
 - `.github/workflows/ci.yml` (path differences)
+
+### Pattern Validation
+
+The tool validates that all INTENTIONAL_DIFF_PATTERNS match at least one actual file. Unused patterns indicate stale configuration:
+
+```text
+⚠️  WARNING: Unused INTENTIONAL_DIFF pattern: /^js\/app\.js$/
+   This pattern matches no files. Update or remove it.
+```
+
+**Why this matters**: When directory structure changes (e.g., `js/` → `shared/js/`), patterns must be updated to match. Unused patterns mean files are being miscategorized as MUST_MATCH when they should be INTENTIONAL_DIFF.
 
 ## find-orphans.js
 
