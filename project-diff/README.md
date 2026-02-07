@@ -117,6 +117,7 @@ Ensures consistent UI/UX polish across all projects:
 | Footer link | Links to `genesis/BACKGROUND.md` |
 | Double-click prevention | Import feature has `isSaving` flag pattern |
 | Import tile | Landing page has Import tile in views.js |
+| Project tile status | Landing page tiles show phase progress and quality scores |
 
 #### Canonical Navigation Order
 
@@ -147,6 +148,23 @@ async function saveImportedDocument() {
   // ... save logic ...
 }
 ```
+
+#### Project Tile Status Pattern
+
+Each project tile on the landing page must display document status:
+
+**Required elements in `views.js`:**
+- `scoreData` variable to store validation results
+- `validateDocument()` call to compute quality score
+- `getScoreColor()` for score-based color coding
+- `getScoreLabel()` for score-based labels (Needs Work, Good, Excellent)
+- `completedPhases` counter for in-progress tracking
+- Phase progress display showing `N/3` completed phases
+- "Quality Score" label for completed documents
+
+**Why?** Users need immediate feedback on document quality. Tiles show:
+- In-progress docs: "Phase Progress: 2/3"
+- Completed docs: "Quality Score: 85" with color indicator
 
 > **Why?** Without these checks, projects can drift in UI/UX polish, creating inconsistent user experiences across the genesis ecosystem.
 
@@ -203,7 +221,7 @@ SUMMARY
   ✓ NO STUB VALIDATORS DETECTED
   ✓ NO FUNCTION SIGNATURE MISMATCHES
   ✓ VALIDATOR SCORING ALIGNED (inline = full)
-  ✓ FIT-AND-FINISH CONSISTENT (nav, footer, import)
+  ✓ FIT-AND-FINISH CONSISTENT (nav, footer, import, tiles)
 ═══════════════════════════════════════════════════════════════
 ```
 

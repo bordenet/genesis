@@ -1664,6 +1664,7 @@ function analyzeFitAndFinish(genesisToolsDir) {
       footerLinkIssues: 0,
       doubleClickIssues: 0,
       importTileIssues: 0,
+      tileStatusIssues: 0,
     },
     projects: {}
   };
@@ -1822,6 +1823,61 @@ function analyzeFitAndFinish(genesisToolsDir) {
               message: 'Views.js has import tile but missing showImportModal import'
             });
             results.summary.importTileIssues++;
+          }
+        } catch {
+          // Skip files that can't be read
+        }
+        break;  // Only check one views file per project
+      }
+    }
+
+    // === CHECK 5: Project tile status display ===
+    // Verify that views.js implements the standard project tile status pattern:
+    // - Shows phase progress (N/3) for in-progress documents
+    // - Shows quality score with color/label for completed documents
+    for (const viewsPath of viewsPaths) {
+      if (fs.existsSync(viewsPath)) {
+        try {
+          const content = fs.readFileSync(viewsPath, 'utf-8');
+
+          // Check for scoreData variable (stores validation results)
+          const hasScoreData = /let\s+scoreData\s*=\s*null/.test(content) ||
+                               /scoreData\s*=\s*{\s*score/.test(content);
+
+          // Check for validateDocument call
+          const hasValidateDocument = /validateDocument\s*\(/.test(content);
+
+          // Check for getScoreColor and getScoreLabel usage
+          const hasScoreColor = /getScoreColor\s*\(/.test(content);
+          const hasScoreLabel = /getScoreLabel\s*\(/.test(content);
+
+          // Check for completedPhases counter
+          const hasCompletedPhases = /completedPhases/.test(content);
+
+          // Check for phase progress display (N/3)
+          const hasPhaseProgress = /\$\{completedPhases\}\/3/.test(content) ||
+                                   /completedPhases.*\/.*3/.test(content);
+
+          // Check for Quality Score label
+          const hasQualityScoreLabel = /Quality Score/.test(content);
+
+          const missingElements = [];
+          if (!hasScoreData) missingElements.push('scoreData variable');
+          if (!hasValidateDocument) missingElements.push('validateDocument() call');
+          if (!hasScoreColor) missingElements.push('getScoreColor()');
+          if (!hasScoreLabel) missingElements.push('getScoreLabel()');
+          if (!hasCompletedPhases) missingElements.push('completedPhases counter');
+          if (!hasPhaseProgress) missingElements.push('phase progress display (N/3)');
+          if (!hasQualityScoreLabel) missingElements.push('Quality Score label');
+
+          if (missingElements.length > 0) {
+            projectIssues.push({
+              type: 'tile_status_incomplete',
+              file: path.basename(viewsPath),
+              missing: missingElements,
+              message: `Project tile status missing: ${missingElements.join(', ')}`
+            });
+            results.summary.tileStatusIssues++;
           }
         } catch {
           // Skip files that can't be read
