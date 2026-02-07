@@ -150,6 +150,7 @@ Before any commit:
 | `js/ui.js` | Toast, modals, clipboard |
 | `js/slop-detection.js` | AI slop detection (150+ patterns) |
 | `js/document-specific-templates.js` | Document-type starter templates |
+| `js/import-document.js` | Import from Word/Docs ⚠️ **MUST CUSTOMIZE** |
 | `docs/About.md` | Perplexity research Q&A (if applicable) |
 
 ---
@@ -180,6 +181,28 @@ const STORE_NAME = 'documents';          // Change this!
 1. `js/storage.js` - Root storage module
 2. `assistant/js/storage.js` - Assistant storage module
 3. `assistant/tests/storage.test.js` - Update test to expect new STORE_NAME
+
+---
+
+## 🚨 CRITICAL: Import Document Customization
+
+**Every new project MUST customize the Import Document feature!**
+
+When creating a new project from hello-world, you **MUST** change these values in `shared/js/import-document.js`:
+
+```javascript
+// ❌ WRONG - Using template defaults
+const DOC_TYPE = 'Hello World';
+const DOC_TYPE_SHORT = 'Document';
+
+// ✅ CORRECT - Your document type
+const DOC_TYPE = 'Business Justification';
+const DOC_TYPE_SHORT = 'Justification';
+```
+
+**Also customize**: The `LLM_CLEANUP_PROMPT` constant with your document's suggested structure (headings, sections).
+
+**Why this matters**: The Import feature shows document type names in the UI and generates LLM prompts. Generic names confuse users.
 
 ---
 
