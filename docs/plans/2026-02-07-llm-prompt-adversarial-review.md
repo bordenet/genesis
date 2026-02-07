@@ -276,6 +276,63 @@ Repeat Task 1.1 process for:
 
 ---
 
+## Cross-Tool Patterns (Apply to ALL Tools)
+
+These patterns were identified during adversarial review and MUST be applied to every tool.
+
+### Pattern 1: Copy-Paste Ready Output (MANDATORY)
+
+**Problem:** LLMs add preambles ("Here's..."), sign-offs ("Let me know if..."), and code fences that break the copy-paste workflow.
+
+**Standard Output Block (add to ALL Phase 1 and Phase 3 prompts):**
+
+```markdown
+## Output Format
+
+**CRITICAL: Copy-Paste Ready Output Only**
+
+Your response MUST be:
+1. **Clean markdown only** — No code fences wrapping the document
+2. **No preamble** — Do NOT start with "Here's...", "Sure...", "I've created..."
+3. **No commentary** — Do NOT explain what you did or why
+4. **No sign-off** — Do NOT end with "Let me know if...", "Would you like me to...", "Feel free to..."
+5. **Start immediately** — Begin with the document title/headline
+
+The user will copy your ENTIRE response and paste it directly into the tool. Any extra text breaks this workflow.
+```
+
+### Pattern 2: Analyze-First Gate
+
+**Problem:** LLMs draft immediately without validating inputs, producing documents with logical gaps.
+
+**Solution:** Add a "Critical Gap Detection" checklist that must be completed before drafting.
+
+### Pattern 3: Logical Bridge Check
+
+**Problem:** Solutions that are the inverse of the problem ("We don't have X" → "Build X") without addressing root cause.
+
+**Solution:** Validator caps score at 50 if solution is just the inverse of the problem.
+
+### Pattern 4: Investment + ROI Required
+
+**Problem:** Proposals without "The Ask" (what resources are needed) can't drive decisions.
+
+**Solution:** Add Investment section and ROI sanity check to all proposal-type tools.
+
+### Pattern 5: Baseline → Target Format
+
+**Problem:** Metrics like "improve by 20%" are meaningless without baseline.
+
+**Solution:** All metrics must include [Current] → [Target] by [Date].
+
+### Pattern 6: Validator Alignment
+
+**Problem:** Phase 2 review criteria don't match validator scoring dimensions.
+
+**Solution:** Ensure Phase 2 criteria exactly match validator rubric.
+
+---
+
 ## Phase 2: Cross-Tool Synthesis
 
 ### Task 2.1: Document Common Patterns
