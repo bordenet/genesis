@@ -35,22 +35,13 @@ const PROJECTS = [
 const ENTRY_POINTS = ['app.js'];
 
 // Files that are intentionally standalone (not imported)
+// IMPORTANT: Only add TRUE entry points here (files loaded by HTML, not by JS imports)
+// DO NOT add "planned features" or "infrastructure not yet integrated" - that's dead code!
 const ALLOWED_ORPHANS = [
-  'app.js',           // Entry point loaded by HTML
-  'prompts.js',       // May be dynamically loaded
-  'ai-mock.js',       // Conditionally loaded
-  'types.js',         // Type definitions, may be unused
-  'error-handler.js', // Infrastructure module (tested, not yet integrated)
-  'same-llm-adversarial.js', // Infrastructure module (tested, not yet integrated)
-  'ai-mock-ui.js',    // UI for mock mode (conditionally loaded)
-  'phase2-review.js', // Phase-specific logic (loaded by workflow)
-  'phase3-synthesis.js', // Phase-specific logic (loaded by workflow)
-  'keyboard-shortcuts.js', // UI enhancement (conditionally loaded)
-  'exporters.js',     // Export functionality (PRD-specific)
-  'mutation-tracker.js', // PRD-specific tracking
-  'prd-templates.js', // PRD-specific templates
-  'validator.js',     // Validator entry point (loaded by HTML)
-  'router.js',        // Client-side routing (tested, not yet integrated in hello-world)
+  'app.js',           // Entry point loaded by HTML <script> tag
+  'validator.js',     // Validator entry point loaded by HTML <script> tag
+  'prompts.js',       // Entry point - exports prompts for manual copy/paste workflow
+  'types.js',         // Type definitions (JSDoc only, no runtime code)
 ];
 
 // Directories to scan for JS files
