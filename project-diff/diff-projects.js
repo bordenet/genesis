@@ -1618,6 +1618,229 @@ function analyzeValidatorScoringAlignment(genesisToolsDir) {
   return results;
 }
 
+// ============================================================================
+// FIT-AND-FINISH REQUIREMENTS
+// ============================================================================
+// These checks ensure consistent UI/UX polish across all genesis projects.
+// They verify:
+// 1. Navigation dropdown has canonical order (excluding self)
+// 2. Footer GitHub link points to genesis BACKGROUND.md
+// 3. Import document feature has double-click prevention (isSaving flag)
+// 4. Import tile is present on landing page (views.js)
+
+// Canonical navigation order - each project should list these (excluding itself)
+const CANONICAL_NAV_ORDER = [
+  'one-pager',
+  'product-requirements-assistant',
+  'acceptance-criteria-assistant',
+  'architecture-decision-record',
+  'business-justification-assistant',
+  'jd-assistant',
+  'pr-faq-assistant',
+  'power-statement-assistant',
+  'strategic-proposal',
+];
+
+// Required footer link
+const REQUIRED_FOOTER_LINK = 'https://github.com/bordenet/genesis/blob/main/BACKGROUND.md';
+
+/**
+ * Analyze fit-and-finish consistency across all projects.
+ * Checks:
+ * 1. Navigation dropdown order matches canonical order (excluding self)
+ * 2. Footer GitHub link points to genesis BACKGROUND.md
+ * 3. Import document has double-click prevention (isSaving flag)
+ * 4. Import tile is present in views.js
+ *
+ * Returns summary and detailed issues per project.
+ */
+function analyzeFitAndFinish(genesisToolsDir) {
+  const results = {
+    summary: {
+      projectsChecked: 0,
+      projectsWithIssues: 0,
+      totalIssues: 0,
+      navOrderIssues: 0,
+      footerLinkIssues: 0,
+      doubleClickIssues: 0,
+      importTileIssues: 0,
+    },
+    projects: {}
+  };
+
+  for (const project of PROJECTS) {
+    const projectPath = path.join(genesisToolsDir, project);
+    const projectIssues = [];
+    results.summary.projectsChecked++;
+
+    // Get the project's slug for self-exclusion check
+    const projectSlug = project.includes('hello-world') ? 'hello-world' : project;
+
+    // === CHECK 1: Navigation dropdown order ===
+    const indexHtmlPath = path.join(projectPath, 'index.html');
+    if (fs.existsSync(indexHtmlPath)) {
+      try {
+        const content = fs.readFileSync(indexHtmlPath, 'utf-8');
+
+        // Extract navigation links in order
+        const navPattern = /bordenet\.github\.io\/([a-zA-Z0-9_-]+)\//g;
+        const navLinks = [];
+        let match;
+        // Only look at the Related Tools section (first 8-9 matches before footer)
+        const relatedToolsSection = content.match(/Related Tools[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/);
+        if (relatedToolsSection) {
+          const sectionContent = relatedToolsSection[0];
+          while ((match = navPattern.exec(sectionContent)) !== null) {
+            navLinks.push(match[1]);
+          }
+        }
+
+        // Expected order: canonical order minus self
+        const expectedOrder = CANONICAL_NAV_ORDER.filter(p => p !== projectSlug);
+
+        // Check if navigation matches expected order
+        if (navLinks.length > 0) {
+          // Compare first 8 links (the navigation dropdown)
+          const actualNav = navLinks.slice(0, 8);
+          const orderMatches = expectedOrder.every((expected, i) => actualNav[i] === expected);
+
+          if (!orderMatches) {
+            projectIssues.push({
+              type: 'nav_order_mismatch',
+              file: 'index.html',
+              expected: expectedOrder.join(' → '),
+              actual: actualNav.join(' → '),
+              message: 'Navigation dropdown order does not match canonical order'
+            });
+            results.summary.navOrderIssues++;
+          }
+
+          // Check that project excludes itself
+          if (navLinks.includes(projectSlug)) {
+            projectIssues.push({
+              type: 'nav_includes_self',
+              file: 'index.html',
+              message: `Navigation includes self-reference to ${projectSlug}`
+            });
+            results.summary.navOrderIssues++;
+          }
+        }
+
+        // === CHECK 2: Footer GitHub link ===
+        if (!content.includes(REQUIRED_FOOTER_LINK)) {
+          projectIssues.push({
+            type: 'footer_link_missing',
+            file: 'index.html',
+            expected: REQUIRED_FOOTER_LINK,
+            message: 'Footer does not link to genesis BACKGROUND.md'
+          });
+          results.summary.footerLinkIssues++;
+        }
+      } catch {
+        // Skip files that can't be read
+      }
+    }
+
+    // === CHECK 3: Double-click prevention in import-document.js ===
+    const importDocPaths = [
+      path.join(projectPath, 'shared/js/import-document.js'),
+      path.join(projectPath, 'shared/js/import-prd.js'),  // PRD assistant uses different name
+    ];
+
+    let hasImportDoc = false;
+    for (const importDocPath of importDocPaths) {
+      if (fs.existsSync(importDocPath)) {
+        hasImportDoc = true;
+        try {
+          const content = fs.readFileSync(importDocPath, 'utf-8');
+
+          // Check for isSaving flag pattern
+          const hasIsSavingDecl = /let\s+isSaving\s*=\s*false/.test(content);
+          const hasIsSavingCheck = /if\s*\(\s*isSaving\s*\)\s*return/.test(content);
+          const hasIsSavingSet = /isSaving\s*=\s*true/.test(content);
+          const hasIsSavingReset = /isSaving\s*=\s*false/.test(content);
+
+          if (!hasIsSavingDecl || !hasIsSavingCheck || !hasIsSavingSet) {
+            projectIssues.push({
+              type: 'double_click_prevention_missing',
+              file: path.basename(importDocPath),
+              message: 'Import document missing double-click prevention (isSaving flag pattern)'
+            });
+            results.summary.doubleClickIssues++;
+          }
+
+          // Check for button disable pattern
+          const hasButtonDisable = /saveBtn\.disabled\s*=\s*true/.test(content);
+          const hasSavingText = /saveBtn\.textContent\s*=\s*['"]Saving/.test(content);
+
+          if (!hasButtonDisable || !hasSavingText) {
+            projectIssues.push({
+              type: 'double_click_ui_feedback_missing',
+              file: path.basename(importDocPath),
+              message: 'Import document missing UI feedback (button disable + "Saving..." text)'
+            });
+            results.summary.doubleClickIssues++;
+          }
+        } catch {
+          // Skip files that can't be read
+        }
+        break;  // Only check one import file per project
+      }
+    }
+
+    // === CHECK 4: Import tile in views.js ===
+    const viewsPaths = [
+      path.join(projectPath, 'shared/js/views.js'),
+      path.join(projectPath, 'assistant/js/views.js'),
+    ];
+
+    for (const viewsPath of viewsPaths) {
+      if (fs.existsSync(viewsPath)) {
+        try {
+          const content = fs.readFileSync(viewsPath, 'utf-8');
+
+          // Check for import tile
+          const hasImportTile = /import-doc-btn|import-prd-btn/.test(content);
+          const hasImportIcon = /📥/.test(content);
+          const hasImportLabel = /Import/.test(content);
+
+          if (!hasImportTile) {
+            projectIssues.push({
+              type: 'import_tile_missing',
+              file: path.basename(viewsPath),
+              message: 'Views.js missing Import tile (import-doc-btn or import-prd-btn)'
+            });
+            results.summary.importTileIssues++;
+          }
+
+          // Check for showImportModal import
+          const hasShowImportModalImport = /import\s*{[^}]*showImportModal[^}]*}\s*from/.test(content);
+          if (!hasShowImportModalImport && hasImportTile) {
+            projectIssues.push({
+              type: 'import_modal_import_missing',
+              file: path.basename(viewsPath),
+              message: 'Views.js has import tile but missing showImportModal import'
+            });
+            results.summary.importTileIssues++;
+          }
+        } catch {
+          // Skip files that can't be read
+        }
+        break;  // Only check one views file per project
+      }
+    }
+
+    // Record issues for this project
+    if (projectIssues.length > 0) {
+      results.projects[project] = projectIssues;
+      results.summary.projectsWithIssues++;
+      results.summary.totalIssues += projectIssues.length;
+    }
+  }
+
+  return results;
+}
+
 /**
  * Main diff function
  */
@@ -1748,6 +1971,9 @@ function diffProjects(genesisToolsDir) {
   // Analyze validator scoring alignment (inline vs full validator consistency)
   results.validatorScoringAlignment = analyzeValidatorScoringAlignment(genesisToolsDir);
 
+  // Analyze fit-and-finish consistency (nav order, footer, import feature)
+  results.fitAndFinish = analyzeFitAndFinish(genesisToolsDir);
+
   return results;
 }
 
@@ -1801,6 +2027,9 @@ function formatConsoleReport(results) {
   }
   if (results.sharedLibraryNaming && results.sharedLibraryNaming.summary.antiPatternsFound > 0) {
     lines.push(`  ${red('🏷️')} Shared library naming issues: ${results.sharedLibraryNaming.summary.antiPatternsFound} anti-patterns in ${results.sharedLibraryNaming.summary.projectsWithIssues} projects`);
+  }
+  if (results.fitAndFinish && results.fitAndFinish.summary.totalIssues > 0) {
+    lines.push(`  ${red('✨')} Fit-and-finish issues: ${results.fitAndFinish.summary.totalIssues} issues in ${results.fitAndFinish.summary.projectsWithIssues} projects`);
   }
   lines.push(`  ${yellow('~')} Intentional differences: ${results.summary.intentional}`);
   lines.push(`  ${cyan('?')} Project-specific: ${results.summary.projectSpecific}`);
@@ -2112,6 +2341,40 @@ function formatConsoleReport(results) {
     }
   }
 
+  // FIT-AND-FINISH ISSUES: Navigation order, footer link, double-click prevention, import tile
+  if (results.fitAndFinish && results.fitAndFinish.summary.totalIssues > 0) {
+    const teal = (s) => `\x1b[38;5;44m${s}\x1b[0m`;
+    lines.push(teal(bold('✨ FIT-AND-FINISH ISSUES (UI/UX consistency problems)')));
+    lines.push(teal('─'.repeat(60)));
+    lines.push('');
+    lines.push('  These checks ensure consistent polish across all genesis projects.');
+    lines.push('  Issues: nav order, footer link, double-click prevention, import tile.');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.fitAndFinish.projects)) {
+      lines.push(teal(`  ${project}: ${issues.length} issue(s)`));
+      for (const issue of issues) {
+        if (issue.type === 'nav_order_mismatch') {
+          lines.push(red(`    ✗ ${issue.file}: ${issue.message}`));
+          lines.push(`      Expected: ${issue.expected}`);
+          lines.push(`      Actual:   ${issue.actual}`);
+        } else if (issue.type === 'nav_includes_self') {
+          lines.push(red(`    ✗ ${issue.file}: ${issue.message}`));
+        } else if (issue.type === 'footer_link_missing') {
+          lines.push(red(`    ✗ ${issue.file}: ${issue.message}`));
+          lines.push(`      Expected: ${issue.expected}`);
+        } else if (issue.type === 'double_click_prevention_missing' || issue.type === 'double_click_ui_feedback_missing') {
+          lines.push(red(`    ✗ ${issue.file}: ${issue.message}`));
+        } else if (issue.type === 'import_tile_missing' || issue.type === 'import_modal_import_missing') {
+          lines.push(red(`    ✗ ${issue.file}: ${issue.message}`));
+        } else {
+          lines.push(red(`    ✗ ${issue.file}: ${issue.message}`));
+        }
+      }
+      lines.push('');
+    }
+  }
+
   // Final verdict
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
   const symlinkCount = results.summary.symlinkIssues || 0;
@@ -2125,8 +2388,9 @@ function formatConsoleReport(results) {
   const templateIssues = results.templateCustomization?.summary?.totalIssues || 0;
   const namingIssues = results.sharedLibraryNaming?.summary?.antiPatternsFound || 0;
   const scoringAlignmentIssues = results.validatorScoringAlignment?.summary?.totalIssues || 0;
+  const fitAndFinishIssues = results.fitAndFinish?.summary?.totalIssues || 0;
 
-  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0;
+  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0 && fitAndFinishIssues === 0;
 
   if (allGreen) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
@@ -2140,6 +2404,7 @@ function formatConsoleReport(results) {
     lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
     lines.push(green(bold('  ✓ NO FUNCTION SIGNATURE MISMATCHES')));
     lines.push(green(bold('  ✓ VALIDATOR SCORING ALIGNED (inline = full)')));
+    lines.push(green(bold('  ✓ FIT-AND-FINISH CONSISTENT (nav, footer, import)')));
   } else {
     if (results.summary.divergent > 0) {
       lines.push(red(bold(`  ✗ ${results.summary.divergent} FILES HAVE DIVERGED - FIX REQUIRED`)));
@@ -2177,6 +2442,9 @@ function formatConsoleReport(results) {
     if (coverageGaps > 0) {
       lines.push(red(bold(`  🔍 ${coverageGaps} TEST COVERAGE GAPS - ADD MISSING TESTS`)));
     }
+    if (fitAndFinishIssues > 0) {
+      lines.push(red(bold(`  ✨ ${fitAndFinishIssues} FIT-AND-FINISH ISSUES - FIX NAV/FOOTER/IMPORT CONSISTENCY`)));
+    }
   }
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
   lines.push('');
@@ -2213,6 +2481,7 @@ function main() {
   const templateIssuesCount = results.templateCustomization?.summary?.totalIssues || 0;
   const namingIssuesCount = results.sharedLibraryNaming?.summary?.antiPatternsFound || 0;
   const scoringAlignmentCount = results.validatorScoringAlignment?.summary?.totalIssues || 0;
+  const fitAndFinishCount = results.fitAndFinish?.summary?.totalIssues || 0;
 
   if (ciMode && (
     results.summary.divergent > 0 ||
@@ -2225,7 +2494,8 @@ function main() {
     scoringIssuesCount > 0 ||
     templateIssuesCount > 0 ||
     namingIssuesCount > 0 ||
-    scoringAlignmentCount > 0
+    scoringAlignmentCount > 0 ||
+    fitAndFinishCount > 0
   )) {
     process.exit(1);
   }
