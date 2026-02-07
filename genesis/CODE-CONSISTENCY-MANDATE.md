@@ -68,5 +68,23 @@ const STORE_NAME = 'your-documents';  // Also change this
 
 **Also update**: `assistant/tests/storage.test.js` to expect the new `STORE_NAME`.
 
+### Import Document Module (MANDATORY)
+
+**File**: `shared/js/import-document.js`
+
+```javascript
+// ❌ WRONG - Using template defaults
+const DOC_TYPE = 'Hello World';
+const DOC_TYPE_SHORT = 'Document';
+
+// ✅ CORRECT - Your document type
+const DOC_TYPE = 'Business Justification';
+const DOC_TYPE_SHORT = 'Justification';
+```
+
+**Also customize**: The `LLM_CLEANUP_PROMPT` constant with your document's suggested structure.
+
+**Why**: The Import feature shows document type names in the UI and generates LLM prompts. Generic names confuse users.
+
 See [Web App Customization](./customization-guide/web-app.md) for full details.
 

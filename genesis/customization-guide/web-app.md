@@ -209,3 +209,86 @@ scoreSolutionQuality(markdown)
 scoreBusinessCase(markdown)
 scoreImplementationPlan(markdown)
 ```
+
+---
+
+## Import Document Feature (MUST CUSTOMIZE)
+
+Every genesis project includes an Import Document feature that allows users to paste existing documents from Word/Google Docs. The feature converts HTML to Markdown, scores the result, and optionally suggests LLM cleanup.
+
+### Files Involved
+
+| File | Purpose | Customization |
+|------|---------|---------------|
+| `shared/js/lib/turndown.js` | HTML-to-Markdown library | Copy from hello-world (no changes) |
+| `shared/js/import-document.js` | Import modal and logic | **MUST customize** |
+| `shared/js/views.js` | Import tile and event handler | Already integrated |
+| `index.html` | Turndown script tag | Already integrated |
+| `assistant/index.html` | Turndown script tag | Already integrated |
+| `eslint.config.js` | TurndownService global | Already integrated |
+
+### What to Customize in `import-document.js`
+
+```javascript
+// ❌ WRONG - Using template defaults
+const DOC_TYPE = 'Hello World';
+const DOC_TYPE_SHORT = 'Document';
+
+// ✅ CORRECT - Your document type
+const DOC_TYPE = 'Business Justification';
+const DOC_TYPE_SHORT = 'Justification';
+```
+
+### LLM Cleanup Prompt Structure
+
+The `LLM_CLEANUP_PROMPT` constant defines the suggested document structure shown to users when their imported document scores below `MINIMUM_VIABLE_SCORE` (30%). Customize this to match your document type:
+
+```javascript
+const LLM_CLEANUP_PROMPT = `You are a documentation assistant. Convert this pasted ${DOC_TYPE} content into clean, well-structured Markdown.
+
+**Rules:**
+- Preserve ALL substantive content
+- Use proper Markdown headings (# ## ###)
+- Convert bullet points to Markdown lists
+- Convert tables to Markdown tables
+- Remove formatting artifacts (font names, colors, etc.)
+- Do NOT add commentary - output ONLY the cleaned Markdown
+
+**Suggested ${DOC_TYPE} Structure:**
+# Business Justification: [Title]
+## Problem Statement
+## Proposed Solution
+## Business Case
+## Implementation Plan
+## Risks and Mitigations
+
+**Content to convert:**
+`;
+```
+
+### How the Import Flow Works
+
+1. User clicks "Import" tile on New Project screen
+2. Modal opens with contenteditable paste area
+3. User pastes from Word/Docs (preserves HTML formatting)
+4. User clicks "Convert to Markdown"
+5. Turndown.js converts HTML → Markdown
+6. `validator-inline.js` scores the result
+7. If score < 30%, LLM cleanup prompt is shown
+8. User can copy prompt to Claude/ChatGPT for cleanup
+9. User clicks "Save & Continue to Phase 1"
+10. Project is created with imported content in Phase 1
+
+### Testing the Import Feature
+
+After customization, verify:
+
+- [ ] Import tile appears on New Project screen
+- [ ] Clicking Import opens the modal
+- [ ] Pasting from Word preserves structure (headings, lists, tables)
+- [ ] Convert button produces readable Markdown
+- [ ] Score badge shows correct color and label
+- [ ] Low scores show LLM cleanup suggestion
+- [ ] Copy Prompt button works
+- [ ] Save creates project and navigates to Phase 1
+- [ ] Imported content appears in Phase 1 response area

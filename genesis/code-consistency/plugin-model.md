@@ -23,7 +23,8 @@ Genesis uses a **plugin model** for document types. The core implementation is s
 │  ├── ai-mock.js          ← Mock document content           │
 │  ├── types.js            ← Document schema                 │
 │  ├── validator.js        ← Your validation rules           │
-│  └── validator-inline.js ← MUST MATCH validator.js scoring │
+│  ├── validator-inline.js ← MUST MATCH validator.js scoring │
+│  └── import-document.js  ← DOC_TYPE, LLM_CLEANUP_PROMPT    │
 ├─────────────────────────────────────────────────────────────┤
 │  CORE LAYER (NEVER MODIFY - copy from hello-world)         │
 │  ├── error-handler.js ← Error display                      │
@@ -54,6 +55,7 @@ Genesis uses a **plugin model** for document types. The core implementation is s
 ✅ **Safe**: Changing `DB_NAME` in `storage.js`
 ✅ **Safe**: Modifying `validator.js` with document-specific validation rules
 ✅ **Safe**: Modifying `validator-inline.js` with document-specific scoring (MUST match `validator.js`)
+✅ **Safe**: Modifying `import-document.js` with document-specific DOC_TYPE and LLM_CLEANUP_PROMPT
 
 ❌ **Unsafe**: "Improving" `error-handler.js` with better messages
 ❌ **Unsafe**: "Optimizing" the clipboard function in `ui.js`

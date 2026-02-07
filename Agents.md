@@ -63,6 +63,26 @@ const DB_NAME = '{your-project-name}-db';  // NOT 'hello-world-db'
 
 After rendering any button, immediately attach the event handler. Stillborn buttons = broken app.
 
+### Rule 6: Import Document Feature is Standard
+
+Every genesis project MUST include the Import Document feature. This allows users to paste existing documents from Word/Google Docs.
+
+**Required files:**
+- `shared/js/lib/turndown.js` - HTML-to-Markdown library (copy from hello-world)
+- `shared/js/import-document.js` - Import modal with conversion and scoring
+
+**Required customizations in `import-document.js`:**
+```javascript
+const DOC_TYPE = 'Your Document Type';      // e.g., 'Business Justification'
+const DOC_TYPE_SHORT = 'Document';          // e.g., 'Justification'
+const LLM_CLEANUP_PROMPT = `...`;           // Document-specific structure
+```
+
+**Required integrations:**
+1. `index.html` + `assistant/index.html`: Add `<script src="shared/js/lib/turndown.js"></script>`
+2. `shared/js/views.js`: Import `showImportModal` and add Import tile + event handler
+3. `eslint.config.js`: Add `TurndownService: 'readonly'` global and `'shared/js/lib/**'` ignore
+
 ---
 
 ## Verification Checkpoints (MUST Confirm)
@@ -87,8 +107,10 @@ CHECKPOINT: Completion Verification
 □ 2. Dark mode toggle works
 □ 3. "New Project" button works
 □ 4. All buttons have event handlers wired
+□ 5. Import Document tile appears and opens modal
+□ 6. Import modal converts pasted HTML to Markdown
 
-Confirm items 1-4 complete before claiming done.
+Confirm items 1-6 complete before claiming done.
 ```
 
 ---

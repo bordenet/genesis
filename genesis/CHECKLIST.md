@@ -65,6 +65,10 @@ Reference: [hello-world](examples/hello-world) - source of truth for all copying
 ### Phase 3: Variable Replacement
 
 - [ ] Replace ALL `{{VARIABLES}}`
+- [ ] Customize `shared/js/import-document.js`:
+  - [ ] Set `DOC_TYPE` to your document type name
+  - [ ] Set `DOC_TYPE_SHORT` to abbreviated name
+  - [ ] Update `LLM_CLEANUP_PROMPT` with your document structure
 - [ ] Run verification scans:
 
 ```bash
@@ -76,9 +80,11 @@ grep -rn "one-pager\|One-Pager" . --include="*.html" --include="*.js" | grep -v 
 grep '"name":' package.json
 # 4. IndexedDB names unique
 grep -rn "DB_NAME" . --include="*.js" | grep -v node_modules
+# 5. Import document customized
+grep -n "DOC_TYPE\|DOC_TYPE_SHORT" shared/js/import-document.js
 ```
 
-> **CHECKPOINT**: Confirm scans 1-4 return expected results before Phase 4.
+> **CHECKPOINT**: Confirm scans 1-5 return expected results before Phase 4.
 
 ### Phase 4: Install & Test
 
@@ -105,8 +111,10 @@ grep -rn "DB_NAME" . --include="*.js" | grep -v node_modules
 - [ ] Smoke test: No console errors
 - [ ] Smoke test: Dark mode toggle works
 - [ ] Smoke test: "New Project" button works
+- [ ] Smoke test: Import tile appears and opens modal
+- [ ] Smoke test: Import converts pasted HTML to Markdown
 
-> **CHECKPOINT**: Confirm all 4 smoke tests pass before claiming done.
+> **CHECKPOINT**: Confirm all 6 smoke tests pass before claiming done.
 
 ---
 
