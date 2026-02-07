@@ -72,16 +72,6 @@ const CRITICAL_TEST_PATTERNS = [
       /test\s*\(\s*['"`].*export.*project/i,  // Matches "export project as markdown", etc.
     ]
   },
-  // === ERROR HANDLING ===
-  {
-    name: 'errorHandler',
-    description: 'Tests for error handling infrastructure',
-    filePattern: /error-handler\.test\.js$/,
-    codePatterns: [
-      /describe\s*\(\s*['"`].*[Ee]rror.*[Hh]andl/,
-      /test\s*\(\s*['"`].*error/i,
-    ]
-  },
   // === STORAGE FUNCTIONALITY ===
   {
     name: 'storageInit',
@@ -207,8 +197,6 @@ const INTERNAL_CONSISTENCY_PAIRS = [
   { root: 'js/storage.js', assistant: 'assistant/js/storage.js' },
   { root: 'js/app.js', assistant: 'assistant/js/app.js' },
   { root: 'js/prompts.js', assistant: 'assistant/js/prompts.js' },
-  { root: 'js/error-handler.js', assistant: 'assistant/js/error-handler.js' },
-  { root: 'js/ai-mock.js', assistant: 'assistant/js/ai-mock.js' },
   { root: 'js/diff-view.js', assistant: 'assistant/js/diff-view.js' },
   { root: 'js/types.js', assistant: 'assistant/js/types.js' },
   { root: 'js/attachments.js', assistant: 'assistant/js/attachments.js' },
@@ -311,19 +299,18 @@ const SIGNATURE_CHECK_FILES = [
   'js/workflow.js',
   // NOTE: router.js is in INTENTIONAL_DIFF - signature differs by project
   // because it imports from views.js which has different exports per project
-  // Error handler functions
-  'assistant/js/error-handler.js',
-  'js/error-handler.js',
 ];
 
 // Files/patterns that are EXPECTED to differ between projects
 const INTENTIONAL_DIFF_PATTERNS = [
   // === LLM PROMPTS (document-type specific) ===
   /^prompts\//,
+  /^shared\/prompts\//,  // Also match shared/prompts/ directory structure
   /^templates\//,
   /^validator\/js\/prompts\.js$/,
   /^assistant\/js\/prompts\.js$/,
   /^js\/prompts\.js$/,
+  /^shared\/js\/prompts\.js$/,  // Also match shared/js/prompts.js
 
   // === PROJECT IDENTITY (contains project name/title) ===
   /^README\.md$/,
@@ -344,18 +331,18 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^validator\/index\.html$/,
 
   // === DOCUMENT-TYPE SPECIFIC CODE ===
-  // AI mock data (generates fake document content)
-  /^js\/ai-mock\.js$/,
-  /^assistant\/js\/ai-mock\.js$/,
   // Type definitions (document schema)
   /^js\/types\.js$/,
   /^assistant\/js\/types\.js$/,
+  /^shared\/js\/types\.js$/,  // Also match shared/js/types.js
   // Router (imports from views.js which differs per project)
   /^js\/router\.js$/,
   /^assistant\/js\/router\.js$/,
+  /^shared\/js\/router\.js$/,  // Also match shared/js/router.js
   // Document-specific templates (one-pager templates, PR FAQ templates, etc.)
   /^js\/document-specific-templates\.js$/,
   /^assistant\/js\/document-specific-templates\.js$/,
+  /^shared\/js\/document-specific-templates\.js$/,  // Also match shared/js/document-specific-templates.js
   /^assistant\/tests\/document-specific-templates\.test\.js$/,
   // Validator logic (document-specific validation rules)
   /^validator\/js\/validator\.js$/,
@@ -370,9 +357,6 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // === TESTS FOR DOCUMENT-SPECIFIC CODE ===
   // Tests for app (contains project-specific terminology like "ADRs" vs "proposals")
   /^assistant\/tests\/app\.test\.js$/,
-  // Tests for ai-mock (tests mock document content)
-  /^assistant\/tests\/ai-mock\.test\.js$/,
-  /^tests\/ai-mock\.test\.js$/,
   // Tests for prompts (tests document-specific prompts)
   /^assistant\/tests\/prompts\.test\.js$/,
   /^tests\/prompts\.test\.js$/,
@@ -390,6 +374,7 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // between the Assistant (which uses validator-inline.js) and the Validator tool.
   /^assistant\/js\/validator-inline\.js$/,
   /^js\/validator-inline\.js$/,
+  /^shared\/js\/validator-inline\.js$/,  // Also match shared/js/validator-inline.js
   // Tests for inline validator (tests document-specific inline validation)
   /^assistant\/tests\/validator-inline\.test\.js$/,
 
@@ -410,6 +395,7 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // === STORAGE (contains project-specific DB_NAME) ===
   /^js\/storage\.js$/,
   /^assistant\/js\/storage\.js$/,
+  /^shared\/js\/storage\.js$/,  // Also match shared/js/storage.js
   // Storage tests (test project-specific storage behavior)
   /^assistant\/tests\/storage\.test\.js$/,
   /^validator\/tests\/storage\.test\.js$/,
@@ -418,20 +404,26 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^js\/app\.js$/,
   /^assistant\/js\/app\.js$/,
   /^validator\/js\/app\.js$/,
+  /^shared\/js\/app\.js$/,  // Also match shared/js/app.js
 
   // === DOCUMENT-TYPE SPECIFIC UI LOGIC ===
   // These files contain project-specific UI rendering, workflow steps, and form fields
   // that differ based on the document type (ADR, PRD, One-Pager, etc.)
   /^js\/project-view\.js$/,
   /^assistant\/js\/project-view\.js$/,
+  /^shared\/js\/project-view\.js$/,  // Also match shared/js/project-view.js
   /^js\/views\.js$/,
   /^assistant\/js\/views\.js$/,
+  /^shared\/js\/views\.js$/,  // Also match shared/js/views.js
   /^js\/workflow\.js$/,
   /^assistant\/js\/workflow\.js$/,
+  /^shared\/js\/workflow\.js$/,  // Also match shared/js/workflow.js
   /^js\/projects\.js$/,
   /^assistant\/js\/projects\.js$/,
+  /^shared\/js\/projects\.js$/,  // Also match shared/js/projects.js
   /^js\/router\.js$/,
   /^assistant\/js\/router\.js$/,
+  // Note: shared/js/router.js already covered above in "Router" section
   // Tests for document-type specific UI
   /^assistant\/tests\/project-view\.test\.js$/,
   /^assistant\/tests\/views\.test\.js$/,
@@ -472,6 +464,42 @@ const EXCLUDE_DIRS = [
   '.git',
   '_archive',
 ];
+
+/**
+ * Validate INTENTIONAL_DIFF_PATTERNS against actual project files.
+ * This catches bugs where patterns use wrong directory structure (e.g., js/ vs shared/js/).
+ *
+ * LESSON LEARNED (2026-02-07): The INTENTIONAL_DIFF_PATTERNS were using paths like
+ * /^js\/app\.js$/ but actual files were at shared/js/app.js. This caused 14 files
+ * to be incorrectly flagged as MUST_MATCH divergences when they were actually
+ * INTENTIONAL_DIFF files. The fix was to add shared/ versions of all patterns.
+ *
+ * This validation function ensures each pattern matches at least one actual file
+ * across all projects, preventing similar bugs in the future.
+ */
+function validateIntentionalDiffPatterns(projectPaths, allFilesMap) {
+  const unusedPatterns = [];
+
+  for (const pattern of INTENTIONAL_DIFF_PATTERNS) {
+    let matchFound = false;
+
+    for (const [projectName, files] of Object.entries(allFilesMap)) {
+      for (const fileInfo of files) {
+        if (pattern.test(fileInfo.path)) {
+          matchFound = true;
+          break;
+        }
+      }
+      if (matchFound) break;
+    }
+
+    if (!matchFound) {
+      unusedPatterns.push(pattern.toString());
+    }
+  }
+
+  return unusedPatterns;
+}
 
 /**
  * Get MD5 hash of file contents
@@ -1916,13 +1944,22 @@ function diffProjects(genesisToolsDir) {
     }
   }
 
+  // Validate INTENTIONAL_DIFF_PATTERNS against actual files
+  // This catches bugs where patterns don't match reality (e.g., js/ vs shared/js/)
+  const allFilesMap = {};
+  for (const project of PROJECTS) {
+    allFilesMap[project] = Array.from(projectFileMap[project].entries()).map(([p, info]) => ({ path: p, ...info }));
+  }
+  const unusedPatterns = validateIntentionalDiffPatterns(PROJECTS, allFilesMap);
+
   // Analyze each file
   const results = {
     mustMatch: { identical: [], divergent: [] },
     intentionalDiff: [],
     projectSpecific: [],
-    symlinkIssues: [],  // NEW: Track symlink vs regular file discrepancies
-    summary: { total: 0, identical: 0, divergent: 0, intentional: 0, projectSpecific: 0, symlinkIssues: 0 }
+    symlinkIssues: [],  // Track symlink vs regular file discrepancies
+    unusedPatterns: unusedPatterns,  // INTENTIONAL_DIFF patterns that don't match any files
+    summary: { total: 0, identical: 0, divergent: 0, intentional: 0, projectSpecific: 0, symlinkIssues: 0, unusedPatterns: unusedPatterns.length }
   };
 
   for (const filePath of [...allFilePaths].sort()) {
@@ -2087,6 +2124,9 @@ function formatConsoleReport(results) {
   if (results.fitAndFinish && results.fitAndFinish.summary.totalIssues > 0) {
     lines.push(`  ${red('✨')} Fit-and-finish issues: ${results.fitAndFinish.summary.totalIssues} issues in ${results.fitAndFinish.summary.projectsWithIssues} projects`);
   }
+  if (results.unusedPatterns && results.unusedPatterns.length > 0) {
+    lines.push(`  ${orange('⚠️')} Unused INTENTIONAL_DIFF patterns: ${results.unusedPatterns.length}`);
+  }
   lines.push(`  ${yellow('~')} Intentional differences: ${results.summary.intentional}`);
   lines.push(`  ${cyan('?')} Project-specific: ${results.summary.projectSpecific}`);
   lines.push('');
@@ -2112,6 +2152,22 @@ function formatConsoleReport(results) {
         lines.push(`    Version ${groupNum} (${hash.slice(0, 8)}...): ${projects.join(', ')}`);
         groupNum++;
       }
+    }
+    lines.push('');
+  }
+
+  // UNUSED PATTERNS: INTENTIONAL_DIFF patterns that don't match any files
+  // This catches bugs where patterns use wrong directory structure (e.g., js/ vs shared/js/)
+  if (results.unusedPatterns && results.unusedPatterns.length > 0) {
+    lines.push(orange(bold('⚠️  WARNING: UNUSED INTENTIONAL_DIFF PATTERNS')));
+    lines.push(orange('─'.repeat(60)));
+    lines.push('');
+    lines.push('  These patterns don\'t match any files in the project structure.');
+    lines.push('  This may indicate the patterns are out of date with the actual');
+    lines.push('  directory structure (e.g., js/ vs shared/js/).');
+    lines.push('');
+    for (const pattern of results.unusedPatterns) {
+      lines.push(`  - ${pattern}`);
     }
     lines.push('');
   }
