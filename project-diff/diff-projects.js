@@ -104,6 +104,40 @@ const CRITICAL_TEST_PATTERNS = [
       /it\s*\(\s*['"`].*importAll/i,
     ]
   },
+  // === VALIDATOR-INLINE SCORING CONSISTENCY ===
+  // These patterns ensure JavaScript rating functions are tested uniformly
+  // across all repos to prevent score divergence between assistant and validator
+  {
+    name: 'validator-inline.scoringFunctions',
+    description: 'Tests for inline validator scoring functions (scoreProblemClarity, scoreContext, etc.)',
+    filePattern: /validator-inline\.test\.js$/,
+    codePatterns: [
+      /describe\s*\(\s*['"`]Scoring Functions['"`]/,
+      /describe\s*\(\s*['"`]score[A-Z]/,
+      /test\s*\(\s*['"`].*score[A-Z]/i,
+    ]
+  },
+  {
+    name: 'validator-inline.detectionFunctions',
+    description: 'Tests for inline validator detection functions (detectProblemStatement, detectContext, etc.)',
+    filePattern: /validator-inline\.test\.js$/,
+    codePatterns: [
+      /describe\s*\(\s*['"`]Detection Functions['"`]/,
+      /describe\s*\(\s*['"`]detect[A-Z]/,
+      /test\s*\(\s*['"`].*detect[A-Z]/i,
+    ]
+  },
+  {
+    name: 'validator-inline.utilityFunctions',
+    description: 'Tests for inline validator utility functions (getScoreColor, getScoreLabel)',
+    filePattern: /validator-inline\.test\.js$/,
+    codePatterns: [
+      /describe\s*\(\s*['"`]Utility Functions['"`]/i,
+      /describe\s*\(\s*['"`]getScore/,
+      /test\s*\(\s*['"`].*getScoreColor/i,
+      /test\s*\(\s*['"`].*getScoreLabel/i,
+    ]
+  },
 ];
 
 // ============================================================================
