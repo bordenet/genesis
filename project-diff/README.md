@@ -107,6 +107,49 @@ Different function names indicate different scoring logic:
 
 > **Why?** This catches cases where the inline validator uses simple pattern matching (e.g., `scoreStructure`) while the full validator uses sophisticated analysis (e.g., `scoreStructureAndHook`), causing **4+ point score differences** for users.
 
+### 7. Fit-and-Finish Consistency
+
+Ensures consistent UI/UX polish across all projects:
+
+| Check | Description |
+|-------|-------------|
+| Navigation order | Related Tools dropdown follows canonical order (excluding self) |
+| Footer link | Links to `genesis/BACKGROUND.md` |
+| Double-click prevention | Import feature has `isSaving` flag pattern |
+| Import tile | Landing page has Import tile in views.js |
+
+#### Canonical Navigation Order
+
+Each project's Related Tools dropdown must list tools in this order (excluding itself):
+
+1. One-Pager
+2. PRD Assistant
+3. Acceptance Criteria
+4. ADR Tool
+5. Business Justification
+6. JD Assistant
+7. PR-FAQ Assistant
+8. Power Statement
+9. Strategic Proposal
+
+#### Double-Click Prevention Pattern
+
+Import document feature must have:
+
+```javascript
+let isSaving = false;
+
+async function saveImportedDocument() {
+  if (isSaving) return;  // Guard clause
+  isSaving = true;
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving...';
+  // ... save logic ...
+}
+```
+
+> **Why?** Without these checks, projects can drift in UI/UX polish, creating inconsistent user experiences across the genesis ecosystem.
+
 ## Projects Compared
 
 1. `acceptance-criteria-assistant`
@@ -160,6 +203,7 @@ SUMMARY
   ✓ NO STUB VALIDATORS DETECTED
   ✓ NO FUNCTION SIGNATURE MISMATCHES
   ✓ VALIDATOR SCORING ALIGNED (inline = full)
+  ✓ FIT-AND-FINISH CONSISTENT (nav, footer, import)
 ═══════════════════════════════════════════════════════════════
 ```
 
