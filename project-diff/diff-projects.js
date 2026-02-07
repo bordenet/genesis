@@ -2109,7 +2109,14 @@ function formatConsoleReport(results) {
     lines.push(`  ${orange('⚠️')} Unused INTENTIONAL_DIFF patterns: ${results.unusedPatterns.length}`);
   }
   lines.push(`  ${yellow('~')} Intentional differences: ${results.summary.intentional}`);
-  lines.push(`  ${cyan('?')} Project-specific: ${results.summary.projectSpecific}`);
+  // Calculate high entropy count (files in 7+ of 9 projects but not all)
+  const ENTROPY_THRESHOLD_SUMMARY = Math.max(7, Math.floor(PROJECTS.length * 0.78));
+  const highEntropyCount = results.projectSpecific.filter(f => f.existsIn.length >= ENTROPY_THRESHOLD_SUMMARY).length;
+  if (highEntropyCount > 0) {
+    const orangeText = (s) => `\x1b[38;5;208m${s}\x1b[0m`;
+    lines.push(`  ${orangeText('🔥')} High entropy risk: ${highEntropyCount}`);
+  }
+  lines.push(`  ${cyan('?')} Project-specific: ${results.summary.projectSpecific - highEntropyCount}`);
   lines.push('');
 
   // CRITICAL: Divergent files that MUST match
@@ -2358,14 +2365,39 @@ function formatConsoleReport(results) {
     }
   }
 
+  // HIGH ENTROPY RISK: Files that exist in most projects but not all
+  // These are almost certainly entropy - they SHOULD exist in all projects
+  // Threshold: files in 7+ of 9 projects (~78%)
+  // Using floor to be more aggressive about catching entropy (7.02 → 7)
+  const ENTROPY_THRESHOLD = Math.max(7, Math.floor(PROJECTS.length * 0.78));
+  const highEntropyFiles = results.projectSpecific.filter(f => f.existsIn.length >= ENTROPY_THRESHOLD);
+
+  if (highEntropyFiles.length > 0) {
+    const orange = (s) => `\x1b[38;5;208m${s}\x1b[0m`;
+    lines.push(orange(bold('🔥 HIGH ENTROPY RISK (exists in 7+ projects, missing from few)')));
+    lines.push(orange('─'.repeat(60)));
+    lines.push('');
+    lines.push('  These files exist in MOST projects but are missing from a few.');
+    lines.push('  This is almost certainly unintentional entropy - propagate or remove.');
+    lines.push('');
+
+    for (const file of highEntropyFiles) {
+      lines.push(orange(`  ${file.path}`));
+      lines.push(`    Missing from: ${file.missingFrom.join(', ')}`);
+      lines.push('');
+    }
+  }
+
   // Project-specific files (might indicate missing files)
-  if (results.projectSpecific.length > 0) {
+  // Exclude high entropy files since they're shown above
+  const lowEntropyFiles = results.projectSpecific.filter(f => f.existsIn.length < ENTROPY_THRESHOLD);
+  if (lowEntropyFiles.length > 0) {
     lines.push(yellow(bold('⚠️  PROJECT-SPECIFIC FILES (not in all projects)')));
     lines.push(yellow('─'.repeat(60)));
 
     // Group by which projects have the file
     const byPattern = {};
-    for (const file of results.projectSpecific) {
+    for (const file of lowEntropyFiles) {
       const key = file.existsIn.sort().join(',');
       if (!byPattern[key]) byPattern[key] = [];
       byPattern[key].push(file.path);
