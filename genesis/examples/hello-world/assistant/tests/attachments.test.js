@@ -10,7 +10,7 @@ import {
   handleFiles,
   resetAttachmentTracking,
   getAttachmentStats
-} from '../js/attachments.js';
+} from '../../shared/js/attachments.js';
 
 describe('Attachments Module', () => {
   test('should export ATTACHMENT_CONFIG', () => {
