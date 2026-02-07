@@ -302,15 +302,23 @@ const SIGNATURE_CHECK_FILES = [
 ];
 
 // Files/patterns that are EXPECTED to differ between projects
+//
+// DIRECTORY STRUCTURE NOTE (2026-02-07):
+// The project structure has evolved to use `shared/` as the main directory:
+// - shared/js/ - JavaScript source files (not js/ or assistant/js/)
+// - shared/css/ - CSS files (not css/ or assistant/css/)
+// - shared/prompts/ - LLM prompts (not prompts/)
+// - validator/ - Standalone validator app (still uses validator/js/, validator/css/)
+//
+// Legacy paths (js/, assistant/js/, prompts/) are kept for backward compatibility
+// but may be removed in future once all projects are migrated.
 const INTENTIONAL_DIFF_PATTERNS = [
   // === LLM PROMPTS (document-type specific) ===
-  /^prompts\//,
-  /^shared\/prompts\//,  // Also match shared/prompts/ directory structure
-  /^templates\//,
-  /^validator\/js\/prompts\.js$/,
-  /^assistant\/js\/prompts\.js$/,
-  /^js\/prompts\.js$/,
-  /^shared\/js\/prompts\.js$/,  // Also match shared/js/prompts.js
+  // These contain document-type specific system prompts for the AI
+  /^shared\/prompts\//,           // Current location (shared/prompts/*.md)
+  /^templates\//,                  // Document templates (e.g., templates/one-pager-template.md)
+  /^validator\/js\/prompts\.js$/,  // Validator-specific prompt configuration
+  /^shared\/js\/prompts\.js$/,     // Prompt loading logic (document-specific)
 
   // === PROJECT IDENTITY (contains project name/title) ===
   /^README\.md$/,
@@ -327,26 +335,19 @@ const INTENTIONAL_DIFF_PATTERNS = [
 
   // === HTML FILES (contain project title in <title> tag) ===
   /^index\.html$/,
-  /^assistant\/index\.html$/,
+  /^assistant\/index\.html$/,  // Contains project-specific title and description
   /^validator\/index\.html$/,
 
-  // === DOCUMENT-TYPE SPECIFIC CODE ===
-  // Type definitions (document schema)
-  /^js\/types\.js$/,
-  /^assistant\/js\/types\.js$/,
-  /^shared\/js\/types\.js$/,  // Also match shared/js/types.js
+  // === DOCUMENT-TYPE SPECIFIC CODE (shared/js/) ===
+  // Type definitions (document schema - differs per document type)
+  /^shared\/js\/types\.js$/,
   // Router (imports from views.js which differs per project)
-  /^js\/router\.js$/,
-  /^assistant\/js\/router\.js$/,
-  /^shared\/js\/router\.js$/,  // Also match shared/js/router.js
+  /^shared\/js\/router\.js$/,
   // Document-specific templates (one-pager templates, PR FAQ templates, etc.)
-  /^js\/document-specific-templates\.js$/,
-  /^assistant\/js\/document-specific-templates\.js$/,
-  /^shared\/js\/document-specific-templates\.js$/,  // Also match shared/js/document-specific-templates.js
+  /^shared\/js\/document-specific-templates\.js$/,
   /^assistant\/tests\/document-specific-templates\.test\.js$/,
   // Validator logic (document-specific validation rules)
   /^validator\/js\/validator\.js$/,
-  /^js\/validator\.js$/,  // Root copy of validator/js/validator.js
   // Deploy scripts (contain project-specific paths/names)
   /^scripts\/deploy-web\.sh$/,
 
@@ -359,7 +360,6 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^assistant\/tests\/app\.test\.js$/,
   // Tests for prompts (tests document-specific prompts)
   /^assistant\/tests\/prompts\.test\.js$/,
-  /^tests\/prompts\.test\.js$/,
   // Tests for validator (tests document-specific validation)
   /^validator\/tests\/validator\.test\.js$/,
   // Smoke tests (jd-assistant uses jd-validator.js instead of validator-inline.js,
@@ -372,9 +372,7 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // (e.g., scoreProblemClarity for business-justification, scoreExecutiveSummary for one-pager).
   // Generic functions like scoreDocumentStructure will cause score discrepancies
   // between the Assistant (which uses validator-inline.js) and the Validator tool.
-  /^assistant\/js\/validator-inline\.js$/,
-  /^js\/validator-inline\.js$/,
-  /^shared\/js\/validator-inline\.js$/,  // Also match shared/js/validator-inline.js
+  /^shared\/js\/validator-inline\.js$/,
   // Tests for inline validator (tests document-specific inline validation)
   /^assistant\/tests\/validator-inline\.test\.js$/,
 
@@ -387,43 +385,27 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^\.pre-commit-config\.yaml$/,
 
   // === CSS (may have project-specific branding colors) ===
-  // TODO: These SHOULD be identical but currently have minor diffs
-  // Marking as intentional for now, but should be unified
-  /^css\/styles\.css$/,
-  /^assistant\/css\/styles\.css$/,
+  // Currently using shared/css/styles.css
+  /^shared\/css\/styles\.css$/,
+  /^validator\/css\/styles\.css$/,
 
   // === STORAGE (contains project-specific DB_NAME) ===
-  /^js\/storage\.js$/,
-  /^assistant\/js\/storage\.js$/,
-  /^shared\/js\/storage\.js$/,  // Also match shared/js/storage.js
+  /^shared\/js\/storage\.js$/,
   // Storage tests (test project-specific storage behavior)
   /^assistant\/tests\/storage\.test\.js$/,
   /^validator\/tests\/storage\.test\.js$/,
 
   // === APP ENTRY POINT (different import patterns per project) ===
-  /^js\/app\.js$/,
-  /^assistant\/js\/app\.js$/,
   /^validator\/js\/app\.js$/,
-  /^shared\/js\/app\.js$/,  // Also match shared/js/app.js
+  /^shared\/js\/app\.js$/,
 
   // === DOCUMENT-TYPE SPECIFIC UI LOGIC ===
   // These files contain project-specific UI rendering, workflow steps, and form fields
   // that differ based on the document type (ADR, PRD, One-Pager, etc.)
-  /^js\/project-view\.js$/,
-  /^assistant\/js\/project-view\.js$/,
-  /^shared\/js\/project-view\.js$/,  // Also match shared/js/project-view.js
-  /^js\/views\.js$/,
-  /^assistant\/js\/views\.js$/,
-  /^shared\/js\/views\.js$/,  // Also match shared/js/views.js
-  /^js\/workflow\.js$/,
-  /^assistant\/js\/workflow\.js$/,
-  /^shared\/js\/workflow\.js$/,  // Also match shared/js/workflow.js
-  /^js\/projects\.js$/,
-  /^assistant\/js\/projects\.js$/,
-  /^shared\/js\/projects\.js$/,  // Also match shared/js/projects.js
-  /^js\/router\.js$/,
-  /^assistant\/js\/router\.js$/,
-  // Note: shared/js/router.js already covered above in "Router" section
+  /^shared\/js\/project-view\.js$/,
+  /^shared\/js\/views\.js$/,
+  /^shared\/js\/workflow\.js$/,
+  /^shared\/js\/projects\.js$/,
   // Tests for document-type specific UI
   /^assistant\/tests\/project-view\.test\.js$/,
   /^assistant\/tests\/views\.test\.js$/,
@@ -435,7 +417,6 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // === PROJECT SETUP/CONFIG (contain project-specific names and tooling) ===
   // These files have project-specific configuration (project names, dependencies, etc.)
   /^\.github\/dependabot\.yml$/,
-  /^\.pre-commit-config\.yaml$/,
   /^scripts\/install-hooks\.sh$/,
   /^scripts\/lib\/common\.sh$/,
   /^scripts\/setup-linux\.sh$/,
