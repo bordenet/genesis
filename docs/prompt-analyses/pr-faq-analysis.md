@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-07
 **Reviewed by:** Gemini 2.5 Pro (adversarial review)
-**Commit:** c66b7f2
+**Commits:** c66b7f2 (prompts), 64753cb (JavaScript validator alignment)
 
 ## Summary
 
@@ -73,9 +73,40 @@ Major prompt improvements addressing "Vanity Validation" issue and aligning with
 
 ## Test Results
 
-All 472 tests pass after updating test expectations:
+All 473 tests pass after updating test expectations:
 - Changed "3-4 quotes" → "TWO quotes"
 - Changed "FINAL PR-FAQ document only" → "Copy-Paste Ready Output"
+- Updated scoring fixtures to match new maxScore values
+- Added tests for new FAQ scoring functions
+
+## JavaScript Validator Alignment (CRITICAL)
+
+The prompts.js rubric was updated first, but the **JavaScript scoring logic** in validator.js
+was NOT aligned until commit 64753cb. This was a critical fix.
+
+### New JavaScript Functions Added
+
+| Function | Purpose |
+|----------|---------|
+| `extractFAQs()` | Parse External/Internal FAQ sections from markdown |
+| `parseFAQQuestions()` | Extract Q&A pairs from FAQ content |
+| `checkHardQuestions()` | Detect Risk, Reversibility, Opportunity Cost questions |
+| `scoreFAQQuality()` | Score FAQs (35 pts total) |
+
+### JavaScript Scoring Changes
+
+| Function | Old maxScore | New maxScore |
+|----------|-------------|-------------|
+| `scoreStructureAndHook()` | 30 | 20 |
+| `scoreContentQuality()` | 35 | 20 |
+| `scoreProfessionalQuality()` | 20 | 15 |
+| `scoreCustomerEvidence()` | 15 | 10 |
+| `scoreFAQQuality()` | N/A | 35 |
+
+### FAQ PENALTY Implementation
+
+If Internal FAQ is missing or contains only "softball" questions (none of Risk,
+Reversibility, Opportunity Cost), the total score is **capped at 50**.
 
 ## Cross-Tool Patterns Applied
 
@@ -83,4 +114,5 @@ All 472 tests pass after updating test expectations:
 2. ✅ Quote Sourcing (2 quotes per Amazon standard)
 3. ✅ Mechanism Clarity (HOW, not just WHAT)
 4. ✅ Hard Question Requirements (Risk, Reversibility, Opportunity Cost)
+5. ✅ **Validator Alignment** (JavaScript scoring matches prompt rubric)
 
