@@ -77,6 +77,24 @@ grep '"name":' package.json
 7. `validator/js/validator.js` - header comment
 8. `**/js/same-llm-adversarial.js` - `{{DOCUMENT_TYPE}}` placeholder
 
+### MANDATORY: INTENTIONAL_DIFF_PATTERNS Must Match Directory Structure
+
+**Severity**: CRITICAL
+
+**Date Discovered**: 2026-02-07
+
+**What Happened**: The `INTENTIONAL_DIFF_PATTERNS` array in `project-diff/diff-projects.js` used patterns like `/^js\/app\.js$/` but the actual files are at `shared/js/app.js`. This caused 14 files to be incorrectly flagged as MUST_MATCH divergences. The diff tool appeared to be failing when the real problem was stale patterns.
+
+**Root Cause**: When the directory structure evolved from `js/` to `shared/js/`, the INTENTIONAL_DIFF_PATTERNS were not updated to match.
+
+**The Fix**:
+1. Updated all patterns to use `shared/` prefix (PR #145)
+2. Added `validateIntentionalDiffPatterns()` function that detects unused patterns
+3. Unused patterns now generate warnings in the diff output
+
+**The Mandate**:
+When modifying directory structure, immediately update `INTENTIONAL_DIFF_PATTERNS` in `diff-projects.js`. The `validateIntentionalDiffPatterns()` function will catch this automatically, but prevention is better than detection.
+
 ### MANDATORY IndexedDB Naming (Prevents Cross-Tool Data Collision)
 
 **Severity**: CRITICAL
