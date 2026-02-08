@@ -64,6 +64,40 @@ node ~/.codex/superpowers-augment/superpowers-augment.js bootstrap
 
 <!-- Add project-specific guidance below this line -->
 
+### 🚨 CRITICAL: Project Bootstrapping Checklist (When Creating New Project)
+
+**If you are creating a new project from this hello-world template, you MUST complete these steps:**
+
+#### 1. IndexedDB Database Name
+**Files to update**: `js/storage.js`, `assistant/js/storage.js`, `assistant/tests/storage.test.js`
+
+```javascript
+// ❌ WRONG - Will cause data corruption with other tools!
+const DB_NAME = 'hello-world-assistant-db';
+
+// ✅ CORRECT - Unique to your project
+const DB_NAME = 'your-project-name-db';
+```
+
+#### 2. Scoring_Methods.md (MANDATORY)
+**ALWAYS generate `docs/Scoring_Methods.md`** for your new project. This file documents the scoring methodology used by your validator.
+
+**Template location**: `docs/Scoring_Methods.md` (this repo)
+
+**Steps**:
+1. Copy the template from `docs/Scoring_Methods.md`
+2. Customize the scoring dimensions for your document type
+3. Document all detection patterns from `validator/js/validator.js`
+4. Add adversarial robustness notes
+5. Ensure alignment with `shared/prompts/phase1.md` and `validator/js/prompts.js`
+
+**Why**: Scoring methodology must be transparent and documented. This enables:
+- Adversarial alignment reviews
+- User understanding of scoring
+- Maintainability of the validator
+
+---
+
 ### 🚨 CRITICAL: IndexedDB Database Name (When Creating New Project)
 
 **If you are creating a new project from this hello-world template, you MUST change the IndexedDB database name!**

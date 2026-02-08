@@ -61,6 +61,12 @@ npm run lint:fix # Fix lint issues
 
 ---
 
+## Scoring Methodology
+
+The validator scores documents on a **100-point scale**. For complete methodology details including scoring dimensions, detection patterns, adversarial robustness, and calibration notes, see **[docs/Scoring_Methods.md](./docs/Scoring_Methods.md)**.
+
+---
+
 ## Paired Architecture
 
 Every project has a **paired architecture**:
