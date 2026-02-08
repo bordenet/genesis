@@ -1,5 +1,7 @@
 /**
- * Tests for validator-inline.js
+ * Tests for canonical validator.js
+ * NOTE: validator-inline.js was deleted and replaced with the canonical
+ * validator at validator/js/validator.js. See CODE-CONSISTENCY-MANDATE.md.
  */
 import {
   validateDocument,
@@ -17,9 +19,9 @@ import {
   detectSuccessMetrics,
   detectStakeholders,
   detectTimeline
-} from '../../shared/js/validator-inline.js';
+} from '../../validator/js/validator.js';
 
-describe('Inline One-Pager Validator', () => {
+describe('Canonical One-Pager Validator', () => {
   describe('validateDocument', () => {
     test('should return zero scores for empty content', () => {
       const result = validateDocument('');
@@ -276,7 +278,8 @@ describe('Detection Functions', () => {
 
   describe('detectCostOfInaction', () => {
     test('should detect cost language', () => {
-      const content = 'The cost of not acting is significant lost revenue.';
+      // Use canonical pattern: "cost of inaction" or "if we do nothing" or "consequence"
+      const content = 'The cost of inaction is significant. If we do nothing, we lose revenue.';
       const result = detectCostOfInaction(content);
       expect(result.hasCostLanguage).toBe(true);
     });

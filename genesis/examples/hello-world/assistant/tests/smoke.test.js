@@ -126,20 +126,28 @@ describe('Smoke Test - App Initialization', () => {
     });
   });
 
-  describe('Export Consistency - validator-inline.js exports match project-view.js imports', () => {
-    // All projects must use validateDocument (generic name for shared library)
-    test('validator-inline.js exports validateDocument', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+  describe('CRITICAL: Validator Single Source of Truth', () => {
+    // This test prevents the catastrophic validator divergence that caused
+    // 17+ point scoring discrepancies. See CODE-CONSISTENCY-MANDATE.md.
+    test('validator-inline.js should NOT exist (use canonical validator instead)', async () => {
+      const fs = await import('fs');
+      const path = await import('path');
+      const inlinePath = path.join(process.cwd(), 'shared', 'js', 'validator-inline.js');
+      expect(fs.existsSync(inlinePath)).toBe(false);
+    });
+
+    test('canonical validator exports validateDocument', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.validateDocument).toBe('function');
     });
 
-    test('validator-inline.js exports getScoreColor', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    test('canonical validator exports getScoreColor', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.getScoreColor).toBe('function');
     });
 
-    test('validator-inline.js exports getScoreLabel', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    test('canonical validator exports getScoreLabel', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.getScoreLabel).toBe('function');
     });
   });
