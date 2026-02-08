@@ -1679,6 +1679,13 @@ function analyzeValidatorScoringAlignment(genesisToolsDir) {
  * - score*() functions: Return a SCORE based on detection results
  * - validate*() functions: Aggregate scores into final result
  *
+ * DEFENSE-IN-DEPTH CHECKS:
+ * 1. Basic existence: detect, score, validateDocument must exist
+ * 2. Ratio balance: detect:score ratio should be reasonable (not 1:10)
+ * 3. Return type validation: detect functions must return { found, ... } pattern
+ * 4. Test coverage: each detect/score function should have corresponding tests
+ * 5. Utility functions: getScoreColor, getScoreLabel, getGrade should exist
+ *
  * Returns summary and detailed issues per project.
  */
 function analyzeValidatorArchitecture(genesisToolsDir) {
@@ -1690,13 +1697,21 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
       missingDetect: 0,
       missingScore: 0,
       missingValidateDocument: 0,
+      ratioImbalance: 0,
+      returnTypeViolations: 0,
+      missingTests: 0,
+      missingUtilityFunctions: 0,
     },
     projects: {}
   };
 
+  // Required utility functions that all validators should export
+  const REQUIRED_UTILITIES = ['getScoreColor', 'getScoreLabel', 'getGrade'];
+
   for (const project of PROJECTS) {
     const projectPath = path.join(genesisToolsDir, project);
     const validatorPath = path.join(projectPath, 'validator/js/validator.js');
+    const testPath = path.join(projectPath, 'assistant/tests/validator-inline.test.js');
     const projectIssues = [];
     results.summary.projectsChecked++;
 
@@ -1709,7 +1724,7 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
       const content = fs.readFileSync(validatorPath, 'utf-8');
       const exportPattern = /export\s+function\s+(\w+)/g;
 
-      const functions = { detect: [], score: [], validate: [] };
+      const functions = { detect: [], score: [], validate: [], utility: [], other: [] };
       let match;
 
       while ((match = exportPattern.exec(content)) !== null) {
@@ -1720,13 +1735,20 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
           functions.score.push(funcName);
         } else if (funcName.startsWith('validate')) {
           functions.validate.push(funcName);
+        } else if (REQUIRED_UTILITIES.includes(funcName)) {
+          functions.utility.push(funcName);
+        } else {
+          functions.other.push(funcName);
         }
       }
 
-      // Check 1: Must have detect* functions
+      // ======================================================================
+      // CHECK 1: Must have detect* functions (BASIC EXISTENCE)
+      // ======================================================================
       if (functions.detect.length === 0) {
         projectIssues.push({
           type: 'missing_detect_functions',
+          severity: 'critical',
           file: 'validator/js/validator.js',
           message: 'No detect* functions exported - validators must follow detect→score→validate pattern',
           found: `score: ${functions.score.length}, validate: ${functions.validate.length}`,
@@ -1734,10 +1756,13 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
         results.summary.missingDetect++;
       }
 
-      // Check 2: Must have score* functions
+      // ======================================================================
+      // CHECK 2: Must have score* functions (BASIC EXISTENCE)
+      // ======================================================================
       if (functions.score.length === 0) {
         projectIssues.push({
           type: 'missing_score_functions',
+          severity: 'critical',
           file: 'validator/js/validator.js',
           message: 'No score* functions exported - validators must follow detect→score→validate pattern',
           found: `detect: ${functions.detect.length}, validate: ${functions.validate.length}`,
@@ -1745,15 +1770,176 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
         results.summary.missingScore++;
       }
 
-      // Check 3: Must have validateDocument function
+      // ======================================================================
+      // CHECK 3: Must have validateDocument function (BASIC EXISTENCE)
+      // ======================================================================
       if (!functions.validate.includes('validateDocument')) {
         projectIssues.push({
           type: 'missing_validateDocument',
+          severity: 'critical',
           file: 'validator/js/validator.js',
           message: 'No validateDocument function exported - this is the main entry point',
           found: `validate functions: ${functions.validate.join(', ') || 'none'}`,
         });
         results.summary.missingValidateDocument++;
+      }
+
+      // ======================================================================
+      // CHECK 4: Ratio balance - detect:score should be reasonable
+      // If score functions vastly outnumber detect functions, detection logic
+      // is likely buried in scoring functions (architectural violation)
+      // ======================================================================
+      if (functions.detect.length > 0 && functions.score.length > 0) {
+        const ratio = functions.score.length / functions.detect.length;
+        // Flag if score functions outnumber detect by more than 3:1
+        if (ratio > 3) {
+          projectIssues.push({
+            type: 'ratio_imbalance',
+            severity: 'warning',
+            file: 'validator/js/validator.js',
+            message: `Suspicious detect:score ratio (1:${ratio.toFixed(1)}) - detection logic may be buried in scoring`,
+            found: `detect: ${functions.detect.length}, score: ${functions.score.length}`,
+          });
+          results.summary.ratioImbalance++;
+        }
+      }
+
+      // ======================================================================
+      // CHECK 5: Return type validation - detect* must return { found, ... }
+      // Parse function bodies to verify detect* returns structured detection
+      // results, not scores or simple booleans
+      // ======================================================================
+      for (const detectFunc of functions.detect) {
+        // Find the function body using a more robust pattern
+        const funcStartPattern = new RegExp(
+          `export\\s+function\\s+${detectFunc}\\s*\\([^)]*\\)\\s*\\{`
+        );
+        const startMatch = content.match(funcStartPattern);
+
+        if (startMatch) {
+          const startIdx = startMatch.index + startMatch[0].length;
+          // Find matching closing brace by counting braces
+          let braceCount = 1;
+          let endIdx = startIdx;
+          while (braceCount > 0 && endIdx < content.length) {
+            if (content[endIdx] === '{') braceCount++;
+            if (content[endIdx] === '}') braceCount--;
+            endIdx++;
+          }
+          const funcBody = content.slice(startIdx, endIdx - 1);
+
+          // Check if function returns an object with detection-style properties
+          // Valid patterns: { found, ... } OR { has*, ... } OR { is*, ... }
+          // These indicate structured detection results
+          const hasFoundReturn = /return\s*\{[\s\S]*?\bfound\s*[,:]/i.test(funcBody);
+          const hasHasReturn = /return\s*\{[\s\S]*?\bhas[A-Z]\w*\s*[,:]/i.test(funcBody);
+          const hasIsReturn = /return\s*\{[\s\S]*?\bis[A-Z]\w*\s*[,:]/i.test(funcBody);
+          const hasIndicatorsReturn = /return\s*\{[\s\S]*?\bindicators\s*[,:]/i.test(funcBody);
+          const hasCountReturn = /return\s*\{[\s\S]*?\bcount\s*[,:]/i.test(funcBody);
+          const hasValidDetectionReturn = hasFoundReturn || hasHasReturn || hasIsReturn ||
+                                          hasIndicatorsReturn || hasCountReturn;
+
+          // Invalid patterns: returning a number (score), simple boolean, or score object
+          const returnsNumber = /return\s+\d+\s*;/.test(funcBody);
+          const returnsSimpleBoolean = /return\s+(true|false)\s*;/.test(funcBody);
+          const returnsScore = /return\s*\{[\s\S]*?\bscore\s*:/i.test(funcBody);
+          const returnsPenalty = /return\s*\{[\s\S]*?\bpenalty\s*:/i.test(funcBody);
+
+          if (!hasValidDetectionReturn || returnsNumber || returnsSimpleBoolean ||
+              returnsScore || returnsPenalty) {
+            projectIssues.push({
+              type: 'return_type_violation',
+              severity: 'error',
+              file: 'validator/js/validator.js',
+              message: `${detectFunc}() should return detection object { found|has*|is*|count|indicators }`,
+              found: returnsScore ? 'returns score object' :
+                     returnsPenalty ? 'returns penalty object' :
+                     returnsNumber ? 'returns number' :
+                     returnsSimpleBoolean ? 'returns simple boolean' :
+                     'missing detection return pattern',
+            });
+            results.summary.returnTypeViolations++;
+          }
+        }
+      }
+
+      // ======================================================================
+      // CHECK 6: Utility functions - getScoreColor, getScoreLabel, getGrade
+      // These are required for consistent UI rendering across all tools
+      // ======================================================================
+      const missingUtilities = REQUIRED_UTILITIES.filter(u => !functions.utility.includes(u));
+      if (missingUtilities.length > 0) {
+        projectIssues.push({
+          type: 'missing_utility_functions',
+          severity: 'warning',
+          file: 'validator/js/validator.js',
+          message: `Missing required utility functions for UI consistency`,
+          found: `missing: ${missingUtilities.join(', ')}`,
+        });
+        results.summary.missingUtilityFunctions++;
+      }
+
+      // ======================================================================
+      // CHECK 7: Test coverage - each detect*/score* should have tests
+      // Look for test patterns in validator-inline.test.js
+      // ======================================================================
+      if (fs.existsSync(testPath)) {
+        const testContent = fs.readFileSync(testPath, 'utf-8');
+
+        // Check for Detection Functions test block
+        const hasDetectionTests = /describe\s*\(\s*['"`]Detection Functions['"`]/.test(testContent);
+
+        // Check for individual function tests
+        const untestedDetect = [];
+        const untestedScore = [];
+
+        for (const func of functions.detect) {
+          // Look for the function name in test file (in describe, test, or import)
+          const funcPattern = new RegExp(`\\b${func}\\b`);
+          if (!funcPattern.test(testContent)) {
+            untestedDetect.push(func);
+          }
+        }
+
+        for (const func of functions.score) {
+          const funcPattern = new RegExp(`\\b${func}\\b`);
+          if (!funcPattern.test(testContent)) {
+            untestedScore.push(func);
+          }
+        }
+
+        if (!hasDetectionTests && functions.detect.length > 0) {
+          projectIssues.push({
+            type: 'missing_detection_test_block',
+            severity: 'warning',
+            file: 'assistant/tests/validator-inline.test.js',
+            message: 'Missing "Detection Functions" describe block',
+            found: `${functions.detect.length} detect* functions without dedicated test block`,
+          });
+          results.summary.missingTests++;
+        }
+
+        if (untestedDetect.length > 0) {
+          projectIssues.push({
+            type: 'untested_detect_functions',
+            severity: 'warning',
+            file: 'assistant/tests/validator-inline.test.js',
+            message: `${untestedDetect.length} detect* function(s) not referenced in tests`,
+            found: untestedDetect.slice(0, 5).join(', ') + (untestedDetect.length > 5 ? '...' : ''),
+          });
+          results.summary.missingTests++;
+        }
+
+        if (untestedScore.length > 0) {
+          projectIssues.push({
+            type: 'untested_score_functions',
+            severity: 'warning',
+            file: 'assistant/tests/validator-inline.test.js',
+            message: `${untestedScore.length} score* function(s) not referenced in tests`,
+            found: untestedScore.slice(0, 5).join(', ') + (untestedScore.length > 5 ? '...' : ''),
+          });
+          results.summary.missingTests++;
+        }
       }
     } catch {
       // Skip files that can't be read
