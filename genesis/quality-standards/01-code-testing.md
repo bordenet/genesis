@@ -18,6 +18,33 @@
 2. **Integration Tests**: Storage, workflow, UI interactions
 3. **End-to-End Tests**: Complete user workflows
 4. **Browser Tests**: Cross-browser compatibility (Chrome, Firefox, Safari)
+5. **🚨 Validator Alignment Tests**: MANDATORY smoke tests (see below)
+
+### 🚨 MANDATORY: Validator Alignment Test
+
+> **CRITICAL**: This test was requested THREE TIMES and never implemented, causing a 17-point scoring divergence. It is now NON-NEGOTIABLE.
+
+Every genesis-derived project MUST have this test in `assistant/tests/smoke.test.js`:
+
+```javascript
+describe('CRITICAL: Validator Single Source of Truth', () => {
+  test('validator-inline.js should NOT exist', async () => {
+    const fs = await import('fs');
+    const path = await import('path');
+    const inlinePath = path.join(process.cwd(), 'shared', 'js', 'validator-inline.js');
+    expect(fs.existsSync(inlinePath)).toBe(false);
+  });
+});
+```
+
+**After adding this test, you MUST verify it works:**
+1. Run `npm test` — should pass
+2. Run `echo "// fake" > shared/js/validator-inline.js`
+3. Run `npm test` — **MUST FAIL** (if it passes, test is broken!)
+4. Run `rm shared/js/validator-inline.js`
+5. Run `npm test` — should pass again
+
+See [`CODE-CONSISTENCY-MANDATE.md`](../CODE-CONSISTENCY-MANDATE.md) for full details.
 
 **Example Test Structure**:
 ```
@@ -52,6 +79,7 @@ Before committing:
 - [ ] **Shell scripts follow SHELL_SCRIPT_STANDARDS.md**
 - [ ] **All scripts include running timer (yellow on black)**
 - [ ] **All scripts support `-h|--help` and `-v|--verbose`**
+- [ ] **🚨 Validator alignment test exists and has been TESTED (see above)**
 
 ---
 

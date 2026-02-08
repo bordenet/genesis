@@ -26,9 +26,20 @@
 Before starting ANY work on a Genesis-created project:
 
 1. **Read `CODE-CONSISTENCY-MANDATE.md`** - Deviation from hello-world is FORBIDDEN
-2. Read `CLAUDE.md` in the target repository
-3. Follow the mandatory workflow: **lint → test → proactively communicate what's left**
-4. **Run `project-diff --ci` REPEATEDLY** during development
+2. **🚨 VERIFY VALIDATOR ALIGNMENT TEST EXISTS AND WORKS** (see CODE-CONSISTENCY-MANDATE.md section at top)
+3. Read `CLAUDE.md` in the target repository
+4. Follow the mandatory workflow: **lint → test → proactively communicate what's left**
+5. **Run `project-diff --ci` REPEATEDLY** during development
+
+### 🚨 Validator Alignment Test (NON-NEGOTIABLE)
+
+This test was requested THREE TIMES and never implemented, causing a 17-point scoring divergence. Before claiming ANY genesis-derived project is complete:
+
+1. **Verify test exists**: `grep -r "validator-inline.js should NOT exist" assistant/tests/smoke.test.js`
+2. **Verify test works**: Temporarily create `shared/js/validator-inline.js` and confirm `npm test` FAILS
+3. **Clean up**: Delete the temporary file
+
+See the CATASTROPHIC FAILURE PREVENTION section in [`CODE-CONSISTENCY-MANDATE.md`](CODE-CONSISTENCY-MANDATE.md) for the required test code.
 
 ---
 
