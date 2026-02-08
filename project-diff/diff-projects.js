@@ -1708,6 +1708,10 @@ function analyzeFitAndFinish(genesisToolsDir) {
       doubleClickIssues: 0,
       importTileIssues: 0,
       tileStatusIssues: 0,
+      // Import function structural checks (added 2026-02-08)
+      importNavigationIssues: 0,
+      importTitleExtractionIssues: 0,
+      importFlagIssues: 0,
     },
     projects: {}
   };
@@ -1824,6 +1828,46 @@ function analyzeFitAndFinish(genesisToolsDir) {
               message: 'Import document missing UI feedback (button disable + "Saving..." text)'
             });
             results.summary.doubleClickIssues++;
+          }
+
+          // === CHECK 3b: Navigation format (CRITICAL - 2026-02-08 bug fix) ===
+          // The navigateTo() call MUST use single-argument format: navigateTo('project/' + id)
+          // NOT two-argument format: navigateTo('project', id) which silently fails
+          // This bug caused imports to navigate to landing page instead of project view
+          const hasWrongNavigateTo = /navigateTo\s*\(\s*['"]project['"]\s*,/.test(content);
+          if (hasWrongNavigateTo) {
+            projectIssues.push({
+              type: 'wrong_navigate_format',
+              file: path.basename(importDocPath),
+              message: 'Import uses wrong navigateTo format: navigateTo("project", id) should be navigateTo("project/" + id)'
+            });
+            results.summary.importNavigationIssues++;
+          }
+
+          // === CHECK 3c: Title extraction function (CRITICAL - 2026-02-08 bug fix) ===
+          // Must have extractTitleFromMarkdown function with multiple fallback strategies
+          // Without this, title extraction fails for documents without H1 headers
+          const hasExtractTitle = /function\s+extractTitleFromMarkdown|extractTitleFromMarkdown\s*=/.test(content);
+          if (!hasExtractTitle) {
+            projectIssues.push({
+              type: 'missing_title_extraction',
+              file: path.basename(importDocPath),
+              message: 'Import missing extractTitleFromMarkdown() - title extraction fails for non-H1 documents'
+            });
+            results.summary.importTitleExtractionIssues++;
+          }
+
+          // === CHECK 3d: isImported flag (CRITICAL - 2026-02-08 bug fix) ===
+          // Must set isImported: true when updating project after import
+          // Without this, project-view.js may redirect imported projects to edit form
+          const hasIsImportedFlag = /isImported\s*:\s*true/.test(content);
+          if (!hasIsImportedFlag) {
+            projectIssues.push({
+              type: 'missing_is_imported_flag',
+              file: path.basename(importDocPath),
+              message: 'Import missing isImported: true flag - imported projects may redirect to edit form'
+            });
+            results.summary.importFlagIssues++;
           }
         } catch {
           // Skip files that can't be read
@@ -2500,14 +2544,15 @@ function formatConsoleReport(results) {
     }
   }
 
-  // FIT-AND-FINISH ISSUES: Navigation order, footer link, double-click prevention, import tile
+  // FIT-AND-FINISH ISSUES: Navigation order, footer link, double-click prevention, import tile, import function
   if (results.fitAndFinish && results.fitAndFinish.summary.totalIssues > 0) {
     const teal = (s) => `\x1b[38;5;44m${s}\x1b[0m`;
     lines.push(teal(bold('✨ FIT-AND-FINISH ISSUES (UI/UX consistency problems)')));
     lines.push(teal('─'.repeat(60)));
     lines.push('');
     lines.push('  These checks ensure consistent polish across all genesis projects.');
-    lines.push('  Issues: nav order, footer link, double-click prevention, import tile.');
+    lines.push('  Issues: nav order, footer link, double-click prevention, import tile,');
+    lines.push('          import navigation format, title extraction, isImported flag.');
     lines.push('');
 
     for (const [project, issues] of Object.entries(results.fitAndFinish.projects)) {
