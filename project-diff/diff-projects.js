@@ -1672,6 +1672,103 @@ function analyzeValidatorScoringAlignment(genesisToolsDir) {
   return results;
 }
 
+/**
+ * Analyze validator architecture across all projects.
+ * Ensures all validators follow the standard pattern:
+ * - detect*() functions: Return what was FOUND (boolean flags, counts, indicators)
+ * - score*() functions: Return a SCORE based on detection results
+ * - validate*() functions: Aggregate scores into final result
+ *
+ * Returns summary and detailed issues per project.
+ */
+function analyzeValidatorArchitecture(genesisToolsDir) {
+  const results = {
+    summary: {
+      projectsChecked: 0,
+      projectsWithIssues: 0,
+      totalIssues: 0,
+      missingDetect: 0,
+      missingScore: 0,
+      missingValidateDocument: 0,
+    },
+    projects: {}
+  };
+
+  for (const project of PROJECTS) {
+    const projectPath = path.join(genesisToolsDir, project);
+    const validatorPath = path.join(projectPath, 'validator/js/validator.js');
+    const projectIssues = [];
+    results.summary.projectsChecked++;
+
+    if (!fs.existsSync(validatorPath)) {
+      // Already caught by validator structure check
+      continue;
+    }
+
+    try {
+      const content = fs.readFileSync(validatorPath, 'utf-8');
+      const exportPattern = /export\s+function\s+(\w+)/g;
+
+      const functions = { detect: [], score: [], validate: [] };
+      let match;
+
+      while ((match = exportPattern.exec(content)) !== null) {
+        const funcName = match[1];
+        if (funcName.startsWith('detect')) {
+          functions.detect.push(funcName);
+        } else if (funcName.startsWith('score')) {
+          functions.score.push(funcName);
+        } else if (funcName.startsWith('validate')) {
+          functions.validate.push(funcName);
+        }
+      }
+
+      // Check 1: Must have detect* functions
+      if (functions.detect.length === 0) {
+        projectIssues.push({
+          type: 'missing_detect_functions',
+          file: 'validator/js/validator.js',
+          message: 'No detect* functions exported - validators must follow detect→score→validate pattern',
+          found: `score: ${functions.score.length}, validate: ${functions.validate.length}`,
+        });
+        results.summary.missingDetect++;
+      }
+
+      // Check 2: Must have score* functions
+      if (functions.score.length === 0) {
+        projectIssues.push({
+          type: 'missing_score_functions',
+          file: 'validator/js/validator.js',
+          message: 'No score* functions exported - validators must follow detect→score→validate pattern',
+          found: `detect: ${functions.detect.length}, validate: ${functions.validate.length}`,
+        });
+        results.summary.missingScore++;
+      }
+
+      // Check 3: Must have validateDocument function
+      if (!functions.validate.includes('validateDocument')) {
+        projectIssues.push({
+          type: 'missing_validateDocument',
+          file: 'validator/js/validator.js',
+          message: 'No validateDocument function exported - this is the main entry point',
+          found: `validate functions: ${functions.validate.join(', ') || 'none'}`,
+        });
+        results.summary.missingValidateDocument++;
+      }
+    } catch {
+      // Skip files that can't be read
+    }
+
+    if (projectIssues.length > 0) {
+      results.projects[project] = projectIssues;
+      results.summary.projectsWithIssues++;
+      results.summary.totalIssues += projectIssues.length;
+    }
+  }
+
+  return results;
+}
+
 // ============================================================================
 // FIT-AND-FINISH REQUIREMENTS
 // ============================================================================
@@ -2134,6 +2231,9 @@ function diffProjects(genesisToolsDir) {
   // Analyze validator scoring alignment (inline vs full validator consistency)
   results.validatorScoringAlignment = analyzeValidatorScoringAlignment(genesisToolsDir);
 
+  // Analyze validator architecture (detect→score→validate pattern)
+  results.validatorArchitecture = analyzeValidatorArchitecture(genesisToolsDir);
+
   // Analyze fit-and-finish consistency (nav order, footer, import feature)
   results.fitAndFinish = analyzeFitAndFinish(genesisToolsDir);
 
@@ -2555,6 +2655,30 @@ function formatConsoleReport(results) {
     }
   }
 
+  // VALIDATOR ARCHITECTURE: detect→score→validate pattern violations
+  if (results.validatorArchitecture && results.validatorArchitecture.summary.totalIssues > 0) {
+    const brick = (s) => `\x1b[38;5;166m${s}\x1b[0m`;
+    lines.push(brick(bold('🏗️  VALIDATOR ARCHITECTURE VIOLATIONS (detect→score→validate pattern)')));
+    lines.push(brick('─'.repeat(60)));
+    lines.push('');
+    lines.push('  All validators MUST follow the standard pattern:');
+    lines.push('    detect*() → Returns what was FOUND (booleans, counts)');
+    lines.push('    score*()  → Returns a SCORE based on detection');
+    lines.push('    validate*() → Aggregates scores into final result');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.validatorArchitecture.projects)) {
+      lines.push(brick(`  ${project}:`));
+      for (const issue of issues) {
+        lines.push(red(`    ✗ ${issue.message}`));
+        if (issue.found) {
+          lines.push(`      Found: ${issue.found}`);
+        }
+      }
+      lines.push('');
+    }
+  }
+
   // FIT-AND-FINISH ISSUES: Navigation order, footer link, double-click prevention, import tile, import function
   if (results.fitAndFinish && results.fitAndFinish.summary.totalIssues > 0) {
     const teal = (s) => `\x1b[38;5;44m${s}\x1b[0m`;
@@ -2603,9 +2727,10 @@ function formatConsoleReport(results) {
   const templateIssues = results.templateCustomization?.summary?.totalIssues || 0;
   const namingIssues = results.sharedLibraryNaming?.summary?.antiPatternsFound || 0;
   const scoringAlignmentIssues = results.validatorScoringAlignment?.summary?.totalIssues || 0;
+  const architectureIssues = results.validatorArchitecture?.summary?.totalIssues || 0;
   const fitAndFinishIssues = results.fitAndFinish?.summary?.totalIssues || 0;
 
-  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0 && fitAndFinishIssues === 0;
+  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0 && architectureIssues === 0 && fitAndFinishIssues === 0;
 
   if (allGreen) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
@@ -2619,6 +2744,7 @@ function formatConsoleReport(results) {
     lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
     lines.push(green(bold('  ✓ NO FUNCTION SIGNATURE MISMATCHES')));
     lines.push(green(bold('  ✓ VALIDATOR SCORING ALIGNED (inline = full)')));
+    lines.push(green(bold('  ✓ VALIDATOR ARCHITECTURE CONSISTENT (detect→score→validate)')));
     lines.push(green(bold('  ✓ FIT-AND-FINISH CONSISTENT (nav, footer, import)')));
   } else {
     if (results.summary.divergent > 0) {
@@ -2647,6 +2773,9 @@ function formatConsoleReport(results) {
     }
     if (scoringAlignmentIssues > 0) {
       lines.push(red(bold(`  ⚖️ ${scoringAlignmentIssues} VALIDATOR SCORING MISALIGNED - SYNC SLOP FORMULAS`)));
+    }
+    if (architectureIssues > 0) {
+      lines.push(red(bold(`  🏗️ ${architectureIssues} VALIDATOR ARCHITECTURE VIOLATIONS - ADD detect*/score*/validate* FUNCTIONS`)));
     }
     if (symlinkCount > 0) {
       lines.push(magenta(bold(`  ⚡ ${symlinkCount} SYMLINK STRUCTURAL ISSUES - UNIFY REQUIRED`)));
