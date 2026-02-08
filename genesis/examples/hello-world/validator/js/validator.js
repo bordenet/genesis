@@ -19,21 +19,29 @@ export { calculateSlopScore };
 // Constants
 // ============================================================================
 
+// REQUIRED_SECTIONS aligned to Phase1.md Required Sections table (10 sections)
+// Total weight: 16 pts → normalized to 8 pts in scoreCompleteness
 const REQUIRED_SECTIONS = [
-  { pattern: /^#+\s*(problem|challenge|pain.?point|context)/im, name: 'Problem/Challenge', weight: 2 },
-  { pattern: /^#+\s*(solution|proposal|approach|recommendation)/im, name: 'Solution/Proposal', weight: 2 },
-  { pattern: /^#+\s*(goal|objective|benefit|outcome)/im, name: 'Goals/Benefits', weight: 2 },
-  { pattern: /^#+\s*(scope|in.scope|out.of.scope|boundary|boundaries)/im, name: 'Scope Definition', weight: 2 },
-  { pattern: /^#+\s*(success|metric|kpi|measure|success.metric)/im, name: 'Success Metrics', weight: 1 },
-  { pattern: /^#+\s*(stakeholder|team|owner|raci|responsible)/im, name: 'Stakeholders/Team', weight: 1 },
-  { pattern: /^#+\s*(timeline|milestone|phase|schedule|roadmap)/im, name: 'Timeline/Milestones', weight: 1 }
+  // Critical sections (weight 2)
+  { pattern: /^#+\s*\d*\.?\s*(executive\s+summary|tl;?dr|overview)/im, name: '1. Executive Summary', weight: 2 },
+  { pattern: /^#+\s*\d*\.?\s*(problem|challenge|pain.?point|current.?state)/im, name: '2. Problem Statement', weight: 2 },
+  { pattern: /^#+\s*\d*\.?\s*(goal|objective|success.?metric)/im, name: '3. Goals and Objectives', weight: 2 },
+  { pattern: /^#+\s*\d*\.?\s*(proposed\s+solution|solution|proposal|recommendation)/im, name: '4. Proposed Solution', weight: 2 },
+  { pattern: /^#+\s*\d*\.?\s*(scope|in.?scope|out.?of.?scope|boundaries)/im, name: '5. Scope', weight: 2 },
+  // Supporting sections (weight 1)
+  { pattern: /^#+\s*\d*\.?\s*(requirement|functional|non.?functional|constraint)/im, name: '6. Requirements', weight: 1 },
+  { pattern: /^#+\s*\d*\.?\s*(stakeholder|team|owner|raci|responsible)/im, name: '7. Stakeholders', weight: 1 },
+  { pattern: /^#+\s*\d*\.?\s*(timeline|milestone|phase|schedule|roadmap)/im, name: '8. Timeline', weight: 1 },
+  { pattern: /^#+\s*\d*\.?\s*(risk|mitigation|assumption|dependency)/im, name: '9. Risks and Mitigation', weight: 1 },
+  { pattern: /^#+\s*\d*\.?\s*(open\s+question|question|tbd|to\s+be\s+determined)/im, name: '10. Open Questions', weight: 1 }
 ];
 
 // Problem clarity patterns
 const PROBLEM_PATTERNS = {
   problemSection: /^#+\s*(problem|challenge|pain.?point|context|why)/im,
   problemLanguage: /\b(problem|challenge|pain.?point|issue|struggle|difficult|frustrat|current.?state|today|existing)\b/gi,
-  costOfInaction: /\b(cost|impact|consequence|risk|without|if.?not|delay|postpone|inaction|doing.?nothing|status.?quo)\b/gi,
+  // Enhanced cost of inaction detection per adversarial review
+  costOfInaction: /\b(cost\s+of\s+(inaction|doing\s+nothing|delay)|if\s+we\s+do\s+nothing|status\s+quo\s+(costs?|impact)|without\s+(action|this|solving)|consequence|delay\s+(costs?|means)|postpone|continue\s+as\s+is|current\s+approach\s+costs?)\b/gi,
   quantified: /\d+\s*(%|million|thousand|hour|day|week|month|year|\$|dollar|user|customer|transaction)/gi,
   businessFocus: /\b(business|customer|user|market|revenue|profit|competitive|strategic|value)\b/gi
 };
