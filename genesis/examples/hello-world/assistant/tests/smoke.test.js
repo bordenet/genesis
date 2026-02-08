@@ -126,20 +126,21 @@ describe('Smoke Test - App Initialization', () => {
     });
   });
 
-  describe('Export Consistency - validator-inline.js exports match project-view.js imports', () => {
+  describe('Export Consistency - validator.js exports match project-view.js imports', () => {
     // All projects must use validateDocument (generic name for shared library)
-    test('validator-inline.js exports validateDocument', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    // Single source of truth: validator/js/validator.js (no separate validator-inline.js)
+    test('validator.js exports validateDocument', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.validateDocument).toBe('function');
     });
 
-    test('validator-inline.js exports getScoreColor', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    test('validator.js exports getScoreColor', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.getScoreColor).toBe('function');
     });
 
-    test('validator-inline.js exports getScoreLabel', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    test('validator.js exports getScoreLabel', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.getScoreLabel).toBe('function');
     });
   });

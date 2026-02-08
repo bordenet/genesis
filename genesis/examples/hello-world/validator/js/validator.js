@@ -589,3 +589,35 @@ export function validateOnePager(text) {
     }
   };
 }
+
+// ============================================================================
+// Backward Compatibility Aliases
+// ============================================================================
+
+/**
+ * Alias for validateOnePager - used by shared UI components
+ */
+export function validateDocument(text) {
+  return validateOnePager(text);
+}
+
+/**
+ * Get color based on score for UI display
+ */
+export function getScoreColor(score) {
+  if (score >= 70) return 'green';
+  if (score >= 50) return 'yellow';
+  if (score >= 30) return 'orange';
+  return 'red';
+}
+
+/**
+ * Get label based on score for UI display
+ */
+export function getScoreLabel(score) {
+  if (score >= 80) return 'Excellent';
+  if (score >= 70) return 'Ready';
+  if (score >= 50) return 'Needs Work';
+  if (score >= 30) return 'Draft';
+  return 'Incomplete';
+}

@@ -414,14 +414,11 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // so its smoke.test.js has different validator export checks)
   /^assistant\/tests\/smoke\.test\.js$/,
 
-  // === INLINE VALIDATOR (document-specific scoring - MUST MATCH validator.js) ===
-  // CRITICAL: validator-inline.js MUST have document-specific scoring functions
-  // that align with validator.js. Each project has different scoring dimensions
+  // === VALIDATOR TESTS (document-specific scoring) ===
+  // Tests for validator scoring functions - each project has different scoring dimensions
   // (e.g., scoreProblemClarity for business-justification, scoreExecutiveSummary for one-pager).
-  // Generic functions like scoreDocumentStructure will cause score discrepancies
-  // between the Assistant (which uses validator-inline.js) and the Validator tool.
-  /^shared\/js\/validator-inline\.js$/,
-  // Tests for inline validator (tests document-specific inline validation)
+  // NOTE: validator-inline.js was REMOVED in 2026-02. All projects now use single-source
+  // pattern: import from validator/js/validator.js (no separate validator-inline.js).
   /^assistant\/tests\/validator-inline\.test\.js$/,
 
   // === PROJECT-SPECIFIC TOOLS ===

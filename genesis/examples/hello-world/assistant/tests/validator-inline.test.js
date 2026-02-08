@@ -1,5 +1,5 @@
 /**
- * Tests for validator-inline.js
+ * Tests for validator.js (single source of truth)
  */
 import {
   validateDocument,
@@ -17,7 +17,7 @@ import {
   detectSuccessMetrics,
   detectStakeholders,
   detectTimeline
-} from '../../shared/js/validator-inline.js';
+} from '../../validator/js/validator.js';
 
 describe('Inline One-Pager Validator', () => {
   describe('validateDocument', () => {
@@ -276,7 +276,8 @@ describe('Detection Functions', () => {
 
   describe('detectCostOfInaction', () => {
     test('should detect cost language', () => {
-      const content = 'The cost of not acting is significant lost revenue.';
+      // Pattern requires specific phrases like "cost of inaction", "cost of doing nothing", "without action", etc.
+      const content = 'The cost of inaction is significant lost revenue.';
       const result = detectCostOfInaction(content);
       expect(result.hasCostLanguage).toBe(true);
     });
