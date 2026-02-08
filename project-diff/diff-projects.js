@@ -138,6 +138,20 @@ const CRITICAL_TEST_PATTERNS = [
       /test\s*\(\s*['"`].*getScoreLabel/i,
     ]
   },
+  // === DOCUMENT EXPORT FUNCTIONALITY ===
+  // These patterns ensure the .docx export feature is tested uniformly
+  // across all repos (added 2026-02-08)
+  {
+    name: 'ui.docxExport',
+    description: 'Tests for .docx Word document export in showDocumentPreviewModal()',
+    filePattern: /ui\.test\.js$/,
+    codePatterns: [
+      /test\s*\(\s*['"`].*\.docx.*button/i,
+      /test\s*\(\s*['"`].*docx.*download/i,
+      /test\s*\(\s*['"`].*download.*docx/i,
+      /download-docx-btn/,
+    ]
+  },
 ];
 
 // ============================================================================
