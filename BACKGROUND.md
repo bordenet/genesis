@@ -4,7 +4,7 @@
 
 Genesis started in November 2025 as an experiment: how deterministic could I make AI-assisted development?
 
-The first project, [`product-requirements-assistant`](https://github.com/bordenet/product-requirements-assistant), began in July 2025 as a straightforward PRD authoring tool. By November, I had [`one-pager`](https://github.com/bordenet/one-pager) running on the same patterns. When I started the third clone ([`architecture-decision-record`](https://github.com/bordenet/architecture-decision-record)), I noticed something: I'd seen every variation the LLM could produce. Same structure, different phrasings. Same bugs, different files.
+The first project, [`product-requirements-assistant`](https://github.com/bordenet/product-requirements-assistant), began in July 2025 as a straightforward PRD authoring tool. By November, I had [`one-pager`](https://github.com/bordenet/one-pager) running on the same patterns. When I started the third clone ([`architecture-decision-record`](https://github.com/bordenet/architecture-decision-record)), it was hard not to notice the mutations—even when the AI had multiple identical samples to copy. Largely the same structure, but different dependency libraries and tools. Different file paths. Different file names. Absolutely different bugs. Very little benefit to starting with a template because the AI just couldn't help but veer off course.
 
 So I formalized the patterns into Genesis.
 
@@ -16,7 +16,7 @@ Over 1,600+ commits across 10 repositories, I layered on increasingly elaborate 
 
 **Self-generated frameworks.** Genesis includes [templates](https://github.com/bordenet/genesis/tree/main/genesis/examples/hello-world) for [CI/CD](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/.github/workflows/ci.yml), [testing](https://github.com/bordenet/genesis/tree/main/genesis/examples/hello-world/assistant/tests), [deployment scripts](https://github.com/bordenet/genesis/tree/main/genesis/scripts), and documentation. The AI generates projects that conform to these templates.
 
-**[TDD](https://github.com/obra/superpowers) with [custom validators](https://github.com/bordenet/genesis/tree/main/project-diff).** Each project has a paired [Validator](https://bordenet.github.io/one-pager/validator/) that scores documents against quality dimensions. A [`project-diff`](https://github.com/bordenet/genesis/blob/main/project-diff/diff-projects.js) tool compares all repositories for consistency, flagging divergence.
+**[TDD](https://github.com/obra/superpowers) with [custom validators](https://github.com/bordenet/genesis/tree/main/project-diff).** Each project has a paired [Validator](https://bordenet.github.io/one-pager/validator/) that scores documents against quality dimensions. The consistency tooling went through three evolutions: first an entropy-based scanner that computed similarity scores, then a modular system with "inside-out" and "outside-in" analyzers. Both gave false confidence—high similarity scores while files quietly diverged. When I asked the AI how it missed obvious gaps, it explained I'd built tools that looked at patterns rather than bytes. The current [`project-diff`](https://github.com/bordenet/genesis/blob/main/project-diff/diff-projects.js) tool does byte-for-byte comparison across all repositories, and immediately found 51 divergent files the previous tools had missed.
 
 **Self-reinforcing AI instructions.** A [`CONTINUOUS_IMPROVEMENT.md`](https://github.com/bordenet/genesis/blob/main/CONTINUOUS_IMPROVEMENT.md) file tracks gaps discovered during development. These feed back into the [AI instructions](https://github.com/bordenet/genesis/tree/main/genesis/ai-instructions), creating a loop where each bug fix improves future generations.
 
@@ -397,7 +397,7 @@ This is the Genesis cycle: each layer of tooling enables the next, but also intr
 
 ## The Conclusion
 
-I confirmed what I suspected from the start: a clean architecture with strong principles and clear abstractions would have been more efficient.
+Keeping an AI consistent turned out to be far harder than I expected. In hindsight, the time spent building conformity mechanisms would have been better spent on upfront design—a clean architecture with shared abstractions instead of constantly fighting against the stochastic system which practically "willed" the ten repositories to continue drifting apart. But I learned a lot, and wrestling with these tools made me a better AI wrangler.
 
 The time spent building conformity mechanisms ([`project-diff`](https://github.com/bordenet/genesis/tree/main/project-diff), template validation, [self-reinforcing instructions](https://github.com/bordenet/genesis/blob/main/CONTINUOUS_IMPROVEMENT.md), parity checks) could have gone into thoughtful design. A monorepo with shared code would have eliminated the propagation problem entirely.
 
