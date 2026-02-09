@@ -57,11 +57,10 @@ These bugs were **completely avoidable**. They happened because AI assistants ma
 
 ### 3. The Test Assertion Bug (January 2026)
 
-**What happened**: `same-llm-adversarial.test.js` passed in some projects, failed in others with identical test data.
+**What happened**: Test files passed in some projects, failed in others with identical test data.
 
 **Root cause**: Different assertion patterns. One project tested `result.some(Boolean)`, another tested `result.length > 0`.
 
-**Fix required**: Unifying the test file across all projects.
+**Fix required**: Unifying test files across all projects.
 
 **How to prevent**: Don't "improve" test assertions. Copy test files unchanged from hello-world.
-

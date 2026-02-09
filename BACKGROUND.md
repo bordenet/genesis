@@ -20,7 +20,7 @@ Over 1,600+ commits across 10 repositories, I layered on increasingly elaborate 
 
 **Self-reinforcing AI instructions.** A [`CONTINUOUS_IMPROVEMENT.md`](https://github.com/bordenet/genesis/blob/main/CONTINUOUS_IMPROVEMENT.md) file tracks gaps discovered during development. These feed back into the [AI instructions](https://github.com/bordenet/genesis/tree/main/genesis/ai-instructions), creating a loop where each bug fix improves future generations.
 
-**[Same-LLM adversarial testing](https://github.com/bordenet/genesis/blob/main/genesis/SAME-LLM-ADVERSARIAL-GUIDE.md).** The same AI that generates content also critiques it, catching issues before they reach production. See the [implementation](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/same-llm-adversarial.js).
+**[Cross-LLM adversarial testing](https://github.com/bordenet/genesis/blob/main/genesis/ADVERSARIAL-TESTING-GUIDE.md).** Claude generates review prompts for Gemini and Perplexity.ai, pitting three LLMs against each other to verify consistency across each repo's assistant and validator. See the derived [think-twice](https://github.com/bordenet/superpowers-plus/blob/main/skills/think-twice/skill.md) and [experimental-self-prompting](https://github.com/bordenet/superpowers-plus/blob/main/skills/experimental/experimental-self-prompting/SKILL.md) skills.
 
 ## Commits to Stability
 
@@ -74,7 +74,7 @@ Git history reveals distinct periods of struggle (regressions, hotfixes) versus 
 
 ### Phase 1: Pre-Genesis Exploration (Jul-Nov 2025)
 
-**Nov 19, 2025** was the turning point: 55 commits in one day on [`product-requirements-assistant`](https://github.com/bordenet/product-requirements-assistant). Went from a simple web app to [mock AI](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/ai-mock.js), thick clients, and release automation. This was the "it works well enough to build on" moment.
+**Nov 19, 2025** was the turning point: 55 commits in one day on [`product-requirements-assistant`](https://github.com/bordenet/product-requirements-assistant). Went from a simple web app to mock AI, thick clients, and release automation. This was the "it works well enough to build on" moment.
 
 ### Phase 2: Genesis Birth (Nov 20-22, 2025)
 
@@ -92,7 +92,7 @@ The [Genesis template](https://github.com/bordenet/genesis/tree/main/genesis/exa
 
 ### Phase 4: Validator Innovation (Jan-Feb 2026)
 
-**Jan 9-11, 2026**: 214 commits across projects - standardization, [JSDoc](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/core/workflow-engine.js), [adversarial testing](https://github.com/bordenet/genesis/blob/main/genesis/SAME-LLM-ADVERSARIAL-GUIDE.md). This was **innovation built on stability**. The tools worked well enough to add features instead of fixing bugs.
+**Jan 9-11, 2026**: 214 commits across projects - standardization, [JSDoc](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/shared/js/core/workflow.js), [adversarial testing](https://github.com/bordenet/genesis/blob/main/genesis/ADVERSARIAL-TESTING-GUIDE.md). This was **innovation built on stability**. The tools worked well enough to add features instead of fixing bugs.
 
 **Feb 2, 2026**: Paired architecture emerges. `refactor: Restructure to paired assistant/validator model`. [Validators](https://bordenet.github.io/one-pager/validator/) became first-class citizens because the assistants had stabilized.
 
@@ -101,7 +101,7 @@ The [Genesis template](https://github.com/bordenet/genesis/tree/main/genesis/exa
 543 commits in 3 days - but **productive, not struggling**:
 - Feb 3: [Unified diff tool](https://github.com/bordenet/genesis/blob/main/project-diff/diff-projects.js) finds 51 divergent files old tools missed
 - Feb 4: Backporting, [`jd-assistant`](https://github.com/bordenet/jd-assistant) spawns in one day
-- Feb 5: [Slop detection](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/slop-detection.js), `Genesis reaches 100/100 confidence 🎉`
+- Feb 5: [Slop detection](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/shared/js/slop-detection.js), `Genesis reaches 100/100 confidence 🎉`
 
 ### Phase 6: Quick Wins (Feb 5-6, 2026)
 
@@ -136,7 +136,7 @@ Before the current [`project-diff`](https://github.com/bordenet/genesis/tree/mai
 
 3. **alignment-tools/** - Specialized scanners for specific file types. Too narrow; missed cross-cutting issues.
 
-In February 2026, I replaced all three with a unified [`diff-projects.js`](https://github.com/bordenet/genesis/blob/main/project-diff/diff-projects.js) that does byte-for-byte MD5 comparison. The new tool immediately found 51 divergent files the old tools had missed. The [archived comparison tools](https://github.com/bordenet/genesis/tree/main/_archive/comparison-tools-2026-02-04) remain for reference.
+In February 2026, I replaced all three with a unified [`diff-projects.js`](https://github.com/bordenet/genesis/blob/main/project-diff/diff-projects.js) that does byte-for-byte MD5 comparison. The new tool immediately found 51 divergent files the old tools had missed.
 
 ### Evolutionary Prompt Optimization (Abandoned)
 
@@ -162,7 +162,7 @@ LLMs lose attention in long documents. Critical instructions buried on line 800 
 ### Dead Code from LLM Prompt Tuning
 
 The LLM generated files that were never actually used:
-- [`ai-mock-ui.js`](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/ai-mock.js) - only tests imported it
+- `ai-mock-ui.js` - only tests imported it (since removed)
 - `keyboard-shortcuts.js` - only one project ([ADR](https://github.com/bordenet/architecture-decision-record)) uses it
 - `phase2-review.js` - dead code
 - `phase3-synthesis.js` - dead code
@@ -179,7 +179,7 @@ This led to mandatory verification scans in the [checklist](https://github.com/b
 
 The maintenance burden compounds. Every improvement to Genesis requires propagation to 9 derived projects. The [`project-diff`](https://github.com/bordenet/genesis/blob/main/project-diff/diff-projects.js) tool helps, but it can't catch semantic drift. When I fixed a bug in [`business-justification-assistant`](https://github.com/bordenet/business-justification-assistant) in February 2026, I discovered the [AI instructions](https://github.com/bordenet/genesis/tree/main/genesis/ai-instructions) had a fundamental gap that had been there since the beginning.
 
-The conformity mechanisms themselves became a source of bugs. The [`validator-inline.js`](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/validator-inline.js) file was incorrectly categorized as a shared library when it actually needs project-specific customization. This caused score discrepancies between the [Assistant](https://bordenet.github.io/business-justification-assistant/) and [Validator](https://bordenet.github.io/business-justification-assistant/validator/) that took hours to diagnose.
+The conformity mechanisms themselves became a source of bugs. The `validator-inline.js` file was incorrectly categorized as a shared library when it actually needs project-specific customization. This caused score discrepancies between the [Assistant](https://bordenet.github.io/business-justification-assistant/) and [Validator](https://bordenet.github.io/business-justification-assistant/validator/) that took hours to diagnose.
 
 ## Workspace Strategy That Helped
 
@@ -228,10 +228,10 @@ The system worked:
 
 The data showed **diminishing returns after round 11-12**. The first 12 iterations delivered 70-80% of total improvement. Rounds 13-40 added marginal gains at significant time cost.
 
-This matched intuition: the "obvious" improvements (ban vague language, require quantified metrics, strengthen [adversarial tension](https://github.com/bordenet/genesis/blob/main/genesis/SAME-LLM-ADVERSARIAL-GUIDE.md)) happen early. Later rounds find increasingly obscure optimizations.
+This matched intuition: the "obvious" improvements (ban vague language, require quantified metrics, strengthen [adversarial tension](https://github.com/bordenet/genesis/blob/main/genesis/ADVERSARIAL-TESTING-GUIDE.md)) happen early. Later rounds find increasingly obscure optimizations.
 
 **Top 5 mutations (71-73% of total improvement):**
-1. Ban vague language ("improve", "enhance", "better") → +6.0% (see [slop detection](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/slop-detection.js))
+1. Ban vague language ("improve", "enhance", "better") → +6.0% (see [slop detection](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/shared/js/slop-detection.js))
 2. Strengthen "no implementation" rule → +5.4%
 3. Enhance adversarial tension in Phase 2 → +2.9%
 4. Require stakeholder impact quantification → +2.6%
@@ -253,7 +253,7 @@ The module still exists in [`genesis/modules/evolutionary-optimization/`](https:
 What worked better was **generating outbound prompts for other models**. Instead of tuning prompts internally, I learned to:
 
 1. **Generate research prompts for [Perplexity.ai](https://www.perplexity.ai/)** - Ask Perplexity for domain-specific research, then feed the results back to Claude for synthesis (see my [perplexity-research skill](https://github.com/bordenet/superpowers-plus/blob/main/skills/perplexity-research/SKILL.md))
-2. **Use the [same-LLM adversarial pattern](https://github.com/bordenet/genesis/blob/main/genesis/SAME-LLM-ADVERSARIAL-GUIDE.md)** - When Phase 1 and Phase 2 use the same model, inject a "Gemini personality simulation" via [`same-llm-adversarial.js`](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/same-llm-adversarial.js) to maintain adversarial tension
+2. **Use the [adversarial testing patterns](https://github.com/bordenet/genesis/blob/main/genesis/ADVERSARIAL-TESTING-GUIDE.md)** - When Phase 1 and Phase 2 use the same model, inject a "Gemini personality simulation" to maintain adversarial tension
 3. **Manual iteration with feedback** - 10-12 rounds of human-in-the-loop refinement often beat 40 rounds of automated optimization
 
 The key insight: **LLMs are better at generating prompts for other LLMs than at optimizing their own prompts**. A prompt that asks Perplexity "What are the common failure modes of [business justification](https://bordenet.github.io/business-justification-assistant/) documents?" produces more actionable insights than 40 rounds of mutation-based optimization.
@@ -286,7 +286,7 @@ The [validators](https://bordenet.github.io/one-pager/validator/) represent the 
 
 Each [Assistant](https://bordenet.github.io/one-pager/) guides users through a 3-phase workflow:
 1. **Phase 1:** User fills form → generates prompt → pastes to Claude → saves response
-2. **Phase 2:** [Adversarial review](https://github.com/bordenet/genesis/blob/main/genesis/SAME-LLM-ADVERSARIAL-GUIDE.md) → Gemini critiques Claude's output
+2. **Phase 2:** [Adversarial review](https://github.com/bordenet/genesis/blob/main/genesis/ADVERSARIAL-TESTING-GUIDE.md) → Gemini critiques Claude's output
 3. **Phase 3:** Synthesis → Claude incorporates feedback into final document
 
 But there was no way to know if the output was *good*. Users would complete all three phases and have no idea if their [PRD](https://bordenet.github.io/product-requirements-assistant/) or [One-Pager](https://bordenet.github.io/one-pager/) met quality standards.
@@ -327,7 +327,7 @@ The validator is a separate GitHub Pages deployment. Users can:
 
 ### The Inline Scoring Addition (Feb 3-5, 2026)
 
-But clicking through to a separate app was friction. So I added **inline scoring** via [`validator-inline.js`](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/validator-inline.js):
+But clicking through to a separate app was friction. So I added **inline scoring** via `validator-inline.js`:
 
 ```
 Feb 3, 2026
@@ -342,7 +342,7 @@ Now when users complete Phase 3, they see an immediate quality score *inside* th
 
 ### The validator-inline.js Bug (Feb 5-6, 2026)
 
-This innovation created a subtle bug. The [`validator-inline.js`](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/validator-inline.js) file was categorized as a "shared library" (MUST_MATCH across all projects), but it actually needs **project-specific scoring dimensions**.
+This innovation created a subtle bug. The `validator-inline.js` file was categorized as a "shared library" (MUST_MATCH across all projects), but it actually needs **project-specific scoring dimensions**.
 
 ```
 Feb 5, 2026
@@ -356,10 +356,10 @@ The fix required understanding that `validator-inline.js` is a **plugin file** (
 
 The validators only worked because:
 
-1. **Stable assistants** - The [3-phase workflow](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/core/workflow-engine.js) was proven and consistent
+1. **Stable assistants** - The [3-phase workflow](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/shared/js/core/workflow.js) was proven and consistent
 2. **Standardized output** - All projects produce markdown documents
 3. **Defined quality dimensions** - Each document type has specific criteria (see [`validator.js`](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/validator/js/validator.js))
-4. **[Slop detection](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/slop-detection.js)** - AI-generated text patterns could be flagged automatically
+4. **[Slop detection](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/shared/js/slop-detection.js)** - AI-generated text patterns could be flagged automatically
 
 ### Git History: The Validator Timeline
 
@@ -391,7 +391,7 @@ Feb 5-6, 2026 - Alignment fixes
 
 **Stability → Confidence → Innovation → New Features → New Bugs → Stability**
 
-The validators couldn't exist until the assistants were stable. Once they were, I could build a parallel scoring system. That system introduced new bugs ([`validator-inline.js`](https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/js/validator-inline.js) categorization), which required new fixes, which led to new stability.
+The validators couldn't exist until the assistants were stable. Once they were, I could build a parallel scoring system. That system introduced new bugs (`validator-inline.js` categorization), which required new fixes, which led to new stability.
 
 This is the Genesis cycle: each layer of tooling enables the next, but also introduces new failure modes.
 
@@ -437,7 +437,7 @@ The tools remain useful. The experiment was educational. But I wouldn't do it th
 | **Documentation** | |
 | AI Instructions | [GitHub](https://github.com/bordenet/genesis/tree/main/genesis/ai-instructions) |
 | Continuous Improvement | [GitHub](https://github.com/bordenet/genesis/blob/main/CONTINUOUS_IMPROVEMENT.md) |
-| Same-LLM Adversarial Guide | [GitHub](https://github.com/bordenet/genesis/blob/main/genesis/SAME-LLM-ADVERSARIAL-GUIDE.md) |
+| Adversarial Testing Guide | [GitHub](https://github.com/bordenet/genesis/blob/main/genesis/ADVERSARIAL-TESTING-GUIDE.md) |
 | **Related Projects** | |
 | Superpowers Plus (Skills) | [GitHub](https://github.com/bordenet/superpowers-plus) |
 | obra/superpowers (TDD) | [GitHub](https://github.com/obra/superpowers) |
