@@ -1711,7 +1711,12 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
   for (const project of PROJECTS) {
     const projectPath = path.join(genesisToolsDir, project);
     const validatorPath = path.join(projectPath, 'validator/js/validator.js');
-    const testPath = path.join(projectPath, 'assistant/tests/validator-inline.test.js');
+    // Check both possible test file locations
+    const testPathInline = path.join(projectPath, 'assistant/tests/validator-inline.test.js');
+    const testPathValidator = path.join(projectPath, 'validator/tests/validator.test.js');
+    // Use whichever exists, preferring validator-inline.test.js for backward compatibility
+    const testPath = fs.existsSync(testPathInline) ? testPathInline :
+                     fs.existsSync(testPathValidator) ? testPathValidator : testPathInline;
     const projectIssues = [];
     results.summary.projectsChecked++;
 
@@ -1829,15 +1834,29 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
           const funcBody = content.slice(startIdx, endIdx - 1);
 
           // Check if function returns an object with detection-style properties
-          // Valid patterns: { found, ... } OR { has*, ... } OR { is*, ... }
+          // Valid patterns:
+          //   1. Inline: return { found, ... } OR { has*, ... } OR { is*, ... }
+          //   2. Pre-built: result.found = ...; return result;
           // These indicate structured detection results
           const hasFoundReturn = /return\s*\{[\s\S]*?\bfound\s*[,:]/i.test(funcBody);
           const hasHasReturn = /return\s*\{[\s\S]*?\bhas[A-Z]\w*\s*[,:]/i.test(funcBody);
           const hasIsReturn = /return\s*\{[\s\S]*?\bis[A-Z]\w*\s*[,:]/i.test(funcBody);
           const hasIndicatorsReturn = /return\s*\{[\s\S]*?\bindicators\s*[,:]/i.test(funcBody);
           const hasCountReturn = /return\s*\{[\s\S]*?\bcount\s*[,:]/i.test(funcBody);
+
+          // Also check for pre-built object pattern: result.found = ...; return result;
+          // This catches patterns like: result.found = true; ... return result;
+          const hasPrebuiltFoundReturn = /\w+\.found\s*=/.test(funcBody) && /return\s+\w+\s*;/.test(funcBody);
+          const hasPrebuiltHasReturn = /\w+\.has[A-Z]\w*\s*=/.test(funcBody) && /return\s+\w+\s*;/.test(funcBody);
+          const hasPrebuiltIsReturn = /\w+\.is[A-Z]\w*\s*=/.test(funcBody) && /return\s+\w+\s*;/.test(funcBody);
+          const hasPrebuiltCountReturn = /\w+\.count\s*=/.test(funcBody) && /return\s+\w+\s*;/.test(funcBody);
+          const hasPrebuiltIndicatorsReturn = /\w+\.indicators\s*=/.test(funcBody) && /return\s+\w+\s*;/.test(funcBody);
+
           const hasValidDetectionReturn = hasFoundReturn || hasHasReturn || hasIsReturn ||
-                                          hasIndicatorsReturn || hasCountReturn;
+                                          hasIndicatorsReturn || hasCountReturn ||
+                                          hasPrebuiltFoundReturn || hasPrebuiltHasReturn ||
+                                          hasPrebuiltIsReturn || hasPrebuiltCountReturn ||
+                                          hasPrebuiltIndicatorsReturn;
 
           // Invalid patterns: returning a number (score), simple boolean, or score object
           const returnsNumber = /return\s+\d+\s*;/.test(funcBody);
@@ -1881,13 +1900,23 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
 
       // ======================================================================
       // CHECK 7: Test coverage - each detect*/score* should have tests
-      // Look for test patterns in validator-inline.test.js
+      // Look for test patterns in BOTH validator-inline.test.js AND validator.test.js
       // ======================================================================
-      if (fs.existsSync(testPath)) {
-        const testContent = fs.readFileSync(testPath, 'utf-8');
+      // Collect test content from all available test files
+      let combinedTestContent = '';
+      const testFiles = [];
+      if (fs.existsSync(testPathInline)) {
+        combinedTestContent += fs.readFileSync(testPathInline, 'utf-8');
+        testFiles.push('assistant/tests/validator-inline.test.js');
+      }
+      if (fs.existsSync(testPathValidator)) {
+        combinedTestContent += fs.readFileSync(testPathValidator, 'utf-8');
+        testFiles.push('validator/tests/validator.test.js');
+      }
 
+      if (combinedTestContent) {
         // Check for Detection Functions test block
-        const hasDetectionTests = /describe\s*\(\s*['"`]Detection Functions['"`]/.test(testContent);
+        const hasDetectionTests = /describe\s*\(\s*['"`]Detection Functions['"`]/.test(combinedTestContent);
 
         // Check for individual function tests
         const untestedDetect = [];
@@ -1896,23 +1925,25 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
         for (const func of functions.detect) {
           // Look for the function name in test file (in describe, test, or import)
           const funcPattern = new RegExp(`\\b${func}\\b`);
-          if (!funcPattern.test(testContent)) {
+          if (!funcPattern.test(combinedTestContent)) {
             untestedDetect.push(func);
           }
         }
 
         for (const func of functions.score) {
           const funcPattern = new RegExp(`\\b${func}\\b`);
-          if (!funcPattern.test(testContent)) {
+          if (!funcPattern.test(combinedTestContent)) {
             untestedScore.push(func);
           }
         }
+
+        const testFileDisplay = testFiles.join(' or ');
 
         if (!hasDetectionTests && functions.detect.length > 0) {
           projectIssues.push({
             type: 'missing_detection_test_block',
             severity: 'warning',
-            file: 'assistant/tests/validator-inline.test.js',
+            file: testFileDisplay,
             message: 'Missing "Detection Functions" describe block',
             found: `${functions.detect.length} detect* functions without dedicated test block`,
           });
@@ -1923,7 +1954,7 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
           projectIssues.push({
             type: 'untested_detect_functions',
             severity: 'warning',
-            file: 'assistant/tests/validator-inline.test.js',
+            file: testFileDisplay,
             message: `${untestedDetect.length} detect* function(s) not referenced in tests`,
             found: untestedDetect.slice(0, 5).join(', ') + (untestedDetect.length > 5 ? '...' : ''),
           });
@@ -1934,7 +1965,7 @@ function analyzeValidatorArchitecture(genesisToolsDir) {
           projectIssues.push({
             type: 'untested_score_functions',
             severity: 'warning',
-            file: 'assistant/tests/validator-inline.test.js',
+            file: testFileDisplay,
             message: `${untestedScore.length} score* function(s) not referenced in tests`,
             found: untestedScore.slice(0, 5).join(', ') + (untestedScore.length > 5 ? '...' : ''),
           });
