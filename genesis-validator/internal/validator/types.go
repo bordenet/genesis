@@ -8,6 +8,7 @@ type ValidationResult struct {
 	ReferencedFiles map[string][]string // file -> list of docs that reference it
 	OrphanedFiles   []string
 	MissingFiles    []string
+	BrokenLinks     []BrokenLink // Broken markdown links
 	Inconsistencies []Inconsistency
 	Errors          []error
 }
@@ -24,6 +25,7 @@ type Inconsistency struct {
 func (r *ValidationResult) IsValid() bool {
 	return len(r.OrphanedFiles) == 0 &&
 		len(r.MissingFiles) == 0 &&
+		len(r.BrokenLinks) == 0 &&
 		len(r.Errors) == 0
 }
 
@@ -43,6 +45,7 @@ func (r *ValidationResult) Summary() string {
 	summary += fmt.Sprintf("  Template files found: %d\n", len(r.TemplateFiles))
 	summary += fmt.Sprintf("  Orphaned files: %d\n", len(r.OrphanedFiles))
 	summary += fmt.Sprintf("  Missing files: %d\n", len(r.MissingFiles))
+	summary += fmt.Sprintf("  Broken links: %d\n", len(r.BrokenLinks))
 	summary += fmt.Sprintf("  Inconsistencies: %d\n", len(r.Inconsistencies))
 	summary += fmt.Sprintf("  Errors: %d\n", len(r.Errors))
 
