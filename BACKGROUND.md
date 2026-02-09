@@ -20,7 +20,7 @@ Over 1,600+ commits across 10 repositories, I layered on increasingly elaborate 
 
 **Self-reinforcing AI instructions.** A [`CONTINUOUS_IMPROVEMENT.md`](https://github.com/bordenet/genesis/blob/main/CONTINUOUS_IMPROVEMENT.md) file tracks gaps discovered during development. These feed back into the [AI instructions](https://github.com/bordenet/genesis/tree/main/genesis/ai-instructions), creating a loop where each bug fix improves future generations.
 
-**[Cross-LLM adversarial testing](https://github.com/bordenet/genesis/blob/main/genesis/ADVERSARIAL-TESTING-GUIDE.md).** Claude generates review prompts for Gemini and Perplexity.ai, pitting three LLMs against each other to verify consistency across each repo's assistant and validator. See the derived [think-twice](https://github.com/bordenet/superpowers-plus/blob/main/skills/think-twice/skill.md) and [experimental-self-prompting](https://github.com/bordenet/superpowers-plus/blob/main/skills/experimental/experimental-self-prompting/SKILL.md) skills.
+**[Adversarial testing](https://github.com/bordenet/genesis/blob/main/genesis/ADVERSARIAL-TESTING-GUIDE.md).** Claude generates review prompts for Gemini and Perplexity.ai, pitting three LLMs against each other to verify consistency across each repo's assistant and validator. See the derived [think-twice](https://github.com/bordenet/superpowers-plus/blob/main/skills/think-twice/skill.md) and [experimental-self-prompting](https://github.com/bordenet/superpowers-plus/blob/main/skills/experimental/experimental-self-prompting/SKILL.md) skills.
 
 ## Commits to Stability
 
