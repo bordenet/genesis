@@ -383,6 +383,7 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // === PROJECT IDENTITY (contains project name/title) ===
   /^README\.md$/,
   /^CONTRIBUTING\.md$/,
+  /^CHANGELOG\.md$/,        // Contains project-specific version history
   /^Agents\.md$/,           // Contains project-specific AI guidance
   /^CLAUDE\.md$/,           // Contains project-specific instructions
   /^LICENSE$/,
@@ -392,6 +393,20 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // NOTE: AGENT.md, CODEX.md, COPILOT.md, GEMINI.md, ADOPT-PROMPT.md are
   // intentionally NOT listed here - they are identical across all projects
   // and should be in MUST_MATCH category
+
+  // === ADVERSARIAL REVIEW (document-type specific) ===
+  // Contains document-specific adversarial review guidance for LLM prompts
+  /^ADVERSARIAL_REVIEW_PROMPT\.md$/,
+
+  // === IMPORT LOGIC (document-type specific) ===
+  // Contains DOC_TYPE constant and document-specific import parsing
+  /^shared\/js\/import-document\.js$/,
+
+  // === E2E TESTS (contain project name in test descriptions) ===
+  /^e2e\/app\.spec\.js$/,
+
+  // === SCRIPTS (contain project name in headers/messages) ===
+  /^scripts\/check-secrets\.sh$/,
 
   // === HTML FILES (contain project title in <title> tag) ===
   /^index\.html$/,
@@ -422,6 +437,8 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^assistant\/tests\/prompts\.test\.js$/,
   // Tests for validator (tests document-specific validation)
   /^validator\/tests\/validator\.test\.js$/,
+  // Tests for validator prompts (tests project-specific LLM scoring prompts)
+  /^validator\/tests\/prompts\.test\.js$/,
   // Smoke tests (jd-assistant uses jd-validator.js instead of validator-inline.js,
   // so its smoke.test.js has different validator export checks)
   /^assistant\/tests\/smoke\.test\.js$/,
@@ -2400,23 +2417,29 @@ function diffProjects(genesisToolsDir) {
     }
 
     // Categorize the file
-    if (projectsWithFile.length < PROJECTS.length) {
-      // File doesn't exist in all projects
+    if (isIntentionalDiff(filePath)) {
+      // Expected to differ - regardless of whether it exists in all projects
+      // Files in INTENTIONAL_DIFF_PATTERNS may have project-specific content
+      // (e.g., CHANGELOG.md, ADVERSARIAL_REVIEW_PROMPT.md) and don't need to exist everywhere
+      const uniqueHashes = [...new Set(Object.values(hashes))];
+      results.intentionalDiff.push({
+        path: filePath,
+        uniqueVersions: uniqueHashes.length,
+        hashes,
+        existsIn: projectsWithFile,
+        missingFrom: projectsWithFile.length < PROJECTS.length
+          ? PROJECTS.filter(p => !projectsWithFile.includes(p))
+          : []
+      });
+      results.summary.intentional++;
+    } else if (projectsWithFile.length < PROJECTS.length) {
+      // File doesn't exist in all projects and is NOT in INTENTIONAL_DIFF_PATTERNS
       results.projectSpecific.push({
         path: filePath,
         existsIn: projectsWithFile,
         missingFrom: PROJECTS.filter(p => !projectsWithFile.includes(p))
       });
       results.summary.projectSpecific++;
-    } else if (isIntentionalDiff(filePath)) {
-      // Expected to differ
-      const uniqueHashes = [...new Set(Object.values(hashes))];
-      results.intentionalDiff.push({
-        path: filePath,
-        uniqueVersions: uniqueHashes.length,
-        hashes
-      });
-      results.summary.intentional++;
     } else {
       // MUST match - check if all hashes are identical
       const uniqueHashes = [...new Set(Object.values(hashes))];
