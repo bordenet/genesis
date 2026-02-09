@@ -145,6 +145,44 @@ describe('Smoke Test - App Initialization', () => {
     });
   });
 
+  describe('API Contract - validateDocument returns expected structure for project-view.js', () => {
+    // project-view.js accesses validationResult.X.issues where X is a category name
+    // These tests ensure validateDocument returns the expected structure
+    // Prevents "Cannot read properties of undefined (reading 'issues')" runtime errors
+
+    test('validateDocument returns structure category with issues array', async () => {
+      const validator = await import('../../validator/js/validator.js');
+      const result = validator.validateDocument('# Test');
+      expect(result).toHaveProperty('structure');
+      expect(result.structure).toHaveProperty('issues');
+      expect(Array.isArray(result.structure.issues)).toBe(true);
+    });
+
+    test('validateDocument returns clarity category with issues array', async () => {
+      const validator = await import('../../validator/js/validator.js');
+      const result = validator.validateDocument('# Test');
+      expect(result).toHaveProperty('clarity');
+      expect(result.clarity).toHaveProperty('issues');
+      expect(Array.isArray(result.clarity.issues)).toBe(true);
+    });
+
+    test('validateDocument returns businessValue category with issues array', async () => {
+      const validator = await import('../../validator/js/validator.js');
+      const result = validator.validateDocument('# Test');
+      expect(result).toHaveProperty('businessValue');
+      expect(result.businessValue).toHaveProperty('issues');
+      expect(Array.isArray(result.businessValue.issues)).toBe(true);
+    });
+
+    test('validateDocument returns completeness category with issues array', async () => {
+      const validator = await import('../../validator/js/validator.js');
+      const result = validator.validateDocument('# Test');
+      expect(result).toHaveProperty('completeness');
+      expect(result.completeness).toHaveProperty('issues');
+      expect(Array.isArray(result.completeness.issues)).toBe(true);
+    });
+  });
+
   describe('Export Consistency - diff-view.js exports match project-view.js imports', () => {
     test('diff-view.js exports computeWordDiff', async () => {
       const diffView = await import('../../shared/js/diff-view.js');
