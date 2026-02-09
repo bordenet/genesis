@@ -1,7 +1,95 @@
 # Code Consistency Mandate
 
-> **Last Updated**: 2026-02-04
+> **Last Updated**: 2026-02-08
 > **Severity**: CRITICAL - This document describes non-negotiable requirements
+
+---
+
+## 🚨🚨🚨 CATASTROPHIC FAILURE PREVENTION: Validator Alignment Test 🚨🚨🚨
+
+> **STOP AND READ THIS FIRST** - This test was requested THREE TIMES and never implemented, causing a 17-point scoring divergence that confused users. This is now a MANDATORY test for ALL genesis-derived projects.
+
+### The Problem That MUST Never Happen Again
+
+Genesis projects have TWO components that score documents:
+1. **LLM Assistant** (`assistant/`) - Uses prompts to guide document creation
+2. **JavaScript Validator** (`validator/js/validator.js`) - Scores completed documents
+
+If these diverge, users get confused: the LLM teaches them to write one way, but the validator scores differently. This happened when `shared/js/validator-inline.js` diverged from `validator/js/validator.js` by **553 lines** in one project.
+
+### MANDATORY Test: Single Source of Truth
+
+**Every genesis-derived project MUST have this test in `assistant/tests/smoke.test.js`:**
+
+```javascript
+describe('CRITICAL: Validator Single Source of Truth', () => {
+  test('validator-inline.js should NOT exist (use canonical validator instead)', async () => {
+    const fs = await import('fs');
+    const path = await import('path');
+    const inlinePath = path.join(process.cwd(), 'shared', 'js', 'validator-inline.js');
+    expect(fs.existsSync(inlinePath)).toBe(false);
+  });
+
+  test('canonical validator exports validateDocument', async () => {
+    const validator = await import('../../validator/js/validator.js');
+    expect(typeof validator.validateDocument).toBe('function');
+  });
+
+  test('canonical validator exports getScoreColor', async () => {
+    const validator = await import('../../validator/js/validator.js');
+    expect(typeof validator.getScoreColor).toBe('function');
+  });
+
+  test('canonical validator exports getScoreLabel', async () => {
+    const validator = await import('../../validator/js/validator.js');
+    expect(typeof validator.getScoreLabel).toBe('function');
+  });
+});
+```
+
+### MANDATORY: Verify the Test Works
+
+After adding the test, **verify it actually catches the problem**:
+
+```bash
+# 1. Run tests - should pass
+npm test
+
+# 2. Create a fake validator-inline.js
+echo "// fake" > shared/js/validator-inline.js
+
+# 3. Run tests again - MUST FAIL
+npm test  # Should fail with "validator-inline.js should NOT exist"
+
+# 4. Delete the fake file
+rm shared/js/validator-inline.js
+
+# 5. Run tests - should pass again
+npm test
+```
+
+**If step 3 does NOT fail, the test is broken and MUST be fixed before proceeding.**
+
+### Why This Matters
+
+| Without This Test | With This Test |
+|-------------------|----------------|
+| Duplicate validator files can accumulate | CI fails immediately if duplicate appears |
+| Scoring divergence goes unnoticed | Single source of truth enforced |
+| Users get confused by inconsistent scores | Consistent scoring guaranteed |
+| 17+ point discrepancies possible | Impossible to diverge |
+
+### AI Agent Checklist
+
+Before claiming a genesis-derived project is complete:
+
+- [ ] `shared/js/validator-inline.js` does NOT exist
+- [ ] `validator/js/validator.js` exports `validateDocument`, `getScoreColor`, `getScoreLabel`
+- [ ] `shared/js/import-document.js` imports from `../../validator/js/validator.js`
+- [ ] `shared/js/project-view.js` imports from `../../validator/js/validator.js`
+- [ ] `shared/js/views.js` imports from `../../validator/js/validator.js`
+- [ ] Smoke test exists that verifies `validator-inline.js` does NOT exist
+- [ ] Smoke test has been TESTED by temporarily creating the file and verifying test fails
 
 ---
 

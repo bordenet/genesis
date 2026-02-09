@@ -206,6 +206,49 @@ Use this checklist for full testing:
 - [ ] GitHub Pages enabled (optional)
 - [ ] Site loads on GitHub Pages (optional)
 - [ ] CI/CD workflow runs successfully (optional)
+- [ ] **🚨 Validator alignment test exists (see below)**
+- [ ] **🚨 Validator alignment test has been TESTED (see below)**
+
+---
+
+## 🚨 CRITICAL: Validator Alignment Test
+
+> **This test was requested THREE TIMES and never implemented.** It caused a 17-point scoring divergence. This is now MANDATORY.
+
+### Verify the Test Exists
+
+Every genesis-derived project MUST have a smoke test that verifies `validator-inline.js` does NOT exist:
+
+```bash
+grep -r "validator-inline.js should NOT exist" assistant/tests/smoke.test.js
+```
+
+**Expected**: Match found. **If no match**: The test is MISSING and must be added.
+
+### Verify the Test Actually Works
+
+**This step is CRITICAL and often skipped.** A test that doesn't fail when it should is worse than no test.
+
+```bash
+# 1. Run tests - should pass
+npm test
+
+# 2. Create a fake validator-inline.js
+echo "// fake" > shared/js/validator-inline.js
+
+# 3. Run tests - MUST FAIL
+npm test  # If this passes, the test is BROKEN!
+
+# 4. Delete the fake file
+rm shared/js/validator-inline.js
+
+# 5. Run tests - should pass again
+npm test
+```
+
+**If step 3 does NOT fail, DO NOT proceed. Fix the test first.**
+
+See [`CODE-CONSISTENCY-MANDATE.md`](CODE-CONSISTENCY-MANDATE.md) for full details and the required test code.
 
 ---
 

@@ -2,7 +2,23 @@
 
 > **Audience**: AI coding assistants only
 > **Scope**: All code generation in this repository
-> **Last Updated**: 2026-02-06
+> **Last Updated**: 2026-02-08
+
+---
+
+## 🚨🚨🚨 STOP: Read This First 🚨🚨🚨
+
+**The Validator Alignment Test is NON-NEGOTIABLE.** This test was requested THREE TIMES and never implemented, causing a 17-point scoring divergence that confused users.
+
+Before claiming ANY genesis-derived project is complete:
+
+1. **Verify test exists**: `grep -r "validator-inline.js should NOT exist" assistant/tests/smoke.test.js`
+2. **Verify test WORKS**: Create `shared/js/validator-inline.js`, run `npm test` — **MUST FAIL**
+3. **Clean up**: Delete the test file, run `npm test` — should pass
+
+See [`CODE-CONSISTENCY-MANDATE.md`](genesis/CODE-CONSISTENCY-MANDATE.md) for the required test code.
+
+---
 
 ## Instruction Hierarchy
 
@@ -95,8 +111,9 @@ CHECKPOINT: Pre-Commit Verification
 □ 2. `npm test` passed with ≥70% coverage
 □ 3. `cd genesis/project-diff && node diff-projects.js --ci` shows "✓ ALL MUST-MATCH FILES ARE IDENTICAL"
 □ 4. No `{{...}}` template variables remain
+□ 5. 🚨 Validator alignment test exists in smoke.test.js
 
-Confirm items 1-4 complete before proceeding.
+Confirm items 1-5 complete before proceeding.
 ```
 
 Before claiming done, STOP and confirm:
@@ -109,8 +126,9 @@ CHECKPOINT: Completion Verification
 □ 4. All buttons have event handlers wired
 □ 5. Import Document tile appears and opens modal
 □ 6. Import modal converts pasted HTML to Markdown
+□ 7. 🚨 Validator alignment test has been TESTED (create fake file, verify test fails, delete fake file)
 
-Confirm items 1-6 complete before claiming done.
+Confirm items 1-7 complete before claiming done.
 ```
 
 ---
