@@ -544,12 +544,17 @@ export function scoreCompleteness(text) {
  */
 export function validateOnePager(text) {
   if (!text || typeof text !== 'string') {
+    const emptyResult = { score: 0, maxScore: 30, issues: ['No content to validate'], strengths: [] };
     return {
       totalScore: 0,
-      problemClarity: { score: 0, maxScore: 30, issues: ['No content to validate'], strengths: [] },
-      solution: { score: 0, maxScore: 25, issues: ['No content to validate'], strengths: [] },
-      scope: { score: 0, maxScore: 25, issues: ['No content to validate'], strengths: [] },
-      completeness: { score: 0, maxScore: 20, issues: ['No content to validate'], strengths: [] }
+      problemClarity: emptyResult,
+      solution: { ...emptyResult, maxScore: 25 },
+      scope: { ...emptyResult, maxScore: 25 },
+      completeness: { ...emptyResult, maxScore: 20 },
+      // Backward compatibility aliases for project-view.js
+      structure: emptyResult,
+      clarity: { ...emptyResult, maxScore: 25 },
+      businessValue: { ...emptyResult, maxScore: 25 }
     };
   }
 
@@ -581,6 +586,11 @@ export function validateOnePager(text) {
     solution,
     scope,
     completeness,
+    // Backward compatibility aliases for project-view.js
+    // These map generic names to the one-pager specific dimensions
+    structure: problemClarity,
+    clarity: solution,
+    businessValue: scope,
     // CUSTOMIZE: Include slopDetection in return for transparency
     slopDetection: {
       ...slopPenalty,
