@@ -336,17 +336,46 @@ const SIGNATURE_CHECK_FILES = [
   // Core UI functions - these are called from multiple places
   'assistant/js/ui.js',
   'js/ui.js',
+  'shared/js/ui.js',
   // Storage functions - critical for data consistency
   'assistant/js/storage.js',
   'js/storage.js',
+  'shared/js/storage.js',
   // Project management functions
   'assistant/js/projects.js',
   'js/projects.js',
+  'shared/js/projects.js',
   // Workflow functions
   'assistant/js/workflow.js',
   'js/workflow.js',
+  'shared/js/workflow.js',
   // NOTE: router.js is in INTENTIONAL_DIFF - signature differs by project
   // because it imports from views.js which has different exports per project
+];
+
+// ============================================================================
+// CANONICAL CODE PATTERNS
+// ============================================================================
+// Code patterns that MUST be consistent across all projects.
+// Unlike signature checks (which only check function signatures), these check
+// that specific code patterns are used consistently in function bodies.
+// This catches drift like using `for (let i = 1; i <= 3; i++)` instead of
+// `for (const phase of WORKFLOW_CONFIG.phases)`.
+const CANONICAL_CODE_PATTERNS = [
+  {
+    name: 'loadDefaultPrompts loop pattern',
+    description: 'Must use WORKFLOW_CONFIG.phases iterator, not hardcoded loop',
+    files: ['shared/js/workflow.js', 'js/workflow.js', 'assistant/js/workflow.js'],
+    // The canonical pattern - what SHOULD be used
+    canonicalPattern: /for\s*\(\s*const\s+phase\s+of\s+WORKFLOW_CONFIG\.phases\s*\)/,
+    // Anti-patterns - what should NOT be used
+    antiPatterns: [
+      /for\s*\(\s*let\s+phase\s*=\s*1\s*;\s*phase\s*<=\s*3\s*;\s*phase\+\+\s*\)/,
+      /for\s*\(\s*let\s+i\s*=\s*1\s*;\s*i\s*<=\s*3\s*;\s*i\+\+\s*\)/,
+    ],
+    // Context: only check within loadDefaultPrompts function
+    contextPattern: /export\s+(async\s+)?function\s+loadDefaultPrompts/,
+  },
 ];
 
 // Files/patterns that are EXPECTED to differ between projects
@@ -1072,6 +1101,87 @@ function analyzeFunctionSignatures(genesisToolsDir) {
             signatureGroups,
             uniqueSignatures
           });
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Analyze canonical code pattern consistency across all projects.
+ * Detects when projects use non-canonical patterns (e.g., hardcoded loops instead of
+ * WORKFLOW_CONFIG.phases iterator). This catches drift that signature checks miss
+ * because the function signature is the same but the implementation differs.
+ */
+function analyzeCanonicalPatterns(genesisToolsDir) {
+  const results = {
+    summary: { patternsChecked: 0, violations: 0 },
+    violations: []  // Array of { pattern, project, file, line, found }
+  };
+
+  for (const patternDef of CANONICAL_CODE_PATTERNS) {
+    results.summary.patternsChecked++;
+
+    for (const project of PROJECTS) {
+      const projectPath = path.join(genesisToolsDir, project);
+
+      for (const file of patternDef.files) {
+        const filePath = path.join(projectPath, file);
+
+        if (!fs.existsSync(filePath)) {
+          continue;
+        }
+
+        try {
+          const content = fs.readFileSync(filePath, 'utf-8');
+          const lines = content.split('\n');
+
+          // Find the function context (e.g., loadDefaultPrompts)
+          let inContext = false;
+          let braceDepth = 0;
+          let contextStartLine = -1;
+
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+
+            // Check if we're entering the context (function definition)
+            if (!inContext && patternDef.contextPattern.test(line)) {
+              inContext = true;
+              contextStartLine = i + 1;
+              braceDepth = 0;
+            }
+
+            if (inContext) {
+              // Track brace depth to know when function ends
+              braceDepth += (line.match(/{/g) || []).length;
+              braceDepth -= (line.match(/}/g) || []).length;
+
+              // Check for anti-patterns within this function
+              for (const antiPattern of patternDef.antiPatterns) {
+                if (antiPattern.test(line)) {
+                  results.summary.violations++;
+                  results.violations.push({
+                    patternName: patternDef.name,
+                    description: patternDef.description,
+                    project,
+                    file,
+                    line: i + 1,
+                    found: line.trim(),
+                    expected: 'for (const phase of WORKFLOW_CONFIG.phases)'
+                  });
+                }
+              }
+
+              // Exit context when braces balance (function ends)
+              if (braceDepth === 0 && contextStartLine !== i + 1) {
+                inContext = false;
+              }
+            }
+          }
+        } catch {
+          // File can't be read, skip
         }
       }
     }
@@ -2646,6 +2756,9 @@ function diffProjects(genesisToolsDir) {
   // Analyze function signature consistency across projects
   results.functionSignatures = analyzeFunctionSignatures(genesisToolsDir);
 
+  // Analyze canonical code pattern consistency (e.g., WORKFLOW_CONFIG.phases loop)
+  results.canonicalPatterns = analyzeCanonicalPatterns(genesisToolsDir);
+
   // Analyze URL self-reference issues (absolute URLs pointing to wrong project)
   results.urlSelfReference = analyzeURLSelfReference(genesisToolsDir);
 
@@ -3062,6 +3175,25 @@ function formatConsoleReport(results) {
     }
   }
 
+  // CANONICAL CODE PATTERN VIOLATIONS: Non-standard implementation patterns
+  if (results.canonicalPatterns && results.canonicalPatterns.summary.violations > 0) {
+    const teal = (s) => `\x1b[36m${s}\x1b[0m`;
+    lines.push(teal(bold('📐 CANONICAL CODE PATTERN VIOLATIONS (non-standard implementation)')));
+    lines.push(teal('─'.repeat(60)));
+    lines.push('');
+    lines.push('  These files use NON-CANONICAL patterns that differ from the standard.');
+    lines.push('  This causes maintenance burden and inconsistent behavior.');
+    lines.push('');
+
+    for (const violation of results.canonicalPatterns.violations) {
+      lines.push(teal(`  ${violation.patternName} in ${violation.project}`));
+      lines.push(red(`    Found:    ${violation.found}`));
+      lines.push(green(`    Expected: ${violation.expected}`));
+      lines.push(`    File: ${violation.file}:${violation.line}`);
+      lines.push('');
+    }
+  }
+
   // VALIDATOR SCORING ALIGNMENT: Inline vs full validator consistency
   if (results.validatorScoringAlignment && results.validatorScoringAlignment.summary.totalIssues > 0) {
     const pink = (s) => `\x1b[38;5;205m${s}\x1b[0m`;
@@ -3187,6 +3319,7 @@ function formatConsoleReport(results) {
   const internalIssues = results.internalConsistency?.summary?.totalDivergentPairs || 0;
   const bleedOverIssues = results.domainBleedOver?.summary?.totalBleedOverTerms || 0;
   const signatureMismatches = results.functionSignatures?.summary?.signatureMismatches || 0;
+  const canonicalPatternViolations = results.canonicalPatterns?.summary?.violations || 0;
   const urlIssues = results.urlSelfReference?.summary?.totalURLIssues || 0;
   const scoringIssues = results.inlineScoring?.summary?.projectsWithoutScoring || 0;
   const templateIssues = results.templateCustomization?.summary?.totalIssues || 0;
@@ -3196,7 +3329,7 @@ function formatConsoleReport(results) {
   const fitAndFinishIssues = results.fitAndFinish?.summary?.totalIssues || 0;
   const apiContractIssues = results.apiContracts?.summary?.totalMissingProperties || 0;
 
-  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0 && architectureIssues === 0 && fitAndFinishIssues === 0 && apiContractIssues === 0;
+  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && canonicalPatternViolations === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0 && architectureIssues === 0 && fitAndFinishIssues === 0 && apiContractIssues === 0;
 
   if (allGreen) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
@@ -3209,6 +3342,7 @@ function formatConsoleReport(results) {
     lines.push(green(bold('  ✓ NO TEST COVERAGE GAPS DETECTED')));
     lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
     lines.push(green(bold('  ✓ NO FUNCTION SIGNATURE MISMATCHES')));
+    lines.push(green(bold('  ✓ NO CANONICAL PATTERN VIOLATIONS')));
     lines.push(green(bold('  ✓ VALIDATOR SCORING ALIGNED (inline = full)')));
     lines.push(green(bold('  ✓ VALIDATOR ARCHITECTURE CONSISTENT (detect→score→validate)')));
     lines.push(green(bold('  ✓ FIT-AND-FINISH CONSISTENT (nav, footer, import)')));
@@ -3237,6 +3371,9 @@ function formatConsoleReport(results) {
     }
     if (signatureMismatches > 0) {
       lines.push(red(bold(`  🔧 ${signatureMismatches} FUNCTION SIGNATURE MISMATCHES - STANDARDIZE APIs`)));
+    }
+    if (canonicalPatternViolations > 0) {
+      lines.push(red(bold(`  📐 ${canonicalPatternViolations} CANONICAL PATTERN VIOLATIONS - USE STANDARD IMPLEMENTATIONS`)));
     }
     if (scoringAlignmentIssues > 0) {
       lines.push(red(bold(`  ⚖️ ${scoringAlignmentIssues} VALIDATOR SCORING MISALIGNED - SYNC SLOP FORMULAS`)));
