@@ -368,6 +368,18 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^validator\/js\/prompts\.js$/,  // Validator-specific prompt configuration
   /^shared\/js\/prompts\.js$/,     // Prompt loading logic (document-specific)
 
+  // === SCORING DOCUMENTATION (document-type specific) ===
+  // Each tool has different scoring dimensions based on document type:
+  // - acceptance-criteria: Structure, Clarity, Testability, Completeness
+  // - architecture-decision-record: Context, Decision, Consequences, Status
+  // - jd-assistant: Deduction-based (word count, inclusive language, etc.)
+  // - one-pager: Problem Clarity, Solution Quality, Scope Discipline, Completeness
+  // - power-statement: Clarity, Impact, Action, Specificity
+  // - pr-faq: Structure & Hook, Content Quality, Professional Quality, Customer Evidence, FAQ Quality
+  // - product-requirements: Document Structure, Requirements Clarity, User Focus, Technical Quality, Strategic Viability
+  // - strategic-proposal: Problem Statement, Proposed Solution, Business Impact, Implementation Plan
+  /^docs\/Scoring_Methods\.md$/,
+
   // === PROJECT IDENTITY (contains project name/title) ===
   /^README\.md$/,
   /^CONTRIBUTING\.md$/,
