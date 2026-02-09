@@ -21,7 +21,7 @@ tests/
 
 This test:
 - Scans all `.md` files in the project
-- Extracts internal markdown links `[text](path)`
+- Extracts internal markdown links (format: `[text](path)`)
 - Verifies each linked file exists
 - Fails CI if any broken links are found
 

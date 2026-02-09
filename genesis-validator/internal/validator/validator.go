@@ -2,21 +2,24 @@ package validator
 
 import (
 	"fmt"
+	"os"
 )
 
 // Validator validates Genesis template consistency
 type Validator struct {
-	config  *Config
-	scanner *Scanner
-	parser  *Parser
+	config        *Config
+	scanner       *Scanner
+	parser        *Parser
+	linkValidator *LinkValidator
 }
 
 // NewValidator creates a new Validator
 func NewValidator(config *Config) *Validator {
 	return &Validator{
-		config:  config,
-		scanner: NewScanner(config),
-		parser:  NewParser(config),
+		config:        config,
+		scanner:       NewScanner(config),
+		parser:        NewParser(config),
+		linkValidator: NewLinkValidator(config),
 	}
 }
 
@@ -26,11 +29,18 @@ func (v *Validator) Validate() (*ValidationResult, error) {
 		ReferencedFiles: make(map[string][]string),
 	}
 
-	// Step 1: Scan for all template files
+	// Step 1: Scan for all template files (continue if templates dir doesn't exist)
 	templates, err := v.scanner.ScanTemplates()
 	if err != nil {
-		result.Errors = append(result.Errors, fmt.Errorf("failed to scan templates: %w", err))
-		return result, err
+		// Only fail if it's not a "directory doesn't exist" error
+		if !os.IsNotExist(err) {
+			result.Errors = append(result.Errors, fmt.Errorf("failed to scan templates: %w", err))
+			return result, err
+		}
+		// Templates dir doesn't exist - this is OK, continue with link validation
+		if v.config.Verbose {
+			fmt.Printf("Note: Templates directory not found, skipping template validation\n")
+		}
 	}
 	result.TemplateFiles = templates
 
@@ -93,6 +103,26 @@ func (v *Validator) Validate() (*ValidationResult, error) {
 	// because CHECKLIST.md is a high-level verification document that intentionally
 	// doesn't list every template file. START-HERE.md is the single source of truth
 	// for template references.
+
+	// Step 6: Validate markdown links across all .md files
+	brokenLinks, err := v.linkValidator.ValidateAllLinks()
+	if err != nil {
+		result.Errors = append(result.Errors, fmt.Errorf("failed to validate links: %w", err))
+	} else {
+		result.BrokenLinks = brokenLinks
+		for _, link := range brokenLinks {
+			result.Inconsistencies = append(result.Inconsistencies, Inconsistency{
+				Type:        "broken_link",
+				File:        link.SourceFile,
+				Description: link.Reason,
+				Location:    fmt.Sprintf("%s:%d", link.SourceFile, link.Line),
+			})
+		}
+	}
+
+	if v.config.Verbose {
+		fmt.Printf("Found %d broken links\n", len(brokenLinks))
+	}
 
 	return result, nil
 }

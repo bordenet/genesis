@@ -75,7 +75,6 @@ grep '"name":' package.json
 5. `validator/js/app.js` - storage name, About modal content
 6. `validator/js/prompts.js` - COMPLETE REWRITE for your document type's scoring criteria
 7. `validator/js/validator.js` - header comment
-8. `**/js/same-llm-adversarial.js` - `{{DOCUMENT_TYPE}}` placeholder
 
 ### MANDATORY: INTENTIONAL_DIFF_PATTERNS Must Match Directory Structure
 

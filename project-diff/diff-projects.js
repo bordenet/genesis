@@ -138,6 +138,20 @@ const CRITICAL_TEST_PATTERNS = [
       /test\s*\(\s*['"`].*getScoreLabel/i,
     ]
   },
+  // === DOCUMENT EXPORT FUNCTIONALITY ===
+  // These patterns ensure the .docx export feature is tested uniformly
+  // across all repos (added 2026-02-08)
+  {
+    name: 'ui.docxExport',
+    description: 'Tests for .docx Word document export in showDocumentPreviewModal()',
+    filePattern: /ui\.test\.js$/,
+    codePatterns: [
+      /test\s*\(\s*['"`].*\.docx.*button/i,
+      /test\s*\(\s*['"`].*docx.*download/i,
+      /test\s*\(\s*['"`].*download.*docx/i,
+      /download-docx-btn/,
+    ]
+  },
 ];
 
 // ============================================================================
@@ -354,9 +368,22 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^validator\/js\/prompts\.js$/,  // Validator-specific prompt configuration
   /^shared\/js\/prompts\.js$/,     // Prompt loading logic (document-specific)
 
+  // === SCORING DOCUMENTATION (document-type specific) ===
+  // Each tool has different scoring dimensions based on document type:
+  // - acceptance-criteria: Structure, Clarity, Testability, Completeness
+  // - architecture-decision-record: Context, Decision, Consequences, Status
+  // - jd-assistant: Deduction-based (word count, inclusive language, etc.)
+  // - one-pager: Problem Clarity, Solution Quality, Scope Discipline, Completeness
+  // - power-statement: Clarity, Impact, Action, Specificity
+  // - pr-faq: Structure & Hook, Content Quality, Professional Quality, Customer Evidence, FAQ Quality
+  // - product-requirements: Document Structure, Requirements Clarity, User Focus, Technical Quality, Strategic Viability
+  // - strategic-proposal: Problem Statement, Proposed Solution, Business Impact, Implementation Plan
+  /^docs\/Scoring_Methods\.md$/,
+
   // === PROJECT IDENTITY (contains project name/title) ===
   /^README\.md$/,
   /^CONTRIBUTING\.md$/,
+  /^CHANGELOG\.md$/,        // Contains project-specific version history
   /^Agents\.md$/,           // Contains project-specific AI guidance
   /^CLAUDE\.md$/,           // Contains project-specific instructions
   /^LICENSE$/,
@@ -366,6 +393,20 @@ const INTENTIONAL_DIFF_PATTERNS = [
   // NOTE: AGENT.md, CODEX.md, COPILOT.md, GEMINI.md, ADOPT-PROMPT.md are
   // intentionally NOT listed here - they are identical across all projects
   // and should be in MUST_MATCH category
+
+  // === ADVERSARIAL REVIEW (document-type specific) ===
+  // Contains document-specific adversarial review guidance for LLM prompts
+  /^ADVERSARIAL_REVIEW_PROMPT\.md$/,
+
+  // === IMPORT LOGIC (document-type specific) ===
+  // Contains DOC_TYPE constant and document-specific import parsing
+  /^shared\/js\/import-document\.js$/,
+
+  // === E2E TESTS (contain project name in test descriptions) ===
+  /^e2e\/app\.spec\.js$/,
+
+  // === SCRIPTS (contain project name in headers/messages) ===
+  /^scripts\/check-secrets\.sh$/,
 
   // === HTML FILES (contain project title in <title> tag) ===
   /^index\.html$/,
@@ -396,18 +437,17 @@ const INTENTIONAL_DIFF_PATTERNS = [
   /^assistant\/tests\/prompts\.test\.js$/,
   // Tests for validator (tests document-specific validation)
   /^validator\/tests\/validator\.test\.js$/,
+  // Tests for validator prompts (tests project-specific LLM scoring prompts)
+  /^validator\/tests\/prompts\.test\.js$/,
   // Smoke tests (jd-assistant uses jd-validator.js instead of validator-inline.js,
   // so its smoke.test.js has different validator export checks)
   /^assistant\/tests\/smoke\.test\.js$/,
 
-  // === INLINE VALIDATOR (document-specific scoring - MUST MATCH validator.js) ===
-  // CRITICAL: validator-inline.js MUST have document-specific scoring functions
-  // that align with validator.js. Each project has different scoring dimensions
+  // === VALIDATOR TESTS (document-specific scoring) ===
+  // Tests for validator scoring functions - each project has different scoring dimensions
   // (e.g., scoreProblemClarity for business-justification, scoreExecutiveSummary for one-pager).
-  // Generic functions like scoreDocumentStructure will cause score discrepancies
-  // between the Assistant (which uses validator-inline.js) and the Validator tool.
-  /^shared\/js\/validator-inline\.js$/,
-  // Tests for inline validator (tests document-specific inline validation)
+  // NOTE: validator-inline.js was REMOVED in 2026-02. All projects now use single-source
+  // pattern: import from validator/js/validator.js (no separate validator-inline.js).
   /^assistant\/tests\/validator-inline\.test\.js$/,
 
   // === PROJECT-SPECIFIC TOOLS ===
@@ -1661,6 +1701,498 @@ function analyzeValidatorScoringAlignment(genesisToolsDir) {
   return results;
 }
 
+/**
+ * Analyze validator architecture across all projects.
+ * Ensures all validators follow the standard pattern:
+ * - detect*() functions: Return what was FOUND (boolean flags, counts, indicators)
+ * - score*() functions: Return a SCORE based on detection results
+ * - validate*() functions: Aggregate scores into final result
+ *
+ * DEFENSE-IN-DEPTH CHECKS:
+ * 1. Basic existence: detect, score, validateDocument must exist
+ * 2. Ratio balance: detect:score ratio should be reasonable (not 1:10)
+ * 3. Return type validation: detect functions must return { found, ... } pattern
+ * 4. Test coverage: each detect/score function should have corresponding tests
+ * 5. Utility functions: getScoreColor, getScoreLabel, getGrade should exist
+ *
+ * Returns summary and detailed issues per project.
+ */
+function analyzeValidatorArchitecture(genesisToolsDir) {
+  const results = {
+    summary: {
+      projectsChecked: 0,
+      projectsWithIssues: 0,
+      totalIssues: 0,
+      missingDetect: 0,
+      missingScore: 0,
+      missingValidateDocument: 0,
+      ratioImbalance: 0,
+      returnTypeViolations: 0,
+      missingTests: 0,
+      missingUtilityFunctions: 0,
+    },
+    projects: {}
+  };
+
+  // Required utility functions that all validators should export
+  const REQUIRED_UTILITIES = ['getScoreColor', 'getScoreLabel', 'getGrade'];
+
+  for (const project of PROJECTS) {
+    const projectPath = path.join(genesisToolsDir, project);
+    const validatorPath = path.join(projectPath, 'validator/js/validator.js');
+    // Check both possible test file locations
+    const testPathInline = path.join(projectPath, 'assistant/tests/validator-inline.test.js');
+    const testPathValidator = path.join(projectPath, 'validator/tests/validator.test.js');
+    // Use whichever exists, preferring validator-inline.test.js for backward compatibility
+    const testPath = fs.existsSync(testPathInline) ? testPathInline :
+                     fs.existsSync(testPathValidator) ? testPathValidator : testPathInline;
+    const projectIssues = [];
+    results.summary.projectsChecked++;
+
+    if (!fs.existsSync(validatorPath)) {
+      // Already caught by validator structure check
+      continue;
+    }
+
+    try {
+      const content = fs.readFileSync(validatorPath, 'utf-8');
+      const exportPattern = /export\s+function\s+(\w+)/g;
+
+      const functions = { detect: [], score: [], validate: [], utility: [], other: [] };
+      let match;
+
+      while ((match = exportPattern.exec(content)) !== null) {
+        const funcName = match[1];
+        if (funcName.startsWith('detect')) {
+          functions.detect.push(funcName);
+        } else if (funcName.startsWith('score')) {
+          functions.score.push(funcName);
+        } else if (funcName.startsWith('validate')) {
+          functions.validate.push(funcName);
+        } else if (REQUIRED_UTILITIES.includes(funcName)) {
+          functions.utility.push(funcName);
+        } else {
+          functions.other.push(funcName);
+        }
+      }
+
+      // ======================================================================
+      // CHECK 1: Must have detect* functions (BASIC EXISTENCE)
+      // ======================================================================
+      if (functions.detect.length === 0) {
+        projectIssues.push({
+          type: 'missing_detect_functions',
+          severity: 'critical',
+          file: 'validator/js/validator.js',
+          message: 'No detect* functions exported - validators must follow detect→score→validate pattern',
+          found: `score: ${functions.score.length}, validate: ${functions.validate.length}`,
+        });
+        results.summary.missingDetect++;
+      }
+
+      // ======================================================================
+      // CHECK 2: Must have score* functions (BASIC EXISTENCE)
+      // ======================================================================
+      if (functions.score.length === 0) {
+        projectIssues.push({
+          type: 'missing_score_functions',
+          severity: 'critical',
+          file: 'validator/js/validator.js',
+          message: 'No score* functions exported - validators must follow detect→score→validate pattern',
+          found: `detect: ${functions.detect.length}, validate: ${functions.validate.length}`,
+        });
+        results.summary.missingScore++;
+      }
+
+      // ======================================================================
+      // CHECK 3: Must have validateDocument function (BASIC EXISTENCE)
+      // ======================================================================
+      if (!functions.validate.includes('validateDocument')) {
+        projectIssues.push({
+          type: 'missing_validateDocument',
+          severity: 'critical',
+          file: 'validator/js/validator.js',
+          message: 'No validateDocument function exported - this is the main entry point',
+          found: `validate functions: ${functions.validate.join(', ') || 'none'}`,
+        });
+        results.summary.missingValidateDocument++;
+      }
+
+      // ======================================================================
+      // CHECK 4: Ratio balance - detect:score should be reasonable
+      // If score functions vastly outnumber detect functions, detection logic
+      // is likely buried in scoring functions (architectural violation)
+      // ======================================================================
+      if (functions.detect.length > 0 && functions.score.length > 0) {
+        const ratio = functions.score.length / functions.detect.length;
+        // Flag if score functions outnumber detect by more than 3:1
+        if (ratio > 3) {
+          projectIssues.push({
+            type: 'ratio_imbalance',
+            severity: 'warning',
+            file: 'validator/js/validator.js',
+            message: `Suspicious detect:score ratio (1:${ratio.toFixed(1)}) - detection logic may be buried in scoring`,
+            found: `detect: ${functions.detect.length}, score: ${functions.score.length}`,
+          });
+          results.summary.ratioImbalance++;
+        }
+      }
+
+      // ======================================================================
+      // CHECK 5: Return type validation - detect* must return { found, ... }
+      // Parse function bodies to verify detect* returns structured detection
+      // results, not scores or simple booleans
+      // ======================================================================
+      for (const detectFunc of functions.detect) {
+        // Find the function body using a more robust pattern
+        const funcStartPattern = new RegExp(
+          `export\\s+function\\s+${detectFunc}\\s*\\([^)]*\\)\\s*\\{`
+        );
+        const startMatch = content.match(funcStartPattern);
+
+        if (startMatch) {
+          const startIdx = startMatch.index + startMatch[0].length;
+          // Find matching closing brace by counting braces
+          let braceCount = 1;
+          let endIdx = startIdx;
+          while (braceCount > 0 && endIdx < content.length) {
+            if (content[endIdx] === '{') braceCount++;
+            if (content[endIdx] === '}') braceCount--;
+            endIdx++;
+          }
+          const funcBody = content.slice(startIdx, endIdx - 1);
+
+          // Check if function returns an object with detection-style properties
+          // Valid patterns:
+          //   1. Inline: return { found, ... } OR { has*, ... } OR { is*, ... }
+          //   2. Pre-built: result.found = ...; return result;
+          // These indicate structured detection results
+          const hasFoundReturn = /return\s*\{[\s\S]*?\bfound\s*[,:]/i.test(funcBody);
+          const hasHasReturn = /return\s*\{[\s\S]*?\bhas[A-Z]\w*\s*[,:]/i.test(funcBody);
+          const hasIsReturn = /return\s*\{[\s\S]*?\bis[A-Z]\w*\s*[,:]/i.test(funcBody);
+          const hasIndicatorsReturn = /return\s*\{[\s\S]*?\bindicators\s*[,:]/i.test(funcBody);
+          const hasCountReturn = /return\s*\{[\s\S]*?\bcount\s*[,:]/i.test(funcBody);
+
+          // Also check for pre-built object pattern: result.found = ...; return result;
+          // This catches patterns like: result.found = true; ... return result;
+          const hasPrebuiltFoundReturn = /\w+\.found\s*=/.test(funcBody) && /return\s+\w+\s*;/.test(funcBody);
+          const hasPrebuiltHasReturn = /\w+\.has[A-Z]\w*\s*=/.test(funcBody) && /return\s+\w+\s*;/.test(funcBody);
+          const hasPrebuiltIsReturn = /\w+\.is[A-Z]\w*\s*=/.test(funcBody) && /return\s+\w+\s*;/.test(funcBody);
+          const hasPrebuiltCountReturn = /\w+\.count\s*=/.test(funcBody) && /return\s+\w+\s*;/.test(funcBody);
+          const hasPrebuiltIndicatorsReturn = /\w+\.indicators\s*=/.test(funcBody) && /return\s+\w+\s*;/.test(funcBody);
+
+          const hasValidDetectionReturn = hasFoundReturn || hasHasReturn || hasIsReturn ||
+                                          hasIndicatorsReturn || hasCountReturn ||
+                                          hasPrebuiltFoundReturn || hasPrebuiltHasReturn ||
+                                          hasPrebuiltIsReturn || hasPrebuiltCountReturn ||
+                                          hasPrebuiltIndicatorsReturn;
+
+          // Invalid patterns: returning a number (score), simple boolean, or score object
+          const returnsNumber = /return\s+\d+\s*;/.test(funcBody);
+          const returnsSimpleBoolean = /return\s+(true|false)\s*;/.test(funcBody);
+          const returnsScore = /return\s*\{[\s\S]*?\bscore\s*:/i.test(funcBody);
+          const returnsPenalty = /return\s*\{[\s\S]*?\bpenalty\s*:/i.test(funcBody);
+
+          if (!hasValidDetectionReturn || returnsNumber || returnsSimpleBoolean ||
+              returnsScore || returnsPenalty) {
+            projectIssues.push({
+              type: 'return_type_violation',
+              severity: 'error',
+              file: 'validator/js/validator.js',
+              message: `${detectFunc}() should return detection object { found|has*|is*|count|indicators }`,
+              found: returnsScore ? 'returns score object' :
+                     returnsPenalty ? 'returns penalty object' :
+                     returnsNumber ? 'returns number' :
+                     returnsSimpleBoolean ? 'returns simple boolean' :
+                     'missing detection return pattern',
+            });
+            results.summary.returnTypeViolations++;
+          }
+        }
+      }
+
+      // ======================================================================
+      // CHECK 6: Utility functions - getScoreColor, getScoreLabel, getGrade
+      // These are required for consistent UI rendering across all tools
+      // ======================================================================
+      const missingUtilities = REQUIRED_UTILITIES.filter(u => !functions.utility.includes(u));
+      if (missingUtilities.length > 0) {
+        projectIssues.push({
+          type: 'missing_utility_functions',
+          severity: 'warning',
+          file: 'validator/js/validator.js',
+          message: `Missing required utility functions for UI consistency`,
+          found: `missing: ${missingUtilities.join(', ')}`,
+        });
+        results.summary.missingUtilityFunctions++;
+      }
+
+      // ======================================================================
+      // CHECK 7: Test coverage - each detect*/score* should have tests
+      // Look for test patterns in BOTH validator-inline.test.js AND validator.test.js
+      // ======================================================================
+      // Collect test content from all available test files
+      let combinedTestContent = '';
+      const testFiles = [];
+      if (fs.existsSync(testPathInline)) {
+        combinedTestContent += fs.readFileSync(testPathInline, 'utf-8');
+        testFiles.push('assistant/tests/validator-inline.test.js');
+      }
+      if (fs.existsSync(testPathValidator)) {
+        combinedTestContent += fs.readFileSync(testPathValidator, 'utf-8');
+        testFiles.push('validator/tests/validator.test.js');
+      }
+
+      if (combinedTestContent) {
+        // Check for Detection Functions test block
+        const hasDetectionTests = /describe\s*\(\s*['"`]Detection Functions['"`]/.test(combinedTestContent);
+
+        // Check for individual function tests
+        const untestedDetect = [];
+        const untestedScore = [];
+
+        for (const func of functions.detect) {
+          // Look for the function name in test file (in describe, test, or import)
+          const funcPattern = new RegExp(`\\b${func}\\b`);
+          if (!funcPattern.test(combinedTestContent)) {
+            untestedDetect.push(func);
+          }
+        }
+
+        for (const func of functions.score) {
+          const funcPattern = new RegExp(`\\b${func}\\b`);
+          if (!funcPattern.test(combinedTestContent)) {
+            untestedScore.push(func);
+          }
+        }
+
+        const testFileDisplay = testFiles.join(' or ');
+
+        if (!hasDetectionTests && functions.detect.length > 0) {
+          projectIssues.push({
+            type: 'missing_detection_test_block',
+            severity: 'warning',
+            file: testFileDisplay,
+            message: 'Missing "Detection Functions" describe block',
+            found: `${functions.detect.length} detect* functions without dedicated test block`,
+          });
+          results.summary.missingTests++;
+        }
+
+        if (untestedDetect.length > 0) {
+          projectIssues.push({
+            type: 'untested_detect_functions',
+            severity: 'warning',
+            file: testFileDisplay,
+            message: `${untestedDetect.length} detect* function(s) not referenced in tests`,
+            found: untestedDetect.slice(0, 5).join(', ') + (untestedDetect.length > 5 ? '...' : ''),
+          });
+          results.summary.missingTests++;
+        }
+
+        if (untestedScore.length > 0) {
+          projectIssues.push({
+            type: 'untested_score_functions',
+            severity: 'warning',
+            file: testFileDisplay,
+            message: `${untestedScore.length} score* function(s) not referenced in tests`,
+            found: untestedScore.slice(0, 5).join(', ') + (untestedScore.length > 5 ? '...' : ''),
+          });
+          results.summary.missingTests++;
+        }
+      }
+    } catch {
+      // Skip files that can't be read
+    }
+
+    if (projectIssues.length > 0) {
+      results.projects[project] = projectIssues;
+      results.summary.projectsWithIssues++;
+      results.summary.totalIssues += projectIssues.length;
+    }
+  }
+
+  return results;
+}
+
+// ============================================================================
+// API CONTRACT CHECKING
+// ============================================================================
+// Verifies that validateDocument() returns the properties that project-view.js expects.
+// This catches bugs where the validator API changes but consumers aren't updated.
+// Example: project-view.js expects validationResult.businessValue.issues but
+// validator.js returns testability instead of businessValue.
+
+/**
+ * Analyze API contracts between validator.js and project-view.js.
+ * Extracts the category properties accessed via validationResult.X.issues in project-view.js,
+ * then verifies that validateDocument() in validator.js returns those properties.
+ *
+ * Returns summary and detailed issues per project.
+ */
+function analyzeAPIContracts(genesisToolsDir) {
+  const results = {
+    summary: { projectsChecked: 0, projectsWithIssues: 0, totalMissingProperties: 0 },
+    projects: {}
+  };
+
+  for (const project of PROJECTS) {
+    const projectPath = path.join(genesisToolsDir, project);
+    const projectIssues = [];
+
+    // Find project-view.js (try shared/js first, then assistant/js)
+    const projectViewPaths = [
+      path.join(projectPath, 'shared/js/project-view.js'),
+      path.join(projectPath, 'assistant/js/project-view.js'),
+    ];
+
+    let projectViewPath = null;
+    for (const p of projectViewPaths) {
+      if (fs.existsSync(p)) {
+        projectViewPath = p;
+        break;
+      }
+    }
+
+    // Find validator.js
+    const validatorPath = path.join(projectPath, 'validator/js/validator.js');
+
+    // Skip if either file doesn't exist
+    if (!projectViewPath || !fs.existsSync(validatorPath)) {
+      continue;
+    }
+
+    results.summary.projectsChecked++;
+
+    try {
+      const projectViewContent = fs.readFileSync(projectViewPath, 'utf-8');
+      const validatorContent = fs.readFileSync(validatorPath, 'utf-8');
+
+      // Extract expected categories from project-view.js
+      // Pattern: validationResult.categoryName.issues or validationResult.categoryName.score
+      const expectedCategories = new Set();
+      const accessPattern = /validationResult\.([a-zA-Z]+)\.(issues|score|maxScore)/g;
+      let match;
+      while ((match = accessPattern.exec(projectViewContent)) !== null) {
+        const category = match[1];
+        // Skip known non-category properties
+        if (!['totalScore', 'slopDetection', 'circularLogic', 'dimension1', 'dimension2', 'dimension3', 'dimension4'].includes(category)) {
+          expectedCategories.add(category);
+        }
+      }
+
+      // If no categories found via the .issues pattern, skip this project
+      if (expectedCategories.size === 0) {
+        continue;
+      }
+
+      // Find validateDocument function and extract what it returns
+      // Look for either: direct return object, or call to another validate* function
+      const returnedCategories = new Set();
+
+      // Pattern 1: Direct return in validateDocument
+      // return { totalScore, categoryName: ..., categoryName2: ... }
+      const validateDocMatch = validatorContent.match(/export\s+function\s+validateDocument\s*\([^)]*\)\s*\{[\s\S]*?return\s+(\{[\s\S]*?\}|\w+\([^)]*\))\s*;?\s*\}/);
+
+      if (validateDocMatch) {
+        const returnStatement = validateDocMatch[1];
+
+        // Check if it's delegating to another function (e.g., return validateOnePager(text))
+        const delegateMatch = returnStatement.match(/^(\w+)\s*\(/);
+        if (delegateMatch) {
+          const delegateFn = delegateMatch[1];
+          // Find the delegated function's return
+          const delegateFnPattern = new RegExp(`function\\s+${delegateFn}\\s*\\([^)]*\\)\\s*\\{[\\s\\S]*?return\\s*\\{([\\s\\S]*?)\\}\\s*;?\\s*\\}`, 'g');
+          const delegateReturnMatch = delegateFnPattern.exec(validatorContent);
+          if (delegateReturnMatch) {
+            // Extract property names from the return object
+            const returnObj = delegateReturnMatch[1];
+            const propPattern = /\b([a-zA-Z]\w*)\s*[,:]/g;
+            let propMatch;
+            while ((propMatch = propPattern.exec(returnObj)) !== null) {
+              returnedCategories.add(propMatch[1]);
+            }
+          }
+        } else if (returnStatement.startsWith('{')) {
+          // Direct return object
+          const propPattern = /\b([a-zA-Z]\w*)\s*[,:]/g;
+          let propMatch;
+          while ((propMatch = propPattern.exec(returnStatement)) !== null) {
+            returnedCategories.add(propMatch[1]);
+          }
+        }
+      }
+
+      // Alternative: look for validateDocument that just delegates
+      const simpleDelegateMatch = validatorContent.match(/export\s+function\s+validateDocument\s*\([^)]*\)\s*\{\s*return\s+(\w+)\s*\([^)]*\)\s*;?\s*\}/);
+      if (simpleDelegateMatch && returnedCategories.size === 0) {
+        const delegateFn = simpleDelegateMatch[1];
+        // Find ALL returns in the delegated function's body
+        const fnStartPattern = new RegExp(`function\\s+${delegateFn}\\s*\\([^)]*\\)\\s*\\{`);
+        const fnStartMatch = validatorContent.match(fnStartPattern);
+
+        if (fnStartMatch) {
+          // Find the function body by counting braces
+          const startIdx = fnStartMatch.index + fnStartMatch[0].length;
+          let braceCount = 1;
+          let endIdx = startIdx;
+          while (braceCount > 0 && endIdx < validatorContent.length) {
+            if (validatorContent[endIdx] === '{') braceCount++;
+            if (validatorContent[endIdx] === '}') braceCount--;
+            endIdx++;
+          }
+          const fnBody = validatorContent.slice(startIdx, endIdx - 1);
+
+          // Find return statements with object literals
+          const returnPattern = /return\s*\{([^}]+(?:\{[^}]*\}[^}]*)*)\}/g;
+          let returnMatch;
+          while ((returnMatch = returnPattern.exec(fnBody)) !== null) {
+            const returnObj = returnMatch[1];
+            const propPattern = /\b([a-zA-Z]\w*)\s*[,:]/g;
+            let propMatch;
+            while ((propMatch = propPattern.exec(returnObj)) !== null) {
+              returnedCategories.add(propMatch[1]);
+            }
+          }
+        }
+      }
+
+      // Check each expected category
+      for (const category of expectedCategories) {
+        if (!returnedCategories.has(category)) {
+          projectIssues.push({
+            type: 'missing_api_property',
+            expectedBy: path.relative(projectPath, projectViewPath),
+            notReturnedBy: 'validator/js/validator.js',
+            property: category,
+            message: `project-view.js expects validationResult.${category}.issues but validator doesn't return '${category}'`
+          });
+          results.summary.totalMissingProperties++;
+        }
+      }
+
+      // Also report what validator returns vs what's expected (for debugging)
+      if (projectIssues.length > 0) {
+        projectIssues.push({
+          type: 'api_contract_info',
+          expected: [...expectedCategories].sort(),
+          returned: [...returnedCategories].filter(c => !['totalScore', 'slopDetection', 'circularLogic', 'dimension1', 'dimension2', 'dimension3', 'dimension4'].includes(c)).sort(),
+          message: 'API contract mismatch summary'
+        });
+      }
+    } catch {
+      // Skip files that can't be read
+    }
+
+    if (projectIssues.length > 0) {
+      results.projects[project] = projectIssues;
+      results.summary.projectsWithIssues++;
+    }
+  }
+
+  return results;
+}
+
 // ============================================================================
 // FIT-AND-FINISH REQUIREMENTS
 // ============================================================================
@@ -1708,6 +2240,10 @@ function analyzeFitAndFinish(genesisToolsDir) {
       doubleClickIssues: 0,
       importTileIssues: 0,
       tileStatusIssues: 0,
+      // Import function structural checks (added 2026-02-08)
+      importNavigationIssues: 0,
+      importTitleExtractionIssues: 0,
+      importFlagIssues: 0,
     },
     projects: {}
   };
@@ -1824,6 +2360,46 @@ function analyzeFitAndFinish(genesisToolsDir) {
               message: 'Import document missing UI feedback (button disable + "Saving..." text)'
             });
             results.summary.doubleClickIssues++;
+          }
+
+          // === CHECK 3b: Navigation format (CRITICAL - 2026-02-08 bug fix) ===
+          // The navigateTo() call MUST use single-argument format: navigateTo('project/' + id)
+          // NOT two-argument format: navigateTo('project', id) which silently fails
+          // This bug caused imports to navigate to landing page instead of project view
+          const hasWrongNavigateTo = /navigateTo\s*\(\s*['"]project['"]\s*,/.test(content);
+          if (hasWrongNavigateTo) {
+            projectIssues.push({
+              type: 'wrong_navigate_format',
+              file: path.basename(importDocPath),
+              message: 'Import uses wrong navigateTo format: navigateTo("project", id) should be navigateTo("project/" + id)'
+            });
+            results.summary.importNavigationIssues++;
+          }
+
+          // === CHECK 3c: Title extraction function (CRITICAL - 2026-02-08 bug fix) ===
+          // Must have extractTitleFromMarkdown function with multiple fallback strategies
+          // Without this, title extraction fails for documents without H1 headers
+          const hasExtractTitle = /function\s+extractTitleFromMarkdown|extractTitleFromMarkdown\s*=/.test(content);
+          if (!hasExtractTitle) {
+            projectIssues.push({
+              type: 'missing_title_extraction',
+              file: path.basename(importDocPath),
+              message: 'Import missing extractTitleFromMarkdown() - title extraction fails for non-H1 documents'
+            });
+            results.summary.importTitleExtractionIssues++;
+          }
+
+          // === CHECK 3d: isImported flag (CRITICAL - 2026-02-08 bug fix) ===
+          // Must set isImported: true when updating project after import
+          // Without this, project-view.js may redirect imported projects to edit form
+          const hasIsImportedFlag = /isImported\s*:\s*true/.test(content);
+          if (!hasIsImportedFlag) {
+            projectIssues.push({
+              type: 'missing_is_imported_flag',
+              file: path.basename(importDocPath),
+              message: 'Import missing isImported: true flag - imported projects may redirect to edit form'
+            });
+            results.summary.importFlagIssues++;
           }
         } catch {
           // Skip files that can't be read
@@ -2019,23 +2595,29 @@ function diffProjects(genesisToolsDir) {
     }
 
     // Categorize the file
-    if (projectsWithFile.length < PROJECTS.length) {
-      // File doesn't exist in all projects
+    if (isIntentionalDiff(filePath)) {
+      // Expected to differ - regardless of whether it exists in all projects
+      // Files in INTENTIONAL_DIFF_PATTERNS may have project-specific content
+      // (e.g., CHANGELOG.md, ADVERSARIAL_REVIEW_PROMPT.md) and don't need to exist everywhere
+      const uniqueHashes = [...new Set(Object.values(hashes))];
+      results.intentionalDiff.push({
+        path: filePath,
+        uniqueVersions: uniqueHashes.length,
+        hashes,
+        existsIn: projectsWithFile,
+        missingFrom: projectsWithFile.length < PROJECTS.length
+          ? PROJECTS.filter(p => !projectsWithFile.includes(p))
+          : []
+      });
+      results.summary.intentional++;
+    } else if (projectsWithFile.length < PROJECTS.length) {
+      // File doesn't exist in all projects and is NOT in INTENTIONAL_DIFF_PATTERNS
       results.projectSpecific.push({
         path: filePath,
         existsIn: projectsWithFile,
         missingFrom: PROJECTS.filter(p => !projectsWithFile.includes(p))
       });
       results.summary.projectSpecific++;
-    } else if (isIntentionalDiff(filePath)) {
-      // Expected to differ
-      const uniqueHashes = [...new Set(Object.values(hashes))];
-      results.intentionalDiff.push({
-        path: filePath,
-        uniqueVersions: uniqueHashes.length,
-        hashes
-      });
-      results.summary.intentional++;
     } else {
       // MUST match - check if all hashes are identical
       const uniqueHashes = [...new Set(Object.values(hashes))];
@@ -2079,8 +2661,14 @@ function diffProjects(genesisToolsDir) {
   // Analyze validator scoring alignment (inline vs full validator consistency)
   results.validatorScoringAlignment = analyzeValidatorScoringAlignment(genesisToolsDir);
 
+  // Analyze validator architecture (detect→score→validate pattern)
+  results.validatorArchitecture = analyzeValidatorArchitecture(genesisToolsDir);
+
   // Analyze fit-and-finish consistency (nav order, footer, import feature)
   results.fitAndFinish = analyzeFitAndFinish(genesisToolsDir);
+
+  // Analyze API contracts (validateDocument returns what project-view.js expects)
+  results.apiContracts = analyzeAPIContracts(genesisToolsDir);
 
   return results;
 }
@@ -2138,6 +2726,9 @@ function formatConsoleReport(results) {
   }
   if (results.fitAndFinish && results.fitAndFinish.summary.totalIssues > 0) {
     lines.push(`  ${red('✨')} Fit-and-finish issues: ${results.fitAndFinish.summary.totalIssues} issues in ${results.fitAndFinish.summary.projectsWithIssues} projects`);
+  }
+  if (results.apiContracts && results.apiContracts.summary.totalMissingProperties > 0) {
+    lines.push(`  ${red('📜')} API contract violations: ${results.apiContracts.summary.totalMissingProperties} missing properties in ${results.apiContracts.summary.projectsWithIssues} projects`);
   }
   if (results.unusedPatterns && results.unusedPatterns.length > 0) {
     lines.push(`  ${orange('⚠️')} Unused INTENTIONAL_DIFF patterns: ${results.unusedPatterns.length}`);
@@ -2500,14 +3091,39 @@ function formatConsoleReport(results) {
     }
   }
 
-  // FIT-AND-FINISH ISSUES: Navigation order, footer link, double-click prevention, import tile
+  // VALIDATOR ARCHITECTURE: detect→score→validate pattern violations
+  if (results.validatorArchitecture && results.validatorArchitecture.summary.totalIssues > 0) {
+    const brick = (s) => `\x1b[38;5;166m${s}\x1b[0m`;
+    lines.push(brick(bold('🏗️  VALIDATOR ARCHITECTURE VIOLATIONS (detect→score→validate pattern)')));
+    lines.push(brick('─'.repeat(60)));
+    lines.push('');
+    lines.push('  All validators MUST follow the standard pattern:');
+    lines.push('    detect*() → Returns what was FOUND (booleans, counts)');
+    lines.push('    score*()  → Returns a SCORE based on detection');
+    lines.push('    validate*() → Aggregates scores into final result');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.validatorArchitecture.projects)) {
+      lines.push(brick(`  ${project}:`));
+      for (const issue of issues) {
+        lines.push(red(`    ✗ ${issue.message}`));
+        if (issue.found) {
+          lines.push(`      Found: ${issue.found}`);
+        }
+      }
+      lines.push('');
+    }
+  }
+
+  // FIT-AND-FINISH ISSUES: Navigation order, footer link, double-click prevention, import tile, import function
   if (results.fitAndFinish && results.fitAndFinish.summary.totalIssues > 0) {
     const teal = (s) => `\x1b[38;5;44m${s}\x1b[0m`;
     lines.push(teal(bold('✨ FIT-AND-FINISH ISSUES (UI/UX consistency problems)')));
     lines.push(teal('─'.repeat(60)));
     lines.push('');
     lines.push('  These checks ensure consistent polish across all genesis projects.');
-    lines.push('  Issues: nav order, footer link, double-click prevention, import tile.');
+    lines.push('  Issues: nav order, footer link, double-click prevention, import tile,');
+    lines.push('          import navigation format, title extraction, isImported flag.');
     lines.push('');
 
     for (const [project, issues] of Object.entries(results.fitAndFinish.projects)) {
@@ -2534,6 +3150,35 @@ function formatConsoleReport(results) {
     }
   }
 
+  // API CONTRACT VIOLATIONS: validateDocument returns what project-view.js expects
+  if (results.apiContracts && results.apiContracts.summary.totalMissingProperties > 0) {
+    const crimson = (s) => `\x1b[38;5;196m${s}\x1b[0m`;
+    lines.push(crimson(bold('📜 API CONTRACT VIOLATIONS (validateDocument vs project-view.js)')));
+    lines.push(crimson('─'.repeat(60)));
+    lines.push('');
+    lines.push('  project-view.js accesses validationResult.X.issues but');
+    lines.push('  validator.js does not return property X from validateDocument().');
+    lines.push('  This causes "Cannot read properties of undefined" runtime errors.');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.apiContracts.projects)) {
+      const missingProps = issues.filter(i => i.type === 'missing_api_property');
+      const infoItem = issues.find(i => i.type === 'api_contract_info');
+
+      lines.push(crimson(`  ${project}: ${missingProps.length} missing properties`));
+
+      for (const issue of missingProps) {
+        lines.push(red(`    ✗ ${issue.message}`));
+      }
+
+      if (infoItem) {
+        lines.push(yellow(`    Expected: ${infoItem.expected.join(', ')}`));
+        lines.push(yellow(`    Returned: ${infoItem.returned.join(', ')}`));
+      }
+      lines.push('');
+    }
+  }
+
   // Final verdict
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
   const symlinkCount = results.summary.symlinkIssues || 0;
@@ -2547,9 +3192,11 @@ function formatConsoleReport(results) {
   const templateIssues = results.templateCustomization?.summary?.totalIssues || 0;
   const namingIssues = results.sharedLibraryNaming?.summary?.antiPatternsFound || 0;
   const scoringAlignmentIssues = results.validatorScoringAlignment?.summary?.totalIssues || 0;
+  const architectureIssues = results.validatorArchitecture?.summary?.totalIssues || 0;
   const fitAndFinishIssues = results.fitAndFinish?.summary?.totalIssues || 0;
+  const apiContractIssues = results.apiContracts?.summary?.totalMissingProperties || 0;
 
-  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0 && fitAndFinishIssues === 0;
+  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0 && architectureIssues === 0 && fitAndFinishIssues === 0 && apiContractIssues === 0;
 
   if (allGreen) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
@@ -2563,7 +3210,9 @@ function formatConsoleReport(results) {
     lines.push(green(bold('  ✓ NO STUB VALIDATORS DETECTED')));
     lines.push(green(bold('  ✓ NO FUNCTION SIGNATURE MISMATCHES')));
     lines.push(green(bold('  ✓ VALIDATOR SCORING ALIGNED (inline = full)')));
+    lines.push(green(bold('  ✓ VALIDATOR ARCHITECTURE CONSISTENT (detect→score→validate)')));
     lines.push(green(bold('  ✓ FIT-AND-FINISH CONSISTENT (nav, footer, import)')));
+    lines.push(green(bold('  ✓ API CONTRACTS VALID (validateDocument returns expected properties)')));
   } else {
     if (results.summary.divergent > 0) {
       lines.push(red(bold(`  ✗ ${results.summary.divergent} FILES HAVE DIVERGED - FIX REQUIRED`)));
@@ -2592,6 +3241,9 @@ function formatConsoleReport(results) {
     if (scoringAlignmentIssues > 0) {
       lines.push(red(bold(`  ⚖️ ${scoringAlignmentIssues} VALIDATOR SCORING MISALIGNED - SYNC SLOP FORMULAS`)));
     }
+    if (architectureIssues > 0) {
+      lines.push(red(bold(`  🏗️ ${architectureIssues} VALIDATOR ARCHITECTURE VIOLATIONS - ADD detect*/score*/validate* FUNCTIONS`)));
+    }
     if (symlinkCount > 0) {
       lines.push(magenta(bold(`  ⚡ ${symlinkCount} SYMLINK STRUCTURAL ISSUES - UNIFY REQUIRED`)));
     }
@@ -2603,6 +3255,9 @@ function formatConsoleReport(results) {
     }
     if (fitAndFinishIssues > 0) {
       lines.push(red(bold(`  ✨ ${fitAndFinishIssues} FIT-AND-FINISH ISSUES - FIX NAV/FOOTER/IMPORT CONSISTENCY`)));
+    }
+    if (apiContractIssues > 0) {
+      lines.push(red(bold(`  📜 ${apiContractIssues} API CONTRACT VIOLATIONS - FIX validateDocument() RETURN VALUES`)));
     }
   }
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
@@ -2641,6 +3296,7 @@ function main() {
   const namingIssuesCount = results.sharedLibraryNaming?.summary?.antiPatternsFound || 0;
   const scoringAlignmentCount = results.validatorScoringAlignment?.summary?.totalIssues || 0;
   const fitAndFinishCount = results.fitAndFinish?.summary?.totalIssues || 0;
+  const apiContractCount = results.apiContracts?.summary?.totalMissingProperties || 0;
 
   if (ciMode && (
     results.summary.divergent > 0 ||
@@ -2654,7 +3310,8 @@ function main() {
     templateIssuesCount > 0 ||
     namingIssuesCount > 0 ||
     scoringAlignmentCount > 0 ||
-    fitAndFinishCount > 0
+    fitAndFinishCount > 0 ||
+    apiContractCount > 0
   )) {
     process.exit(1);
   }

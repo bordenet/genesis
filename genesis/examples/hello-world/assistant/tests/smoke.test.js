@@ -126,21 +126,60 @@ describe('Smoke Test - App Initialization', () => {
     });
   });
 
-  describe('Export Consistency - validator-inline.js exports match project-view.js imports', () => {
+  describe('Export Consistency - validator.js exports match project-view.js imports', () => {
     // All projects must use validateDocument (generic name for shared library)
-    test('validator-inline.js exports validateDocument', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    // Single source of truth: validator/js/validator.js (no separate validator-inline.js)
+    test('validator.js exports validateDocument', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.validateDocument).toBe('function');
     });
 
-    test('validator-inline.js exports getScoreColor', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    test('validator.js exports getScoreColor', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.getScoreColor).toBe('function');
     });
 
-    test('validator-inline.js exports getScoreLabel', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    test('validator.js exports getScoreLabel', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.getScoreLabel).toBe('function');
+    });
+  });
+
+  describe('API Contract - validateDocument returns expected structure for project-view.js', () => {
+    // project-view.js accesses validationResult.X.issues where X is a category name
+    // These tests ensure validateDocument returns the expected structure
+    // Prevents "Cannot read properties of undefined (reading 'issues')" runtime errors
+
+    test('validateDocument returns structure category with issues array', async () => {
+      const validator = await import('../../validator/js/validator.js');
+      const result = validator.validateDocument('# Test');
+      expect(result).toHaveProperty('structure');
+      expect(result.structure).toHaveProperty('issues');
+      expect(Array.isArray(result.structure.issues)).toBe(true);
+    });
+
+    test('validateDocument returns clarity category with issues array', async () => {
+      const validator = await import('../../validator/js/validator.js');
+      const result = validator.validateDocument('# Test');
+      expect(result).toHaveProperty('clarity');
+      expect(result.clarity).toHaveProperty('issues');
+      expect(Array.isArray(result.clarity.issues)).toBe(true);
+    });
+
+    test('validateDocument returns businessValue category with issues array', async () => {
+      const validator = await import('../../validator/js/validator.js');
+      const result = validator.validateDocument('# Test');
+      expect(result).toHaveProperty('businessValue');
+      expect(result.businessValue).toHaveProperty('issues');
+      expect(Array.isArray(result.businessValue.issues)).toBe(true);
+    });
+
+    test('validateDocument returns completeness category with issues array', async () => {
+      const validator = await import('../../validator/js/validator.js');
+      const result = validator.validateDocument('# Test');
+      expect(result).toHaveProperty('completeness');
+      expect(result.completeness).toHaveProperty('issues');
+      expect(Array.isArray(result.completeness.issues)).toBe(true);
     });
   });
 

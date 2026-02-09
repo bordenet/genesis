@@ -1,16 +1,17 @@
 /**
- * Prompt generation for LLM-based One-Pager scoring
+ * Prompt generation for LLM-based document scoring
+ * This is the GENESIS TEMPLATE - customize for your specific document type
  */
 
 /**
  * Generate comprehensive LLM scoring prompt
- * @param {string} onePagerContent - The one-pager content to score
+ * @param {string} documentContent - The document content to score
  * @returns {string} Complete prompt for LLM scoring
  */
-export function generateLLMScoringPrompt(onePagerContent) {
-  return `You are an expert Product Manager evaluating a One-Pager document.
+export function generateLLMScoringPrompt(documentContent) {
+  return `You are an expert evaluating a structured document.
 
-Score this One-Pager using the following rubric (0-100 points total):
+Score this document using the following rubric (0-100 points total):
 
 ## SCORING RUBRIC
 
@@ -35,9 +36,9 @@ Score this One-Pager using the following rubric (0-100 points total):
 - **Timeline (6 pts)**: Realistic milestones and phased approach
 
 ## CALIBRATION GUIDANCE
-- Be HARSH. Most one-pagers score 40-60. Only exceptional ones score 80+.
-- A score of 70+ means ready for executive decision-making.
-- One-pagers should fit on ONE PAGE - deduct points for verbosity.
+- Be HARSH. Most documents score 40-60. Only exceptional ones score 80+.
+- A score of 70+ means ready for stakeholder review.
+- Deduct points for verbosity - be concise.
 - Deduct points for EVERY vague qualifier without metrics.
 - Deduct points for weasel words ("should be able to", "might", "could potentially").
 - Deduct points for marketing fluff ("best-in-class", "cutting-edge", "world-class").
@@ -45,10 +46,10 @@ Score this One-Pager using the following rubric (0-100 points total):
 - Reward quantified metrics and business impact.
 - Deduct points for missing required sections.
 
-## ONE-PAGER TO EVALUATE
+## DOCUMENT TO EVALUATE
 
 \`\`\`
-${onePagerContent}
+${documentContent}
 \`\`\`
 
 ## REQUIRED OUTPUT FORMAT
@@ -82,11 +83,11 @@ Provide your evaluation in this exact format:
 
 /**
  * Generate critique prompt for detailed feedback
- * @param {string} onePagerContent - The one-pager content to critique
+ * @param {string} documentContent - The document content to critique
  * @param {Object} currentResult - Current validation results
  * @returns {string} Complete prompt for critique
  */
-export function generateCritiquePrompt(onePagerContent, currentResult) {
+export function generateCritiquePrompt(documentContent, currentResult) {
   const issuesList = [
     ...(currentResult.problemClarity?.issues || []),
     ...(currentResult.solution?.issues || []),
@@ -94,7 +95,7 @@ export function generateCritiquePrompt(onePagerContent, currentResult) {
     ...(currentResult.completeness?.issues || [])
   ].slice(0, 5).map(i => `- ${i}`).join('\n');
 
-  return `You are a senior Product Manager providing detailed feedback on a One-Pager.
+  return `You are a senior expert providing detailed feedback on a structured document.
 
 ## CURRENT VALIDATION RESULTS
 Total Score: ${currentResult.totalScore}/100
@@ -106,46 +107,46 @@ Total Score: ${currentResult.totalScore}/100
 Key issues detected:
 ${issuesList || '- None detected by automated scan'}
 
-## ONE-PAGER TO CRITIQUE
+## DOCUMENT TO CRITIQUE
 
 \`\`\`
-${onePagerContent}
+${documentContent}
 \`\`\`
 
 ## YOUR TASK
 
 Provide:
-1. **Executive Summary** (2-3 sentences on overall one-pager quality)
+1. **Executive Summary** (2-3 sentences on overall document quality)
 2. **Detailed Critique** by dimension:
    - What works well
    - What needs improvement
    - Specific suggestions with examples
-3. **Revised One-Pager** - A complete rewrite addressing all issues
+3. **Revised Document** - A complete rewrite addressing all issues
 
-Be specific. Show exact rewrites. Keep it to ONE PAGE. Make it ready for executive decision-making.`;
+Be specific. Show exact rewrites. Be concise. Make it ready for stakeholder review.`;
 }
 
 /**
  * Generate rewrite prompt
- * @param {string} onePagerContent - The one-pager content to rewrite
+ * @param {string} documentContent - The document content to rewrite
  * @param {Object} currentResult - Current validation results
  * @returns {string} Complete prompt for rewrite
  */
-export function generateRewritePrompt(onePagerContent, currentResult) {
-  return `You are a senior Product Manager rewriting a One-Pager to achieve a score of 85+.
+export function generateRewritePrompt(documentContent, currentResult) {
+  return `You are a senior expert rewriting a document to achieve a score of 85+.
 
 ## CURRENT SCORE: ${currentResult.totalScore}/100
 
-## ORIGINAL ONE-PAGER
+## ORIGINAL DOCUMENT
 
 \`\`\`
-${onePagerContent}
+${documentContent}
 \`\`\`
 
 ## REWRITE REQUIREMENTS
 
-Create a complete, polished One-Pager that:
-1. Fits on ONE PAGE (concise, executive-focused)
+Create a complete, polished document that:
+1. Is concise and stakeholder-focused
 2. Has all required sections (Problem, Cost of Inaction, Solution, Goals, Scope, Metrics, Stakeholders, Timeline)
 3. Includes explicit "In Scope" AND "Out of Scope" definitions
 4. Has specific, quantified metrics (numbers, percentages, timeframes)
@@ -156,7 +157,7 @@ Create a complete, polished One-Pager that:
 9. Avoids vague qualifiers, weasel words, and marketing fluff
 10. Stays high-level (no implementation details)
 
-Output ONLY the rewritten One-Pager in markdown format. No commentary.`;
+Output ONLY the rewritten document in markdown format. No commentary.`;
 }
 
 /**

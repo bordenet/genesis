@@ -19,21 +19,29 @@ export { calculateSlopScore };
 // Constants
 // ============================================================================
 
+// REQUIRED_SECTIONS aligned to Phase1.md Required Sections table (10 sections)
+// Total weight: 16 pts → normalized to 8 pts in scoreCompleteness
 const REQUIRED_SECTIONS = [
-  { pattern: /^#+\s*(problem|challenge|pain.?point|context)/im, name: 'Problem/Challenge', weight: 2 },
-  { pattern: /^#+\s*(solution|proposal|approach|recommendation)/im, name: 'Solution/Proposal', weight: 2 },
-  { pattern: /^#+\s*(goal|objective|benefit|outcome)/im, name: 'Goals/Benefits', weight: 2 },
-  { pattern: /^#+\s*(scope|in.scope|out.of.scope|boundary|boundaries)/im, name: 'Scope Definition', weight: 2 },
-  { pattern: /^#+\s*(success|metric|kpi|measure|success.metric)/im, name: 'Success Metrics', weight: 1 },
-  { pattern: /^#+\s*(stakeholder|team|owner|raci|responsible)/im, name: 'Stakeholders/Team', weight: 1 },
-  { pattern: /^#+\s*(timeline|milestone|phase|schedule|roadmap)/im, name: 'Timeline/Milestones', weight: 1 }
+  // Critical sections (weight 2)
+  { pattern: /^#+\s*\d*\.?\s*(executive\s+summary|tl;?dr|overview)/im, name: '1. Executive Summary', weight: 2 },
+  { pattern: /^#+\s*\d*\.?\s*(problem|challenge|pain.?point|current.?state)/im, name: '2. Problem Statement', weight: 2 },
+  { pattern: /^#+\s*\d*\.?\s*(goal|objective|success.?metric)/im, name: '3. Goals and Objectives', weight: 2 },
+  { pattern: /^#+\s*\d*\.?\s*(proposed\s+solution|solution|proposal|recommendation)/im, name: '4. Proposed Solution', weight: 2 },
+  { pattern: /^#+\s*\d*\.?\s*(scope|in.?scope|out.?of.?scope|boundaries)/im, name: '5. Scope', weight: 2 },
+  // Supporting sections (weight 1)
+  { pattern: /^#+\s*\d*\.?\s*(requirement|functional|non.?functional|constraint)/im, name: '6. Requirements', weight: 1 },
+  { pattern: /^#+\s*\d*\.?\s*(stakeholder|team|owner|raci|responsible)/im, name: '7. Stakeholders', weight: 1 },
+  { pattern: /^#+\s*\d*\.?\s*(timeline|milestone|phase|schedule|roadmap)/im, name: '8. Timeline', weight: 1 },
+  { pattern: /^#+\s*\d*\.?\s*(risk|mitigation|assumption|dependency)/im, name: '9. Risks and Mitigation', weight: 1 },
+  { pattern: /^#+\s*\d*\.?\s*(open\s+question|question|tbd|to\s+be\s+determined)/im, name: '10. Open Questions', weight: 1 }
 ];
 
 // Problem clarity patterns
 const PROBLEM_PATTERNS = {
   problemSection: /^#+\s*(problem|challenge|pain.?point|context|why)/im,
   problemLanguage: /\b(problem|challenge|pain.?point|issue|struggle|difficult|frustrat|current.?state|today|existing)\b/gi,
-  costOfInaction: /\b(cost|impact|consequence|risk|without|if.?not|delay|postpone|inaction|doing.?nothing|status.?quo)\b/gi,
+  // Enhanced cost of inaction detection per adversarial review
+  costOfInaction: /\b(cost\s+of\s+(inaction|doing\s+nothing|delay)|if\s+we\s+do\s+nothing|status\s+quo\s+(costs?|impact)|without\s+(action|this|solving)|consequence|delay\s+(costs?|means)|postpone|continue\s+as\s+is|current\s+approach\s+costs?)\b/gi,
   quantified: /\d+\s*(%|million|thousand|hour|day|week|month|year|\$|dollar|user|customer|transaction)/gi,
   businessFocus: /\b(business|customer|user|market|revenue|profit|competitive|strategic|value)\b/gi
 };
@@ -536,12 +544,17 @@ export function scoreCompleteness(text) {
  */
 export function validateOnePager(text) {
   if (!text || typeof text !== 'string') {
+    const emptyResult = { score: 0, maxScore: 30, issues: ['No content to validate'], strengths: [] };
     return {
       totalScore: 0,
-      problemClarity: { score: 0, maxScore: 30, issues: ['No content to validate'], strengths: [] },
-      solution: { score: 0, maxScore: 25, issues: ['No content to validate'], strengths: [] },
-      scope: { score: 0, maxScore: 25, issues: ['No content to validate'], strengths: [] },
-      completeness: { score: 0, maxScore: 20, issues: ['No content to validate'], strengths: [] }
+      problemClarity: emptyResult,
+      solution: { ...emptyResult, maxScore: 25 },
+      scope: { ...emptyResult, maxScore: 25 },
+      completeness: { ...emptyResult, maxScore: 20 },
+      // Backward compatibility aliases for project-view.js
+      structure: emptyResult,
+      clarity: { ...emptyResult, maxScore: 25 },
+      businessValue: { ...emptyResult, maxScore: 25 }
     };
   }
 
@@ -573,6 +586,11 @@ export function validateOnePager(text) {
     solution,
     scope,
     completeness,
+    // Backward compatibility aliases for project-view.js
+    // These map generic names to the one-pager specific dimensions
+    structure: problemClarity,
+    clarity: solution,
+    businessValue: scope,
     // CUSTOMIZE: Include slopDetection in return for transparency
     slopDetection: {
       ...slopPenalty,
@@ -580,4 +598,49 @@ export function validateOnePager(text) {
       issues: slopIssues
     }
   };
+}
+
+// ============================================================================
+// Backward Compatibility Aliases
+// ============================================================================
+
+/**
+ * Alias for validateOnePager - used by shared UI components
+ */
+export function validateDocument(text) {
+  return validateOnePager(text);
+}
+
+/**
+ * Get letter grade from numeric score
+ * @param {number} score - Numeric score 0-100
+ * @returns {string} Letter grade
+ */
+export function getGrade(score) {
+  if (score >= 90) return 'A';
+  if (score >= 80) return 'B';
+  if (score >= 70) return 'C';
+  if (score >= 60) return 'D';
+  return 'F';
+}
+
+/**
+ * Get color based on score for UI display
+ */
+export function getScoreColor(score) {
+  if (score >= 70) return 'green';
+  if (score >= 50) return 'yellow';
+  if (score >= 30) return 'orange';
+  return 'red';
+}
+
+/**
+ * Get label based on score for UI display
+ */
+export function getScoreLabel(score) {
+  if (score >= 80) return 'Excellent';
+  if (score >= 70) return 'Ready';
+  if (score >= 50) return 'Needs Work';
+  if (score >= 30) return 'Draft';
+  return 'Incomplete';
 }

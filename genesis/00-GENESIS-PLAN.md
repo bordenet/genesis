@@ -6,11 +6,11 @@
 
 ---
 
-## 📁 Document Location
+## 📁 Document Status
 
 This document has been archived to reduce cognitive load on AI assistants.
 
-**Full document:** [`docs/historical/00-GENESIS-PLAN.md`](docs/historical/00-GENESIS-PLAN.md)
+The original Genesis plan content has been superseded by the current documentation structure. See [START-HERE.md](START-HERE.md) for the current entry point.
 
 ---
 
