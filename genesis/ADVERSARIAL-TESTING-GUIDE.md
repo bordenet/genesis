@@ -1,18 +1,68 @@
-# Same-LLM Adversarial Configuration Guide
+# Adversarial Testing Guide
 
-Automatically detects when Phase 1 and Phase 2 use the same LLM and applies Gemini personality simulation to maintain adversarial tension.
+This guide covers two complementary patterns for maintaining adversarial tension in AI-assisted workflows:
 
-## Quick Start
+1. **[Same-LLM Adversarial](#same-llm-adversarial-testing)** - When stuck with a single LLM, simulate adversarial tension via personality injection
+2. **[Cross-LLM Adversarial](#cross-llm-adversarial-testing)** - Pit multiple LLMs against each other for independent verification
 
-```javascript
-import { ConfigurationManager, AdversarialPromptAugmenter } from './js/same-llm-adversarial.js';
+Both patterns emerged from the Genesis ecosystem's 3-phase workflow, where Phase 2 (adversarial review) must genuinely challenge Phase 1 output.
 
-const config = new ConfigurationManager().detectConfiguration();
-if (config.isSameLLM) {
-    const augmenter = new AdversarialPromptAugmenter();
-    const augmentedPrompt = augmenter.generateGeminiStylePrompt(originalPrompt);
-}
+---
+
+## Cross-LLM Adversarial Testing
+
+The most effective adversarial pattern: use different LLMs to review each other's work.
+
+### How It Works
+
+Claude generates review prompts for Gemini and Perplexity.ai. Each LLM reviews the document-specific JavaScript ratings and prompts, catching issues the originating model would miss.
+
 ```
+┌─────────────────────────────────────────────────────────────┐
+│                    Cross-LLM Review Flow                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   Claude (Phase 1)                                          │
+│      │                                                      │
+│      ├──► Generates review prompt for Gemini                │
+│      │       └──► Gemini reviews assistant/validator JS     │
+│      │                                                      │
+│      └──► Generates review prompt for Perplexity.ai         │
+│              └──► Perplexity reviews with web research      │
+│                                                             │
+│   All three LLMs compared for consistency                   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Why Cross-LLM Works Better
+
+| Aspect | Same-LLM | Cross-LLM |
+| ------ | -------- | --------- |
+| Independence | Simulated via persona | Genuine (different training) |
+| Blind spots | Shared | Complementary |
+| Hallucination detection | Limited | Strong (models catch each other) |
+| Setup complexity | Low | Medium |
+
+### Derived Skills (superpowers-plus)
+
+This pattern evolved into Claude skills:
+
+| Skill | Purpose | Status |
+| ----- | ------- | ------ |
+| [think-twice](https://github.com/bordenet/superpowers-plus/blob/main/skills/think-twice/skill.md) | Break through blockers by consulting a fresh sub-agent | Production |
+| [perplexity-research](https://github.com/bordenet/superpowers-plus/blob/main/skills/perplexity-research/skill.md) | Get second opinion via Perplexity.ai API (cross-LLM verification) | Production |
+| [experimental-self-prompting](https://github.com/bordenet/superpowers-plus/blob/main/skills/experimental/experimental-self-prompting/SKILL.md) | Write comprehensive prompts, answer yourself (validated in 20-round experiment) | Experimental |
+
+**Key finding from experiments**: Reframing prompts helps Claude (+10% verified hits), but *hurts* external models (+400% hallucination rate). Use cross-LLM for independent verification, not reframed prompts. The `perplexity-research` skill implements this cross-LLM pattern via Perplexity.ai's API.
+
+---
+
+## Same-LLM Adversarial Testing
+
+When you're stuck with a single LLM (corporate environments, LibreChat, Azure OpenAI), simulate adversarial tension via Gemini personality injection.
+
+> **Note**: The original JavaScript implementation was retired. The concepts below describe the pattern; for working implementations, see the [superpowers-plus skills](#derived-skills-superpowers-plus) section above.
 
 ## Problem Statement
 
@@ -163,15 +213,15 @@ problematic, concerning, requires clarification
 
 ### Automatic Integration
 
-When you create a new project from Genesis, the same-LLM adversarial system is automatically included:
+The same-LLM adversarial pattern has evolved into the [superpowers-plus](https://github.com/bordenet/superpowers-plus) skills:
 
-| File | Purpose |
-| ---- | ------- |
-| [`js/same-llm-adversarial.js`][impl] | Implementation (515 lines, 4 classes) |
-| [`assistant/tests/same-llm-adversarial.test.js`][tests] | Test suite (41 tests across 8 categories) |
+| Skill | Purpose |
+| ----- | ------- |
+| [think-twice](https://github.com/bordenet/superpowers-plus/blob/main/skills/think-twice/skill.md) | Break through blockers via sub-agent consultation |
+| [perplexity-research](https://github.com/bordenet/superpowers-plus/blob/main/skills/perplexity-research/skill.md) | Cross-LLM verification via Perplexity.ai API |
+| [experimental-self-prompting](https://github.com/bordenet/superpowers-plus/blob/main/skills/experimental/experimental-self-prompting/SKILL.md) | Write prompts, answer yourself (experimental) |
 
-[impl]: https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/js/same-llm-adversarial.js
-[tests]: https://github.com/bordenet/genesis/blob/main/genesis/examples/hello-world/assistant/tests/same-llm-adversarial.test.js
+The original JavaScript implementation was retired in favor of these more flexible skill-based approaches.
 
 ### Environment Variables
 ```bash
@@ -239,9 +289,18 @@ npm test -- same-llm-adversarial.test.js
 | [BACKGROUND.md][bg] | Genesis ecosystem history and metrics |
 | [CODE-CONSISTENCY-MANDATE.md][ccm] | File categorization and consistency rules |
 | [one-pager][op] | Reference implementation (41/41 tests passing) |
+| **Derived Skills** | |
+| [think-twice][tt] | Break through blockers via sub-agent consultation |
+| [perplexity-research][pr] | Cross-LLM verification via Perplexity.ai API |
+| [experimental-self-prompting][esp] | Write prompts, answer yourself (experimental) |
+| [Skill comparison][cmp] | When to use each adversarial skill |
 
 [start]: https://github.com/bordenet/genesis/blob/main/genesis/START-HERE.md
 [checklist]: https://github.com/bordenet/genesis/blob/main/genesis/CHECKLIST.md
 [bg]: https://github.com/bordenet/genesis/blob/main/BACKGROUND.md
 [ccm]: https://github.com/bordenet/genesis/blob/main/genesis/CODE-CONSISTENCY-MANDATE.md
 [op]: https://github.com/bordenet/one-pager
+[tt]: https://github.com/bordenet/superpowers-plus/blob/main/skills/think-twice/skill.md
+[pr]: https://github.com/bordenet/superpowers-plus/blob/main/skills/perplexity-research/skill.md
+[esp]: https://github.com/bordenet/superpowers-plus/blob/main/skills/experimental/experimental-self-prompting/SKILL.md
+[cmp]: https://github.com/bordenet/superpowers-plus/blob/main/docs/SKILL_COMPARISON_self-prompting_vs_think-twice.md

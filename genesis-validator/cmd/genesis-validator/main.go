@@ -122,6 +122,16 @@ func printDetailedResults(result *validator.ValidationResult) {
 		fmt.Println()
 	}
 
+	if len(result.BrokenLinks) > 0 {
+		fmt.Println("🔗 Broken Links:")
+		for _, link := range result.BrokenLinks {
+			fmt.Printf("  ❌ %s:%d\n", link.SourceFile, link.Line)
+			fmt.Printf("     Link: [%s](%s)\n", link.LinkText, link.LinkURL)
+			fmt.Printf("     Reason: %s\n", link.Reason)
+		}
+		fmt.Println()
+	}
+
 	if len(result.Inconsistencies) > 0 {
 		fmt.Println("📋 Inconsistencies:")
 		for i, inc := range result.Inconsistencies {

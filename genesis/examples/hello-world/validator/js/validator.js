@@ -544,12 +544,17 @@ export function scoreCompleteness(text) {
  */
 export function validateOnePager(text) {
   if (!text || typeof text !== 'string') {
+    const emptyResult = { score: 0, maxScore: 30, issues: ['No content to validate'], strengths: [] };
     return {
       totalScore: 0,
-      problemClarity: { score: 0, maxScore: 30, issues: ['No content to validate'], strengths: [] },
-      solution: { score: 0, maxScore: 25, issues: ['No content to validate'], strengths: [] },
-      scope: { score: 0, maxScore: 25, issues: ['No content to validate'], strengths: [] },
-      completeness: { score: 0, maxScore: 20, issues: ['No content to validate'], strengths: [] }
+      problemClarity: emptyResult,
+      solution: { ...emptyResult, maxScore: 25 },
+      scope: { ...emptyResult, maxScore: 25 },
+      completeness: { ...emptyResult, maxScore: 20 },
+      // Backward compatibility aliases for project-view.js
+      structure: emptyResult,
+      clarity: { ...emptyResult, maxScore: 25 },
+      businessValue: { ...emptyResult, maxScore: 25 }
     };
   }
 
@@ -581,6 +586,11 @@ export function validateOnePager(text) {
     solution,
     scope,
     completeness,
+    // Backward compatibility aliases for project-view.js
+    // These map generic names to the one-pager specific dimensions
+    structure: problemClarity,
+    clarity: solution,
+    businessValue: scope,
     // CUSTOMIZE: Include slopDetection in return for transparency
     slopDetection: {
       ...slopPenalty,
@@ -591,15 +601,27 @@ export function validateOnePager(text) {
 }
 
 // ============================================================================
-// UI Compatibility Exports
+// Backward Compatibility Aliases
 // ============================================================================
 
 /**
- * Alias for validateOnePager - used by assistant UI for consistent API
- * CUSTOMIZE: Change validateOnePager to your document-specific validator
+ * Alias for validateOnePager - used by shared UI components
  */
 export function validateDocument(text) {
   return validateOnePager(text);
+}
+
+/**
+ * Get letter grade from numeric score
+ * @param {number} score - Numeric score 0-100
+ * @returns {string} Letter grade
+ */
+export function getGrade(score) {
+  if (score >= 90) return 'A';
+  if (score >= 80) return 'B';
+  if (score >= 70) return 'C';
+  if (score >= 60) return 'D';
+  return 'F';
 }
 
 /**

@@ -137,8 +137,8 @@ Confirm items 1-5 complete before handoff.
 
 ## Related Docs
 
-- [ADVERSARIAL-WORKFLOW-PATTERN.md](../docs/ADVERSARIAL-WORKFLOW-PATTERN.md) - 7-step workflow
-- [UX-PATTERNS.md](../docs/UX-PATTERNS.md) - 8 critical UX patterns
+- [ADVERSARIAL-TESTING-GUIDE.md](ADVERSARIAL-TESTING-GUIDE.md) - Cross-LLM adversarial testing
+- [UX-PATTERNS.md](docs/UX-PATTERNS.md) - 8 critical UX patterns
 
 ---
 

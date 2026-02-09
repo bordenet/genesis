@@ -18,17 +18,18 @@ The `hello-world/` directory is the **canonical reference for shared code**:
 ```
 hello-world/
 ├── index.html              # Main app
-├── js/                     # Source files (source of truth)
+├── shared/js/              # Source files (source of truth)
 │   ├── app.js              # Entry point
 │   ├── workflow.js         # Phase logic
 │   ├── storage.js          # IndexedDB
 │   ├── router.js           # Client-side routing
-│   ├── error-handler.js    # Error display (MUST_MATCH)
-│   └── same-llm-adversarial.js  # LLM adversarial mode (MUST_MATCH)
+│   └── slop-detection.js   # AI slop detection (MUST_MATCH)
 ├── assistant/
-│   ├── js/ -> ../js/       # Symlinks to js/ for test imports
-│   ├── css/ -> ../css/     # Symlinks to css/
+│   ├── js/core/ -> ../../shared/js/core/  # Symlinks to shared
 │   └── tests/              # Unit tests
+├── validator/
+│   ├── js/                 # Validator-specific code
+│   └── tests/              # Validator tests
 ├── e2e/                    # E2E tests
 ├── css/styles.css
 ├── package.json
@@ -36,7 +37,7 @@ hello-world/
 └── playwright.config.js
 ```
 
-**Key principle**: Shared infrastructure files (error-handler.js, same-llm-adversarial.js, etc.) must be byte-for-byte identical across all projects. See `CODE-CONSISTENCY-MANDATE.md`.
+**Key principle**: Shared infrastructure files (slop-detection.js, core/*.js, etc.) must be byte-for-byte identical across all projects. See `CODE-CONSISTENCY-MANDATE.md`.
 
 ---
 

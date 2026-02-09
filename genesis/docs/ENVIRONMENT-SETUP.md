@@ -275,7 +275,7 @@ Don't put secrets in workflow files:
 
 ## Related Documentation
 
-- [Development Guide](../templates/docs/development/DEVELOPMENT-template.md)
-- [Deployment Guide](../templates/docs/deployment/DEPLOYMENT-template.md)
-- [Security Best Practices](SECURITY-template.md)
+- [02-QUICK-START.md](../02-QUICK-START.md) - Development quick start guide
+- [04-DEPLOYMENT-GUIDE.md](../04-DEPLOYMENT-GUIDE.md) - Deployment guide
+- [05-QUALITY-STANDARDS.md](../05-QUALITY-STANDARDS.md) - Quality and security standards
 

@@ -186,7 +186,6 @@ const AI_MODE = localStorage.getItem('AI_MODE') || 'mock';
 
 ### Reference
 - See: `01-AI-INSTRUCTIONS.md` (STEP 4: Never Use Node.js Globals Directly)
-- See: `templates/web-app/js/same-llm-adversarial-template.js` (getEnvVar pattern)
 
 ---
 
