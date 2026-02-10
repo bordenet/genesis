@@ -14,13 +14,13 @@ Ecosystem of AI-powered document assistants and validators using a paired archit
 
 ## Why "genesis"?
 
-Named for the [Genesis Planet](https://memory-alpha.fandom.com/wiki/Genesis_(planet)) in *Star Trek II: The Wrath of Khan*—the life-creating world born from the Mutara Nebula where Spock's torpedo lands. No biblical reference intended; pure sci-fi homage to rapid, emergent creation.
+Named for the [Genesis Planet](https://memory-alpha.fandom.com/wiki/Genesis_(planet)) in *Star Trek II: The Wrath of Khan*, the life-creating world born from the Mutara Nebula where Spock's torpedo lands. No biblical reference intended; pure sci-fi homage to rapid, emergent creation.
 
 ---
 
 ## About This Project
 
-Genesis started as an experiment: how deterministic could I make AI-assisted development? The answer: very—but traditional architecture wins. A useful exercise that revealed how much mutation even the best AI coding agents introduce. See [BACKGROUND.md](BACKGROUND.md) for the full story.
+Genesis started as an experiment: how deterministic could I make AI-assisted development? The answer: very, but traditional architecture wins. A useful exercise that revealed how much mutation even the best AI coding agents introduce. See [BACKGROUND.md](BACKGROUND.md) for the full story.
 
 ---
 
@@ -41,14 +41,14 @@ Genesis was an experiment in deterministic AI-assisted development. The conclusi
 
 ### Core Principles That Work
 
-- **Architecture first, AI second** — Define structure upfront, let AI handle implementation details
-- **Speed vs. quality trade-offs are real** — Rapid prototyping via AI, human oversight on reliability and security
-- **Context engineering matters** — Dedicated files (AGENTS.md, structured prompts) guide AI behavior better than long instructions
-- **Tests as guardrails** — Comprehensive coverage catches regressions without mandating line-by-line review
+- **Architecture first, AI second:** Define structure upfront, let AI handle implementation details
+- **Speed vs. quality trade-offs are real:** Rapid prototyping via AI, human oversight on reliability and security
+- **Context engineering matters:** Dedicated files (AGENTS.md, structured prompts) guide AI behavior better than long instructions
+- **Tests as guardrails:** Comprehensive coverage catches regressions without mandating line-by-line review
 
 ### What Genesis Taught Me
 
-Genesis pushed conformity tooling to its limits: 1,600+ commits, 9 repositories, byte-for-byte diff tools, self-reinforcing AI instructions. It worked—but the maintenance burden compounded. Every improvement required propagation to 9 derived projects.
+Genesis pushed conformity tooling to its limits: 1,600+ commits, 9 repositories, byte-for-byte diff tools, self-reinforcing AI instructions. It worked, but the maintenance burden compounded. Every improvement required propagation to 9 derived projects.
 
 **The better approach:** A unified codebase with plugin architecture. Shared infrastructure, isolated data, one test suite. This is [DocForgeAI](https://github.com/bordenet/docforge-ai).
 
@@ -263,9 +263,9 @@ See [`project-diff/README.md`](project-diff/README.md) for full documentation.
 
 Industry context and research informing this project's development philosophy:
 
-- [International AI Safety Report 2026: Extended Summary for Policymakers](https://internationalaisafetyreport.org/publication/2026-report-extended-summary-policymakers) — Comprehensive analysis of AI capabilities, risks, and governance
-- [Claude Opus 4.6 Announcement](https://www.anthropic.com/news/claude-opus-4-6) — Anthropic's latest model capabilities (Feb 2026)
-- [State of Health AI 2026](https://www.bvp.com/atlas/state-of-health-ai-2026) — Bessemer Venture Partners on AI investment trends (55% of health tech funding now AI-focused)
+- [International AI Safety Report 2026: Extended Summary for Policymakers](https://internationalaisafetyreport.org/publication/2026-report-extended-summary-policymakers): Comprehensive analysis of AI capabilities, risks, and governance
+- [Claude Opus 4.6 Announcement](https://www.anthropic.com/news/claude-opus-4-6): Anthropic's latest model capabilities (Feb 2026)
+- [State of Health AI 2026](https://www.bvp.com/atlas/state-of-health-ai-2026): Bessemer Venture Partners on AI investment trends (55% of health tech funding now AI-focused)
 
 ---
 
