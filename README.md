@@ -12,6 +12,12 @@ Ecosystem of AI-powered document assistants and validators using a paired archit
 
 ---
 
+## Why "genesis"?
+
+Named for the [Genesis Planet](https://memory-alpha.fandom.com/wiki/Genesis_(planet)) in *Star Trek II: The Wrath of Khan*—the life-creating world born from the Mutara Nebula where Spock's torpedo lands. No biblical reference intended; pure sci-fi homage to rapid, emergent creation.
+
+---
+
 ## About This Project
 
 Genesis started as an experiment: how deterministic could I make AI-assisted development? The answer: very—but traditional architecture wins. A useful exercise that revealed how much mutation even the best AI coding agents introduce. See [BACKGROUND.md](BACKGROUND.md) for the full story.
