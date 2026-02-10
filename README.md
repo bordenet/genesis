@@ -14,7 +14,7 @@ Ecosystem of AI-powered document assistants and validators using a paired archit
 
 ## About This Project
 
-I started Genesis as a personal challenge to see how deterministic I could make Claude Code. By my third clone of the same implementation patterns, I'd seen every variation the LLM could produce.
+I started Genesis as a personal challenge to see how deterministic I could make Claude Code. By my third clone of the same implementation patterns, I'd watched the AI coding assistant make what felt like every conceivable mutation—even when it had multiple identical samples to copy from.
 
 So I experimented:
 - Spec-driven development with strict style guides and linting
