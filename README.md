@@ -14,7 +14,7 @@ Ecosystem of AI-powered document assistants and validators using a paired archit
 
 ## About This Project
 
-Genesis started as an experiment: how deterministic could I make AI-assisted development? The answer: very—but not worth the effort. See [BACKGROUND.md](BACKGROUND.md) for the full story.
+Genesis started as an experiment: how deterministic could I make AI-assisted development? The answer: very—but traditional architecture wins. A useful exercise that revealed how much mutation even the best AI coding agents introduce. See [BACKGROUND.md](BACKGROUND.md) for the full story.
 
 ---
 
