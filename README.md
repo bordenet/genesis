@@ -20,7 +20,7 @@ Named for the [Genesis Planet](https://memory-alpha.fandom.com/wiki/Genesis_(pla
 
 ## About This Project
 
-Genesis started as an experiment: how deterministic could I make AI-assisted development? The answer: very, but traditional architecture wins. A useful exercise that revealed how much mutation even the best AI coding agents introduce. See [BACKGROUND.md](BACKGROUND.md) for the full story.
+Genesis started as an experiment: how deterministic could I make AI-assisted development? The answer: not very! I was fighting nature at every turn. Traditional architecture with AI-generated code on a short leash wins. A useful exercise that revealed how much mutation even the best AI coding agents introduce. See [BACKGROUND.md](BACKGROUND.md) for the full story.
 
 ---
 
