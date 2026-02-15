@@ -1,3 +1,18 @@
+# 🚨 REPO ARCHIVED - MOVED TO DOCFORGE-AI 🚨
+
+**This repository is read-only and no longer maintained.**
+
+- **Why?** genesis was a prototype for document generation apps. It has been fully replaced by the production-ready, actively developed [docforge-ai](https://github.com/bordenet/docforge-ai).
+- **Where to go now?** Fork, star, contribute, or use code from https://github.com/bordenet/docforge-ai (most recent commits, features, and job-description tooling).
+- **Migration details:** All core logic, improvements, and new features (e.g., job-description fortification) are in docforge-ai. Historical genesis code remains here for reference.
+- Last updated: 2026-02-15.
+
+---
+
+[Original genesis README content below...]
+
+---
+
 # Genesis Tools
 
 Ecosystem of AI-powered document assistants and validators using a paired architecture.
@@ -272,3 +287,7 @@ Industry context and research informing this project's development philosophy:
 ## License
 
 MIT License - See [LICENSE](LICENSE) file for details.
+
+---
+
+*For historical context only. Active development: https://github.com/bordenet/docforge-ai*
