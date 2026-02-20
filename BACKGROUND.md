@@ -1,5 +1,7 @@
 # Genesis: Background
 
+> **📦 Looking for the unified app?** Genesis tools have been consolidated into [**DocForge AI**](https://github.com/bordenet/docforge-ai) — a single plugin-based platform for all document types. Try it at [bordenet.github.io/docforge-ai](https://bordenet.github.io/docforge-ai/assistant/).
+
 ## The Experiment
 
 Genesis started in November 2025 as an experiment: how deterministic could I make AI-assisted development?
@@ -420,6 +422,7 @@ The effort exceeds the benefit for a personal project. Enterprise deployment (mo
 
 The tools remain useful. The experiment was educational. But I wouldn't do it this way again.
 
+For the 2026 industry data that informed these conclusions, see [The Evolution of AI-First Thinking](https://github.com/bordenet/Engineering_Culture/blob/main/AIEngineering/The_Evolution_of_AI-First_Thinking.md)—a companion piece that covers what the research now shows about AI-assisted development and how that shaped the approach documented here.
 For the 2026 industry data that informed these conclusions, see [The Evolution of AI-First Thinking](https://github.com/bordenet/Engineering_Culture/blob/main/AIEngineering/The_Evolution_of_AI-First_Thinking.md), a companion piece that covers what the research now shows about AI-assisted development and how that shaped the approach documented here.
 
 ---

@@ -1,3 +1,18 @@
+# 🚨 REPO ARCHIVED - MOVED TO DOCFORGE-AI 🚨
+
+**This repository is read-only and no longer maintained.**
+
+- **Why?** genesis was a prototype for document generation apps. It has been fully replaced by the production-ready, actively developed [docforge-ai](https://github.com/bordenet/docforge-ai).
+- **Where to go now?** Fork, star, contribute, or use code from https://github.com/bordenet/docforge-ai (most recent commits, features, and job-description tooling).
+- **Migration details:** All core logic, improvements, and new features (e.g., job-description fortification) are in docforge-ai. Historical genesis code remains here for reference.
+- Last updated: 2026-02-15.
+
+---
+
+[Original genesis README content below...]
+
+---
+
 # Genesis Tools
 
 Ecosystem of AI-powered document assistants and validators using a paired architecture.
@@ -20,7 +35,42 @@ Named for the [Genesis Planet](https://memory-alpha.fandom.com/wiki/Genesis_(pla
 
 ## About This Project
 
-Genesis started as an experiment: how deterministic could I make AI-assisted development? The answer: very, but traditional architecture wins. A useful exercise that revealed how much mutation even the best AI coding agents introduce. See [BACKGROUND.md](BACKGROUND.md) for the full story.
+Genesis started as an experiment: how deterministic could I make AI-assisted development? The answer: not very! I was fighting nature at every turn. Traditional architecture with AI-generated code on a short leash wins. A useful exercise that revealed how much mutation even the best AI coding agents introduce. See [BACKGROUND.md](BACKGROUND.md) for the full story.
+
+---
+
+## AI-First Development: Lessons Learned
+
+Genesis was an experiment in deterministic AI-assisted development. The conclusion: **architecture-first design with AI iteration beats conformity tooling**.
+
+### What the Industry Data Shows (2026)
+
+| Metric | Finding | Source |
+|--------|---------|--------|
+| Developer productivity | 26% boost from AI coding assistants | [IT Revolution][1] |
+| PR cycle speed | 20-24% faster on routine tasks | [dev.to][2] |
+| Complex logic | 10-19% slower due to debugging "almost-right" code | [dev.to][2] |
+| Prototype velocity | 16-26% boost for MVPs (3-4 week cycles) | [Coaio][3] |
+| AI adoption | 60%+ of companies using AI across multiple functions | [LinkedIn][4] |
+| AI agent focus time | Doubling every 7 months (METR data) | [LinkedIn][4] |
+
+### Core Principles That Work
+
+- **Architecture first, AI second:** Define structure upfront, let AI handle implementation details
+- **Speed vs. quality trade-offs are real:** Rapid prototyping via AI, human oversight on reliability and security
+- **Context engineering matters:** Dedicated files (AGENTS.md, structured prompts) guide AI behavior better than long instructions
+- **Tests as guardrails:** Comprehensive coverage catches regressions without mandating line-by-line review
+
+### What Genesis Taught Me
+
+Genesis pushed conformity tooling to its limits: 1,600+ commits, 9 repositories, byte-for-byte diff tools, self-reinforcing AI instructions. It worked, but the maintenance burden compounded. Every improvement required propagation to 9 derived projects.
+
+**The better approach:** A unified codebase with plugin architecture. Shared infrastructure, isolated data, one test suite. This is [DocForgeAI](https://github.com/bordenet/docforge-ai).
+
+[1]: https://itrevolution.com/articles/new-research-reveals-ai-coding-assistants-boost-developer-productivity-by-26-what-it-leaders-need-to-know/
+[2]: https://dev.to/austin_welsh/ai-assisted-development-in-2026-best-practices-for-the-modern-developer-3jb0
+[3]: https://coaio.com/ai-revolutionizing-software-development/
+[4]: https://www.linkedin.com/pulse/5-ai-predictions-executives-cant-ignore-2026-dmitry-sverdlik-igqlf
 
 ---
 
@@ -263,6 +313,9 @@ See [`project-diff/README.md`](project-diff/README.md) for full documentation.
 
 Industry context and research informing this project's development philosophy:
 
+- [International AI Safety Report 2026: Extended Summary for Policymakers](https://internationalaisafetyreport.org/publication/2026-report-extended-summary-policymakers) — Comprehensive analysis of AI capabilities, risks, and governance
+- [Claude Opus 4.6 Announcement](https://www.anthropic.com/news/claude-opus-4-6) — Anthropic's latest model capabilities (Feb 2026)
+- [State of Health AI 2026](https://www.bvp.com/atlas/state-of-health-ai-2026) — Bessemer Venture Partners on AI investment trends (55% of health tech funding now AI-focused)
 - [International AI Safety Report 2026: Extended Summary for Policymakers](https://internationalaisafetyreport.org/publication/2026-report-extended-summary-policymakers): Comprehensive analysis of AI capabilities, risks, and governance
 - [Claude Opus 4.6 Announcement](https://www.anthropic.com/news/claude-opus-4-6): Anthropic's latest model capabilities (Feb 2026)
 - [State of Health AI 2026](https://www.bvp.com/atlas/state-of-health-ai-2026): Bessemer Venture Partners on AI investment trends (55% of health tech funding now AI-focused)
@@ -272,3 +325,7 @@ Industry context and research informing this project's development philosophy:
 ## License
 
 MIT License - See [LICENSE](LICENSE) file for details.
+
+---
+
+*For historical context only. Active development: https://github.com/bordenet/docforge-ai*

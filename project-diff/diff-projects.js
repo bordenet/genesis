@@ -2627,6 +2627,89 @@ function analyzeFitAndFinish(genesisToolsDir) {
 }
 
 /**
+ * Analyze package.json script consistency across projects.
+ * Detects when deploy-web.sh calls npm scripts that don't exist in package.json.
+ *
+ * LESSON LEARNED (2026-02-12): The deploy-web.sh script in architecture-decision-record
+ * called `npm run build` but package.json had no "build" script, causing deploy failures.
+ * This analyzer catches such mismatches.
+ */
+function analyzePackageScriptsConsistency(genesisToolsDir) {
+  const results = {
+    summary: {
+      projectsChecked: 0,
+      projectsWithIssues: 0,
+      totalMissingScripts: 0
+    },
+    projects: {}
+  };
+
+  for (const project of PROJECTS) {
+    const projectPath = path.join(genesisToolsDir, project);
+    const packageJsonPath = path.join(projectPath, 'package.json');
+    const deployScriptPath = path.join(projectPath, 'scripts', 'deploy-web.sh');
+    const projectIssues = [];
+
+    results.summary.projectsChecked++;
+
+    // Read package.json scripts
+    let packageScripts = {};
+    if (fs.existsSync(packageJsonPath)) {
+      try {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+        packageScripts = packageJson.scripts || {};
+      } catch {
+        projectIssues.push({
+          type: 'invalid_package_json',
+          file: 'package.json',
+          message: 'Failed to parse package.json'
+        });
+      }
+    }
+
+    // Read deploy-web.sh and find all `npm run <script>` calls
+    if (fs.existsSync(deployScriptPath)) {
+      try {
+        const deployContent = fs.readFileSync(deployScriptPath, 'utf-8');
+
+        // Match patterns like: npm run build, npm run lint, npm run test:coverage
+        // Also match quoted versions: npm run "build"
+        const npmRunRegex = /npm\s+run\s+["']?([a-zA-Z0-9:_-]+)["']?/g;
+        let match;
+        const calledScripts = new Set();
+
+        while ((match = npmRunRegex.exec(deployContent)) !== null) {
+          calledScripts.add(match[1]);
+        }
+
+        // Check if each called script exists in package.json
+        for (const script of calledScripts) {
+          if (!packageScripts[script]) {
+            projectIssues.push({
+              type: 'missing_npm_script',
+              file: 'scripts/deploy-web.sh',
+              script,
+              message: `Deploy script calls "npm run ${script}" but package.json has no "${script}" script`
+            });
+            results.summary.totalMissingScripts++;
+          }
+        }
+      } catch {
+        // Skip files that can't be read
+      }
+    }
+
+    // Record issues for this project
+    if (projectIssues.length > 0) {
+      results.projects[project] = projectIssues;
+      results.summary.projectsWithIssues++;
+    }
+  }
+
+  return results;
+}
+
+/**
  * Main diff function
  */
 function diffProjects(genesisToolsDir) {
@@ -2783,6 +2866,9 @@ function diffProjects(genesisToolsDir) {
   // Analyze API contracts (validateDocument returns what project-view.js expects)
   results.apiContracts = analyzeAPIContracts(genesisToolsDir);
 
+  // Analyze package.json script consistency (deploy-web.sh calls scripts that exist)
+  results.packageScriptsConsistency = analyzePackageScriptsConsistency(genesisToolsDir);
+
   return results;
 }
 
@@ -2842,6 +2928,9 @@ function formatConsoleReport(results) {
   }
   if (results.apiContracts && results.apiContracts.summary.totalMissingProperties > 0) {
     lines.push(`  ${red('📜')} API contract violations: ${results.apiContracts.summary.totalMissingProperties} missing properties in ${results.apiContracts.summary.projectsWithIssues} projects`);
+  }
+  if (results.packageScriptsConsistency && results.packageScriptsConsistency.summary.totalMissingScripts > 0) {
+    lines.push(`  ${red('📦')} Missing npm scripts: ${results.packageScriptsConsistency.summary.totalMissingScripts} in ${results.packageScriptsConsistency.summary.projectsWithIssues} projects`);
   }
   if (results.unusedPatterns && results.unusedPatterns.length > 0) {
     lines.push(`  ${orange('⚠️')} Unused INTENTIONAL_DIFF patterns: ${results.unusedPatterns.length}`);
@@ -3311,6 +3400,29 @@ function formatConsoleReport(results) {
     }
   }
 
+  // PACKAGE SCRIPTS CONSISTENCY: deploy-web.sh calls scripts that don't exist in package.json
+  if (results.packageScriptsConsistency && results.packageScriptsConsistency.summary.totalMissingScripts > 0) {
+    const rust = (s) => `\x1b[38;5;208m${s}\x1b[0m`;
+    lines.push(rust(bold('📦 MISSING NPM SCRIPTS (deploy-web.sh calls non-existent scripts)')));
+    lines.push(rust('─'.repeat(60)));
+    lines.push('');
+    lines.push('  Deploy script calls npm scripts that don\'t exist in package.json.');
+    lines.push('  Either add the missing scripts or fix deploy-web.sh to not call them.');
+    lines.push('');
+
+    for (const [project, issues] of Object.entries(results.packageScriptsConsistency.projects)) {
+      lines.push(rust(`  ${project}:`));
+      for (const issue of issues) {
+        if (issue.type === 'missing_npm_script') {
+          lines.push(red(`    ✗ "${issue.script}" - ${issue.message}`));
+        } else {
+          lines.push(red(`    ✗ ${issue.message}`));
+        }
+      }
+      lines.push('');
+    }
+  }
+
   // Final verdict
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
   const symlinkCount = results.summary.symlinkIssues || 0;
@@ -3328,8 +3440,9 @@ function formatConsoleReport(results) {
   const architectureIssues = results.validatorArchitecture?.summary?.totalIssues || 0;
   const fitAndFinishIssues = results.fitAndFinish?.summary?.totalIssues || 0;
   const apiContractIssues = results.apiContracts?.summary?.totalMissingProperties || 0;
+  const packageScriptIssues = results.packageScriptsConsistency?.summary?.totalMissingScripts || 0;
 
-  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && canonicalPatternViolations === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0 && architectureIssues === 0 && fitAndFinishIssues === 0 && apiContractIssues === 0;
+  const allGreen = results.summary.divergent === 0 && symlinkCount === 0 && coverageGaps === 0 && stubValidators === 0 && internalIssues === 0 && bleedOverIssues === 0 && signatureMismatches === 0 && canonicalPatternViolations === 0 && urlIssues === 0 && scoringIssues === 0 && templateIssues === 0 && namingIssues === 0 && scoringAlignmentIssues === 0 && architectureIssues === 0 && fitAndFinishIssues === 0 && apiContractIssues === 0 && packageScriptIssues === 0;
 
   if (allGreen) {
     lines.push(green(bold('  ✓ ALL MUST-MATCH FILES ARE IDENTICAL')));
@@ -3347,6 +3460,7 @@ function formatConsoleReport(results) {
     lines.push(green(bold('  ✓ VALIDATOR ARCHITECTURE CONSISTENT (detect→score→validate)')));
     lines.push(green(bold('  ✓ FIT-AND-FINISH CONSISTENT (nav, footer, import)')));
     lines.push(green(bold('  ✓ API CONTRACTS VALID (validateDocument returns expected properties)')));
+    lines.push(green(bold('  ✓ PACKAGE.JSON SCRIPTS VALID (deploy scripts call existing scripts)')));
   } else {
     if (results.summary.divergent > 0) {
       lines.push(red(bold(`  ✗ ${results.summary.divergent} FILES HAVE DIVERGED - FIX REQUIRED`)));
@@ -3396,6 +3510,9 @@ function formatConsoleReport(results) {
     if (apiContractIssues > 0) {
       lines.push(red(bold(`  📜 ${apiContractIssues} API CONTRACT VIOLATIONS - FIX validateDocument() RETURN VALUES`)));
     }
+    if (packageScriptIssues > 0) {
+      lines.push(red(bold(`  📦 ${packageScriptIssues} MISSING NPM SCRIPTS - FIX deploy-web.sh OR package.json`)));
+    }
   }
   lines.push(bold('═══════════════════════════════════════════════════════════════'));
   lines.push('');
@@ -3434,6 +3551,7 @@ function main() {
   const scoringAlignmentCount = results.validatorScoringAlignment?.summary?.totalIssues || 0;
   const fitAndFinishCount = results.fitAndFinish?.summary?.totalIssues || 0;
   const apiContractCount = results.apiContracts?.summary?.totalMissingProperties || 0;
+  const packageScriptCount = results.packageScriptsConsistency?.summary?.totalMissingScripts || 0;
 
   if (ciMode && (
     results.summary.divergent > 0 ||
@@ -3448,7 +3566,8 @@ function main() {
     namingIssuesCount > 0 ||
     scoringAlignmentCount > 0 ||
     fitAndFinishCount > 0 ||
-    apiContractCount > 0
+    apiContractCount > 0 ||
+    packageScriptCount > 0
   )) {
     process.exit(1);
   }
