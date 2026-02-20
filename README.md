@@ -91,14 +91,14 @@ Genesis was an experiment in deterministic AI-assisted development. The conclusi
 
 ### Core Principles That Work
 
-- **Architecture first, AI second** — Define structure upfront, let AI handle implementation details
-- **Speed vs. quality trade-offs are real** — Rapid prototyping via AI, human oversight on reliability and security
-- **Context engineering matters** — Dedicated files (AGENTS.md, structured prompts) guide AI behavior better than long instructions
-- **Tests as guardrails** — Comprehensive coverage catches regressions without mandating line-by-line review
+- **Architecture first, AI second:** Define structure upfront, let AI handle implementation details
+- **Speed vs. quality trade-offs are real:** Rapid prototyping via AI, human oversight on reliability and security
+- **Context engineering matters:** Dedicated files (AGENTS.md, structured prompts) guide AI behavior better than long instructions
+- **Tests as guardrails:** Comprehensive coverage catches regressions without mandating line-by-line review
 
 ### What Genesis Taught Me
 
-Genesis pushed conformity tooling to its limits: 1,600+ commits, 9 repositories, byte-for-byte diff tools, self-reinforcing AI instructions. It worked—but the maintenance burden compounded. Every improvement required propagation to 9 derived projects.
+Genesis pushed conformity tooling to its limits: 1,600+ commits, 9 repositories, byte-for-byte diff tools, self-reinforcing AI instructions. It worked, but the maintenance burden compounded. Every improvement required propagation to 9 derived projects.
 
 **The better approach:** A unified codebase with plugin architecture. Shared infrastructure, isolated data, one test suite. This is [DocForgeAI](https://github.com/bordenet/docforge-ai).
 
